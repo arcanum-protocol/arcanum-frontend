@@ -4,12 +4,21 @@ dependencies:
   connectkit:
     specifier: ^1.4.0
     version: 1.4.0(@babel/core@7.22.9)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)(viem@1.2.14)(wagmi@1.3.8)
+  ethers:
+    specifier: ^6.6.3
+    version: 6.6.3
   react:
     specifier: ^18.2.0
     version: 18.2.0
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
+  react-router-dom:
+    specifier: ^6.14.1
+    version: 6.14.1(react-dom@18.2.0)(react@18.2.0)
+  use-debounce:
+    specifier: ^9.0.4
+    version: 9.0.4(react@18.2.0)
   viem:
     specifier: ^1.2.14
     version: 1.2.14(typescript@5.1.6)
@@ -52,6 +61,10 @@ packages:
 
   /@adraffy/ens-normalize@1.9.0:
     resolution: {integrity: sha512-iowxq3U30sghZotgl4s/oJRci6WPBfNO5YYgk2cIOMCHr3LeGPcsZjCEr+33Q4N+oV3OABDAtA+pyvWjbvBifQ==}
+    dev: false
+
+  /@adraffy/ens-normalize@1.9.2:
+    resolution: {integrity: sha512-0h+FrQDqe2Wn+IIGFkTCd4aAwTJ+7834Ek1COohCyV26AXhwQ7WQaz+4F/nLOeVl/3BtWHOHLPsq46V8YB46Eg==}
     dev: false
 
   /@ampproject/remapping@2.2.1:
@@ -737,6 +750,10 @@ packages:
       '@noble/hashes': 1.3.1
     dev: false
 
+  /@noble/hashes@1.1.2:
+    resolution: {integrity: sha512-KYRCASVTv6aeUi1tsF8/vpyR7zpfs3FUzy2Jqm+MU+LmUKhQ0y2FpfwqkCcxSg2ua4GALJd8k2R76WxwZGbQpA==}
+    dev: false
+
   /@noble/hashes@1.3.0:
     resolution: {integrity: sha512-ilHEACi9DwqJB0pw7kv+Apvh50jiiSyR/cQ3y4W7lOR5mhvn/50FLUfsnfJz0BDZtl/RR16kXvptiv6q1msYZg==}
     dev: false
@@ -744,6 +761,10 @@ packages:
   /@noble/hashes@1.3.1:
     resolution: {integrity: sha512-EbqwksQwz9xDRGfDST86whPBgM65E0OH/pCgqW0GBVzO22bNE+NuIbeTb714+IfSjU3aRk47EUvXIb5bTsenKA==}
     engines: {node: '>= 16'}
+    dev: false
+
+  /@noble/secp256k1@1.7.1:
+    resolution: {integrity: sha512-hOUk6AyBFmqVrv7k5WAw/LpszxVbj9gGN4JRkIX52fdFAj1UA61KXmZDvqVEm+pOyec3+fIeZB02LYa/pWOArw==}
     dev: false
 
   /@nodelib/fs.scandir@2.1.5:
@@ -766,6 +787,11 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
     dev: true
+
+  /@remix-run/router@1.7.1:
+    resolution: {integrity: sha512-bgVQM4ZJ2u2CM8k1ey70o1ePFXsEzYVZoWghh6WjM8p59jQ7HxzbHW4SbnWFG7V9ig9chLawQxDTZ3xzOF8MkQ==}
+    engines: {node: '>=14'}
+    dev: false
 
   /@safe-global/safe-apps-provider@0.17.1(typescript@5.1.6):
     resolution: {integrity: sha512-lYfRqrbbK1aKU1/UGkYWc/X7PgySYcumXKc5FB2uuwAs2Ghj8uETuW5BrwPqyjBknRxutFbTv+gth/JzjxAhdQ==}
@@ -809,14 +835,14 @@ packages:
     resolution: {integrity: sha512-bcKpo1oj54hGholplGLpqPHRbIsnbixFtc06nwuNM5/dwSXOq/AAYoIBRsBmnZJSdfeNW5rnff7NTAz3ZCqR9Q==}
     dependencies:
       '@noble/curves': 1.0.0
-      '@noble/hashes': 1.3.0
+      '@noble/hashes': 1.3.1
       '@scure/base': 1.1.1
     dev: false
 
   /@scure/bip39@1.2.0:
     resolution: {integrity: sha512-SX/uKq52cuxm4YFXWFaVByaSHJh2w3BnokVSeUJVCv6K7WulT9u2BuNRBhuFl8vAuYnzx9bEu9WgpcNYTrYieg==}
     dependencies:
-      '@noble/hashes': 1.3.0
+      '@noble/hashes': 1.3.1
       '@scure/base': 1.1.1
     dev: false
 
@@ -1014,7 +1040,7 @@ packages:
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 18.15.13
     dev: false
 
   /@types/debug@4.1.8:
@@ -1029,6 +1055,10 @@ packages:
 
   /@types/node@12.20.55:
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
+    dev: false
+
+  /@types/node@18.15.13:
+    resolution: {integrity: sha512-N+0kuo9KgrUQ1Sn/ifDXsvg0TTleP7rIy4zOBGECxAljqvqfqpTfzx0Q1NUedOixRMBfe2Whhb056a42cWs26Q==}
     dev: false
 
   /@types/prop-types@15.7.5:
@@ -1060,7 +1090,7 @@ packages:
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 12.20.55
+      '@types/node': 18.15.13
     dev: false
 
   /@vitejs/plugin-react@4.0.1(vite@4.4.0):
@@ -1586,6 +1616,10 @@ packages:
 
   /aes-js@3.1.2:
     resolution: {integrity: sha512-e5pEa2kBnBOgR4Y/p20pskXI74UEz7de8ZGVo58asOtvSVG5YAbJeELPZxOmt+Bnz3rX753YKhfIn4X4l1PPRQ==}
+    dev: false
+
+  /aes-js@4.0.0-beta.5:
+    resolution: {integrity: sha512-G965FqalsNyrPqgEGON7nIx1e/OVENSgiEIzyC63haUMuvNnwIgIjMs52hlTCKhkBny7A2ORNlfY9Zu+jmGk1Q==}
     dev: false
 
   /agentkeepalive@4.3.0:
@@ -2317,6 +2351,22 @@ packages:
     resolution: {integrity: sha512-n+Re6Gu8XGyfFy1it0AwbD1x0MUzspQs0D5UiPs1fFPCr6WAwZM+vbIhXheBFrpgosqN9bs5PqlB4Q61U/QytQ==}
     dependencies:
       fast-safe-stringify: 2.1.1
+    dev: false
+
+  /ethers@6.6.3:
+    resolution: {integrity: sha512-g8wLXeRWSGDD0T+wsL3pvyc3aYnmxEEAwH8LSoDTDRhRsmJeNs9YMXlNU7ax2caO+zHkeI9MkHiz6rwxEjN4Mw==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@adraffy/ens-normalize': 1.9.2
+      '@noble/hashes': 1.1.2
+      '@noble/secp256k1': 1.7.1
+      '@types/node': 18.15.13
+      aes-js: 4.0.0-beta.5
+      tslib: 2.4.0
+      ws: 8.5.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
     dev: false
 
   /eventemitter3@4.0.7:
@@ -3343,6 +3393,29 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /react-router-dom@6.14.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-ssF6M5UkQjHK70fgukCJyjlda0Dgono2QGwqGvuk7D+EDGHdacEN3Yke2LTMjkrpHuFwBfDFsEjGVXBDmL+bWw==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      '@remix-run/router': 1.7.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-router: 6.14.1(react@18.2.0)
+    dev: false
+
+  /react-router@6.14.1(react@18.2.0):
+    resolution: {integrity: sha512-U4PfgvG55LdvbQjg5Y9QRWyVxIdO1LlpYT7x+tMAxd9/vmiPuJhIwdxZuIQLN/9e3O4KFDHYfR9gzGeYMasW8g==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      '@remix-run/router': 1.7.1
+      react: 18.2.0
+    dev: false
+
   /react-transition-state@1.1.5(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-ITY2mZqc2dWG2eitJkYNdcSFW8aKeOlkL2A/vowRrLL8GH3J6Re/SpD/BLvQzrVOTqjsP0b5S9N10vgNNzwMUQ==}
     peerDependencies:
@@ -3738,6 +3811,10 @@ packages:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
     dev: false
 
+  /tslib@2.4.0:
+    resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
+    dev: false
+
   /tslib@2.6.0:
     resolution: {integrity: sha512-7At1WUettjcSRHXCyYtTselblcHl9PJFFVKiCAy/bY97+BPZXSQ2wbq0P9s8tK2G7dFQfNnlJnPAiArVBVBsfA==}
     dev: false
@@ -3815,6 +3892,15 @@ packages:
     dependencies:
       punycode: 2.3.0
     dev: true
+
+  /use-debounce@9.0.4(react@18.2.0):
+    resolution: {integrity: sha512-6X8H/mikbrt0XE8e+JXRtZ8yYVvKkdYRfmIhWZYsP8rcNs9hk3APV8Ua2mFkKRLcJKVdnX2/Vwrmg2GWKUQEaQ==}
+    engines: {node: '>= 10.0.0'}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /use-sync-external-store@1.2.0(react@18.2.0):
     resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
@@ -4052,6 +4138,19 @@ packages:
     dependencies:
       bufferutil: 4.0.7
       utf-8-validate: 5.0.10
+    dev: false
+
+  /ws@8.5.0:
+    resolution: {integrity: sha512-BWX0SWVgLPzYwF8lTzEy1egjhS4S4OEAHfsO8o65WOVsrnSRGaSiUaa9e0ggGlkMTtBlmOpEXiie9RUcBO86qg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
     dev: false
 
   /xtend@4.0.2:
