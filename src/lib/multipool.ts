@@ -25,12 +25,12 @@ export interface MultipoolAsset {
 
 
 export const routerAddress = '0x6c0528008A74AcCfF3A203670E94ddD822D8Cb44';
-export const etfAddress = '0x33657896740F7BA132553EeE2efF38C8748F035C';
+export const multipoolAddress = '0x33657896740F7BA132553EeE2efF38C8748F035C';
 
 export const etfAssetOrigin = 'https://arcanum.to/api/etf/info';
 
-export async function fetchAssets(multipoolAddress: String = etfAddress, etfAssetUrl: String = 'https://arcanum.to/api/etf/info') {
-    const response = await fetch(`${etfAssetUrl}?address=${multipoolAddress}`, {
+export async function fetchAssets(address: String = multipoolAddress, etfAssetUrl: String = 'https://arcanum.to/api/etf/info') {
+    const response = await fetch(`${etfAssetUrl}?address=${address}`, {
         mode: 'cors'
     });
     if (response.status !== 200) {

@@ -38,7 +38,7 @@ function App() {
                 <ConnectKitProvider>
                     <main>
                         <nav>
-                            <ul>
+                            <ul id="navbar_ul">
                                 <li>
                                     <Link to="/">Home</Link>
                                 </li>
