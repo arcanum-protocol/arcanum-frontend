@@ -23,9 +23,24 @@ export interface MultipoolAsset {
     deviationPercent: FixedNumber,
 }
 
+export interface SolidAsset {
+    assetAddress: string,
+    name: string,
+    symbol: string,
+    price: FixedNumber,
+    logo: string | null,
+}
 
 export const routerAddress = '0x6c0528008A74AcCfF3A203670E94ddD822D8Cb44';
 export const multipoolAddress = '0x33657896740F7BA132553EeE2efF38C8748F035C';
+
+export const ArbiAsset: SolidAsset = {
+    assetAddress: multipoolAddress,
+    name: "Arbitrum altcoin index",
+    symbol: "ARBI",
+    price: FixedNumber.fromString("0"),
+    logo: null,
+};
 
 export const etfAssetOrigin = 'https://arcanum.to/api/etf/info';
 
@@ -49,7 +64,7 @@ export async function fetchAssets(address: String = multipoolAddress, etfAssetUr
     return fetched_assets.map((a: any): MultipoolAsset => {
         return {
             name: a.name,
-            symbol: a.name,
+            symbol: a.symbol,
             assetAddress: a.asset_address,
             currentShare: total_cap.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.quantity).mulUnsafe(FixedNumber.from(a.price)).divUnsafe(total_cap),
             idealShare: total_ideal_share.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.ideal_share).divUnsafe(total_ideal_share),

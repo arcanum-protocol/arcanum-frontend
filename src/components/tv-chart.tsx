@@ -42,8 +42,8 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
         chartsStorageApiVersion: '1.1',
         clientId: '',
         userId: 'public_user_id',
-        fullscreen: false,
-        autosize: true,
+        //fullscreen: false,
+        //autosize: true,
         studiesOverrides: {},
     };
 
@@ -94,6 +94,7 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
 
     return (
         <div
+            style={{ width: "80%", height: "70%", }}
             ref={chartContainerRef}
             className={'TVChartContainer'}
         />

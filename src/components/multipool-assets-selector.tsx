@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchAssets, type MultipoolAsset } from "../lib/multipool";
+import { fetchAssets, type MultipoolAsset, type SolidAsset } from "../lib/multipool";
 import * as React from 'react';
 import Modal from 'react-modal';
 import { Fragment } from "ethers";
@@ -21,6 +21,15 @@ export function MultipoolAssetSelector({ assetList, setter }) {
 
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
 
+    if (assetList && !Array.isArray(assetList)) {
+        const asset: SolidAsset = assetList;
+        setter(asset);
+        return (
+            <div>
+                <button onClick={openModal}>{asset.symbol}</button>
+            </div>
+        );
+    }
 
     function openModal() {
         setIsOpen(true);
@@ -31,16 +40,15 @@ export function MultipoolAssetSelector({ assetList, setter }) {
     }
 
     const assets = assetList?.map((asset: MultipoolAsset) =>
-        <li>
-            <button onClick={() => { setSelectedAsset(asset); setter(asset); closeModal() }}>
-                {asset.name}<br />
-                {asset.deviationPercent.toString()}
-            </button>
-        </li>);
+        <button onClick={() => { setSelectedAsset(asset); setter(asset); closeModal() }}>
+            {asset.name}<br />
+            {asset.deviationPercent.toString()}
+        </button>
+    );
 
     let selectedText = "Select token";
     if (selectedAsset) {
-        selectedText = selectedAsset.name;
+        selectedText = selectedAsset.symbol;
     }
 
     return (
@@ -52,9 +60,9 @@ export function MultipoolAssetSelector({ assetList, setter }) {
                 onRequestClose={closeModal}
                 contentLabel="Select tokens"
             >
-                <ul>
+                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     {assets}
-                </ul>
+                </div>
             </Modal>
         </div >
     );
