@@ -8,12 +8,12 @@ import {
 } from "connectkit";
 import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
 import { Fragment } from "react";
-import { Swap } from "./components/swap";
-import { Arbi } from "./components/arbi";
+import { Swap } from "./pages/swap";
+import { Arbi } from "./pages/arbi";
 import * as React from 'react';
-import { MintBurn } from "./components/mint-burn";
+import { MintAndBurn } from "./pages/mint-burn";
 
-import logo from '../public/logo.svg';
+import logo from '/logo.svg';
 
 const config = createConfig(
     getDefaultConfig({
@@ -46,9 +46,6 @@ function App() {
                                 </div>
                                 <div style={{ display: "flex", fontSize: "20px", gap: "40px", flex: "1", justifyContent: "center" }}>
                                     <div style={{ display: "flex" }}>
-                                        <Link to="/">Home</Link>
-                                    </div>
-                                    <div style={{ display: "flex" }}>
                                         <Link to="/swap">Swap</Link>
                                     </div>
                                     <div style={{ display: "flex" }}>
@@ -66,9 +63,9 @@ function App() {
                         </nav>
 
                         <Routes>
-                            <Route path="/" exact element={<Home />} />
+                            <Route path="/" element={<Swap />} />
                             <Route path="/swap" element={<Swap />} />
-                            <Route path="/mint" element={<MintBurn />} />
+                            <Route path="/mint" element={<MintAndBurn />} />
                             <Route path="/arbi" element={<Arbi />} />
                             <Route path="*" exact element={<NotFound />} />
                         </Routes>
@@ -79,11 +76,6 @@ function App() {
     );
 }
 
-const Home = () => (
-    <Fragment>
-        <h1>Home</h1>
-    </Fragment>
-);
 const NotFound = () => <h1>Not found</h1>;
 
 export default App;

@@ -45,6 +45,7 @@ export function useTokenWithAddress({
         functionName: 'balanceOf',
         args: [userAddress],
         enabled: tokenAddress,
+        staleTime: 20_000,
         watch: true,
     });
 
@@ -54,6 +55,7 @@ export function useTokenWithAddress({
         functionName: 'allowance',
         args: [userAddress, allowanceTo],
         enabled: tokenAddress && allowanceTo,
+        staleTime: 20_000,
         watch: true,
     });
     const isLoading = isTokenLoading || isAllowanceLoading || isBalanceLoading;
@@ -106,7 +108,8 @@ export function useEstimate(
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
         enabled: txnBodyParts && txnBodyParts.enabled,
-        //watch: true,
+        staleTime: 20_000,
+        watch: true,
     });
     let returnData: EstimatedValues | undefined = undefined;
     if (!isLoading && !isError) {

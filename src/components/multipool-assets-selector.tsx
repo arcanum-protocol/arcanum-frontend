@@ -25,8 +25,13 @@ export function MultipoolAssetSelector({ assetList, setter }) {
         const asset: SolidAsset = assetList;
         setter(asset);
         return (
-            <div>
-                <button onClick={openModal}>{asset.symbol}</button>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", width: "35px", height: "35px" }}>
+                    <img src={asset.logo || "https://arcanum.to/logo.png"} />
+                </div>
+                <div onClick={openModal}>
+                    <p style={{ fontSize: "30px", margin: "0" }} >{asset.symbol}</p>
+                </div>
             </div>
         );
     }
@@ -47,13 +52,22 @@ export function MultipoolAssetSelector({ assetList, setter }) {
     );
 
     let selectedText = "Select token";
+    let selectedLogo = "https://arcanum.to/logo.png";
     if (selectedAsset) {
+        selectedLogo = selectedAsset.logo || selectedLogo;
         selectedText = selectedAsset.symbol;
     }
 
     return (
         <div>
-            <button onClick={openModal}>{selectedText}</button>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", width: "35px", height: "35px" }}>
+                    <img src={selectedLogo} />
+                </div>
+                <div onClick={openModal}>
+                    <p style={{ fontSize: "30px", margin: "0" }} >{selectedText}</p>
+                </div>
+            </div>
             <Modal
                 isOpen={modalIsOpen}
                 style={customStyles}

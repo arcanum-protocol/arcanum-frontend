@@ -39,6 +39,7 @@ export function QuantityInput({
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
             <input
+                size={20}
                 style={{ border: "none", outline: "none", fontSize: "24px" }}
                 pattern="^-?[0-9]\d*\.?\d*$"
                 value={quantity}
