@@ -10,7 +10,6 @@ export function QuantityInput({
     initialQuantity = undefined,
 }) {
     const initial: { row: BigInt, formatted: string } | undefined = initialQuantity;
-    console.log("trigger reload with ", initialQuantity);
     const max: bigint = maxAmount && BigInt(maxAmount);
     const [quantity, setQuantity] = useState<string>("0");
 
@@ -35,7 +34,6 @@ export function QuantityInput({
         }
     }, [maxAmount, initialQuantity]);
 
-    console.log("q: ", quantity);
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
             <input
@@ -47,7 +45,6 @@ export function QuantityInput({
                 placeholder="0"
                 onChange={e => {
                     let num: bigint;
-                    console.log("set value in event", e.target.value);
                     setQuantity(e.target.value);
                     try {
                         num = parseUnits(e.target.value.toString(), 18);

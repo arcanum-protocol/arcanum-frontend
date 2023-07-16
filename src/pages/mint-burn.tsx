@@ -7,6 +7,7 @@ import { type TokenWithAddress } from '../hooks/tokens';
 import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter, TradePane } from '../components/trade-pane';
 import { Quantities } from '../components/trade-pane';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
+import { Faucet } from '../components/faucet-modal';
 
 const mintAdapter: TradeLogicAdapter = {
     genEstimationTxnBody: (
@@ -99,7 +100,7 @@ export function MintAndBurn() {
 
     return (
         <div style={{ display: "flex", height: "calc(100vh - 150px)", alignItems: "center", justifyContent: "center", flexDirection: "column", rowGap: "10px" }}>
-            <div style={{ display: "flex", justifySelf: "center", margin: "0px auto", width: "500px" }}>
+            <div style={{ display: "flex", margin: "0px auto", width: "500px" }}>
                 <button style={{
                     fontSize: "20px",
                     margin: "0",
@@ -120,6 +121,9 @@ export function MintAndBurn() {
                     onClick={() => setMintDisplayed(false)}>
                     Burn
                 </button>
+                <div style={{ display: "flex", flex: "1", justifyContent: "flex-end" }}>
+                    <Faucet assets={fetchedAssets} />
+                </div>
             </div>
             <div style={{ display: "flex", justifyContent: "center" }}>
                 <div style={displayOrHide(!isMintDisplayed, {})}>

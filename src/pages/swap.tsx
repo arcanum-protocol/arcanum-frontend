@@ -7,6 +7,7 @@ import { type TokenWithAddress } from '../hooks/tokens';
 import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter, TradePane } from '../components/trade-pane';
 import { Quantities } from '../components/trade-pane';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
+import { Faucet } from '../components/faucet-modal';
 
 const mintAdapter: TradeLogicAdapter = {
     genEstimationTxnBody: (
@@ -88,6 +89,7 @@ export function Swap() {
 
     return (
         <div style={{ display: "flex", height: "calc(100vh - 150px)", alignItems: "center", justifyContent: "center", flexDirection: "column", rowGap: "10px" }}>
+            <Faucet assets={fetchedAssets} />
             <div style={{ display: "flex", justifyContent: "center" }}>
                 <TradePane
                     assetsIn={fetchedAssets}

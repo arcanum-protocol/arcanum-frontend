@@ -1,7 +1,7 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
 import { useContractRead, useToken } from 'wagmi'
-import { EstimatedValues, EstimationTransactionBody, Quantities, SendTransactionParams, TradeLogicAdapter } from '../components/trade-pane';
+import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter } from '../components/trade-pane';
 
 export type TokenWithAddress = {
     tokenAddress: string,
