@@ -23,19 +23,22 @@ export type EstimatedValues = {
     estimatedCashbackIn: {
         row: BigInt,
         formatted: string,
+        usd: string,
     } | undefined,
     estimatedCashbackOut: {
         row: BigInt,
         formatted: string,
+        usd: string,
     } | undefined,
     estimatedAmountOut: {
         row: BigInt,
         formatted: string,
+        usd: string,
     } | undefined,
-
     estimatedAmountIn: {
         row: BigInt,
         formatted: string,
+        usd: string,
     } | undefined,
     isIn: boolean,
     isOut: boolean,
@@ -62,7 +65,9 @@ export type SendTransactionParams = {
     slippage: number,
     quantities: Quantities,
     tokenIn: TokenWithAddress,
-    tokenOut: TokenWithAddress
+    tokenOut: TokenWithAddress,
+    priceIn: number,
+    priceOut: number,
 };
 
 export type TradeLogicAdapter = {
@@ -77,7 +82,9 @@ export type Quantities = { in: BigInt | undefined, out: BigInt | undefined };
 
 export function TradePane({
     assetsIn,
+    initialInIndex = 0,
     assetsOut,
+    initialOutIndex = 0,
     tradeLogicAdapter,
     paneTexts,
 }) {
@@ -85,7 +92,7 @@ export function TradePane({
     const adapter: TradeLogicAdapter = tradeLogicAdapter;
     const { address } = useAccount()
 
-    const [assetIn, setAssetIn] = useState<MultipoolAsset | undefined>();
+    const [assetIn, setAssetIn] = useState<MultipoolAsset>(assetsIn[initialInIndex] || assetsIn);
     const bindAssetIn = (value: MultipoolAsset) => setAssetIn(value);
 
     const inTokenData = useTokenWithAddress({
@@ -94,7 +101,7 @@ export function TradePane({
         allowanceTo: routerAddress,
     })
 
-    const [assetOut, setAssetOut] = useState<MultipoolAsset | undefined>();
+    const [assetOut, setAssetOut] = useState<MultipoolAsset>(assetsOut[initialOutIndex] || assetsOut);
     const bindAssetOut = (value: MultipoolAsset) => setAssetOut(value);
 
     const outTokenData = useTokenWithAddress({
@@ -103,6 +110,7 @@ export function TradePane({
         allowanceTo: routerAddress,
     })
 
+    const [slippage, setSlippage] = useState<number>(0.5);
     const [quantity, setQuantity] = useState<Quantities>({
         in: BigInt("0"),
         out: BigInt("0"),
@@ -114,10 +122,12 @@ export function TradePane({
     let sendTransctionParams: SendTransactionParams = {
         to: address,
         deadline: BigInt(0),
-        slippage: 0,
+        slippage: slippage,
         quantities: debouncedQuantity,
         tokenIn: inTokenData.data,
         tokenOut: outTokenData.data,
+        priceIn: 10.1,
+        priceOut: 1.1,
     };
 
     const {
@@ -126,45 +136,43 @@ export function TradePane({
         isError: estimationIsError
     } = useEstimate(adapter, sendTransctionParams);
 
+    console.log(estimationResults?.estimatedAmountIn);
     return (
-        //<div style={{ display: "flex", justifySelf: "center", margin: "0px auto", width: "550px" }}>
         <div style={{
             display: "flex",
+            rowGap: "30px",
             flexDirection: "column",
             justifyContent: "center",
             margin: "0px auto",
-            width: "500px"
+            width: "400px"
         }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-                <div style={{ display: "flex", flex: "1", justifySelf: "flex-start" }}>
-                    <p style={{ fontSize: "30px", margin: "0" }}> {texts.section1Name} </p>
-                </div>
-                <div style={{ display: "flex", width: "30px", height: "30px", justifySelf: "flex-end" }}>
-                    <TransactionParamsSelector setter={undefined} />
-                </div>
-            </div>
+
             <TokenQuantityInput
                 isDisabled={estimationIsLoading}
+                text={texts.section1Name}
                 assetSetter={bindAssetIn}
                 quantitySetter={bindQuantityIn}
                 initialQuantity={!estimationResults?.isIn && estimationResults?.estimatedAmountIn}
                 tokenData={inTokenData}
                 assets={assetsIn}
+                initialAssetIndex={initialInIndex}
+                usd={estimationResults?.estimatedAmountIn ? estimationResults?.estimatedAmountIn.usd + "$" : "0$"}
             />
-            <div style={{ display: "flex", justifySelf: "flex-start" }}>
-                <p style={{ fontSize: "30px", margin: "0" }}> {texts.section2Name} </p>
-            </div>
             <TokenQuantityInput
                 isDisabled={estimationIsLoading}
+                text={texts.section2Name}
                 assetSetter={bindAssetOut}
                 initialQuantity={!estimationResults?.isOut && estimationResults?.estimatedAmountOut}
                 quantitySetter={bindQuantityOut}
                 tokenData={outTokenData}
                 assets={assetsOut}
+                initialAssetIndex={initialOutIndex}
+                usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
+            <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} />
             <InteractionWithApprovalButton
                 interactionTxnBody={estimationResults?.txn}
-                interactionBalance={quantity.in}
+                interactionBalance={estimationResults?.estimatedAmountIn?.row}
                 approveMax={true}
                 actionName={texts.buttonAction}
                 tokenData={inTokenData}
@@ -173,18 +181,32 @@ export function TradePane({
     );
 }
 
-export function TokenQuantityInput({ isDisabled, assetSetter, quantitySetter, tokenData, assets, initialQuantity }) {
+export function TokenQuantityInput({
+    initialAssetIndex,
+    usd,
+    isDisabled,
+    text,
+    assetSetter,
+    quantitySetter,
+    tokenData,
+    assets,
+    initialQuantity }) {
     return (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
-            <QuantityInput
-                disabled={isDisabled}
-                quantitySetter={quantitySetter}
-                initialQuantity={initialQuantity}
-                maxAmount={tokenData && tokenData.data?.balance.row}
-            />
-            <div style={{ display: "flex", flexDirection: "column" }}>
-                <MultipoolAssetSelector assetList={assets} setter={assetSetter} />
-                <p style={{ paddingBottom: "1px", fontSize: "13px" }}> balance: {tokenData.data?.balance.formatted || "0"}</p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
+                <div style={{ display: "flex", }}>
+                    <p style={{ fontSize: "20px", margin: "0" }}> {text} </p>
+                </div>
+                <QuantityInput
+                    disabled={isDisabled}
+                    quantitySetter={quantitySetter}
+                    initialQuantity={initialQuantity}
+                />
+                <p style={{ marginTop: "1px", fontSize: "13px" }}>{usd}</p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                <MultipoolAssetSelector assetList={assets} setter={assetSetter} initialIndex={initialAssetIndex} />
+                <p style={{ marginTop: "1px", fontSize: "13px" }}> Balance: {tokenData.data?.balance.formatted || "0"}</p>
             </div>
         </div>);
 }

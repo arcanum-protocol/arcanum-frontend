@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import { fetchAssets, type MultipoolAsset, type SolidAsset } from "../lib/multipool";
 import * as React from 'react';
 import Modal from 'react-modal';
-import { Fragment } from "ethers";
-Modal.setAppElement('#root');
 import { erc20ABI, fetchToken, writeContract } from "@wagmi/core";
 import { BigNumber, FixedFormat, FixedNumber } from "@ethersproject/bignumber";
 import { useAccount } from "wagmi";
@@ -67,7 +65,7 @@ export function Faucet({ assets }) {
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     {assets.map((asset: MultipoolAsset) => {
                         return (
-                            <div>
+                            <div key={asset.assetAddress}>
                                 <button onClick={() => mint(asset.assetAddress)}>{asset.name}
                                 </button>
                             </div>

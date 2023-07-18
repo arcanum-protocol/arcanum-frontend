@@ -6,62 +6,42 @@ import { parseUnits } from "ethers";
 export function QuantityInput({
     disabled = false,
     quantitySetter,
-    maxAmount = undefined,
     initialQuantity = undefined,
 }) {
     const initial: { row: BigInt, formatted: string } | undefined = initialQuantity;
-    const max: bigint = maxAmount && BigInt(maxAmount);
     const [quantity, setQuantity] = useState<string>("0");
 
-    const [error, setError] = useState<string | null>(null);
     useEffect(() => {
-        try {
-            let oldVal = parseUnits(quantity, 18);
-            if (oldVal == initial.row) {
-                return;
-            }
-        } catch { }
-        try {
-            if (initial) {
-                if (maxAmount != undefined && max < initial.row) {
-                    setError("number too big");
-                } else {
-                    setQuantity(Number(initial.formatted).toFixed(4));
-                }
-            }
-        } catch (e) {
-            setError("invalid number");
+        if (initial) {
+            setQuantity(Number(initial.formatted).toFixed(4));
         }
-    }, [maxAmount, initialQuantity]);
+    }, [initialQuantity]);
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
             <input
-                size={20}
-                style={{ border: "none", outline: "none", fontSize: "24px" }}
-                pattern="^-?[0-9]\d*\.?\d*$"
+                type="tel"
+                size={15}
+                style={{ border: "none", outline: "none", fontSize: "24px", background: "none", color: "#fff" }}
                 value={quantity}
                 disabled={disabled}
                 placeholder="0"
                 onChange={e => {
                     let num: bigint;
-                    setQuantity(e.target.value);
+                    if (e.target.value == "") {
+                        setQuantity(e.target.value);
+                        quantitySetter(undefined);
+                    }
                     try {
                         num = parseUnits(e.target.value.toString(), 18);
                     } catch {
-                        setError("invalid number");
+                        quantitySetter(undefined);
                         return;
                     }
-
-                    if (maxAmount && max < num) {
-                        setError("number too big");
-                        return;
-                    }
-                    setError(null);
+                    setQuantity(e.target.value);
                     quantitySetter(num);
                 }}
             />
-            {<p style={{ margin: "0px", fontSize: "13px", height: "20px", color: "red" }}>{error || ""}</p>}
         </div >
     );
 }

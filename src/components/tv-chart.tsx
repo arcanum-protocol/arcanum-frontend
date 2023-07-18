@@ -4,8 +4,59 @@ import {
     ChartingLibraryWidgetOptions,
     LanguageCode,
     ResolutionString,
+    ChartingLibraryFeatureset,
 } from '../lib/charting_library';
 import * as React from 'react';
+
+export const SUPPORTED_RESOLUTIONS = { 1: "1m", 3: "3m", 5: "5m", 15: "15m", 30: "30m", 60: "1h", 720: "12h", "1D": "1d" };
+
+const RED = "#fa3c58";
+const GREEN = "#0ecc83";
+export const DEFAULT_PERIOD = "12h";
+
+const chartStyleOverrides = ["candleStyle", "hollowCandleStyle", "haStyle"].reduce((acc, cv) => {
+    acc[`mainSeriesProperties.${cv}.drawWick`] = true;
+    acc[`mainSeriesProperties.${cv}.drawBorder`] = false;
+    acc[`mainSeriesProperties.${cv}.upColor`] = GREEN;
+    acc[`mainSeriesProperties.${cv}.downColor`] = RED;
+    acc[`mainSeriesProperties.${cv}.wickUpColor`] = GREEN;
+    acc[`mainSeriesProperties.${cv}.wickDownColor`] = RED;
+    acc[`mainSeriesProperties.${cv}.borderUpColor`] = GREEN;
+    acc[`mainSeriesProperties.${cv}.borderDownColor`] = RED;
+    return acc;
+}, {});
+
+const chartOverrides = {
+    "paneProperties.background": "rgba(30, 29, 29, 0.8)",
+    "paneProperties.backgroundGradientStartColor": "#4D4D4D",
+    "paneProperties.backgroundGradientEndColor": "#4D4D4D",
+    "paneProperties.backgroundType": "solid",
+    "paneProperties.vertGridProperties.color": "#4D4D4D",
+    "paneProperties.vertGridProperties.style": 2,
+    "paneProperties.horzGridProperties.color": "#4D4D4D",
+    "paneProperties.horzGridProperties.style": 2,
+    "mainSeriesProperties.priceLineColor": "#4D4D4D",
+    "scalesProperties.textColor": "#4D4D4D",
+    "scalesProperties.lineColor": "#4D4D4D",
+    ...chartStyleOverrides,
+};
+
+export const disabledFeaturesOnMobile = ["header_saveload", "header_fullscreen_button"];
+
+export const defaultChartProps = {
+    theme: "Dark",
+    locale: "en",
+    library_path: "/charting_library/",
+    clientId: "tradingview.com",
+    userId: "public_user_id",
+    fullscreen: false,
+    autosize: true,
+    header_widget_dom_node: false,
+    overrides: chartOverrides,
+    custom_css_url: "/tradingview-chart.css",
+    loading_screen: { backgroundColor: "#16182e", foregroundColor: "#2962ff" },
+    favorites: {},
+};
 
 export interface ChartContainerProps {
     symbol: ChartingLibraryWidgetOptions['symbol'];
@@ -33,40 +84,49 @@ const getLanguageFromURL = (): LanguageCode | null => {
 export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv' }) => {
     const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
 
-    const defaultProps: Omit<ChartContainerProps, 'container'> = {
-        symbol: symbol,
-        interval: 'D' as ResolutionString,
-        datafeedUrl: datafeedUrl,
-        libraryPath: '/charting_library/',
-        chartsStorageUrl: 'https://saveload.tradingview.com',
-        chartsStorageApiVersion: '1.1',
-        clientId: '',
-        userId: 'public_user_id',
-        //fullscreen: false,
-        //autosize: true,
-        studiesOverrides: {},
-    };
-
     useEffect(() => {
         const widgetOptions: ChartingLibraryWidgetOptions = {
-            symbol: defaultProps.symbol as string,
-            // BEWARE: no trailing slash is expected in feed URL
-            // tslint:disable-next-line:no-any
-            datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(defaultProps.datafeedUrl),
-            interval: defaultProps.interval as ChartingLibraryWidgetOptions['interval'],
+            theme: "dark",
+            symbol: symbol as string,
+            datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeedUrl),
+            interval: '1m' as ChartingLibraryWidgetOptions['interval'],
             container: chartContainerRef.current,
-            library_path: defaultProps.libraryPath as string,
+            library_path: defaultChartProps.library_path as string,
 
-            locale: getLanguageFromURL() || 'en',
-            disabled_features: ['use_localstorage_for_settings'],
-            enabled_features: ['study_templates'],
-            charts_storage_url: defaultProps.chartsStorageUrl,
-            charts_storage_api_version: defaultProps.chartsStorageApiVersion,
-            client_id: defaultProps.clientId,
-            user_id: defaultProps.userId,
-            fullscreen: defaultProps.fullscreen,
-            autosize: defaultProps.autosize,
-            studies_overrides: defaultProps.studiesOverrides,
+            locale: 'en',
+            enabled_features: [
+                "side_toolbar_in_fullscreen_mode",
+                "header_in_fullscreen_mode",
+                "hide_resolution_in_legend",
+                "items_favoriting",
+                "hide_left_toolbar_by_default",
+            ],
+            client_id: defaultChartProps.clientId,
+            disabled_features: [
+                "volume_force_overlay",
+                "show_logo_on_all_charts",
+                "caption_buttons_text_if_possible",
+                "create_volume_indicator_by_default",
+                "header_compare",
+                "compare_symbol",
+                "display_market_status",
+                "header_interval_dialog_button",
+                "show_interval_dialog_on_key_press",
+                "header_symbol_search",
+                "popup_hints",
+                "header_in_fullscreen_mode",
+                "use_localstorage_for_settings",
+                "right_bar_stays_on_scroll",
+                "symbol_info",
+            ],
+            user_id: defaultChartProps.userId,
+            custom_css_url: '/tradingview-chart.css',
+            //custom_font_family: 'Ubuntu',
+            overrides: defaultChartProps.overrides,
+            favorites: {
+                ...defaultChartProps.favorites, intervals: Object.keys(SUPPORTED_RESOLUTIONS)
+            },
+            //custom_formatters: defaultChartProps.custom_formatters,
         };
 
         const tvWidget = new widget(widgetOptions);
@@ -94,7 +154,7 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
 
     return (
         <div
-            style={{ width: "80%", height: "70%", }}
+            style={{ width: "100%", height: "100%", borderRadius: "10px" }}
             ref={chartContainerRef}
             className={'TVChartContainer'}
         />

@@ -6,12 +6,13 @@ import {
     ConnectKitProvider,
     getDefaultConfig,
 } from "connectkit";
-import { BrowserRouter as Router, Link, Route, Routes } from "react-router-dom";
-import { Fragment } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Swap } from "./pages/swap";
 import { Arbi } from "./pages/arbi";
 import * as React from 'react';
-import { MintAndBurn } from "./pages/mint-burn";
+import { useLocation } from 'react-router-dom'
+import Modal from 'react-modal';
+Modal.setAppElement('#root');
 
 import logo from '/logo.svg';
 
@@ -38,42 +39,68 @@ function App() {
         <Router>
             <WagmiConfig config={config}>
                 <ConnectKitProvider theme="soft">
-                    <main>
-                        <nav>
-                            <div style={{ display: "flex", alignItems: "center" }}>
-                                <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", justifyContent: "flex-start" }}>
-                                    <img src={logo} />
-                                </div>
-                                <div style={{ display: "flex", fontSize: "20px", gap: "40px", flex: "1", justifyContent: "center" }}>
-                                    <div style={{ display: "flex" }}>
-                                        <Link to="/swap">Swap</Link>
-                                    </div>
-                                    <div style={{ display: "flex" }}>
-                                        <Link to="/mint">$ARBI</Link>
-                                    </div>
-                                    <div style={{ display: "flex" }}>
-                                        <Link to="/arbi">Arbitrum index</Link>
-                                    </div>
-                                </div>
-                                <div style={{ display: "flex", flex: "1", justifyContent: "flex-end" }}>
-                                    <ConnectKitButton />
-                                </div>
-                            </div>
-
-                        </nav>
-
-                        <Routes>
-                            <Route path="/" element={<Swap />} />
-                            <Route path="/swap" element={<Swap />} />
-                            <Route path="/mint" element={<MintAndBurn />} />
-                            <Route path="/arbi" element={<Arbi />} />
-                            <Route path="*" exact element={<NotFound />} />
-                        </Routes>
-                    </main>
+                    <WrappedApp />
                 </ConnectKitProvider>
             </WagmiConfig>
         </Router >
     );
+}
+
+function WrappedApp() {
+    return (
+        <main>
+            <Navbar />
+            <Routes>
+                <Route path="/" element={<Swap />} />
+                <Route path="/swap" element={<Swap />} />
+                <Route path="/arbi" element={<Arbi />} />
+                <Route path="*" element={<NotFound />} />
+            </Routes>
+        </main >
+    );
+}
+
+function Navbar() {
+    const location = useLocation();
+    console.log(location.pathname);
+    const [hovered, setHovered] = React.useState(location.pathname);
+    return (<nav>
+        <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", justifyContent: "flex-start" }}>
+                <img src={logo} />
+            </div>
+            <div style={{ display: "flex", fontSize: "20px", gap: "40px", flex: "1", justifyContent: "center" }}>
+                {
+                    [
+                        { title: "Swap", route: "/swap" },
+                        { title: "Arbitrum index", route: "/arbi" },
+                        { title: "Docs", route: "/https://docs.arcanum.to" },
+                    ].map(({ title, route }, index) => {
+                        return (
+                            <a key={index} href={route}>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        padding: "2px 8px",
+                                        borderRadius: "10px",
+                                        backgroundColor: hovered == route ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0)",
+                                        color: "var(--wh)",
+                                    }}
+                                    onMouseOver={e => { setHovered(route) }}
+                                    onMouseOut={e => { setHovered(location.pathname) }}
+                                >
+                                    <span>{title}</span>
+                                </div>
+                            </a>
+                        );
+                    })
+                }
+            </div>
+            <div style={{ display: "flex", flex: "1", justifyContent: "flex-end" }}>
+                <ConnectKitButton />
+            </div>
+        </div>
+    </nav >);
 }
 
 const NotFound = () => <h1>Not found</h1>;

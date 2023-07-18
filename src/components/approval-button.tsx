@@ -2,6 +2,8 @@ import * as React from 'react';
 import multipoolABI from '../abi/ETF';
 import { usePrepareContractWrite, useContractWrite, useWaitForTransaction } from 'wagmi'
 import { MaxUint256 } from "ethers";
+import Skeleton from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 export function InteractionWithApprovalButton({
     interactionTxnBody,
@@ -44,23 +46,33 @@ export function InteractionWithApprovalButton({
     // render
     let mintButton: any;
 
+    let defaultStyle = {
+        width: "100%",
+        borderRadius: "20px",
+    };
+
     if (isTokenDataLoading) {
-        mintButton = (<button disabled={true}> Loading data.. </button>);
+        mintButton = (<button style={defaultStyle} disabled={true}> <Skeleton /> </button>);
     } else if (isTokenDataUnset) {
-        mintButton = (<button disabled={true}> Select token </button>);
+        mintButton = (<button style={defaultStyle} disabled={true}> Select token </button>);
     } else if (approvalTxnIsLoading || txnIsLoading) {
-        mintButton = (<button disabled={true}> Waiting approval transaction... </button>);
+        mintButton = (<button style={defaultStyle} disabled={true}> <Skeleton /> </button>);
+    } else if (token.balance.row < interactionBalance) {
+        mintButton = (<button style={defaultStyle} disabled={true}> Insufficient balance </button>);
     } else {
         const approveRequired = allowance < interactionBalance || allowance == BigInt(0);
+
         if (approveRequired) {
             mintButton = (
                 <button
+                    style={{ color: "#3C3997", ...defaultStyle }}
                     disabled={!sendBalanceApproval}
                     onClick={() => sendBalanceApproval()}>Approve balance
                 </button>
             );
         } else {
             mintButton = (<button
+                style={defaultStyle}
                 disabled={!sendTxn}
                 onClick={() => sendTxn()}>
                 {actionName}

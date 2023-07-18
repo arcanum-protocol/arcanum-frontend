@@ -1,23 +1,69 @@
 import { useState, useEffect } from "react";
-import { fetchIndex, type Index } from "../lib/indexes";
+import { fetchIndex, IndexAsset, type Index } from "../lib/indexes";
 import * as React from 'react';
+import { MultipoolAsset } from "../lib/multipool";
+import { toHumanReadable } from "../lib/format-number";
 
-export function IndexAssetsBreakdown() {
-    const [fetchedAssets, setFetchedAssets] = useState<Index>();
-
-    useEffect(() => {
-        async function inner() {
-            const result = await fetchIndex(1);
-            setFetchedAssets(result);
-        }
-        inner();
-    }, []);
-
-    const assets = fetchedAssets?.assets.map(asset => <li>{asset.name}</li>);
+export function IndexAssetsBreakdown({ fetchedAssets }) {
+    const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
+        <>
+            <div style={{ gridRow: index + 3, gridColumn: "1 / 2", display: "flex", justifyContent: "flex-start", gap: "20px" }}>
+                <img style={{ width: "25px", height: "25px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
+                {asset.name} ({asset.symbol})
+            </div>
+            <div style={{ gridRow: index + 3, gridColumn: "3" }}>
+                {asset.currentShare.toString()}%
+            </div>
+            <div style={{ gridRow: index + 3, gridColumn: "4" }}>
+                {Number(asset.price.toString()).toFixed(4)}
+            </div>
+            <div style={{ gridRow: index + 3, gridColumn: "5" }}>
+                {Number(asset.priceChange24h.toString()).toFixed(4)}%
+            </div>
+            <div style={{ gridRow: index + 3, gridColumn: "6" }}>
+                {toHumanReadable(asset.volume24h.toString())}
+            </div>
+            <div style={{ gridRow: index + 3, gridColumn: "7", display: "flex", justifyContent: "flex-end" }}>
+                {toHumanReadable(asset.mcap.toString())}
+            </div>
+        </>
+    );
 
     return (
-        <ul>
-            {assets}
-        </ul>
+        <div style={{
+            display: "flex",
+            flexDirection: "column",
+            backgroundColor: "var(--bc)",
+            borderRadius: "10px",
+            paddingLeft: "30px",
+            paddingRight: "30px",
+            paddingBottom: "30px",
+        }}>
+            <h1 style={{ display: "flex", justifySelf: "flex-start", fontSize: "20px" }}>Asset breakdown</h1>
+            <div style={{ display: "grid", gap: "10px" }}>
+                <div style={{ gridRow: "1", gridColumn: "1 / 2", display: "flex", justifyContent: "flex-start", gap: "10px" }}>
+                    Name
+                </div>
+                <div style={{ gridRow: "1", gridColumn: "3" }}>
+                    share
+                </div>
+                <div style={{ gridRow: "1", gridColumn: "4" }}>
+                    Price
+                </div>
+                <div style={{ gridRow: "1", gridColumn: "5" }}>
+                    24h change
+                </div>
+                <div style={{ gridRow: "1", gridColumn: "6" }}>
+                    24h volume
+                </div>
+                <div style={{ gridRow: "1", gridColumn: "7", display: "flex", justifyContent: "flex-end" }}>
+                    Market cap
+                </div>
+                <div style={{ gridRow: "2", gridColumn: "1/8" }}>
+                    <div style={{ height: "1px", width: "100%", backgroundColor: "#fff" }}></div>
+                </div>
+                {assets}
+            </div>
+        </div>
     );
 }
