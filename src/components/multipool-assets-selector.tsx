@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { fetchAssets, type MultipoolAsset, type SolidAsset } from "../lib/multipool";
 import * as React from 'react';
 import Modal from 'react-modal';
@@ -17,7 +17,7 @@ const customStyles = {
     },
 };
 
-export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0 }) {
+export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent }) {
     const [selectedAsset, setSelectedAsset] = useState<MultipoolAsset | undefined>(undefined);
 
     useEffect(() => {
@@ -106,19 +106,74 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0 }) 
         </button>
     );
 
+    const modal = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (modal.current && !modal.current.contains(event.target)) {
+                closeModal();
+            }
+        }
+        // Bind the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            // Unbind the event listener on clean up
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [modal]);
+
+    console.log(modalParent.current);
     return (
         <div>
             {selected(selectedAsset?.logo || undefined, selectedAsset?.symbol || undefined, true)}
-            <Modal
-                isOpen={modalIsOpen}
-                style={customStyles}
-                onRequestClose={closeModal}
-                contentLabel="Select tokens"
+            <div
+                ref={modal}
+                style={{
+                    display: modalIsOpen ? "flex" : "none",
+                    position: "absolute",
+                    top: modalParent?.current?.offsetTop,
+                    left: modalParent?.current?.offsetLeft,
+                    height: modalParent?.current?.offsetHeight,
+                    width: modalParent?.current?.offsetWidth,
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    backgroundColor: "var(--solid-bc)",
+                    borderRadius: "10px",
+                }}
             >
-                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+                    <div style={{
+                        flex: "1",
+                        justifyContent: "flex-start",
+                    }}>
+                        <img style={{
+                            transform: "rotate(90deg)",
+                            marginLeft: "0px",
+                        }} src={chevron} />
+                    </div>
+                    <div style={{
+                        flex: "1",
+                        justifyContent: "center",
+                        width: "100%",
+                        padding: "0px, auto",
+                    }}>
+                        <p style={{
+                            fontSize: "24px",
+                        }}>Select a token</p>
+                    </div>
+                </div>
+                <div style={{ display: "flex", width: "100%", height: "1px", color: "var(-wh)" }} />
+                <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "5px"
+                }}>
                     {assets}
                 </div>
-            </Modal>
+            </div>
         </div >
     );
 }

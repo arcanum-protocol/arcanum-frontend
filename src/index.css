@@ -16,6 +16,7 @@
   -webkit-text-size-adjust: 100%;
 
   --bc: rgba(30, 29, 29, 0.8);
+  --solid-bc: rgb(30, 29, 29);
   --bl: rgb(16, 16, 16);
   --wh: rgb(249, 249, 249);
 }

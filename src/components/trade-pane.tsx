@@ -87,6 +87,7 @@ export function TradePane({
     initialOutIndex = 0,
     tradeLogicAdapter,
     paneTexts,
+    selectTokenParent,
 }) {
     const texts: TradePaneTexts = paneTexts;
     const adapter: TradeLogicAdapter = tradeLogicAdapter;
@@ -156,6 +157,7 @@ export function TradePane({
                 tokenData={inTokenData}
                 assets={assetsIn}
                 initialAssetIndex={initialInIndex}
+                selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountIn ? estimationResults?.estimatedAmountIn.usd + "$" : "0$"}
             />
             <TokenQuantityInput
@@ -167,6 +169,7 @@ export function TradePane({
                 tokenData={outTokenData}
                 assets={assetsOut}
                 initialAssetIndex={initialOutIndex}
+                selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
             <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} />
@@ -190,7 +193,9 @@ export function TokenQuantityInput({
     quantitySetter,
     tokenData,
     assets,
-    initialQuantity }) {
+    initialQuantity,
+    selectTokenParent,
+}) {
     return (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
@@ -205,7 +210,7 @@ export function TokenQuantityInput({
                 <p style={{ marginTop: "1px", fontSize: "13px" }}>{usd}</p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                <MultipoolAssetSelector assetList={assets} setter={assetSetter} initialIndex={initialAssetIndex} />
+                <MultipoolAssetSelector modalParent={selectTokenParent} assetList={assets} setter={assetSetter} initialIndex={initialAssetIndex} />
                 <p style={{ marginTop: "1px", fontSize: "13px" }}> Balance: {tokenData.data?.balance.formatted || "0"}</p>
             </div>
         </div>);

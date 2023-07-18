@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { fetchAssets, type MultipoolAsset, ArbiAsset } from "../lib/multipool";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TradePane } from '../components/trade-pane';
 import { emptyAdapter } from '../lib/trade-adapters';
 import { TVChartContainer } from '../components/tv-chart';
@@ -41,6 +41,7 @@ export function Arbi() {
 export function ArbiMintBurn({ fetchedAssets }) {
 
     const [isMintDisplayed, setMintDisplayed] = useState<boolean>(true);
+    const me = useRef(null);
 
     function displayOrHide(hide: boolean, props: React.CSSProperties): React.CSSProperties {
         if (hide) {
@@ -52,14 +53,16 @@ export function ArbiMintBurn({ fetchedAssets }) {
     }
 
     return (
-        <div style={{
-            display: "flex", alignItems: "center",
-            backgroundColor: "rgba(30, 29, 29, 0.8)",
-            justifyContent: "center",
-            flexDirection: "column", rowGap: "25px",
-            padding: "10px",
-            borderRadius: "13px",
-        }}>
+        <div
+            ref={me}
+            style={{
+                display: "flex", alignItems: "center",
+                backgroundColor: "rgba(30, 29, 29, 0.8)",
+                justifyContent: "center",
+                flexDirection: "column", rowGap: "25px",
+                padding: "10px",
+                borderRadius: "13px",
+            }}>
             <div style={{ display: "flex", width: "400px" }}>
                 <div style={{
                     display: "flex",
@@ -101,6 +104,7 @@ export function ArbiMintBurn({ fetchedAssets }) {
                         assetsIn={fetchedAssets}
                         assetsOut={[ArbiAsset]}
                         tradeLogicAdapter={emptyAdapter}
+                        selectTokenParent={me}
                         paneTexts={{
                             buttonAction: "Mint",
                             section1Name: "Send",
@@ -113,6 +117,7 @@ export function ArbiMintBurn({ fetchedAssets }) {
                         assetsIn={[ArbiAsset]}
                         assetsOut={fetchedAssets}
                         tradeLogicAdapter={emptyAdapter}
+                        selectTokenParent={me}
                         paneTexts={{
                             buttonAction: "Burn",
                             section1Name: "Send",
