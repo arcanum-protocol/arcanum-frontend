@@ -5,6 +5,7 @@ import Modal from 'react-modal';
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import chevron from '/chevron-down.svg';
+import { FixedFormat } from "@ethersproject/bignumber";
 
 const customStyles = {
     content: {
@@ -99,11 +100,35 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
         setIsOpen(false);
     }
 
-    const assets = assetList?.map((asset: MultipoolAsset) =>
-        <button key={asset.id} onClick={() => { setSelectedAsset(asset); setter(asset); closeModal() }}>
-            {asset.name}<br />
-            {asset.deviationPercent.toString()}
-        </button>
+    const [buttonHovered, setButtonHovered] = useState(null);
+
+    const assets = assetList?.map((asset: MultipoolAsset, index) =>
+        <button
+            style={{
+                width: "100%",
+                backgroundColor: buttonHovered != null && buttonHovered == index ? "var(--bl)" : "var(--solid-bc)",
+                color: "var(--wh)"
+            }}
+            key={asset.id}
+            onClick={() => { setSelectedAsset(asset); setter(asset); closeModal() }}
+            onMouseOver={e => setButtonHovered(index)}
+            onMouseOut={e => setButtonHovered(null)}
+        >
+            <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+                <img style={{ width: "30px", height: "30px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
+                <div style={{ display: "flex", width: "100%", flexDirection: "column", marginLeft: "10px", alignItems: "flex-start", }}>
+                    <p style={{ margin: "0", padding: "0", fontSize: "18px" }}>
+                        {asset.name} ({asset.symbol})
+                    </p>
+                    <p style={{ margin: "0", padding: "0", fontSize: "14px" }}>
+                        Balance: {0}
+                    </p>
+                </div>
+                <div style={{ display: "flex", marginLeft: "auto", justifySelf: "flex-end", fontSize: "14px" }}>
+                    Deviation: {Number(asset.deviationPercent.toString()).toFixed(4)}
+                </div>
+            </div>
+        </button >
     );
 
     const modal = useRef(null);
@@ -121,6 +146,8 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [modal]);
+
+    const [backHovered, setBackHovered] = useState(false);
 
     console.log(modalParent.current);
     return (
@@ -146,22 +173,42 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                     <div style={{
                         flex: "1",
                         justifyContent: "flex-start",
+                        flexWrap: "wrap",
                     }}>
-                        <img style={{
-                            transform: "rotate(90deg)",
-                            marginLeft: "0px",
-                        }} src={chevron} />
+                        <div style={{
+                            flex: "1",
+                            justifyContent: "flex-start",
+                            flexWrap: "wrap",
+                            backgroundColor: backHovered ? "var(--bl)" : "var(--bc)",
+                            alignItems: "center",
+                            justifyItems: "center",
+                            borderRadius: "10px",
+                            marginLeft: "10px",
+                            width: "30px",
+                            margin: "0",
+                            padding: "0",
+                        }}
+                            onMouseOver={e => { setBackHovered(true) }}
+                            onMouseOut={e => { setBackHovered(false) }}
+                            onClick={e => closeModal()}
+                        >
+                            <img style={{
+                                transform: "rotate(90deg)",
+                            }} src={chevron} />
+                        </div>
                     </div>
                     <div style={{
                         flex: "1",
                         justifyContent: "center",
                         width: "100%",
-                        padding: "0px, auto",
+                        flexWrap: "wrap",
                     }}>
                         <p style={{
                             fontSize: "24px",
+                            minWidth: "200px",
                         }}>Select a token</p>
                     </div>
+                    <div style={{ flex: "1", justifyContent: "flex-end" }} />
                 </div>
                 <div style={{ display: "flex", width: "100%", height: "1px", color: "var(-wh)" }} />
                 <div style={{
@@ -169,7 +216,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: "5px"
+                    width: "100%",
                 }}>
                     {assets}
                 </div>
@@ -177,3 +224,4 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
         </div >
     );
 }
+

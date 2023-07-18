@@ -20,7 +20,6 @@ export function QuantityInput({
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
             <input
-                type="tel"
                 size={15}
                 style={{ border: "none", outline: "none", fontSize: "24px", background: "none", color: "#fff" }}
                 value={quantity}
