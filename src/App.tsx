@@ -11,6 +11,7 @@ import { Swap } from "./pages/swap";
 import { Arbi } from "./pages/arbi";
 import * as React from 'react';
 import { useLocation } from 'react-router-dom'
+import { Link, Outlet } from "react-router-dom";
 import Modal from 'react-modal';
 Modal.setAppElement('#root');
 
@@ -36,27 +37,14 @@ const config = createConfig(
 
 function App() {
     return (
-        <Router>
-            <WagmiConfig config={config}>
-                <ConnectKitProvider theme="soft">
-                    <WrappedApp />
-                </ConnectKitProvider>
-            </WagmiConfig>
-        </Router >
-    );
-}
-
-function WrappedApp() {
-    return (
-        <main>
-            <Navbar />
-            <Routes>
-                <Route path="/" element={<Swap />} />
-                <Route path="/swap" element={<Swap />} />
-                <Route path="/arbi" element={<Arbi />} />
-                <Route path="*" element={<NotFound />} />
-            </Routes>
-        </main >
+        <WagmiConfig config={config}>
+            <ConnectKitProvider theme="soft">
+                <main>
+                    <Navbar />
+                    <Outlet />
+                </main >
+            </ConnectKitProvider>
+        </WagmiConfig>
     );
 }
 
@@ -74,24 +62,29 @@ function Navbar() {
                     [
                         { title: "Swap", route: "/swap" },
                         { title: "Arbitrum index", route: "/arbi" },
-                        { title: "Docs", route: "/https://docs.arcanum.to" },
+                        { title: "Docs", route: "https://docs.arcanum.to" },
                     ].map(({ title, route }, index) => {
+                        let item = <div
+                            style={{
+                                display: "flex",
+                                padding: "2px 8px",
+                                borderRadius: "10px",
+                                backgroundColor: hovered == route ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0)",
+                                color: "var(--wh)",
+                            }}
+                            onMouseOver={e => { setHovered(route) }}
+                            onMouseOut={e => { setHovered(location.pathname) }}
+                        >
+                            <span>{title}</span>
+                        </div>;
                         return (
-                            <a key={index} href={route}>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        padding: "2px 8px",
-                                        borderRadius: "10px",
-                                        backgroundColor: hovered == route ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0)",
-                                        color: "var(--wh)",
-                                    }}
-                                    onMouseOver={e => { setHovered(route) }}
-                                    onMouseOut={e => { setHovered(location.pathname) }}
-                                >
-                                    <span>{title}</span>
-                                </div>
-                            </a>
+                            route.startsWith('/') ?
+                                <Link key={index} to={route}>
+                                    {item}
+                                </Link> :
+                                <a href={route}>
+                                    {item}
+                                </a>
                         );
                     })
                 }
