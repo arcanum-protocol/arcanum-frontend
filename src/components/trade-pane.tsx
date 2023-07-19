@@ -209,12 +209,13 @@ export function TokenQuantityInput({
 }) {
     return (
         <div style={{
-            display: "grid",
-            justifyContent: "space-between",
+            display: "flex",
+            justifyContent: "space-around",
             width: "100%",
-            alignItems: "flex-start"
+            alignItems: "flex-start",
+            margin: "10px",
         }}>
-            <div style={{ display: "flex", gridColumn: "1", gridRow: "1", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
                 <div style={{ display: "flex", }}>
                     <p style={{ fontSize: "20px", margin: "0" }}> {text} </p>
                 </div>
@@ -225,7 +226,7 @@ export function TokenQuantityInput({
                 />
                 <p style={{ marginTop: "1px", fontSize: "13px" }}>{usd}</p>
             </div>
-            <div style={{ display: "flex", gridColumn: "2", gridRow: "1", flexDirection: "column", alignItems: "flex-end" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                 <MultipoolAssetSelector modalParent={selectTokenParent} assetList={assets} setter={assetSetter} initialIndex={initialAssetIndex} />
                 <p style={{ marginTop: "1px", fontSize: "13px" }}> Balance: {tokenData.data?.balance.formatted || "0"}</p>
             </div>

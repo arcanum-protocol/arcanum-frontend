@@ -86,7 +86,7 @@ export function ArbiMintBurn({ fetchedAssets }) {
                 justifyContent: "center",
                 flexDirection: "column", rowGap: "25px",
                 borderRadius: "13px",
-                width: "100%",
+                width: isMobile ? "100%" : "400px",
             }}>
             <div style={{ margin: "5px 10px", display: "flex", width: isMobile ? "100%" : "400px" }}>
                 <div style={{
