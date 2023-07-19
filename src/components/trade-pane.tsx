@@ -183,7 +183,7 @@ export function TradePane({
                 selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
-            <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} />
+            {address ? <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
             <InteractionWithApprovalButton
                 interactionTxnBody={estimationResults?.txn}
                 interactionBalance={estimationResults?.estimatedAmountIn?.row}
