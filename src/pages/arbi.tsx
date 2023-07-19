@@ -5,6 +5,7 @@ import { TradePane } from '../components/trade-pane';
 import { emptyAdapter } from '../lib/trade-adapters';
 import { TVChartContainer } from '../components/tv-chart';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
+import { useMobileMedia } from '../hooks/tokens';
 
 
 export function Arbi() {
@@ -19,29 +20,53 @@ export function Arbi() {
         inner();
     }, []);
 
-    return (
-        <div>
-            <div style={{
-                display: "flex",
-                alignItems: "flex-start",
-                rowGap: "10px",
-                marginTop: "40px",
-                gap: "10px",
-            }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+    const isMobile = useMobileMedia();
+
+    if (!isMobile) {
+        return (
+            <div>
+                <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    rowGap: "10px",
+                    marginTop: "40px",
+                    gap: "10px",
+                }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                        <Head />
+                        <TVChartContainer symbol={'ARBI'} />
+                        <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
+                    </div>
+                    <ArbiMintBurn fetchedAssets={fetchedAssets} />
+                </div >
+            </div >
+        );
+    } else {
+        return (
+            <div>
+                <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    rowGap: "10px",
+                    marginTop: "40px",
+                    gap: "10px",
+                    width: "100%",
+                }}>
                     <Head />
                     <TVChartContainer symbol={'ARBI'} />
+                    <ArbiMintBurn fetchedAssets={fetchedAssets} />
                     <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
-                </div>
-                <ArbiMintBurn fetchedAssets={fetchedAssets} />
+                </div >
             </div >
-        </div >
-    );
+        );
+    }
 }
 export function ArbiMintBurn({ fetchedAssets }) {
 
     const [isMintDisplayed, setMintDisplayed] = useState<boolean>(true);
     const me = useRef(null);
+    const isMobile = useMobileMedia();
 
     function displayOrHide(hide: boolean, props: React.CSSProperties): React.CSSProperties {
         if (hide) {
@@ -60,15 +85,15 @@ export function ArbiMintBurn({ fetchedAssets }) {
                 backgroundColor: "rgba(30, 29, 29, 0.8)",
                 justifyContent: "center",
                 flexDirection: "column", rowGap: "25px",
-                padding: "10px",
                 borderRadius: "13px",
+                width: "100%",
             }}>
-            <div style={{ display: "flex", width: "400px" }}>
+            <div style={{ margin: "5px 10px", display: "flex", width: isMobile ? "100%" : "400px" }}>
                 <div style={{
                     display: "flex",
-                    margin: "auto",
                     width: "100%",
-                    justifyContent: "space-between", padding: "5px",
+                    justifyContent: "space-between",
+                    padding: "5px",
                     borderRadius: "10px",
                     backgroundColor: "#161616"
                 }}>
@@ -99,7 +124,7 @@ export function ArbiMintBurn({ fetchedAssets }) {
                 </div>
             </div>
             <div style={{ display: "flex", justifyContent: "center" }}>
-                <div style={displayOrHide(!isMintDisplayed, {})}>
+                <div style={displayOrHide(!isMintDisplayed, { width: "100%" })}>
                     <TradePane
                         assetsIn={fetchedAssets}
                         assetsOut={[ArbiAsset]}
@@ -112,7 +137,7 @@ export function ArbiMintBurn({ fetchedAssets }) {
                         }} />
 
                 </div >
-                <div style={displayOrHide(isMintDisplayed, {})}>
+                <div style={displayOrHide(isMintDisplayed, { width: "100%" })}>
                     <TradePane
                         assetsIn={[ArbiAsset]}
                         assetsOut={fetchedAssets}
@@ -131,12 +156,13 @@ export function ArbiMintBurn({ fetchedAssets }) {
 }
 
 export function Head() {
+    const isMobile = useMobileMedia();
     return (
         <div style={{
-            display: "flex",
+            display: "grid",
             borderRadius: "10px",
             backgroundColor: "var(--bc)",
-            justifyContent: "flex-start",
+            width: "100%",
             gap: "40px",
         }}>
             <span style={{
@@ -144,44 +170,58 @@ export function Head() {
                 padding: "0",
                 marginTop: "0px",
                 marginBottom: "0px",
+                gridRow: "1",
+                gridColumn: "1",
                 marginLeft: "10px",
             }}>ARBI</span>
             <div style={{
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
+                gridRow: "1",
+                gridColumn: "3",
                 alignItems: "flex-start"
             }}>
                 <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</span>
                 <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
             </div>
-            <div style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start"
-            }}>
-                <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</span>
-                <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
-            </div>
-            <div style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start"
-            }}>
-                <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</span>
-                <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
-            </div>
-            <div style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "flex-start"
-            }}>
-                <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</span>
-                <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
-            </div>
+            {!isMobile ?
+                <>
+                    <div style={{
+                        display: "flex",
+                        gridRow: "1",
+                        gridColumn: "4",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "flex-start"
+                    }}>
+                        <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</span>
+                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
+                    </div>
+                    <div style={{
+                        display: "flex",
+                        gridRow: "1",
+                        gridColumn: "5",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "flex-start"
+                    }}>
+                        <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</span>
+                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
+                    </div>
+                    <div style={{
+                        display: "flex",
+                        gridRow: "1",
+                        gridColumn: "6",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "flex-start"
+                    }}>
+                        <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</span>
+                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
+                    </div>
+                </>
+                : undefined}
         </div>
     );
 }

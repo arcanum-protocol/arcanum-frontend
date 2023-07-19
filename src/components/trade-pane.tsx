@@ -9,7 +9,7 @@ import { useDebounce } from 'use-debounce';
 import { QuantityInput } from './quantity-input';
 import { useContractRead, useAccount, usePrepareContractWrite, useContractWrite, useWaitForTransaction, useToken } from 'wagmi'
 import { formatEther, MaxUint256 } from "ethers";
-import { type TokenWithAddress, useTokenWithAddress, useEstimate } from '../hooks/tokens';
+import { type TokenWithAddress, useTokenWithAddress, useEstimate, useMobileMedia } from '../hooks/tokens';
 import { InteractionWithApprovalButton } from './approval-button';
 import { TransactionParamsSelector } from './transaction-params-selector';
 
@@ -92,6 +92,7 @@ export function TradePane({
     const texts: TradePaneTexts = paneTexts;
     const adapter: TradeLogicAdapter = tradeLogicAdapter;
     const { address } = useAccount()
+    const isMobile = useMobileMedia();
 
     const [assetIn, setAssetIn] = useState<MultipoolAsset>(assetsIn[initialInIndex] || assetsIn);
     const bindAssetIn = (value: MultipoolAsset) => setAssetIn(value);
@@ -139,14 +140,24 @@ export function TradePane({
 
     console.log(estimationResults?.estimatedAmountIn);
     return (
-        <div style={{
-            display: "flex",
-            rowGap: "30px",
-            flexDirection: "column",
-            justifyContent: "center",
-            margin: "0px auto",
-            width: "400px"
-        }}>
+        <div style={
+            isMobile ? {
+                display: "flex",
+                rowGap: "30px",
+                flexDirection: "column",
+                justifyContent: "center",
+                margin: "0px auto",
+                width: "100%",
+            } :
+                {
+                    display: "flex",
+                    rowGap: "30px",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    margin: "0px auto",
+                    width: "400px"
+                }
+        }>
 
             <TokenQuantityInput
                 isDisabled={estimationIsLoading}
@@ -197,8 +208,13 @@ export function TokenQuantityInput({
     selectTokenParent,
 }) {
     return (
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
+        <div style={{
+            display: "grid",
+            justifyContent: "space-between",
+            width: "100%",
+            alignItems: "flex-start"
+        }}>
+            <div style={{ display: "flex", gridColumn: "1", gridRow: "1", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
                 <div style={{ display: "flex", }}>
                     <p style={{ fontSize: "20px", margin: "0" }}> {text} </p>
                 </div>
@@ -209,7 +225,7 @@ export function TokenQuantityInput({
                 />
                 <p style={{ marginTop: "1px", fontSize: "13px" }}>{usd}</p>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+            <div style={{ display: "flex", gridColumn: "2", gridRow: "1", flexDirection: "column", alignItems: "flex-end" }}>
                 <MultipoolAssetSelector modalParent={selectTokenParent} assetList={assets} setter={assetSetter} initialIndex={initialAssetIndex} />
                 <p style={{ marginTop: "1px", fontSize: "13px" }}> Balance: {tokenData.data?.balance.formatted || "0"}</p>
             </div>

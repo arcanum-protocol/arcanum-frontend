@@ -4,13 +4,15 @@ import * as React from 'react';
 import { EstimatedValues, SendTransactionParams } from "./trade-pane";
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
+import { useMobileMedia } from "../hooks/tokens";
 
 export function TransactionParamsSelector({ txnParams, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;
     const e: EstimatedValues = estimates;
+    const isMobile = useMobileMedia();
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-            <SlippageSelector slippageSetter={slippageSetter} />
+            {isMobile ? undefined : <SlippageSelector slippageSetter={slippageSetter} />}
             <div style={{ display: "flex", justifyContent: "space-between" }}>
                 {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>{p.tokenIn?.symbol} price</p> : <Skeleton />}
                 <p style={{ margin: "0" }}>

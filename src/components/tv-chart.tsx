@@ -7,6 +7,7 @@ import {
     ChartingLibraryFeatureset,
 } from '../lib/charting_library';
 import * as React from 'react';
+import { useMobileMedia } from '../hooks/tokens';
 
 export const SUPPORTED_RESOLUTIONS = { 1: "1m", 3: "3m", 5: "5m", 15: "15m", 30: "30m", 60: "1h", 720: "12h", "1D": "1d" };
 
@@ -55,7 +56,7 @@ export const defaultChartProps = {
     overrides: chartOverrides,
     custom_css_url: "/tradingview-chart.css",
     loading_screen: { backgroundColor: "#16182e", foregroundColor: "#2962ff" },
-    favorites: {},
+    favorites: { 3: "3m", },
 };
 
 export interface ChartContainerProps {
@@ -83,6 +84,8 @@ const getLanguageFromURL = (): LanguageCode | null => {
 
 export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv' }) => {
     const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
+
+    const isMobile = useMobileMedia();
 
     useEffect(() => {
         const widgetOptions: ChartingLibraryWidgetOptions = {
@@ -118,9 +121,11 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
                 "use_localstorage_for_settings",
                 "right_bar_stays_on_scroll",
                 "symbol_info",
-            ],
+            ].concat(isMobile ? disabledFeaturesOnMobile : []),
             user_id: defaultChartProps.userId,
             custom_css_url: '/tradingview-chart.css',
+            fullscreen: false,
+            autosize: true,
             //custom_font_family: 'Ubuntu',
             overrides: defaultChartProps.overrides,
             favorites: {
@@ -154,7 +159,7 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
 
     return (
         <div
-            style={{ width: "100%", height: "100%", borderRadius: "10px" }}
+            style={{ width: "100%", height: isMobile ? "80vw" : "100%", borderRadius: "10px" }}
             ref={chartContainerRef}
             className={'TVChartContainer'}
         />

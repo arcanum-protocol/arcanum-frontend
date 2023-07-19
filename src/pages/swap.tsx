@@ -25,7 +25,9 @@ export function Swap() {
                 //height: "calc(100vh - 150px)", 
                 marginTop: "40px",
                 alignItems: "center",
-                justifyContent: "center", flexDirection: "column", rowGap: "10px"
+                justifyContent: "center",
+                flexDirection: "column", rowGap: "10px",
+                width: "100%",
             }}>
             <div
                 ref={me}
@@ -34,6 +36,7 @@ export function Swap() {
                     backgroundColor: "var(--bc)",
                     borderRadius: "10px",
                     padding: "20px",
+                    width: "100%",
                     justifyContent: "center"
                 }}>
                 <TradePane

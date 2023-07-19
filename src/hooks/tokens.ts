@@ -2,6 +2,7 @@ import multipoolABI from '../abi/ETF';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
 import { useContractRead, useToken } from 'wagmi'
 import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter } from '../components/trade-pane';
+import { useMedia } from 'react-use';
 
 export type TokenWithAddress = {
     tokenAddress: string,
@@ -22,6 +23,10 @@ export type TokenWithAddress = {
         row: bigint,
         formatted: string,
     } | undefined,
+}
+
+export function useMobileMedia(): boolean {
+    return useMedia("(max-width: 550px)");
 }
 
 export function useTokenWithAddress({
