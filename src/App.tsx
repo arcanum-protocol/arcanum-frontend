@@ -57,6 +57,22 @@ function Navbar() {
     const isMobile = useMobileMedia();
     const [mobileReferencesActive, setMobileReferences] = React.useState(false);
 
+    const modal = React.useRef(null);
+
+    React.useEffect(() => {
+        function handleClickOutside(event) {
+            if (modal.current && !modal.current.contains(event.target)) {
+                setMobileReferences(false);
+            }
+        }
+        // Bind the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            // Unbind the event listener on clean up
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [modal]);
+
     console.log(state);
     React.useEffect(() => {
         setMobileReferences(false);
@@ -102,6 +118,7 @@ function Navbar() {
         </div >;
 
     const mobileMenuModal = <div
+        ref={modal}
         style={{
             position: "fixed",
             overflowX: "scroll",
