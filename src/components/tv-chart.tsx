@@ -159,7 +159,7 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
 
     return (
         <div
-            style={{ width: "100%", height: isMobile ? "80vw" : "100%", borderRadius: "10px" }}
+            style={{ width: "100%", height: "50vh", borderRadius: "10px" }}
             ref={chartContainerRef}
             className={'TVChartContainer'}
         />

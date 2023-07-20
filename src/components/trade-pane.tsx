@@ -138,25 +138,18 @@ export function TradePane({
         isError: estimationIsError
     } = useEstimate(adapter, sendTransctionParams);
 
-    console.log(estimationResults?.estimatedAmountIn);
     return (
         <div style={
-            isMobile ? {
+            {
                 display: "flex",
+                overflow: "hidden",
                 rowGap: "30px",
                 flexDirection: "column",
                 justifyContent: "center",
-                margin: "0px auto",
+                maxWidth: "400px",
                 width: "100%",
-            } :
-                {
-                    display: "flex",
-                    rowGap: "30px",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    margin: "0px auto",
-                    width: "400px"
-                }
+                padding: "30px 10px",
+            }
         }>
 
             <TokenQuantityInput
@@ -210,10 +203,8 @@ export function TokenQuantityInput({
     return (
         <div style={{
             display: "flex",
-            justifyContent: "space-around",
-            width: "100%",
+            justifyContent: "space-between",
             alignItems: "flex-start",
-            margin: "10px",
         }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
                 <div style={{ display: "flex", }}>

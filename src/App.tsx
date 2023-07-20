@@ -155,7 +155,7 @@ function Navbar() {
     </div >;
 
     return (<nav>
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", width: "100%", overflow: "scroll" }}>
             {mobileReferencesActive ? mobileMenu : undefined}
             {
                 isMobile ? <div

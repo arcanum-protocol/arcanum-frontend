@@ -39,7 +39,7 @@ a:hover {
 body {
   margin: 0;
   place-items: center;
-  min-width: 320px;
+  min-width: 250px;
   min-height: 100vh;
 }
 

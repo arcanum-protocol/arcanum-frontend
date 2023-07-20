@@ -41,16 +41,15 @@ export function useTokenWithAddress({
 } {
     const { data: tokenData, isError: isTokenError, isLoading: isTokenLoading } = useToken({
         address: tokenAddress,
-        enabled: tokenAddress,
+        enabled: tokenAddress != undefined,
     })
 
-    const { data: mintTokenBalance, isError: isBalanceError, isLoading: isBalanceLoading } = useContractRead({
+    const { data: tokenBalance, isError: isBalanceError, isLoading: isBalanceLoading } = useContractRead({
         address: tokenAddress,
         abi: multipoolABI,
         functionName: 'balanceOf',
         args: [userAddress],
-        enabled: tokenAddress,
-        staleTime: 20_000,
+        enabled: tokenAddress != undefined && userAddress != undefined,
         watch: true,
     });
 
@@ -59,8 +58,7 @@ export function useTokenWithAddress({
         abi: multipoolABI,
         functionName: 'allowance',
         args: [userAddress, allowanceTo],
-        enabled: tokenAddress && allowanceTo,
-        staleTime: 20_000,
+        enabled: tokenAddress != undefined && allowanceTo != undefined && userAddress != undefined,
         watch: true,
     });
     const isLoading = isTokenLoading || isAllowanceLoading || isBalanceLoading;
@@ -81,12 +79,12 @@ export function useTokenWithAddress({
                 formatted: tokenData!.totalSupply.formatted,
             },
             balance: {
-                row: mintTokenBalance,
-                formatted: FixedNumber.from(mintTokenBalance).divUnsafe(FixedNumber.from(denominator)).toString(),
+                row: tokenBalance,
+                formatted: tokenBalance && FixedNumber.from(tokenBalance).divUnsafe(FixedNumber.from(denominator)).toString(),
             },
             approval: {
                 row: approvedTokenBalance,
-                formatted: FixedNumber.from(approvedTokenBalance).divUnsafe(FixedNumber.from(denominator)).toString(),
+                formatted: tokenBalance && FixedNumber.from(approvedTokenBalance).divUnsafe(FixedNumber.from(denominator)).toString(),
             },
         };
     }

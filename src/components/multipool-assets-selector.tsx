@@ -149,7 +149,6 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
 
     const [backHovered, setBackHovered] = useState(false);
 
-    console.log(modalParent.current);
     return (
         <div>
             {selected(selectedAsset?.logo || undefined, selectedAsset?.symbol || undefined, true)}

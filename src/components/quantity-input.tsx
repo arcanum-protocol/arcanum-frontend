@@ -22,8 +22,13 @@ export function QuantityInput({
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
             <input
-                size={isMobile ? 8 : 15}
-                style={{ border: "none", outline: "none", fontSize: "24px", background: "none", color: "#fff" }}
+                //size={isMobile ? 8 : 15}
+                style={{
+                    width: "100%",
+                    boxSizing: "content-box",
+                    overflow: "hidden",
+                    border: "none", outline: "none", fontSize: "24px", background: "none", color: "#fff"
+                }}
                 value={quantity}
                 disabled={disabled}
                 placeholder="0"

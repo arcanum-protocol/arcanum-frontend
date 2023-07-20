@@ -62,6 +62,10 @@ export function Arbi() {
         );
     }
 }
+
+export function Tab({ fetchedAssets }) {
+}
+
 export function ArbiMintBurn({ fetchedAssets }) {
 
     const [isMintDisplayed, setMintDisplayed] = useState<boolean>(true);
