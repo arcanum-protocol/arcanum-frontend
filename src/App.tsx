@@ -105,7 +105,10 @@ function Navbar() {
         style={{
             position: "fixed",
             overflowX: "scroll",
-            backdropFilter: "blur(50px)",
+            // safari don't support backdrop filters on scailing
+            //backdropFilter: "blur(50px)",
+            //WebkitBackdropFilter: "blur(50px)",
+            backgroundColor: "var(--bc)",
             top: "0",
             left: "0",
             height: "100vh",
