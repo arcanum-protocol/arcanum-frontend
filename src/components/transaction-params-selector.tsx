@@ -93,7 +93,6 @@ export function SlippageSelector({ slippageSetter }) {
     // 0,1,2,3 - presets, 4 - custom
     const [selectedSlippageType, setType] = useState<number>(2);
     const slippagePresets = [0.1, 0.5, 1, 3];
-    console.log(selectedSlippageType);
     return (
         <div style={{ display: "flex", width: "100%", marginTop: "10px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>

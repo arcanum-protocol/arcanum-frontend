@@ -41,7 +41,7 @@ const config = createConfig(
 function App() {
     return (
         <WagmiConfig config={config}>
-            <ConnectKitProvider theme="soft">
+            <ConnectKitProvider theme="midnight">
                 <main>
                     <Navbar />
                     <Outlet />
@@ -52,11 +52,15 @@ function App() {
 }
 
 function Navbar() {
-    const location = useLocation();
-    console.log(location.pathname);
+    const { state } = useLocation();
     const [hovered, setHovered] = React.useState(location.pathname);
     const isMobile = useMobileMedia();
     const [mobileReferencesActive, setMobileReferences] = React.useState(false);
+
+    console.log(state);
+    React.useEffect(() => {
+        setMobileReferences(false);
+    }, [state]);
 
     const links = [
         { title: "Swap", route: "/swap" },
@@ -76,14 +80,17 @@ function Navbar() {
                             backgroundColor: hovered == route ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0)",
                             color: "var(--wh)",
                         }}
-                        onMouseOver={e => { setHovered(route) }}
-                        onMouseOut={e => { setHovered(location.pathname) }}
+                        onMouseOver={() => { setHovered(route) }}
+                        onMouseOut={() => { setHovered(location.pathname) }}
                     >
                         <span>{title}</span>
                     </div>;
                     return (
                         route.startsWith('/') ?
-                            <Link key={index} to={route}>
+                            <Link
+                                key={index}
+                                to={route}
+                            >
                                 {item}
                             </Link> :
                             <a href={route}>
@@ -92,27 +99,26 @@ function Navbar() {
                     );
                 })
             }
-        </div>;
+        </div >;
 
-    const mobileMenu = <div
+    const mobileMenuModal = <div
         style={{
-            backgroundColor: "var(--bc)",
-            position: "absolute",
-            backdropFilter: "blur(10px)",
+            position: "fixed",
+            overflowX: "scroll",
+            backdropFilter: "blur(50px)",
             top: "0",
             left: "0",
+            height: "100vh",
             zIndex: "1",
-            maxWidth: "300px",
             display: "flex",
             gap: "10px",
-            height: "100%",
             justifyItems: "flex-start",
             flexDirection: "column",
-            paddingLeft: "10px",
-            paddingTop: "10px",
-            width: mobileReferencesActive ? "300px" : "0px",
+            width: "300px",
+            transition: "max-width .5s",
+            maxWidth: mobileReferencesActive ? "300px" : "0px",
         }}>
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div style={{ marginLeft: "10px", marginTop: "10px", display: "flex", alignItems: "center" }}>
             <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", justifyContent: "flex-start" }}>
                 <img src={logo} />
             </div>
@@ -124,39 +130,48 @@ function Navbar() {
                 justifyContent: "flex-end",
                 marginRight: "10px",
             }}
-                onClick={e => setMobileReferences(false)}
+                onClick={() => setMobileReferences(false)}
             >
                 <img src={closeIcon} />
             </div>
         </div>
-        {
-            links.map(({ title, route }, index) => {
-                let item = <div
-                    style={{
-                        display: "flex",
-                        padding: "2px 8px",
-                        borderRadius: "10px",
-                        color: "var(--wh)",
-                    }}
-                >
-                    <span>{title}</span>
-                </div>;
-                return (
-                    route.startsWith('/') ?
-                        <Link key={index} to={route}>
-                            {item}
-                        </Link> :
-                        <a href={route}>
-                            {item}
-                        </a>
-                );
-            })
-        }
+        <div style={{
+            marginLeft: "10px",
+            marginTop: "10px", flexDirection: "column",
+            gap: "20px",
+            display: "flex", alignItems: "flex-start"
+        }}>
+            {
+                links.map(({ title, route }, index) => {
+                    let item = <div
+                        style={{
+                            display: "flex",
+                            padding: "2px 8px",
+                            borderRadius: "10px",
+                            color: "var(--wh)",
+                        }}
+                    >
+                        <span>{title}</span>
+                    </div>;
+                    return (
+                        route.startsWith('/') ?
+                            <Link key={index} to={route}
+                                state={{ reloaded: route }}
+                            >
+                                {item}
+                            </Link> :
+                            <a href={route}>
+                                {item}
+                            </a>
+                    );
+                })
+            }
+        </div>
     </div >;
 
     return (<nav>
         <div style={{ display: "flex", alignItems: "center", width: "100%", overflow: "scroll" }}>
-            {mobileReferencesActive ? mobileMenu : undefined}
+            {mobileMenuModal}
             {
                 isMobile ? <div
                     onClick={e => setMobileReferences(true)}
