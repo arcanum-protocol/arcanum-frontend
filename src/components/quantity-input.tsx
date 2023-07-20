@@ -22,7 +22,6 @@ export function QuantityInput({
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
             <input
-                //size={isMobile ? 8 : 15}
                 style={{
                     width: "100%",
                     boxSizing: "content-box",

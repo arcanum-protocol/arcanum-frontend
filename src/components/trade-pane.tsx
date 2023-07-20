@@ -143,12 +143,10 @@ export function TradePane({
             {
                 display: "flex",
                 overflow: "hidden",
-                rowGap: "30px",
                 flexDirection: "column",
                 justifyContent: "center",
                 maxWidth: "400px",
                 width: "100%",
-                padding: "30px 10px",
             }
         }>
 
@@ -176,14 +174,16 @@ export function TradePane({
                 selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
-            {address ? <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
-            <InteractionWithApprovalButton
-                interactionTxnBody={estimationResults?.txn}
-                interactionBalance={estimationResults?.estimatedAmountIn?.row}
-                approveMax={true}
-                actionName={texts.buttonAction}
-                tokenData={inTokenData}
-            />
+            <div style={{ display: "flex", flexDirection: "column", margin: "10px", rowGap: "30px" }}>
+                {address ? <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
+                <InteractionWithApprovalButton
+                    interactionTxnBody={estimationResults?.txn}
+                    interactionBalance={estimationResults?.estimatedAmountIn?.row}
+                    approveMax={true}
+                    actionName={texts.buttonAction}
+                    tokenData={inTokenData}
+                />
+            </div >
         </div >
     );
 }
@@ -205,6 +205,7 @@ export function TokenQuantityInput({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
+            margin: "30px 10px",
         }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
                 <div style={{ display: "flex", }}>

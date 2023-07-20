@@ -27,17 +27,17 @@ export function Arbi() {
             <div>
                 <div style={{
                     display: "flex",
-                    alignItems: "center",
+                    alignItems: "flex-start",
                     rowGap: "10px",
-                    marginTop: "40px",
+                    marginTop: "20px",
                     gap: "10px",
                 }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
                         <Head />
                         <TVChartContainer symbol={'ARBI'} />
                         <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
                     </div>
-                    <ArbiMintBurn fetchedAssets={fetchedAssets} />
+                    <MintBurnTabs fetchedAssets={fetchedAssets} />
                 </div >
             </div >
         );
@@ -49,13 +49,13 @@ export function Arbi() {
                     alignItems: "center",
                     flexDirection: "column",
                     rowGap: "10px",
-                    marginTop: "40px",
+                    marginTop: "20px",
                     gap: "10px",
                     width: "100%",
                 }}>
                     <Head />
                     <TVChartContainer symbol={'ARBI'} />
-                    <ArbiMintBurn fetchedAssets={fetchedAssets} />
+                    <MintBurnTabs fetchedAssets={fetchedAssets} />
                     <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
                 </div >
             </div >
@@ -63,10 +63,7 @@ export function Arbi() {
     }
 }
 
-export function Tab({ fetchedAssets }) {
-}
-
-export function ArbiMintBurn({ fetchedAssets }) {
+export function MintBurnTabs({ fetchedAssets }) {
 
     const [isMintDisplayed, setMintDisplayed] = useState<boolean>(true);
     const me = useRef(null);
@@ -86,17 +83,19 @@ export function ArbiMintBurn({ fetchedAssets }) {
             ref={me}
             style={{
                 display: "flex", alignItems: "center",
-                backgroundColor: "rgba(30, 29, 29, 0.8)",
+                backgroundColor: "var(--bc)",
                 justifyContent: "center",
-                flexDirection: "column", rowGap: "25px",
+                flexDirection: "column",
                 borderRadius: "13px",
-                width: isMobile ? "100%" : "400px",
+                width: "100%",
+                maxWidth: "400px",
             }}>
-            <div style={{ margin: "5px 10px", display: "flex", width: isMobile ? "100%" : "400px" }}>
+            <div style={{ margin: "5px 10px", display: "flex", width: "100%" }}>
                 <div style={{
                     display: "flex",
                     width: "100%",
                     justifyContent: "space-between",
+                    margin: "10px",
                     padding: "5px",
                     borderRadius: "10px",
                     backgroundColor: "#161616"
@@ -127,7 +126,7 @@ export function ArbiMintBurn({ fetchedAssets }) {
                     </button>
                 </div>
             </div>
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
                 <div style={displayOrHide(!isMintDisplayed, { width: "100%" })}>
                     <TradePane
                         assetsIn={fetchedAssets}

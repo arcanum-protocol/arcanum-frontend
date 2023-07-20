@@ -1,6 +1,6 @@
 import * as React from 'react';
 import multipoolABI from '../abi/ETF';
-import { usePrepareContractWrite, useContractWrite, useWaitForTransaction } from 'wagmi'
+import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi'
 import { MaxUint256 } from "ethers";
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -20,6 +20,8 @@ export function InteractionWithApprovalButton({
     } = tokenData;
 
     const allowance: bigint = token?.approval?.row || BigInt(0);
+    const { isConnected } = useAccount();
+
     // hooks 
     // send approval
     const { config: approvalConfig } = usePrepareContractWrite({
@@ -53,6 +55,8 @@ export function InteractionWithApprovalButton({
 
     if (isTokenDataLoading) {
         mintButton = (<button style={defaultStyle} disabled={true}> <Skeleton /> </button>);
+    } else if (!isConnected) {
+        mintButton = (<button style={defaultStyle} disabled={true}> Connect wallet </button>);
     } else if (isTokenDataUnset) {
         mintButton = (<button style={defaultStyle} disabled={true}> Select token </button>);
     } else if (approvalTxnIsLoading || txnIsLoading) {

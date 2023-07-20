@@ -6,6 +6,7 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useMobileMedia } from "../hooks/tokens";
 import chevron from '/chevron-down.svg';
+import { FixedNumber } from "ethers";
 
 export function TransactionParamsSelector({ txnParams, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;
@@ -21,7 +22,7 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                     display: "grid",
                     gridAutoColumns: "1fr 2fr 1fr",
                     alignItems: "center",
-                    backgroundColor: "var(--solid-bc)",
+                    backgroundColor: "var(--bl)",
                     borderRadius: "10px",
                 }}>
                 <div
@@ -46,7 +47,7 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                     maxHeight: isOpened ? "250px" : "0px",
                     overflow: "hidden",
                 }}>
-                {isMobile ? undefined : <SlippageSelector slippageSetter={slippageSetter} />}
+                <SlippageSelector slippageSetter={slippageSetter} />
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>{p.tokenIn?.symbol} price</p> : <Skeleton />}
                     <p style={{ margin: "0" }}>
@@ -91,12 +92,18 @@ export function SlippageSelector({ slippageSetter }) {
 
     // 0,1,2,3 - presets, 4 - custom
     const [selectedSlippageType, setType] = useState<number>(2);
-
+    const slippagePresets = [0.1, 0.5, 1, 3];
+    console.log(selectedSlippageType);
     return (
-        <div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <div style={{ display: "flex", justifySelf: "flex-start" }}>
-                    <p style={{ margin: "0" }}>Slippage tolerance</p>
+        <div style={{ display: "flex", width: "100%", marginTop: "10px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
+                <div style={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex" }}>
+                        <p style={{ margin: "0" }}>Slippage tolerance</p>
+                    </div>
+                    <div style={{ display: "flex" }}>
+                        <p style={{ margin: "0" }}>{slippage}%</p>
+                    </div>
                 </div>
                 <div style={{
                     display: "flex",
@@ -106,46 +113,67 @@ export function SlippageSelector({ slippageSetter }) {
                     paddingRight: "5px",
                     margin: "auto",
                     borderRadius: "10px",
+                    maxWidth: "90%",
                 }}>
-                    <div style={{ display: "flex", justifyContent: "center" }}>
-                        {[0.1, 0.5, 1, 3].map((slippage: number, index: number) => {
-                            return (
-                                <div
-                                    onClick={e => { setType(index); setSlippage(slippage) }}
-                                    style={{
-                                        borderRadius: "10px",
-                                        color: index != selectedSlippageType ? "var(--wh)" : "var(--bl)",
-                                        backgroundColor: index == selectedSlippageType ? "var(--wh)" : "var(--bl)",
-                                    }}>
-                                    <button style={{
-                                        margin: "0",
-                                        padding: "0",
-                                        width: "60px",
-                                        fontSize: "18px",
-                                        background: "none",
-                                        color: index != selectedSlippageType ? "var(--wh)" : "var(--bl)",
-                                    }}>
-                                        {slippage}%
-                                    </button>
-                                </div>
-                            );
-                        })}
-                        <input
-                            type="tel"
-                            size={3}
-                            style={{
-                                marginLeft: "20px",
-                                border: "none",
-                                outline: "none",
-                                fontSize: "18px",
-                                background: "none",
-                                color: "#fff",
-                            }}
-                            value={0}
-                            placeholder="Custom"
-                            onChange={e => {
-                            }}
-                        />
+                    <div style={{
+                        display: "flex",
+                        overflow: "scroll",
+                    }}>
+                        <div style={{
+                            display: "flex",
+                            borderRadius: "10px",
+                            justifyContent: "flex-start"
+                        }}>
+                            {slippagePresets.map((slippage: number, index: number) => {
+                                return (
+                                    <div
+                                        onClick={e => { setType(index); setSlippage(slippage) }}
+                                        style={{
+                                            borderRadius: "10px",
+                                            color: index != selectedSlippageType ? "var(--wh)" : "var(--bl)",
+                                            backgroundColor: index == selectedSlippageType ? "var(--wh)" : "var(--bl)",
+                                        }}>
+                                        <button style={{
+                                            margin: "0",
+                                            padding: "0",
+                                            width: "60px",
+                                            fontSize: "18px",
+                                            background: "none",
+                                            color: index != selectedSlippageType ? "var(--wh)" : "var(--bl)",
+                                        }}>
+                                            {slippage}%
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                            <input
+                                style={{
+                                    display: "flex",
+                                    width: "80px",
+                                    border: "none",
+                                    outline: "none",
+                                    fontSize: "18px",
+                                    background: "none",
+                                    color: "var(--wh)",
+                                }}
+                                value={selectedSlippageType == 4 ? slippage : undefined}
+                                placeholder="Custom"
+                                onChange={e => {
+                                    setType(4);
+                                    try {
+                                        if (e.target.value == "") {
+                                            setSlippage(slippagePresets[2]);
+                                            setType(2);
+                                        }
+                                        let val = FixedNumber.fromString(e.target.value);
+                                        let num = Number(val.toString());
+                                        if (num < 100) {
+                                            setSlippage(num);
+                                        }
+                                    } catch { }
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
