@@ -4,7 +4,7 @@
   font-weight: 400;
 
   color: #fff;
-  background-image: url('/background.svg');
+  background-color: rgb(16, 16, 16);
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;

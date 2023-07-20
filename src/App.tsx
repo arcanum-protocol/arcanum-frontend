@@ -91,7 +91,6 @@ function Navbar() {
                     let item = <div
                         style={{
                             display: "flex",
-                            padding: "2px 8px",
                             borderRadius: "10px",
                             backgroundColor: hovered == route ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0)",
                             color: "var(--wh)",
@@ -121,7 +120,7 @@ function Navbar() {
         ref={modal}
         style={{
             position: "fixed",
-            overflowX: "scroll",
+            overflowX: "auto",
             // safari don't support backdrop filters on scailing
             //backdropFilter: "blur(50px)",
             //WebkitBackdropFilter: "blur(50px)",
@@ -166,7 +165,6 @@ function Navbar() {
                     let item = <div
                         style={{
                             display: "flex",
-                            padding: "2px 8px",
                             borderRadius: "10px",
                             color: "var(--wh)",
                         }}
@@ -190,7 +188,10 @@ function Navbar() {
     </div >;
 
     return (<nav>
-        <div style={{ display: "flex", alignItems: "center", width: "100%", overflow: "scroll" }}>
+        <div style={{
+            display: "flex", alignItems: "center", width: "100%",
+            overflow: "auto"
+        }}>
             {mobileMenuModal}
             {
                 isMobile ? <div

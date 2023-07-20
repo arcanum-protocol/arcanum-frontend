@@ -45,7 +45,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 margin: "5px 10px",
                 display: "grid",
                 gap: "10px",
-                overflowX: "scroll",
+                overflowX: "auto",
             }}>
                 <div style={{ gridRow: "1", gridColumn: isMobile ? "1" : "1 / 2", display: "flex", justifyContent: "flex-start", gap: "10px" }}>
                     Name

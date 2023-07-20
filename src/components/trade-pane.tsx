@@ -142,7 +142,7 @@ export function TradePane({
         <div style={
             {
                 display: "flex",
-                overflow: "hidden",
+                overflow: "auto",
                 flexDirection: "column",
                 justifyContent: "center",
                 maxWidth: "400px",

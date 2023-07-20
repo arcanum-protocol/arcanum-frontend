@@ -116,7 +116,7 @@ export function SlippageSelector({ slippageSetter }) {
                 }}>
                     <div style={{
                         display: "flex",
-                        overflow: "scroll",
+                        overflow: "auto",
                     }}>
                         <div style={{
                             display: "flex",
