@@ -31,6 +31,9 @@ dependencies:
   react-router-dom:
     specifier: ^6.14.1
     version: 6.14.1(react-dom@18.2.0)(react@18.2.0)
+  react-smooth-corners:
+    specifier: ^1.0.4
+    version: 1.0.4(@babel/core@7.22.9)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
   react-tabs:
     specifier: ^6.0.1
     version: 6.0.1(react@18.2.0)
@@ -4317,6 +4320,21 @@ packages:
       react: 18.2.0
     dev: false
 
+  /react-smooth-corners@1.0.4(@babel/core@7.22.9)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-kL0nQUeVIo8KUZWwKyBse2aLuQJIRTbrqpdSypbI+jzWLSMKdfxbkiJyyHqLk8XENSeU8DGOdlO2mBS/GF7XWQ==}
+    peerDependencies:
+      react: '>=16.8.0 <= 19'
+      react-dom: '>=16.8.0 <= 19'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      smooth-corners: 1.0.8
+      styled-components: 5.3.11(@babel/core@7.22.9)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - react-is
+    dev: false
+
   /react-tabs@6.0.1(react@18.2.0):
     resolution: {integrity: sha512-XE5D/iCcwUsr06wf6fWrjA/HbUaj3G2+6NMVJygZuKALHkWYp+D3ZPcG2VctuaOHHzMU48eSOuxwBALBnuXldA==}
     peerDependencies:
@@ -4671,6 +4689,10 @@ packages:
   /slash@1.0.0:
     resolution: {integrity: sha512-3TYDR7xWt4dIqV2JauJr+EJeW356RXijHeUlO+8djJ+uBXPn8/2dpzBc8yQhh583sVvc9CvFAeQVgijsH+PNNg==}
     engines: {node: '>=0.10.0'}
+    dev: false
+
+  /smooth-corners@1.0.8:
+    resolution: {integrity: sha512-JcHYm/7l3RZAX+Ev7/91tRX2zau1h+8nVWqMkl3mvqMsHQkUCbEQjFNKRj58s49PyqDcpl9TcUeC2zHHyGu2sQ==}
     dev: false
 
   /sonic-boom@2.8.0:

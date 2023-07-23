@@ -181,7 +181,7 @@ export function TradePane({
                 selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
-            <div style={{ display: "flex", flexDirection: "column", margin: "10px", rowGap: "30px" }}>
+            <div style={{ display: "flex", flexDirection: "column", margin: "20px", rowGap: "30px" }}>
                 {address ? <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
                 <InteractionWithApprovalButton
                     interactionTxnBody={estimationResults?.txn}
@@ -212,7 +212,7 @@ export function TokenQuantityInput({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            margin: "30px 10px",
+            margin: "30px 20px",
         }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
                 <div style={{ display: "flex", }}>

@@ -6,17 +6,7 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import chevron from '/chevron-down.svg';
 import { FixedFormat } from "@ethersproject/bignumber";
-
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-    },
-};
+import { SmoothCorners, SmoothCornersWrapper } from 'react-smooth-corners'
 
 export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent }) {
     const [selectedAsset, setSelectedAsset] = useState<MultipoolAsset | undefined>(undefined);
@@ -62,7 +52,10 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                 (!logo || !symbol) ?
                     (
                         clickable ?
-                            <button
+                            <SmoothCorners
+                                corners="30, 3"
+                                borderRadius="20px"
+                                as="button"
                                 onMouseOver={() => setHover(true)}
                                 onMouseOut={() => setHover(false)}
                                 style={{
@@ -75,7 +68,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                                     {buttonInner(logo, symbol, clickable)}
                                     <img src={chevron} />
                                 </div>
-                            </button>
+                            </SmoothCorners>
                             :
                             <div>
                                 {buttonInner(logo, symbol, clickable)}
@@ -83,7 +76,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                     ) :
                     <Skeleton containerClassName="flex-1" height={30} />
             }
-        </div>;
+        </div >;
 
     if (assetList.length == 1) {
         const asset: SolidAsset = assetList[0];
@@ -162,6 +155,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                     height: modalParent?.current?.offsetHeight,
                     width: modalParent?.current?.offsetWidth,
                     flexDirection: "column",
+                    zIndex: "1000",
                     alignItems: "center",
                     justifyContent: "flex-start",
                     backgroundColor: "var(--solid-bc)",

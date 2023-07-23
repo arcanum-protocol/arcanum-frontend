@@ -6,6 +6,7 @@ import { mintAdapter, burnAdapter } from '../lib/trade-adapters';
 import { TVChartContainer } from '../components/tv-chart';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { useMobileMedia } from '../hooks/tokens';
+import { SmoothCorners } from 'react-smooth-corners'
 
 
 export function Arbi() {
@@ -81,10 +82,12 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
     }
 
     return (
-        <div
-            ref={me}
+        <SmoothCorners
+            corners="30"
+            borderRadius="20px"
             style={{
-                display: "flex", alignItems: "center",
+                display: "flex",
+                alignItems: "center",
                 backgroundColor: "var(--bc)",
                 justifyContent: "center",
                 flexDirection: "column",
@@ -92,71 +95,89 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                 width: "100%",
                 maxWidth: "400px",
             }}>
-            <div style={{ margin: "5px 10px", display: "flex", width: "100%" }}>
-                <div style={{
-                    display: "flex",
-                    width: "100%",
-                    justifyContent: "space-between",
-                    margin: "10px",
-                    padding: "5px",
-                    borderRadius: "10px",
-                    backgroundColor: "#161616"
-                }}>
-                    <button style={{
-                        width: "100%",
-                        fontSize: "20px",
-                        margin: "0",
-                        padding: "5px",
-                        color: !isMintDisplayed ? "#fff" : "#000",
-                        borderRadius: "10px",
-                        backgroundColor: !isMintDisplayed ? "#161616" : "#F9F9F9",
-                    }}
-                        onClick={() => setMintDisplayed(true)}>
-                        Mint
-                    </button>
-                    <button style={{
-                        width: "100%",
-                        fontSize: "20px",
-                        margin: "0",
-                        padding: "2px",
-                        borderRadius: "10px",
-                        color: isMintDisplayed ? "#fff" : "#000",
-                        backgroundColor: isMintDisplayed ? "#161616" : "#F9F9F9",
-                    }}
-                        onClick={() => setMintDisplayed(false)}>
-                        Burn
-                    </button>
+            <div
+                style={{
+                    display: "flex", width: "100%",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    maxWidth: "400px",
+                }}
+                ref={me}
+            >
+                <div style={{ margin: "5px 10px", display: "flex", width: "100%" }}>
+                    <SmoothCorners
+                        corners="30, 3"
+                        borderRadius="10px"
+                        style={{
+                            display: "flex",
+                            width: "100%",
+                            justifyContent: "space-between",
+                            margin: "10px",
+                            padding: "5px",
+                            backgroundColor: "#161616",
+                        }}>
+                        <SmoothCorners
+                            corners="30, 3"
+                            borderRadius="10px"
+                            as="button"
+                            style={{
+                                width: "100%",
+                                fontSize: "20px",
+                                margin: "0",
+                                padding: "5px",
+                                color: "#fff",
+                                backgroundColor: !isMintDisplayed ? "#161616" : "#0047FE",
+                            }}
+                            onClick={() => setMintDisplayed(true)}>
+                            Mint
+                        </SmoothCorners>
+                        <SmoothCorners
+                            corners="30, 3"
+                            borderRadius="10px"
+                            as="button"
+                            style={{
+                                width: "100%",
+                                fontSize: "20px",
+                                margin: "0",
+                                padding: "2px",
+                                color: "#fff",
+                                backgroundColor: isMintDisplayed ? "#161616" : "#0047FE",
+                            }}
+                            onClick={() => setMintDisplayed(false)}>
+                            Burn
+                        </SmoothCorners>
+                    </SmoothCorners>
                 </div>
+                <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+                    <div style={displayOrHide(!isMintDisplayed, { width: "100%" })}>
+                        <TradePane
+                            assetsIn={fetchedAssets}
+                            assetsOut={[multipoolAsset]}
+                            tradeLogicAdapter={mintAdapter}
+                            selectTokenParent={me}
+                            paneTexts={{
+                                buttonAction: "Mint",
+                                section1Name: "Send",
+                                section2Name: "Receive",
+                            }} />
+
+                    </div >
+                    <div style={displayOrHide(isMintDisplayed, { width: "100%" })}>
+                        <TradePane
+                            assetsIn={[multipoolAsset]}
+                            assetsOut={fetchedAssets}
+                            tradeLogicAdapter={burnAdapter}
+                            selectTokenParent={me}
+                            paneTexts={{
+                                buttonAction: "Burn",
+                                section1Name: "Send",
+                                section2Name: "Receive",
+                            }} />
+
+                    </div >
+                </div >
             </div>
-            <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                <div style={displayOrHide(!isMintDisplayed, { width: "100%" })}>
-                    <TradePane
-                        assetsIn={fetchedAssets}
-                        assetsOut={[multipoolAsset]}
-                        tradeLogicAdapter={mintAdapter}
-                        selectTokenParent={me}
-                        paneTexts={{
-                            buttonAction: "Mint",
-                            section1Name: "Send",
-                            section2Name: "Receive",
-                        }} />
-
-                </div >
-                <div style={displayOrHide(isMintDisplayed, { width: "100%" })}>
-                    <TradePane
-                        assetsIn={[multipoolAsset]}
-                        assetsOut={fetchedAssets}
-                        tradeLogicAdapter={burnAdapter}
-                        selectTokenParent={me}
-                        paneTexts={{
-                            buttonAction: "Burn",
-                            section1Name: "Send",
-                            section2Name: "Receive",
-                        }} />
-
-                </div >
-            </div >
-        </div >
+        </SmoothCorners >
     );
 }
 
@@ -165,13 +186,15 @@ export function Head({ multipool }) {
     const multipoolInfo: SolidAsset | undefined = multipool;
     console.log("mp ", multipoolInfo);
     return (
-        <div style={{
-            display: "grid",
-            borderRadius: "10px",
-            backgroundColor: "var(--bc)",
-            width: "100%",
-            gap: "40px",
-        }}>
+        <SmoothCorners
+            corners="10000, 3"
+            borderRadius="10px"
+            style={{
+                display: "grid",
+                backgroundColor: "var(--bc)",
+                width: "100%",
+                gap: "40px",
+            }}>
             <span style={{
                 fontSize: "35px",
                 padding: "0",
@@ -229,6 +252,6 @@ export function Head({ multipool }) {
                     </div>
                 </>
                 : undefined}
-        </div>
+        </SmoothCorners>
     );
 }

@@ -7,6 +7,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { useMobileMedia } from "../hooks/tokens";
 import chevron from '/chevron-down.svg';
 import { FixedNumber } from "ethers";
+import { SmoothCorners } from 'react-smooth-corners'
 
 export function TransactionParamsSelector({ txnParams, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;
@@ -16,14 +17,19 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
-            <div
+            <SmoothCorners
+                corners="30, 3"
+                borderRadius="20px"
+                as="button"
                 onClick={e => setOpened(!isOpened)}
                 style={{
+                    padding: "0px",
                     display: "grid",
                     gridAutoColumns: "1fr 2fr 1fr",
                     alignItems: "center",
                     backgroundColor: "var(--bl)",
-                    borderRadius: "10px",
+                    color: "var(--wh)",
+                    borderRadius: "20px",
                 }}>
                 <div
                     style={{ display: "flex", gridRow: "1", gridColumn: "2", justifyContent: "center" }}>
@@ -37,7 +43,7 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                     }}
                         src={chevron} />
                 </div>
-            </div>
+            </SmoothCorners>
             <div
                 style={{
                     display: "flex",

@@ -12,6 +12,7 @@ export interface MultipoolAsset {
     id: string,
     name: string,
     symbol: string,
+    decimals: number,
     ticker: string,
     coingeckoId: string,
     defilamaId: string | null,
@@ -64,17 +65,20 @@ export async function fetchAssets(
     console.log(fetched_assets);
     return {
         assets: fetched_assets.map((a: any): MultipoolAsset => {
+            const currentShare = total_cap.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.quantity).mulUnsafe(FixedNumber.fromString("100")).mulUnsafe(FixedNumber.from(a.chain_price)).divUnsafe(total_cap);
+            const idealShare = total_ideal_share.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.ideal_share).mulUnsafe(FixedNumber.fromString("100")).divUnsafe(total_ideal_share);
             return {
                 name: a.name,
                 symbol: a.symbol,
                 assetAddress: a.asset_address,
-                currentShare: total_cap.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.quantity).mulUnsafe(FixedNumber.from(a.price)).divUnsafe(total_cap),
-                idealShare: total_ideal_share.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.ideal_share).divUnsafe(total_ideal_share),
+                currentShare: currentShare,
+                idealShare: idealShare,
                 price: a.price,
                 quantity: BigNumber.from(a.quantity),
                 logo: a.logo,
                 multipoolAddress: a.multipool_address,
                 assetId: a.asset_id,
+                decimals: a.decimals,
                 chainPrice: a.chain_price,
                 id: a.id,
                 coingeckoId: a.coingecko_id,
@@ -83,10 +87,7 @@ export async function fetchAssets(
                 mcap: FixedNumber.from(a.mcap),
                 volume24h: FixedNumber.from(a.volume_24h),
                 priceChange24h: a.price_change_24h,
-                deviationPercent: !total_cap.isZero() && !total_ideal_share.isZero() ?
-                    FixedNumber.from(a.quantity).mulUnsafe(FixedNumber.from(a.chain_price))
-                        .divUnsafe(total_cap).subUnsafe(FixedNumber.from(a.ideal_share).divUnsafe(total_ideal_share)) :
-                    FixedNumber.from("0"),
+                deviationPercent: idealShare.subUnsafe(currentShare),
                 ticker: a.ticker
             };
         }).sort((a: MultipoolAsset, b: MultipoolAsset): number => Math.abs(b.idealShare.subUnsafe(b.currentShare).toUnsafeFloat()) - Math.abs(a.idealShare.subUnsafe(a.currentShare).toUnsafeFloat())),

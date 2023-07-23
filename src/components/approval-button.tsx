@@ -4,6 +4,7 @@ import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAc
 import { MaxUint256 } from "ethers";
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
+import { SmoothCorners } from 'react-smooth-corners'
 
 export function InteractionWithApprovalButton({
     interactionTxnBody,
@@ -50,37 +51,67 @@ export function InteractionWithApprovalButton({
 
     let defaultStyle = {
         width: "100%",
-        borderRadius: "20px",
+        backgroundColor: "#fff",
+        //border: "1px solid black",
     };
 
     if (isTokenDataLoading) {
-        mintButton = (<button style={defaultStyle} disabled={true}> <Skeleton /> </button>);
+        mintButton = (<SmoothCorners
+            corners="200"
+            borderRadius="20px"
+            as="button"
+            style={defaultStyle} disabled={true}>
+            <Skeleton />
+        </SmoothCorners>);
     } else if (!isConnected) {
-        mintButton = (<button style={defaultStyle} disabled={true}> Connect wallet </button>);
+        mintButton = (<SmoothCorners
+            corners="30"
+            borderRadius="20px"
+            as="button"
+            style={defaultStyle} disabled={true}> Connect wallet </SmoothCorners>);
     } else if (isTokenDataUnset) {
-        mintButton = (<button style={defaultStyle} disabled={true}> Select token </button>);
+        mintButton = (<SmoothCorners
+            corners="30"
+            borderRadius="20px"
+            as="button"
+            style={defaultStyle} disabled={true}> Select token </SmoothCorners>);
     } else if (approvalTxnIsLoading || txnIsLoading) {
-        mintButton = (<button style={defaultStyle} disabled={true}> <Skeleton /> </button>);
+        mintButton = (<SmoothCorners
+            corners="30"
+            borderRadius="20px"
+            as="button"
+            style={defaultStyle} disabled={true}> <Skeleton /> </SmoothCorners>);
     } else if (token.balance.row < interactionBalance) {
-        mintButton = (<button style={defaultStyle} disabled={true}> Insufficient balance </button>);
+        mintButton = (<SmoothCorners
+            corners="30"
+            borderRadius="20px"
+            as="button"
+            style={defaultStyle} disabled={true}> Insufficient balance </SmoothCorners>);
     } else {
         const approveRequired = allowance < interactionBalance || allowance == BigInt(0);
 
         if (approveRequired) {
             mintButton = (
-                <button
+                <SmoothCorners
+                    corners="30, 3"
+                    borderRadius="20px"
+                    as={"button"}
                     style={{ color: "#3C3997", ...defaultStyle }}
                     disabled={!sendBalanceApproval}
                     onClick={() => sendBalanceApproval()}>Approve balance
-                </button>
+                </SmoothCorners>
             );
         } else {
-            mintButton = (<button
+            mintButton = (<SmoothCorners
+                corners="30"
+                borderRadius="20px"
+                as="button"
+
                 style={defaultStyle}
                 disabled={!sendTxn}
                 onClick={() => sendTxn()}>
                 {actionName}
-            </button>);
+            </SmoothCorners>);
         }
     }
     return (

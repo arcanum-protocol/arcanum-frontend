@@ -5,6 +5,7 @@ import { TradePane } from '../components/trade-pane';
 import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
 import { useMobileMedia } from '../hooks/tokens';
+import { SmoothCorners } from 'react-smooth-corners'
 
 export function Swap() {
 
@@ -31,29 +32,31 @@ export function Swap() {
                 rowGap: "10px",
                 width: "100%",
             }}>
-            <div
-                ref={me}
+            <SmoothCorners
+                corners="30"
+                borderRadius="20px"
                 style={{
                     display: "flex",
-                    backgroundColor: "var(--bc)",
+                    backgroundColor: "#1B1B1B",
                     borderRadius: "10px",
                     margin: "10px",
                     width: !isMobile ? "400px" : "100%",
                     justifyContent: "center"
                 }}>
-                <TradePane
-                    assetsIn={fetchedAssets}
-                    assetsOut={fetchedAssets}
-                    initialOutIndex={1}
-                    tradeLogicAdapter={swapAdapter}
-                    selectTokenParent={me}
-                    paneTexts={{
-                        buttonAction: "Mint",
-                        section1Name: "Send",
-                        section2Name: "Receive",
-                    }} />
-
-            </div >
+                <div style={{ display: "flex", width: "100%" }} ref={me}>
+                    <TradePane
+                        assetsIn={fetchedAssets}
+                        assetsOut={fetchedAssets}
+                        initialOutIndex={1}
+                        tradeLogicAdapter={swapAdapter}
+                        selectTokenParent={me}
+                        paneTexts={{
+                            buttonAction: "Mint",
+                            section1Name: "Send",
+                            section2Name: "Receive",
+                        }} />
+                </div >
+            </SmoothCorners >
             <Faucet assets={fetchedAssets} />
         </div >
     );
