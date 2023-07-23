@@ -48,6 +48,28 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                     overflow: "hidden",
                 }}>
                 <SlippageSelector slippageSetter={slippageSetter} />
+                {
+                    e?.minimalAmountOut != undefined ?
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>Minimal receive</p> : <Skeleton />}
+                            <p style={{ margin: "0" }}>
+                                {e.minimalAmountOut.formatted}({e.minimalAmountOut.usd}$)
+                            </p>
+                        </div>
+                        :
+                        undefined
+                }
+                {
+                    e?.maximumAmountIn != undefined ?
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>Maximum send</p> : <Skeleton />}
+                            <p style={{ margin: "0" }}>
+                                {e.maximumAmountIn.formatted}({e.maximumAmountIn.usd}$)
+                            </p>
+                        </div>
+                        :
+                        undefined
+                }
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>{p.tokenIn?.symbol} price</p> : <Skeleton />}
                     <p style={{ margin: "0" }}>
@@ -76,7 +98,7 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Fee</p>
-                    <p style={{ margin: "0" }}>{"0"}%</p>
+                    <p style={{ margin: "0" }}>{e?.fee || 0}%</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Transaction cost</p>
@@ -89,6 +111,8 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
 
 export function SlippageSelector({ slippageSetter }) {
     const [slippage, setSlippage] = useState<number>();
+
+    useEffect(() => { slippage && slippageSetter(slippage) }, [slippage]);
 
     // 0,1,2,3 - presets, 4 - custom
     const [selectedSlippageType, setType] = useState<number>(2);
@@ -126,6 +150,7 @@ export function SlippageSelector({ slippageSetter }) {
                             {slippagePresets.map((slippage: number, index: number) => {
                                 return (
                                     <div
+                                        key={index}
                                         onClick={e => { setType(index); setSlippage(slippage) }}
                                         style={{
                                             borderRadius: "10px",

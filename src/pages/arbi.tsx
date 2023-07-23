@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { fetchAssets, type MultipoolAsset, ArbiAsset } from "../lib/multipool";
+import { fetchAssets, type MultipoolAsset, MultipoolShareAsset, SolidAsset } from "../lib/multipool";
 import { useState, useEffect, useRef } from 'react';
 import { TradePane } from '../components/trade-pane';
-import { emptyAdapter } from '../lib/trade-adapters';
+import { mintAdapter, burnAdapter } from '../lib/trade-adapters';
 import { TVChartContainer } from '../components/tv-chart';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { useMobileMedia } from '../hooks/tokens';
@@ -11,11 +11,14 @@ import { useMobileMedia } from '../hooks/tokens';
 export function Arbi() {
 
     const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
+    const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
 
     useEffect(() => {
         async function inner() {
             const result = await fetchAssets();
-            setFetchedAssets(result);
+            console.log(result);
+            setFetchedAssets(result.assets);
+            setMultipoolAsset(result.multipool);
         }
         inner();
     }, []);
@@ -33,11 +36,11 @@ export function Arbi() {
                     gap: "10px",
                 }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-                        <Head />
-                        <TVChartContainer symbol={'ARBI'} />
+                        <Head multipool={multipoolAsset} />
+                        {multipoolAsset && <TVChartContainer symbol={multipoolAsset.symbol} />}
                         <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
                     </div>
-                    <MintBurnTabs fetchedAssets={fetchedAssets} />
+                    <MintBurnTabs fetchedAssets={fetchedAssets} multipoolAsset={multipoolAsset} />
                 </div >
             </div >
         );
@@ -53,9 +56,9 @@ export function Arbi() {
                     gap: "10px",
                     width: "100%",
                 }}>
-                    <Head />
-                    <TVChartContainer symbol={'ARBI'} />
-                    <MintBurnTabs fetchedAssets={fetchedAssets} />
+                    <Head multipool={multipoolAsset} />
+                    {multipoolAsset && <TVChartContainer symbol={multipoolAsset.symbol} />}
+                    <MintBurnTabs fetchedAssets={fetchedAssets} multipoolAsset={multipoolAsset} />
                     <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
                 </div >
             </div >
@@ -63,11 +66,10 @@ export function Arbi() {
     }
 }
 
-export function MintBurnTabs({ fetchedAssets }) {
+export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
 
     const [isMintDisplayed, setMintDisplayed] = useState<boolean>(true);
     const me = useRef(null);
-    const isMobile = useMobileMedia();
 
     function displayOrHide(hide: boolean, props: React.CSSProperties): React.CSSProperties {
         if (hide) {
@@ -130,8 +132,8 @@ export function MintBurnTabs({ fetchedAssets }) {
                 <div style={displayOrHide(!isMintDisplayed, { width: "100%" })}>
                     <TradePane
                         assetsIn={fetchedAssets}
-                        assetsOut={[ArbiAsset]}
-                        tradeLogicAdapter={emptyAdapter}
+                        assetsOut={[multipoolAsset]}
+                        tradeLogicAdapter={mintAdapter}
                         selectTokenParent={me}
                         paneTexts={{
                             buttonAction: "Mint",
@@ -142,9 +144,9 @@ export function MintBurnTabs({ fetchedAssets }) {
                 </div >
                 <div style={displayOrHide(isMintDisplayed, { width: "100%" })}>
                     <TradePane
-                        assetsIn={[ArbiAsset]}
+                        assetsIn={[multipoolAsset]}
                         assetsOut={fetchedAssets}
-                        tradeLogicAdapter={emptyAdapter}
+                        tradeLogicAdapter={burnAdapter}
                         selectTokenParent={me}
                         paneTexts={{
                             buttonAction: "Burn",
@@ -158,8 +160,10 @@ export function MintBurnTabs({ fetchedAssets }) {
     );
 }
 
-export function Head() {
+export function Head({ multipool }) {
     const isMobile = useMobileMedia();
+    const multipoolInfo: SolidAsset | undefined = multipool;
+    console.log("mp ", multipoolInfo);
     return (
         <div style={{
             display: "grid",
@@ -186,7 +190,7 @@ export function Head() {
                 alignItems: "flex-start"
             }}>
                 <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</span>
-                <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
+                <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.price.toFixed(4) : "0"}$</span>
             </div>
             {!isMobile ?
                 <>
@@ -199,7 +203,7 @@ export function Head() {
                         alignItems: "flex-start"
                     }}>
                         <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</span>
-                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
+                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</span>
                     </div>
                     <div style={{
                         display: "flex",
@@ -210,7 +214,7 @@ export function Head() {
                         alignItems: "flex-start"
                     }}>
                         <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</span>
-                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
+                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.high24h.toFixed(4) : "0"}$</span>
                     </div>
                     <div style={{
                         display: "flex",
@@ -221,7 +225,7 @@ export function Head() {
                         alignItems: "flex-start"
                     }}>
                         <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</span>
-                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>0.33$</span>
+                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</span>
                     </div>
                 </>
                 : undefined}

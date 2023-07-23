@@ -1,17 +1,14 @@
 import * as React from 'react';
 import { MultipoolAssetSelector } from "./multipool-assets-selector";
-import { fetchAssets, routerAddress, multipoolAddress, type MultipoolAsset, ArbiAsset } from "../lib/multipool";
-import multipoolABI from '../abi/ETF';
-import routerABI from '../abi/ROUTER';
-import { useState, useEffect } from 'react';
-import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
+import { routerAddress, type MultipoolAsset } from "../lib/multipool";
+import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { QuantityInput } from './quantity-input';
-import { useContractRead, useAccount, usePrepareContractWrite, useContractWrite, useWaitForTransaction, useToken } from 'wagmi'
-import { formatEther, MaxUint256 } from "ethers";
+import { useAccount } from 'wagmi'
 import { type TokenWithAddress, useTokenWithAddress, useEstimate, useMobileMedia } from '../hooks/tokens';
 import { InteractionWithApprovalButton } from './approval-button';
 import { TransactionParamsSelector } from './transaction-params-selector';
+import { toHumanReadable } from '../lib/format-number';
 
 export type TradePaneTexts = {
     buttonAction: string,
@@ -36,6 +33,17 @@ export type EstimatedValues = {
         usd: string,
     } | undefined,
     estimatedAmountIn: {
+        row: BigInt,
+        formatted: string,
+        usd: string,
+    } | undefined,
+    fee: string,
+    minimalAmountOut: {
+        row: BigInt,
+        formatted: string,
+        usd: string,
+    } | undefined,
+    maximumAmountIn: {
         row: BigInt,
         formatted: string,
         usd: string,
@@ -92,7 +100,6 @@ export function TradePane({
     const texts: TradePaneTexts = paneTexts;
     const adapter: TradeLogicAdapter = tradeLogicAdapter;
     const { address } = useAccount()
-    const isMobile = useMobileMedia();
 
     const [assetIn, setAssetIn] = useState<MultipoolAsset>(assetsIn[initialInIndex] || assetsIn);
     const bindAssetIn = (value: MultipoolAsset) => setAssetIn(value);
@@ -128,8 +135,8 @@ export function TradePane({
         quantities: debouncedQuantity,
         tokenIn: inTokenData.data,
         tokenOut: outTokenData.data,
-        priceIn: 10.1,
-        priceOut: 1.1,
+        priceIn: Number(assetIn?.price?.toString() || 0),
+        priceOut: Number(assetOut?.price?.toString() || 0),
     };
 
     const {
@@ -220,7 +227,7 @@ export function TokenQuantityInput({
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                 <MultipoolAssetSelector modalParent={selectTokenParent} assetList={assets} setter={assetSetter} initialIndex={initialAssetIndex} />
-                <p style={{ marginTop: "1px", fontSize: "13px" }}> Balance: {tokenData.data?.balance.formatted || "0"}</p>
+                <p style={{ marginTop: "1px", fontSize: "13px" }}> Balance: {toHumanReadable(tokenData.data?.balance.formatted || "0")}</p>
             </div>
         </div>);
 }

@@ -9,23 +9,23 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
     const isMobile = useMobileMedia();
     const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
         <>
-            <div style={{ gridRow: index + 3, gridColumn: "1 / 2", display: "flex", justifyContent: "flex-start", gap: "20px" }}>
+            <div key={"1" + index} style={{ gridRow: index + 3, gridColumn: "1 / 2", display: "flex", justifyContent: "flex-start", gap: "20px" }}>
                 <img style={{ width: "25px", height: "25px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
                 {!isMobile ? <>{asset.name}({asset.symbol})</> : <>{asset.symbol}</>}
             </div>
-            <div style={{ gridRow: index + 3, gridColumn: "3" }}>
+            <div key={"3" + index} style={{ gridRow: index + 3, gridColumn: "3" }}>
                 {asset.currentShare.toString()}%
             </div>
-            <div style={{ gridRow: index + 3, gridColumn: "4" }}>
+            <div key={"4" + index} style={{ gridRow: index + 3, gridColumn: "4" }}>
                 {Number(asset.price.toString()).toFixed(4)}
             </div>
-            <div style={{ gridRow: index + 3, gridColumn: "5" }}>
+            <div key={"5" + index} style={{ gridRow: index + 3, gridColumn: "5" }}>
                 {Number(asset.priceChange24h.toString()).toFixed(4)}%
             </div>
-            <div style={{ gridRow: index + 3, gridColumn: "6" }}>
+            <div key={"6" + index} style={{ gridRow: index + 3, gridColumn: "6" }}>
                 {toHumanReadable(asset.volume24h.toString())}
             </div>
-            <div style={{ gridRow: index + 3, gridColumn: "7", display: "flex", justifyContent: "flex-end" }}>
+            <div key={"7" + index} style={{ gridRow: index + 3, gridColumn: "7", display: "flex", justifyContent: "flex-end" }}>
                 {toHumanReadable(asset.mcap.toString())}
             </div>
         </>

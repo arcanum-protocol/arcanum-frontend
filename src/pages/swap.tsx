@@ -3,7 +3,7 @@ import { fetchAssets, type MultipoolAsset } from "../lib/multipool";
 import { useState, useEffect, useRef } from 'react';
 import { TradePane } from '../components/trade-pane';
 import { Faucet } from '../components/faucet-modal';
-import { emptyAdapter, mintAdapter } from '../lib/trade-adapters';
+import { swapAdapter } from '../lib/trade-adapters';
 import { useMobileMedia } from '../hooks/tokens';
 
 export function Swap() {
@@ -15,7 +15,7 @@ export function Swap() {
     useEffect(() => {
         async function inner() {
             const result = await fetchAssets();
-            setFetchedAssets(result);
+            setFetchedAssets(result.assets);
         }
         inner();
     }, []);
@@ -44,7 +44,8 @@ export function Swap() {
                 <TradePane
                     assetsIn={fetchedAssets}
                     assetsOut={fetchedAssets}
-                    tradeLogicAdapter={emptyAdapter}
+                    initialOutIndex={1}
+                    tradeLogicAdapter={swapAdapter}
                     selectTokenParent={me}
                     paneTexts={{
                         buttonAction: "Mint",

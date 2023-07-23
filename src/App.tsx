@@ -89,6 +89,7 @@ function Navbar() {
             {
                 links.map(({ title, route }, index) => {
                     let item = <div
+                        key={index}
                         style={{
                             display: "flex",
                             borderRadius: "10px",
@@ -163,6 +164,7 @@ function Navbar() {
             {
                 links.map(({ title, route }, index) => {
                     let item = <div
+                        key={index}
                         style={{
                             display: "flex",
                             borderRadius: "10px",
