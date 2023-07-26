@@ -16,7 +16,6 @@ export const mintAdapter: TradeLogicAdapter = {
                 enabled: multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else if (params.quantities.out) {
-            console.log([multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out]);
             return {
                 address: routerAddress,
                 abi: routerABI,
@@ -118,6 +117,7 @@ export const swapAdapter: TradeLogicAdapter = {
         params: SendTransactionParams,
     ): EstimationTransactionBody | undefined => {
         if (params.quantities.in) {
+            console.log([multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in]);
             return {
                 address: routerAddress,
                 abi: routerABI,
@@ -144,18 +144,19 @@ export const swapAdapter: TradeLogicAdapter = {
         if (!v) {
             return undefined;
         }
+        console.log(v);
         if (params.quantities.in) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
             return {
                 isIn: true,
                 isOut: false,
-                estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
-                estimatedCashbackOut: toAllFormats(BigInt(0), denominatorIn, params.priceIn),
-                estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
+                estimatedCashbackIn: toAllFormats(v[3], denominatorIn, params.priceIn),
+                estimatedCashbackOut: toAllFormats(v[4], denominatorOut, params.priceOut),
+                estimatedAmountOut: toAllFormats(v[1], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
-                fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
-                minimalAmountOut: toAllFormats(applySlippage(v[0], params.slippage, true), denominatorOut, params.priceOut),
+                fee: withDenominator(v[2], BigInt(10) ** BigInt(16)),
+                minimalAmountOut: toAllFormats(applySlippage(v[1], params.slippage, true), denominatorOut, params.priceOut),
                 maximumAmountIn: undefined,
                 txn: {
                     address: routerAddress,
@@ -171,12 +172,12 @@ export const swapAdapter: TradeLogicAdapter = {
             return {
                 isIn: false,
                 isOut: true,
-                estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
-                estimatedCashbackOut: toAllFormats(BigInt(0), denominatorIn, params.priceIn),
+                estimatedCashbackIn: toAllFormats(v[3], denominatorIn, params.priceIn),
+                estimatedCashbackOut: toAllFormats(v[4], denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
-                estimatedAmountIn: toAllFormats(v[0], denominatorIn, params.priceIn),
-                fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
-                maximumAmountIn: toAllFormats(applySlippage(v[0], params.slippage, true), denominatorIn, params.priceIn),
+                estimatedAmountIn: toAllFormats(v[1], denominatorIn, params.priceIn),
+                fee: withDenominator(v[2], BigInt(10) ** BigInt(16)),
+                maximumAmountIn: toAllFormats(applySlippage(v[1], params.slippage, true), denominatorIn, params.priceIn),
                 minimalAmountOut: undefined,
                 txn: {
                     address: routerAddress,
@@ -202,16 +203,15 @@ export const burnAdapter: TradeLogicAdapter = {
                 address: routerAddress,
                 abi: routerABI,
                 functionName: 'estimateBurnAmountOut',
-                args: [multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.in],
+                args: [multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.in],
                 enabled: multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else if (params.quantities.out) {
-            console.log([multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out]);
             return {
                 address: routerAddress,
                 abi: routerABI,
                 functionName: 'estimateBurnSharesIn',
-                args: [multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out],
+                args: [multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.out],
                 enabled: multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else {
