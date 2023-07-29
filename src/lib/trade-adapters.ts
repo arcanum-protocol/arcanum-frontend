@@ -37,6 +37,7 @@ export const mintAdapter: TradeLogicAdapter = {
         if (params.quantities.in) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const minimalAmountOut = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorOut, params.priceOut);
             return {
                 isIn: true,
                 isOut: false,
@@ -45,19 +46,20 @@ export const mintAdapter: TradeLogicAdapter = {
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
                 fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
-                minimalAmountOut: toAllFormats(applySlippage(v[0], params.slippage, true), denominatorOut, params.priceOut),
                 maximumAmountIn: undefined,
+                minimalAmountOut: minimalAmountOut,
                 txn: {
                     address: routerAddress,
                     abi: routerABI,
-                    functionName: '',
-                    args: [],
-                    enabled: false,
+                    functionName: 'mintWithAmountIn',
+                    args: [multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    enabled: true,
                 }
             };
         } else if (params.quantities.out) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const maximumAmountIn = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorIn, params.priceIn);
             return {
                 isIn: false,
                 isOut: true,
@@ -66,14 +68,14 @@ export const mintAdapter: TradeLogicAdapter = {
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[0], denominatorIn, params.priceIn),
                 fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
-                maximumAmountIn: toAllFormats(applySlippage(v[0], params.slippage, true), denominatorIn, params.priceIn),
                 minimalAmountOut: undefined,
+                maximumAmountIn: maximumAmountIn,
                 txn: {
                     address: routerAddress,
                     abi: routerABI,
-                    functionName: '',
-                    args: [],
-                    enabled: false,
+                    functionName: 'mintWithSharesOut',
+                    args: [multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    enabled: true,
                 }
             };
         } else {
@@ -148,6 +150,7 @@ export const swapAdapter: TradeLogicAdapter = {
         if (params.quantities.in) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const minimalAmountOut = toAllFormats(applySlippage(v[1], params.slippage, true), denominatorOut, params.priceOut);
             return {
                 isIn: true,
                 isOut: false,
@@ -156,19 +159,20 @@ export const swapAdapter: TradeLogicAdapter = {
                 estimatedAmountOut: toAllFormats(v[1], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
                 fee: withDenominator(v[2], BigInt(10) ** BigInt(16)),
-                minimalAmountOut: toAllFormats(applySlippage(v[1], params.slippage, true), denominatorOut, params.priceOut),
                 maximumAmountIn: undefined,
+                minimalAmountOut: minimalAmountOut,
                 txn: {
                     address: routerAddress,
                     abi: routerABI,
-                    functionName: '',
-                    args: [],
-                    enabled: false,
+                    functionName: 'swapWithAmountIn',
+                    args: [multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    enabled: true,
                 }
             };
         } else if (params.quantities.out) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const maximumAmountIn = toAllFormats(applySlippage(v[1], params.slippage, true), denominatorIn, params.priceIn);
             return {
                 isIn: false,
                 isOut: true,
@@ -177,14 +181,14 @@ export const swapAdapter: TradeLogicAdapter = {
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[1], denominatorIn, params.priceIn),
                 fee: withDenominator(v[2], BigInt(10) ** BigInt(16)),
-                maximumAmountIn: toAllFormats(applySlippage(v[1], params.slippage, true), denominatorIn, params.priceIn),
                 minimalAmountOut: undefined,
+                maximumAmountIn: maximumAmountIn,
                 txn: {
                     address: routerAddress,
                     abi: routerABI,
-                    functionName: '',
-                    args: [],
-                    enabled: false,
+                    functionName: 'swapWithAmountOut',
+                    args: [multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    enabled: true,
                 }
             };
         } else {
@@ -228,6 +232,7 @@ export const burnAdapter: TradeLogicAdapter = {
         if (params.quantities.in) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const minimalAmountOut = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorOut, params.priceOut);
             return {
                 isIn: true,
                 isOut: false,
@@ -236,19 +241,20 @@ export const burnAdapter: TradeLogicAdapter = {
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
                 fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
-                minimalAmountOut: toAllFormats(applySlippage(v[0], params.slippage, true), denominatorOut, params.priceOut),
                 maximumAmountIn: undefined,
+                minimalAmountOut: minimalAmountOut,
                 txn: {
                     address: routerAddress,
                     abi: routerABI,
-                    functionName: '',
-                    args: [],
-                    enabled: false,
+                    functionName: 'burnWithSharesIn',
+                    args: [multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    enabled: true,
                 }
             };
         } else if (params.quantities.out) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const maximumAmountIn = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorIn, params.priceIn);
             return {
                 isIn: false,
                 isOut: true,
@@ -257,14 +263,14 @@ export const burnAdapter: TradeLogicAdapter = {
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[0], denominatorIn, params.priceIn),
                 fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
-                maximumAmountIn: toAllFormats(applySlippage(v[0], params.slippage, true), denominatorIn, params.priceIn),
                 minimalAmountOut: undefined,
+                maximumAmountIn: maximumAmountIn,
                 txn: {
                     address: routerAddress,
                     abi: routerABI,
-                    functionName: '',
-                    args: [],
-                    enabled: false,
+                    functionName: 'burnWithAmountOut',
+                    args: [multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    enabled: true,
                 }
             };
         } else {

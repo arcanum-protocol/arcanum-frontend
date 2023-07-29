@@ -103,9 +103,10 @@ export function useEstimate(
     data: EstimatedValues | undefined,
     isLoading: boolean,
     isError: boolean,
+    error: string | undefined,
 } {
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
-    const { data: txnData, isError, isLoading } = useContractRead({
+    const { data: txnData, isError, error, isLoading } = useContractRead({
         address: txnBodyParts?.address,
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
@@ -114,6 +115,14 @@ export function useEstimate(
         staleTime: 20_000,
         watch: true,
     });
+    let errorMessage: undefined | string = undefined;
+    if (error?.message.includes("deviation overflows limit")) {
+        errorMessage = "Too big quantity";
+    } else if (error?.message.includes("can't burn more assets than exist")) {
+        errorMessage = "Insufficient balance";
+    }
+
+
     let returnData: EstimatedValues | undefined = undefined;
     if (!isLoading && !isError) {
         returnData = adapter.parseEstimationResult(txnData, params);
@@ -122,6 +131,7 @@ export function useEstimate(
         data: returnData,
         isError: isError,
         isLoading: isLoading,
+        error: errorMessage,
     };
 }
 

@@ -3,11 +3,13 @@ import { BigNumber } from "@ethersproject/bignumber";
 export function toHumanReadable(number: any, decPlaces: number = 2): string {
     // 2 decimal places => 100, 3 => 1000, etc
 
+    const decimalPlaces = decPlaces;
     decPlaces = Math.pow(10, decPlaces);
 
     // Enumerate number abbreviations
     let abbrev = ["K", "M", "B", "T"];
 
+    let isToSmall = true;
     // Go through the array backwards, so we do the largest first
     for (let i = abbrev.length - 1; i >= 0; i--) {
 
@@ -30,9 +32,27 @@ export function toHumanReadable(number: any, decPlaces: number = 2): string {
             number += abbrev[i];
 
             // We are done... stop
+            isToSmall = false;
             break;
         }
     }
 
+    if (isToSmall) {
+        return formatNumberFloor(number, decimalPlaces);
+    }
+
     return number.toString();
+}
+
+function formatNumberFloor(x, dec) {
+    // convert it to a string
+    var s = "" + x;
+    // if x is integer, the point is missing, so add it
+    if (s.indexOf(".") == -1) {
+        s += ".";
+    }
+    // make sure if we have at least 2 decimals
+    s += "00";
+    // get the first 2 decimals
+    return s.substring(0, s.indexOf(".") + 1 + dec);
 }

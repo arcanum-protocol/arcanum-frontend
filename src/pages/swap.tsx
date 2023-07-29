@@ -51,7 +51,7 @@ export function Swap() {
                         tradeLogicAdapter={swapAdapter}
                         selectTokenParent={me}
                         paneTexts={{
-                            buttonAction: "Mint",
+                            buttonAction: "Swap",
                             section1Name: "Send",
                             section2Name: "Receive",
                         }} />

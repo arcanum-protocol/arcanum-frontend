@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import * as React from 'react';
-import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 import { parseUnits } from "ethers";
-import { useMobileMedia } from "../hooks/tokens";
 
 export function QuantityInput({
     disabled = false,
@@ -11,7 +9,6 @@ export function QuantityInput({
 }) {
     const initial: { row: BigInt, formatted: string } | undefined = initialQuantity;
     const [quantity, setQuantity] = useState<string>("0");
-    const isMobile = useMobileMedia();
 
     useEffect(() => {
         if (initial) {

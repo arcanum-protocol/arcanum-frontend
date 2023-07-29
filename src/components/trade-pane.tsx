@@ -142,8 +142,10 @@ export function TradePane({
     const {
         data: estimationResults,
         isLoading: estimationIsLoading,
-        isError: estimationIsError
+        isError: estimationIsError,
+        error: estimationErrorMessage,
     } = useEstimate(adapter, sendTransctionParams);
+    console.log("EST ", estimationResults);
 
     return (
         <div style={
@@ -154,9 +156,9 @@ export function TradePane({
                 justifyContent: "center",
                 maxWidth: "400px",
                 width: "100%",
+                marginTop: "20px",
             }
         }>
-
             <TokenQuantityInput
                 isDisabled={estimationIsLoading}
                 text={texts.section1Name}
@@ -181,11 +183,12 @@ export function TradePane({
                 selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
-            <div style={{ display: "flex", flexDirection: "column", margin: "20px", rowGap: "30px" }}>
+            <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "0px", rowGap: "30px" }}>
                 {address ? <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
                 <InteractionWithApprovalButton
                     interactionTxnBody={estimationResults?.txn}
                     interactionBalance={estimationResults?.estimatedAmountIn?.row}
+                    externalErrorMessage={estimationErrorMessage}
                     approveMax={true}
                     actionName={texts.buttonAction}
                     tokenData={inTokenData}
@@ -212,7 +215,7 @@ export function TokenQuantityInput({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            margin: "30px 20px",
+            margin: "0px 20px",
         }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
                 <div style={{ display: "flex", }}>

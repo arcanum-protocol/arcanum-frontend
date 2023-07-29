@@ -13,44 +13,15 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
     const p: SendTransactionParams = txnParams;
     const e: EstimatedValues = estimates;
     const isMobile = useMobileMedia();
-    const [isOpened, setOpened] = useState(false);
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
-            <SmoothCorners
-                corners="30, 3"
-                borderRadius="20px"
-                as="button"
-                onClick={e => setOpened(!isOpened)}
-                style={{
-                    padding: "0px",
-                    display: "grid",
-                    gridAutoColumns: "1fr 2fr 1fr",
-                    alignItems: "center",
-                    backgroundColor: "var(--bl)",
-                    color: "var(--wh)",
-                    borderRadius: "20px",
-                }}>
-                <div
-                    style={{ display: "flex", gridRow: "1", gridColumn: "2", justifyContent: "center" }}>
-                    <p style={{ margin: "0px" }}>Advanced</p>
-                </div>
-                <div style={{ display: "inline-flex", gridRow: "1", gridColumn: "3", alignContent: "center", justifyContent: "flex-end" }}>
-                    <img style={{
-                        margin: "5px",
-                        transition: "transform .5s",
-                        transform: isOpened ? "rotate(180deg)" : undefined,
-                    }}
-                        src={chevron} />
-                </div>
-            </SmoothCorners>
             <div
                 style={{
                     display: "flex",
                     flexDirection: "column",
                     height: "auto",
                     transition: "max-height .5s",
-                    maxHeight: isOpened ? "250px" : "0px",
                     overflow: "hidden",
                 }}>
                 <SlippageSelector slippageSetter={slippageSetter} />
@@ -62,19 +33,15 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                                 {e.minimalAmountOut.formatted}({e.minimalAmountOut.usd}$)
                             </p>
                         </div>
-                        :
-                        undefined
-                }
-                {
-                    e?.maximumAmountIn != undefined ?
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>Maximum send</p> : <Skeleton />}
-                            <p style={{ margin: "0" }}>
-                                {e.maximumAmountIn.formatted}({e.maximumAmountIn.usd}$)
-                            </p>
-                        </div>
-                        :
-                        undefined
+                        : (
+                            <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>Maximum send</p> : <Skeleton />}
+                                <p style={{ margin: "0" }}>
+                                    {e?.maximumAmountIn?.formatted || 0}({e?.maximumAmountIn?.usd || 0}$)
+                                </p>
+                            </div>
+
+                        )
                 }
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>{p.tokenIn?.symbol} price</p> : <Skeleton />}

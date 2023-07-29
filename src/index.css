@@ -49,19 +49,62 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #f9f9f9;
-  cursor: pointer;
-  transition: border-color 0.25s;
+    width: 100%;
+    color: #fff;
+    border-radius: 16px;
+    background-color: #0047FE;
+    border: none;
+    cursor: pointer;
+
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+button:disabled {
+    color: #393939;
 }
 
 button:focus,
 button:focus-visible {
+  border: none;
+  outline: none;
+}
+
+.approvalBalanceButton {
+    width: 100 %;
+    color: #fff;
+    border-radius: 16px;
+    background-color: #0047FE;
+    border: 1px solid #363636;
+
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+}
+
+.approvalBalanceButton:hover {
+    border: 1px solid #fff;
+    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset;
+}
+
+.approvalBalanceButton:disabled {
+    border: 1px solid #393939;
+    background-color: var(--bc);
+}
+
+.approvalBalanceButton[disabled]:hover {
+    border: 1px solid #393939;
+    box-shadow: none;
+    background-color: var(--bc);
+}
+
+.approvalBalanceButton:disabled {
+    color: #393939;
+}
+
+.approvalBalanceButton:focus,
+.approvalBalanceButton:focus-visible {
   border: none;
   outline: none;
 }

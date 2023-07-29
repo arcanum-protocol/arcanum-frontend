@@ -7,6 +7,7 @@ import { useMobileMedia } from "../hooks/tokens";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 
 export function IndexAssetsBreakdown({ fetchedAssets }) {
+    let v = toHumanReadable(FixedNumber.fromString("2999990999000000000").divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(18))));
     const isMobile = useMobileMedia();
     const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
         <>
@@ -24,7 +25,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 {Number(asset.price.toString()).toFixed(4)}$
             </div>
             <div key={"6" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
-                {toHumanReadable(FixedNumber.fromValue(asset.quantity).divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(asset.decimals))).toString())}
+                {toHumanReadable(FixedNumber.fromValue(asset.quantity).divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(asset.decimals))))}
             </div>
             <div key={"7" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
                 {toHumanReadable(asset.mcap.toString())}$

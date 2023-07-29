@@ -104,7 +104,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                 }}
                 ref={me}
             >
-                <div style={{ margin: "5px 10px", display: "flex", width: "100%" }}>
+                <div style={{ margin: "5px 10px", marginBottom: "0px", display: "flex", width: "100%" }}>
                     <SmoothCorners
                         corners="30, 3"
                         borderRadius="10px"
