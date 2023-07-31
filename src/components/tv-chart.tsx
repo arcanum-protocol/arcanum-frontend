@@ -92,7 +92,7 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
             theme: "dark",
             symbol: symbol as string,
             datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeedUrl),
-            interval: '1m' as ChartingLibraryWidgetOptions['interval'],
+            interval: 15 as ChartingLibraryWidgetOptions['interval'],
             container: chartContainerRef.current,
             library_path: defaultChartProps.library_path as string,
 
@@ -129,7 +129,7 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
             //custom_font_family: 'Ubuntu',
             overrides: defaultChartProps.overrides,
             favorites: {
-                ...defaultChartProps.favorites, intervals: Object.keys(SUPPORTED_RESOLUTIONS)
+                ...defaultChartProps.favorites, intervals: [15, 720, "1D"] //Object.keys(SUPPORTED_RESOLUTIONS)
             },
             //custom_formatters: defaultChartProps.custom_formatters,
         };

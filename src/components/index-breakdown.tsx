@@ -7,7 +7,6 @@ import { useMobileMedia } from "../hooks/tokens";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 
 export function IndexAssetsBreakdown({ fetchedAssets }) {
-    let v = toHumanReadable(FixedNumber.fromString("2999990999000000000").divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(18))));
     const isMobile = useMobileMedia();
     const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
         <>
@@ -42,18 +41,19 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
             borderRadius: "10px",
             width: "100%",
         }}>
-            <h1 style={{ display: "flex", alignSelf: isMobile ? "center" : "flex-start", fontSize: "20px", marginLeft: !isMobile ? "15px" : undefined }}>Asset breakdown</h1>
+            <h1 style={{ display: "flex", marginTop: "15px", alignSelf: isMobile ? "center" : "flex-start", fontSize: "20px", marginLeft: !isMobile ? "15px" : undefined }}>Asset breakdown</h1>
             <div style={{
                 margin: "5px 10px",
                 display: "grid",
                 overflowX: "auto",
-                border: "1px solid var(--bl)",
+                borderRadius: "20px",
+                border: "1px solid #393939",
                 gap: "1px",
                 gridGap: "1px",
                 marginBottom: "20px",
-                backgroundColor: "var(--bl)"
+                backgroundColor: "#393939"
             }}>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
+                <div style={{ backgroundColor: "var(--bc)", padding: "5px", paddingLeft: "10px", gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
                     Name
                 </div>
                 <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>

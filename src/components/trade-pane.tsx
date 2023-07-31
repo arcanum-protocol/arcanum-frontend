@@ -132,7 +132,7 @@ export function TradePane({
         to: address,
         deadline: BigInt(0),
         slippage: slippage,
-        quantities: debouncedQuantity,
+        quantities: quantity,
         tokenIn: inTokenData.data,
         tokenOut: outTokenData.data,
         priceIn: Number(assetIn?.price?.toString() || 0),
@@ -145,8 +145,6 @@ export function TradePane({
         isError: estimationIsError,
         error: estimationErrorMessage,
     } = useEstimate(adapter, sendTransctionParams);
-
-    const isClear = quantity.in == undefined && quantity.out == undefined;
 
     return (
         <div style={
@@ -165,7 +163,7 @@ export function TradePane({
                 text={texts.section1Name}
                 assetSetter={bindAssetIn}
                 quantitySetter={bindQuantityIn}
-                initialQuantity={isClear ? 0 : !estimationResults?.isIn && estimationResults?.estimatedAmountIn}
+                initialQuantity={!estimationResults?.isIn && estimationResults?.estimatedAmountIn}
                 tokenData={inTokenData}
                 assets={assetsIn}
                 initialAssetIndex={initialInIndex}
@@ -176,7 +174,7 @@ export function TradePane({
                 isDisabled={estimationIsLoading}
                 text={texts.section2Name}
                 assetSetter={bindAssetOut}
-                initialQuantity={isClear ? 0 : !estimationResults?.isOut && estimationResults?.estimatedAmountOut}
+                initialQuantity={!estimationResults?.isOut && estimationResults?.estimatedAmountOut}
                 quantitySetter={bindQuantityOut}
                 tokenData={outTokenData}
                 assets={assetsOut}
@@ -184,7 +182,7 @@ export function TradePane({
                 selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
-            <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "0px", rowGap: "30px" }}>
+            <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
                 {address ? <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
                 <InteractionWithApprovalButton
                     interactionTxnBody={estimationResults?.txn}

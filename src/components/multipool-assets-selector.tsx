@@ -115,7 +115,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
         <button
             style={{
                 width: "100%",
-                backgroundColor: buttonHovered != null && buttonHovered == index ? "var(--bl)" : "var(--solid-bc)",
+                backgroundColor: buttonHovered != null && buttonHovered == index ? "var(--bl)" : "var(--bc)",
                 color: "var(--wh)"
             }}
             key={asset.id}
@@ -174,27 +174,28 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                     zIndex: "1000",
                     alignItems: "center",
                     justifyContent: "flex-start",
-                    backgroundColor: "var(--solid-bc)",
-                    borderRadius: "10px",
+                    backgroundColor: "var(--bc)",
+                    borderRadius: "20px",
                 }}
             >
                 <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
                     <div style={{
+                        display: "flex",
                         flex: "1",
                         justifyContent: "flex-start",
                         flexWrap: "wrap",
                     }}>
-                        <div style={{
+                        <button style={{
+                            display: "flex",
                             flex: "1",
                             justifyContent: "flex-start",
                             flexWrap: "wrap",
-                            backgroundColor: backHovered ? "var(--bl)" : "var(--bc)",
+                            backgroundColor: "var(--bc)",
                             alignItems: "center",
-                            justifyItems: "center",
-                            borderRadius: "10px",
+                            justifyItems: "flex-start",
+                            borderRadius: "20px",
                             marginLeft: "10px",
                             width: "30px",
-                            margin: "0",
                             padding: "0",
                         }}
                             onMouseOver={e => { setBackHovered(true) }}
@@ -202,9 +203,11 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                             onClick={e => closeModal()}
                         >
                             <img style={{
+                                width: backHovered ? "30px" : "25px",
+                                height: backHovered ? "30px" : "25px",
                                 transform: "rotate(90deg)",
                             }} src={chevron} />
-                        </div>
+                        </button>
                     </div>
                     <div style={{
                         flex: "1",

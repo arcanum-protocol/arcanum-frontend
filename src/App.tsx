@@ -85,7 +85,7 @@ function Navbar() {
     ];
 
     const references =
-        <div style={{ display: "flex", fontSize: "20px", gap: "40px", flex: "1", justifyContent: "center" }}>
+        <div style={{ display: "flex", fontSize: "20px", gap: "40px", flex: "1", alignItems: "center", justifyContent: "center" }}>
             {
                 links.map(({ title, route }, index) => {
                     let item = <div
@@ -205,7 +205,7 @@ function Navbar() {
                     <div />
             }
             {}
-            <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", justifyContent: "flex-start" }}>
+            <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", alignContent: "center", justifyContent: "flex-start" }}>
                 <img src={logo} />
             </div>
             {!isMobile ? references : <div />}

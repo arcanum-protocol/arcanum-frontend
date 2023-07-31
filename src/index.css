@@ -15,7 +15,7 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
-  --bc: rgba(30, 29, 29, 1);
+  --bc: #1B1B1B;
   --solid-bc: rgb(30, 29, 29);
   --bl: #0D0B0D;
   --wh: rgb(249, 249, 249);

@@ -179,7 +179,8 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
 export function Head({ multipool }) {
     const isMobile = useMobileMedia();
     const multipoolInfo: SolidAsset | undefined = multipool;
-    console.log("mp ", multipoolInfo);
+    const RED = "#fa3c58";
+    const GREEN = "#0ecc83";
     return (
         <div
             style={{
@@ -194,10 +195,13 @@ export function Head({ multipool }) {
                 padding: "0",
                 marginTop: "0px",
                 marginBottom: "0px",
+                alignSelf: "center",
+                height: "90%",
+                justifySelf: "flex-start",
                 gridRow: "1",
                 gridColumn: "1",
                 marginLeft: "10px",
-            }}>ARBI</span>
+            }}>{multipoolInfo?.symbol || ""}</span>
             <div style={{
                 display: "flex",
                 flexDirection: "column",
@@ -220,7 +224,11 @@ export function Head({ multipool }) {
                         alignItems: "flex-start"
                     }}>
                         <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</span>
-                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</span>
+                        <span style={{
+                            fontSize: "16px",
+                            margin: "0px", padding: "0px",
+                            color: multipoolInfo?.change24h > 0 ? GREEN : (multipoolInfo?.change24h < 0 ? RED : undefined),
+                        }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</span>
                     </div>
                     <div style={{
                         display: "flex",
