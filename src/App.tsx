@@ -99,7 +99,7 @@ function Navbar() {
                         onMouseOver={() => { setHovered(route) }}
                         onMouseOut={() => { setHovered(location.pathname) }}
                     >
-                        <span>{title}</span>
+                        <span style={{ margin: "1px 10px" }}>{title}</span>
                     </div>;
                     return (
                         route.startsWith('/') ?

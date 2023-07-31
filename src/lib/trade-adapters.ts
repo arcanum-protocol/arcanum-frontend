@@ -24,6 +24,7 @@ export const mintAdapter: TradeLogicAdapter = {
                 enabled: multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else {
+            console.log("here");
             return undefined;
         }
     },

@@ -145,7 +145,8 @@ export function TradePane({
         isError: estimationIsError,
         error: estimationErrorMessage,
     } = useEstimate(adapter, sendTransctionParams);
-    console.log("EST ", estimationResults);
+
+    const isClear = quantity.in == undefined && quantity.out == undefined;
 
     return (
         <div style={
@@ -164,7 +165,7 @@ export function TradePane({
                 text={texts.section1Name}
                 assetSetter={bindAssetIn}
                 quantitySetter={bindQuantityIn}
-                initialQuantity={!estimationResults?.isIn && estimationResults?.estimatedAmountIn}
+                initialQuantity={isClear ? 0 : !estimationResults?.isIn && estimationResults?.estimatedAmountIn}
                 tokenData={inTokenData}
                 assets={assetsIn}
                 initialAssetIndex={initialInIndex}
@@ -175,7 +176,7 @@ export function TradePane({
                 isDisabled={estimationIsLoading}
                 text={texts.section2Name}
                 assetSetter={bindAssetOut}
-                initialQuantity={!estimationResults?.isOut && estimationResults?.estimatedAmountOut}
+                initialQuantity={isClear ? 0 : !estimationResults?.isOut && estimationResults?.estimatedAmountOut}
                 quantitySetter={bindQuantityOut}
                 tokenData={outTokenData}
                 assets={assetsOut}
@@ -215,22 +216,47 @@ export function TokenQuantityInput({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-start",
-            margin: "0px 20px",
+            margin: "1px 20px",
+            borderRadius: "16px",
+            background: "var(--bl)",
+            height: "100%",
         }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0" }}>
+            <div style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start", justifyContent: "space-between",
+                marginLeft: "10px", marginTop: "10px", marginBottom: "10px",
+            }}>
                 <div style={{ display: "flex", }}>
-                    <p style={{ fontSize: "20px", margin: "0" }}> {text} </p>
+                    <p style={{
+                        fontSize: "18px",
+                        margin: "0"
+                    }}> {text} </p>
                 </div>
                 <QuantityInput
                     disabled={isDisabled}
                     quantitySetter={quantitySetter}
                     initialQuantity={initialQuantity}
                 />
-                <p style={{ marginTop: "1px", fontSize: "13px" }}>{usd}</p>
+                <p style={{
+                    margin: "0", marginTop: "1px", fontSize: "13px",
+                    opacity: "0.30000001192092896"
+                }}>{usd}</p>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                <MultipoolAssetSelector modalParent={selectTokenParent} assetList={assets} setter={assetSetter} initialIndex={initialAssetIndex} />
-                <p style={{ marginTop: "1px", fontSize: "13px" }}> Balance: {toHumanReadable(tokenData.data?.balance.formatted || "0")}</p>
+            <div style={{
+                display: "flex", flexDirection: "column",
+                alignItems: "flex-end", justifyContent: "space-between",
+                marginRight: "10px", marginTop: "10px", marginBottom: "10px",
+                width: "100%",
+                height: "80%",
+            }}>
+                <MultipoolAssetSelector
+                    modalParent={selectTokenParent} assetList={assets}
+                    setter={assetSetter} initialIndex={initialAssetIndex} />
+                <p style={{
+                    margin: "0", fontSize: "13px",
+                    opacity: "0.30000001192092896"
+                }}> Balance: {toHumanReadable(tokenData.data?.balance.formatted || "0")}</p>
             </div>
         </div>);
 }

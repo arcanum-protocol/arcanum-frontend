@@ -6,7 +6,6 @@ import { mintAdapter, burnAdapter } from '../lib/trade-adapters';
 import { TVChartContainer } from '../components/tv-chart';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { useMobileMedia } from '../hooks/tokens';
-import { SmoothCorners } from 'react-smooth-corners'
 
 
 export function Arbi() {
@@ -82,16 +81,14 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
     }
 
     return (
-        <SmoothCorners
-            corners="30"
-            borderRadius="20px"
+        <div
             style={{
                 display: "flex",
                 alignItems: "center",
                 backgroundColor: "var(--bc)",
                 justifyContent: "center",
                 flexDirection: "column",
-                borderRadius: "13px",
+                borderRadius: "20px",
                 width: "100%",
                 maxWidth: "400px",
             }}>
@@ -105,48 +102,46 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                 ref={me}
             >
                 <div style={{ margin: "5px 10px", marginBottom: "0px", display: "flex", width: "100%" }}>
-                    <SmoothCorners
-                        corners="30, 3"
-                        borderRadius="10px"
+                    <div
                         style={{
                             display: "flex",
                             width: "100%",
                             justifyContent: "space-between",
                             margin: "10px",
                             padding: "5px",
-                            backgroundColor: "#161616",
+                            backgroundColor: "#1B1B1B",
+                            borderRadius: "16px",
+                            border: "1px solid #363636",
                         }}>
-                        <SmoothCorners
-                            corners="30, 3"
-                            borderRadius="10px"
-                            as="button"
+                        <button
                             style={{
                                 width: "100%",
                                 fontSize: "20px",
                                 margin: "0",
                                 padding: "5px",
+                                borderRadius: "10px",
                                 color: "#fff",
-                                backgroundColor: !isMintDisplayed ? "#161616" : "#0047FE",
+                                backgroundColor: !isMintDisplayed ? "#1B1B1B" : "var(--bl)",
                             }}
+                            disabled={isMintDisplayed}
                             onClick={() => setMintDisplayed(true)}>
                             Mint
-                        </SmoothCorners>
-                        <SmoothCorners
-                            corners="30, 3"
-                            borderRadius="10px"
-                            as="button"
+                        </button>
+                        <button
                             style={{
                                 width: "100%",
                                 fontSize: "20px",
+                                borderRadius: "10px",
                                 margin: "0",
                                 padding: "2px",
                                 color: "#fff",
-                                backgroundColor: isMintDisplayed ? "#161616" : "#0047FE",
+                                backgroundColor: isMintDisplayed ? "#1B1B1B" : "var(--bl)",
                             }}
+                            disabled={!isMintDisplayed}
                             onClick={() => setMintDisplayed(false)}>
                             Burn
-                        </SmoothCorners>
-                    </SmoothCorners>
+                        </button>
+                    </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
                     <div style={displayOrHide(!isMintDisplayed, { width: "100%" })}>
@@ -177,7 +172,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                     </div >
                 </div >
             </div>
-        </SmoothCorners >
+        </div >
     );
 }
 
@@ -186,12 +181,11 @@ export function Head({ multipool }) {
     const multipoolInfo: SolidAsset | undefined = multipool;
     console.log("mp ", multipoolInfo);
     return (
-        <SmoothCorners
-            corners="10000, 3"
-            borderRadius="10px"
+        <div
             style={{
                 display: "grid",
                 backgroundColor: "var(--bc)",
+                borderRadius: "10px",
                 width: "100%",
                 gap: "40px",
             }}>
@@ -252,6 +246,6 @@ export function Head({ multipool }) {
                     </div>
                 </>
                 : undefined}
-        </SmoothCorners>
+        </div>
     );
 }

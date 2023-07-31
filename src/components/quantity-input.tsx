@@ -23,6 +23,7 @@ export function QuantityInput({
                     width: "100%",
                     boxSizing: "content-box",
                     overflow: "hidden",
+                    fontFamily: "Neue Machina",
                     border: "none", outline: "none", fontSize: "24px", background: "none", color: "#fff"
                 }}
                 value={quantity}

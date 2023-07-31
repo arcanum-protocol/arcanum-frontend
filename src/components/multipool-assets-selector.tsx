@@ -6,7 +6,6 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import chevron from '/chevron-down.svg';
 import { FixedFormat } from "@ethersproject/bignumber";
-import { SmoothCorners, SmoothCornersWrapper } from 'react-smooth-corners'
 
 export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent }) {
     const [selectedAsset, setSelectedAsset] = useState<MultipoolAsset | undefined>(undefined);
@@ -28,13 +27,22 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             height: "100%",
             minWidth: "80px",
         }}>
-            <div style={{ display: "flex", width: "25px", height: "25px" }}>
+            <div style={{ display: "flex", width: "25px", height: "25px", margin: "2px" }}>
                 <img src={logo || "https://arcanum.to/logo.png"} />
             </div>
-            <div onClick={openModal}>
-                <p style={{ fontSize: "30px", margin: "0", color: "#fff" }} >{symbol}</p>
+            <div >
+                <p style={{
+                    color: "#fff",
+                    fontFamily: "Neue Machina",
+                    fontSize: "18px",
+                    fontStyle: "normal",
+                    fontWeight: "800",
+                    lineHeight: "105.01%", /* 12.601px */
+                    height: "16px",
+                    margin: "0",
+                }} >{symbol}</p>
             </div>
-        </div>
+        </div >
     )
 
 
@@ -52,25 +60,33 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                 (!logo || !symbol) ?
                     (
                         clickable ?
-                            <SmoothCorners
-                                corners="30, 3"
-                                borderRadius="20px"
-                                as="button"
+                            <button
                                 onMouseOver={() => setHover(true)}
                                 onMouseOut={() => setHover(false)}
+                                onClick={openModal}
                                 style={{
                                     margin: "0px",
                                     padding: "0px",
-                                    backgroundColor: hover && clickable ? "#000" : "rgba(0,0,0,0)",
+                                    borderRadius: "24px",
+                                    border: hover ? "1px solid #393939" : "1px solid #1B1B1B",
+                                    background: "#1B1B1B",
                                 }}
                             >
-                                <div style={{ display: "flex", alignItems: "center", marginLeft: "5px" }}>
+                                <div style={{ display: "flex", alignItems: "center" }}>
                                     {buttonInner(logo, symbol, clickable)}
-                                    <img src={chevron} />
+                                    <img src={chevron} style={{ width: "25px", height: "25px", margin: "2px" }} />
                                 </div>
-                            </SmoothCorners>
+                            </button>
                             :
-                            <div>
+                            <div
+                                style={{
+                                    margin: "0px",
+                                    padding: "0px",
+                                    borderRadius: "24px",
+                                    border: "1px solid #1B1B1B",
+                                    background: "#1B1B1B",
+                                }}
+                            >
                                 {buttonInner(logo, symbol, clickable)}
                             </div>
                     ) :

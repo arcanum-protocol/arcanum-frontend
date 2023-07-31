@@ -50,6 +50,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 border: "1px solid var(--bl)",
                 gap: "1px",
                 gridGap: "1px",
+                marginBottom: "20px",
                 backgroundColor: "var(--bl)"
             }}>
                 <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>

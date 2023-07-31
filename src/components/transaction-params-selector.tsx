@@ -7,7 +7,6 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { useMobileMedia } from "../hooks/tokens";
 import chevron from '/chevron-down.svg';
 import { FixedNumber } from "ethers";
-import { SmoothCorners } from 'react-smooth-corners'
 
 export function TransactionParamsSelector({ txnParams, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;

@@ -106,12 +106,13 @@ export function useEstimate(
     error: string | undefined,
 } {
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
+    console.log("BP", txnBodyParts);
     const { data: txnData, isError, error, isLoading } = useContractRead({
         address: txnBodyParts?.address,
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
-        enabled: txnBodyParts && txnBodyParts.enabled,
+        enabled: txnBodyParts != undefined && txnBodyParts.enabled,
         staleTime: 20_000,
         watch: true,
     });

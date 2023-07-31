@@ -2,9 +2,7 @@ import * as React from 'react';
 import multipoolABI from '../abi/ETF';
 import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAccount } from 'wagmi'
 import { MaxUint256 } from "ethers";
-import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
-import { SmoothCorners } from 'react-smooth-corners'
 
 export function InteractionWithApprovalButton({
     interactionTxnBody,
