@@ -35,6 +35,7 @@ export interface SolidAsset {
     low24h: Number,
     high24h: Number,
     change24h: Number,
+    chainId: Number,
 }
 
 export const routerAddress = '0xBd16d2Bf77b7Ae6c2d186E9AD3A599Abdedbb8da';
@@ -62,7 +63,6 @@ export async function fetchAssets(
         total_ideal_share = total_ideal_share.addUnsafe(FixedNumber.from(a.ideal_share));
     });
 
-    console.log(fetched_assets);
     return {
         assets: fetched_assets.map((a: any): MultipoolAsset => {
             const currentShare = total_cap.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.quantity).mulUnsafe(FixedNumber.fromString("100")).mulUnsafe(FixedNumber.from(a.chain_price)).divUnsafe(total_cap);
@@ -87,13 +87,14 @@ export async function fetchAssets(
                 mcap: FixedNumber.from(a.mcap),
                 volume24h: FixedNumber.from(a.volume_24h),
                 priceChange24h: a.price_change_24h,
-                deviationPercent: idealShare.subUnsafe(currentShare),
+                deviationPercent: currentShare.subUnsafe(idealShare),
                 ticker: a.ticker
             };
         }).sort((a: MultipoolAsset, b: MultipoolAsset): number => Math.abs(b.idealShare.subUnsafe(b.currentShare).toUnsafeFloat()) - Math.abs(a.idealShare.subUnsafe(a.currentShare).toUnsafeFloat())),
         multipool: {
             assetAddress: fetched_multipool.address,
             name: fetched_multipool.name,
+            chainId: Number(fetched_multipool.chain),
             symbol: fetched_multipool.symbol,
             totalSupply: fetched_multipool.total_supply,
             low24h: Number(fetched_multipool.low_24h),

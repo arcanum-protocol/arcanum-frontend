@@ -6,13 +6,14 @@ import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
 import chevron from '/chevron-down.svg';
 import { FixedFormat } from "@ethersproject/bignumber";
+const RED = "#fa3c58";
 
-export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent }) {
+export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent, disableFilter }) {
     const [selectedAsset, setSelectedAsset] = useState<MultipoolAsset | undefined>(undefined);
 
     useEffect(() => {
-        setSelectedAsset(assetList[initialIndex]);
-        setter(assetList[initialIndex])
+        setSelectedAsset(assetList.filter(a => !disableFilter(a))[initialIndex]);
+        setter(assetList.filter(a => !disableFilter(a))[initialIndex])
     }, [assetList]);
 
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
@@ -27,7 +28,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             height: "100%",
             minWidth: "80px",
         }}>
-            <div style={{ display: "flex", width: "25px", height: "25px", margin: "2px" }}>
+            <div style={{ display: "flex", width: "25px", height: "25px", margin: "2px", borderRadius: "50%", overflow: "hidden", }}>
                 <img src={logo || "https://arcanum.to/logo.png"} />
             </div>
             <div >
@@ -57,7 +58,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             minWidth: "80px",
         }}>
             {
-                (!logo || !symbol) ?
+                (logo != undefined || symbol != undefined) ?
                     (
                         clickable ?
                             <button
@@ -111,26 +112,32 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
 
     const [buttonHovered, setButtonHovered] = useState(null);
 
-    const assets = assetList?.map((asset: MultipoolAsset, index) =>
-        <button
+    const assets = assetList?.map((asset: MultipoolAsset, index) => {
+        const isDisabled = disableFilter(asset);
+        return <button
             style={{
                 width: "100%",
                 backgroundColor: buttonHovered != null && buttonHovered == index ? "var(--bl)" : "var(--bc)",
                 color: "var(--wh)"
             }}
+            disabled={isDisabled}
             key={asset.id}
             onClick={() => { setSelectedAsset(asset); setter(asset); closeModal() }}
             onMouseOver={e => setButtonHovered(index)}
             onMouseOut={e => setButtonHovered(null)}
         >
             <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
-                <img style={{ width: "30px", height: "30px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
+                <div style={{
+                    borderRadius: "50%", width: "30px", height: "30px", overflow: "clip",
+                }}>
+                    <img style={{ width: "30px", height: "30px", }} src={asset.logo || "https://arcanum.to/logo.png"} />
+                </div>
                 <div style={{ display: "flex", width: "100%", flexDirection: "column", marginLeft: "10px", alignItems: "flex-start", }}>
                     <p style={{ margin: "0", padding: "0", fontSize: "18px" }}>
-                        {asset.name} ({asset.symbol})
+                        {asset.symbol}{isDisabled ? " (deviation exceeded)" : undefined}
                     </p>
                     <p style={{ margin: "0", padding: "0", fontSize: "14px" }}>
-                        Balance: {0}
+                        {asset.name}
                     </p>
                 </div>
                 <div style={{ display: "flex", marginLeft: "auto", justifySelf: "flex-end", fontSize: "14px" }}>
@@ -138,7 +145,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                 </div>
             </div>
         </button >
-    );
+    });
 
     const modal = useRef(null);
 

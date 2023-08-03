@@ -5,17 +5,21 @@ import { TradePane } from '../components/trade-pane';
 import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
 import { useMobileMedia } from '../hooks/tokens';
+import { SolidAsset } from '../lib/multipool';
 
 export function Swap() {
 
-    const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
     const me = useRef(null);
     const isMobile = useMobileMedia();
+
+    const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
+    const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
 
     useEffect(() => {
         async function inner() {
             const result = await fetchAssets();
             setFetchedAssets(result.assets);
+            setMultipoolAsset(result.multipool);
         }
         inner();
     }, []);
@@ -42,10 +46,13 @@ export function Swap() {
                 }}>
                 <div style={{ display: "flex", width: "100%" }} ref={me}>
                     <TradePane
+                        assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
+                        assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
                         assetsIn={fetchedAssets}
                         assetsOut={fetchedAssets}
                         initialOutIndex={1}
                         tradeLogicAdapter={swapAdapter}
+                        networkId={multipoolAsset?.chainId}
                         selectTokenParent={me}
                         paneTexts={{
                             buttonAction: "Swap",

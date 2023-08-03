@@ -16,7 +16,7 @@
   -webkit-text-size-adjust: 100%;
 
   --bc: #1B1B1B;
-  --solid-bc: rgb(30, 29, 29);
+  --solid-bc: #1B1B1B;
   --bl: #0D0B0D;
   --wh: rgb(249, 249, 249);
 }
@@ -90,17 +90,17 @@ button:focus-visible {
 
 .approvalBalanceButton:disabled {
     border: 1px solid #393939;
-    background-color: var(--bc);
+    background-color: #393939;
 }
 
 .approvalBalanceButton[disabled]:hover {
     border: 1px solid #393939;
     box-shadow: none;
-    background-color: var(--bc);
+    background-color: #393939;
 }
 
 .approvalBalanceButton:disabled {
-    color: #393939;
+    color: var(--wh);
 }
 
 .approvalBalanceButton:focus,

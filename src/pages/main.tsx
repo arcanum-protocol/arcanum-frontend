@@ -6,17 +6,27 @@ import { mintAdapter, burnAdapter } from '../lib/trade-adapters';
 import { TVChartContainer } from '../components/tv-chart';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { useMobileMedia } from '../hooks/tokens';
-
+import { useSearchParams } from 'react-router-dom';
+import { Faucet } from '../components/faucet-modal';
 
 export function Arbi() {
+    return (<Main assetAddress={'0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38'} />)
+}
+
+export function Custom() {
+    const [searchParams, setSearchParams] = useSearchParams();
+    console.log(searchParams);
+    return (<Main assetAddress={searchParams.get("address")} />)
+}
+
+export function Main({ assetAddress }) {
 
     const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
     const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
 
     useEffect(() => {
         async function inner() {
-            const result = await fetchAssets();
-            console.log(result);
+            const result = await fetchAssets(assetAddress);
             setFetchedAssets(result.assets);
             setMultipoolAsset(result.multipool);
         }
@@ -42,6 +52,7 @@ export function Arbi() {
                     </div>
                     <MintBurnTabs fetchedAssets={fetchedAssets} multipoolAsset={multipoolAsset} />
                 </div >
+
             </div >
         );
     } else {
@@ -148,8 +159,11 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                         <TradePane
                             assetsIn={fetchedAssets}
                             assetsOut={[multipoolAsset]}
+                            assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
+                            assetOutDisableFilter={() => false}
                             tradeLogicAdapter={mintAdapter}
                             selectTokenParent={me}
+                            networkId={multipoolAsset?.chainId}
                             paneTexts={{
                                 buttonAction: "Mint",
                                 section1Name: "Send",
@@ -161,8 +175,11 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                         <TradePane
                             assetsIn={[multipoolAsset]}
                             assetsOut={fetchedAssets}
+                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
+                            assetInDisableFilter={() => false}
                             tradeLogicAdapter={burnAdapter}
                             selectTokenParent={me}
+                            networkId={multipoolAsset?.chainId}
                             paneTexts={{
                                 buttonAction: "Burn",
                                 section1Name: "Send",
@@ -184,76 +201,77 @@ export function Head({ multipool }) {
     return (
         <div
             style={{
-                display: "grid",
+                display: "flex",
                 backgroundColor: "var(--bc)",
                 borderRadius: "10px",
-                width: "100%",
                 gap: "40px",
             }}>
-            <span style={{
+            <p style={{
                 fontSize: "35px",
                 padding: "0",
-                marginTop: "0px",
+                marginTop: "5px",
                 marginBottom: "0px",
                 alignSelf: "center",
-                height: "90%",
+                height: "95%",
                 justifySelf: "flex-start",
-                gridRow: "1",
+                gridRow: "1/12",
                 gridColumn: "1",
                 marginLeft: "10px",
-            }}>{multipoolInfo?.symbol || ""}</span>
+            }}>{multipoolInfo?.symbol || ""}</p>
             <div style={{
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                gridRow: "1",
-                gridColumn: "3",
+                flex: "1",
+                justifyContent: "space-around",
+                marginTop: "8px",
+                height: "100%",
                 alignItems: "flex-start"
             }}>
-                <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</span>
-                <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.price.toFixed(4) : "0"}$</span>
+                <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    height: "100%",
+                    alignItems: "flex-start"
+                }}>
+                    <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</p>
+                    <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.price.toFixed(4) : "0"}$</p>
+                </div>
+                {!isMobile ?
+                    <>
+                        <div style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "flex-start"
+                        }}>
+                            <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</p>
+                            <p style={{
+                                fontSize: "16px",
+                                margin: "0px", padding: "0px",
+                                color: multipoolInfo?.change24h > 0 ? GREEN : (multipoolInfo?.change24h < 0 ? RED : undefined),
+                            }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</p>
+                        </div>
+                        <div style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "flex-start"
+                        }}>
+                            <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</p>
+                            <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.high24h.toFixed(4) : "0"}$</p>
+                        </div>
+                        <div style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "flex-start"
+                        }}>
+                            <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</p>
+                            <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</p>
+                        </div>
+                    </>
+                    : undefined}
             </div>
-            {!isMobile ?
-                <>
-                    <div style={{
-                        display: "flex",
-                        gridRow: "1",
-                        gridColumn: "4",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "flex-start"
-                    }}>
-                        <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</span>
-                        <span style={{
-                            fontSize: "16px",
-                            margin: "0px", padding: "0px",
-                            color: multipoolInfo?.change24h > 0 ? GREEN : (multipoolInfo?.change24h < 0 ? RED : undefined),
-                        }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</span>
-                    </div>
-                    <div style={{
-                        display: "flex",
-                        gridRow: "1",
-                        gridColumn: "5",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "flex-start"
-                    }}>
-                        <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</span>
-                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.high24h.toFixed(4) : "0"}$</span>
-                    </div>
-                    <div style={{
-                        display: "flex",
-                        gridRow: "1",
-                        gridColumn: "6",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "flex-start"
-                    }}>
-                        <span style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</span>
-                        <span style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</span>
-                    </div>
-                </>
-                : undefined}
         </div>
     );
 }

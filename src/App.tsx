@@ -1,7 +1,8 @@
 import "./App.css";
-import { createConfig, WagmiConfig } from "wagmi";
-import { polygonMumbai, sepolia } from "wagmi/chains";
+import { createConfig, useAccount, WagmiConfig } from "wagmi";
+import { polygonMumbai, sepolia, arbitrum, mainnet } from "wagmi/chains";
 import {
+    ChainIcon,
     ConnectKitButton,
     ConnectKitProvider,
     getDefaultConfig,
@@ -25,7 +26,7 @@ const config = createConfig(
         alchemyId: "K7c6nsX9dY6D4OhdtkKc2f05yEcFdtqU",
         walletConnectProjectId: "1d63d7e43fd1d5ea177bdb4a8939ade4",
 
-        chains: [polygonMumbai, sepolia],
+        chains: [mainnet, polygonMumbai, sepolia, arbitrum],
 
         // Required
         appName: "ARCANUM",
@@ -109,7 +110,9 @@ function Navbar() {
                             >
                                 {item}
                             </Link> :
-                            <a href={route}>
+                            <a href={route}
+                                key={index}
+                            >
                                 {item}
                             </a>
                     );
@@ -180,7 +183,8 @@ function Navbar() {
                             >
                                 {item}
                             </Link> :
-                            <a href={route}>
+                            <a key={index}
+                                href={route}>
                                 {item}
                             </a>
                     );
@@ -209,7 +213,7 @@ function Navbar() {
                 <img src={logo} />
             </div>
             {!isMobile ? references : <div />}
-            <div style={{ display: "flex", flex: "1", justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", flex: "1", justifyContent: "flex-end", alignItems: "center", gap: "5px" }}>
                 <ConnectKitButton />
             </div>
         </div>

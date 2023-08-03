@@ -5,7 +5,7 @@ import "./index.css";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Swap } from "./pages/swap";
-import { Arbi } from "./pages/arbi";
+import { Arbi, Custom } from "./pages/main";
 
 const router = createBrowserRouter([
     {
@@ -23,6 +23,12 @@ const router = createBrowserRouter([
             {
                 path: "/arbi",
                 element: <Arbi />,
+                children: [
+                    {
+                        path: "?address=*",
+                        element: <Custom />,
+                    },
+                ]
             },
         ]
     },

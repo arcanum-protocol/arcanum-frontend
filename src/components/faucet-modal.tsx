@@ -44,7 +44,6 @@ export function Faucet({ assets }) {
             .mulUnsafe(FixedNumber.fromValue(BigNumber.from(10).pow(BigNumber.from(token.decimals))))
             .toString()
             .slice(0, -2);
-        console.log(rowAmountToMint);
         const { hash } = await writeContract({
             address: tokenAddress,
             abi: erc20Abi,
@@ -55,7 +54,7 @@ export function Faucet({ assets }) {
 
     return (
         <div>
-            <button onClick={openModal}>Faucet</button>
+            <button style={{ background: "none" }} onClick={openModal}>get test tokens</button>
             <Modal
                 isOpen={modalIsOpen}
                 style={customStyles}

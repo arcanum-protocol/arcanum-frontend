@@ -11,7 +11,11 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
     const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
         <>
             <div key={"1" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
-                <img style={{ width: "25px", height: "25px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
+                <div style={{
+                    borderRadius: "50%", width: "25px", height: "25px", overflow: "clip",
+                }}>
+                    <img style={{ width: "25px", height: "25px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
+                </div>
                 {!isMobile ? <>{asset.name} ({asset.symbol})</> : <>{asset.symbol}</>}
             </div>
             <div key={"3" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>

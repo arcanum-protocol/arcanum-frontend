@@ -11,7 +11,6 @@ import { FixedNumber } from "ethers";
 export function TransactionParamsSelector({ txnParams, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;
     const e: EstimatedValues = estimates;
-    const isMobile = useMobileMedia();
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -27,14 +26,14 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                 {
                     e?.minimalAmountOut != undefined ?
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>Minimal receive</p> : <Skeleton />}
+                            <p style={{ margin: "0" }}>Minimal receive</p>
                             <p style={{ margin: "0" }}>
                                 {e.minimalAmountOut.formatted}({e.minimalAmountOut.usd}$)
                             </p>
                         </div>
                         : (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>Maximum send</p> : <Skeleton />}
+                                <p style={{ margin: "0" }}>Maximum send</p>
                                 <p style={{ margin: "0" }}>
                                     {e?.maximumAmountIn?.formatted || 0}({e?.maximumAmountIn?.usd || 0}$)
                                 </p>
@@ -43,26 +42,32 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                         )
                 }
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>{p.tokenIn?.symbol} price</p> : <Skeleton />}
+                    <p style={{ margin: "0" }}>{p.tokenIn?.symbol} price</p>
                     <p style={{ margin: "0" }}>
-                        {"0"}
+                        {(Number(e?.estimatedAmountOut?.formatted || "0")
+                            / Number(e?.estimatedAmountIn?.formatted || "1")).toFixed(4)}
+                        {" "}
+                        {p.tokenOut?.symbol}
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    {p.tokenOut?.symbol ? <p style={{ margin: "0" }}>{p.tokenOut?.symbol} price</p> : <Skeleton />}
+                    <p style={{ margin: "0" }}>{p.tokenOut?.symbol} price</p>
                     <p style={{ margin: "0" }}>
-                        {"0"}
+                        {(Number(e?.estimatedAmountIn?.formatted || "0")
+                            / Number(e?.estimatedAmountOut?.formatted || "1")).toFixed(4)}
+                        {" "}
+                        {p.tokenIn?.symbol}
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    {p.tokenIn?.symbol ? <p style={{ margin: "0" }}>Cashback {p.tokenIn?.symbol}</p> : <Skeleton />}
+                    <p style={{ margin: "0" }}>Cashback {p.tokenIn?.symbol}</p>
                     <p style={{ margin: "0" }}>
                         {e?.estimatedCashbackIn?.formatted || "0"}
                         ({e?.estimatedCashbackIn?.usd || "0"}$)
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    {p.tokenOut?.symbol ? <p style={{ margin: "0" }}>Cashback {p.tokenOut?.symbol}</p> : <Skeleton />}
+                    <p style={{ margin: "0" }}>Cashback {p.tokenOut?.symbol}</p>
                     <p style={{ margin: "0" }}>
                         {e?.estimatedCashbackOut?.formatted || "0"}
                         ({e?.estimatedCashbackOut?.usd || "0"}$)
@@ -90,7 +95,7 @@ export function SlippageSelector({ slippageSetter }) {
     const [selectedSlippageType, setType] = useState<number>(2);
     const slippagePresets = [0.1, 0.5, 1, 3];
     return (
-        <div style={{ display: "flex", width: "100%", marginTop: "10px" }}>
+        <div style={{ display: "flex", width: "100%", marginBottom: "10px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
                 <div style={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
                     <div style={{ display: "flex" }}>

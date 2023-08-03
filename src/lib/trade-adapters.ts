@@ -24,7 +24,6 @@ export const mintAdapter: TradeLogicAdapter = {
                 enabled: multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else {
-            console.log("here");
             return undefined;
         }
     },
@@ -120,7 +119,6 @@ export const swapAdapter: TradeLogicAdapter = {
         params: SendTransactionParams,
     ): EstimationTransactionBody | undefined => {
         if (params.quantities.in) {
-            console.log([multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in]);
             return {
                 address: routerAddress,
                 abi: routerABI,
@@ -147,7 +145,6 @@ export const swapAdapter: TradeLogicAdapter = {
         if (!v) {
             return undefined;
         }
-        console.log(v);
         if (params.quantities.in) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());

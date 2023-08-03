@@ -91,11 +91,14 @@ export type Quantities = { in: BigInt | undefined, out: BigInt | undefined };
 export function TradePane({
     assetsIn,
     initialInIndex = 0,
+    assetInDisableFilter,
+    assetOutDisableFilter,
     assetsOut,
     initialOutIndex = 0,
     tradeLogicAdapter,
     paneTexts,
     selectTokenParent,
+    networkId,
 }) {
     const texts: TradePaneTexts = paneTexts;
     const adapter: TradeLogicAdapter = tradeLogicAdapter;
@@ -124,7 +127,6 @@ export function TradePane({
         in: BigInt("0"),
         out: BigInt("0"),
     });
-    const [debouncedQuantity] = useDebounce(quantity, 500);
     const bindQuantityIn = (value: bigint) => setQuantity({ in: value, out: undefined });
     const bindQuantityOut = (value: bigint) => setQuantity({ in: undefined, out: value });
 
@@ -160,6 +162,7 @@ export function TradePane({
         }>
             <TokenQuantityInput
                 isDisabled={estimationIsLoading}
+                assetDisableFilter={assetInDisableFilter}
                 text={texts.section1Name}
                 assetSetter={bindAssetIn}
                 quantitySetter={bindQuantityIn}
@@ -171,7 +174,7 @@ export function TradePane({
                 usd={estimationResults?.estimatedAmountIn ? estimationResults?.estimatedAmountIn.usd + "$" : "0$"}
             />
             <TokenQuantityInput
-                isDisabled={estimationIsLoading}
+                assetDisableFilter={assetOutDisableFilter}
                 text={texts.section2Name}
                 assetSetter={bindAssetOut}
                 initialQuantity={!estimationResults?.isOut && estimationResults?.estimatedAmountOut}
@@ -191,6 +194,7 @@ export function TradePane({
                     approveMax={true}
                     actionName={texts.buttonAction}
                     tokenData={inTokenData}
+                    networkId={networkId}
                 />
             </div >
         </div >
@@ -199,6 +203,7 @@ export function TradePane({
 
 export function TokenQuantityInput({
     initialAssetIndex,
+    assetDisableFilter,
     usd,
     isDisabled,
     text,
@@ -249,6 +254,7 @@ export function TokenQuantityInput({
                 height: "80%",
             }}>
                 <MultipoolAssetSelector
+                    disableFilter={assetDisableFilter}
                     modalParent={selectTokenParent} assetList={assets}
                     setter={assetSetter} initialIndex={initialAssetIndex} />
                 <p style={{
