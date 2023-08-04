@@ -118,7 +118,9 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             style={{
                 width: "100%",
                 backgroundColor: buttonHovered != null && buttonHovered == index ? "var(--bl)" : "var(--bc)",
-                color: "var(--wh)"
+                color: "var(--wh)",
+                borderRadius: "10px",
+                marginTop: "10px",
             }}
             disabled={isDisabled}
             key={asset.id}
@@ -126,21 +128,28 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             onMouseOver={e => setButtonHovered(index)}
             onMouseOut={e => setButtonHovered(null)}
         >
-            <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+            <div style={{ display: "flex", width: "100%", alignItems: "center", color: isDisabled ? "#363636" : "var(--wh)" }}>
                 <div style={{
-                    borderRadius: "50%", width: "30px", height: "30px", overflow: "clip",
+                    display: "flex", borderRadius: "50%", width: "35px", height: "35px", overflow: "hidden",
                 }}>
-                    <img style={{ width: "30px", height: "30px", }} src={asset.logo || "https://arcanum.to/logo.png"} />
+                    <img style={{ width: "35px", height: "35px", }} src={asset.logo || "https://arcanum.to/logo.png"} />
                 </div>
-                <div style={{ display: "flex", width: "100%", flexDirection: "column", marginLeft: "10px", alignItems: "flex-start", }}>
+                <div style={{ display: "flex", flex: "1", flexDirection: "column", alignItems: "flex-start", marginLeft: "10px" }}>
                     <p style={{ margin: "0", padding: "0", fontSize: "18px" }}>
-                        {asset.symbol}{isDisabled ? " (deviation exceeded)" : undefined}
+                        {asset.symbol}
                     </p>
                     <p style={{ margin: "0", padding: "0", fontSize: "14px" }}>
                         {asset.name}
                     </p>
                 </div>
-                <div style={{ display: "flex", marginLeft: "auto", justifySelf: "flex-end", fontSize: "14px" }}>
+                {isDisabled ?
+                    <div style={{ display: "flex", flex: "1", justifyContent: "flex-end" }}>
+                        <p style={{ margin: "0", padding: "0", fontSize: "14px" }}>
+                            deviation exceeded
+                        </p>
+                    </div>
+                    : undefined}
+                <div style={{ maxWidth: "100px", display: "flex", flex: "1", fontSize: "14px", justifyContent: "flex-end" }}>
                     Deviation: {Number(asset.deviationPercent.toString()).toFixed(4)}
                 </div>
             </div>

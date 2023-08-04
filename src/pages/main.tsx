@@ -203,6 +203,7 @@ export function Head({ multipool }) {
             style={{
                 display: "flex",
                 backgroundColor: "var(--bc)",
+                width: "100%",
                 borderRadius: "10px",
                 gap: "40px",
             }}>

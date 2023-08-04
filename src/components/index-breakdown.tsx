@@ -50,6 +50,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 margin: "5px 10px",
                 display: "grid",
                 overflowX: "auto",
+                minWidth: "200px",
                 borderRadius: "20px",
                 border: "1px solid #393939",
                 gap: "1px",
