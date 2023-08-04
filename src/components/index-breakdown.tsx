@@ -12,7 +12,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
         <>
             <div key={"1" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
                 <div style={{
-                    borderRadius: "50%", width: "25px", height: "25px", overflow: "clip",
+                    borderRadius: "50%", width: "25px", height: "25px", overflow: "clip", marginRight: "10px",
                 }}>
                     <img style={{ width: "25px", height: "25px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
                 </div>
@@ -50,12 +50,13 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 margin: "5px 10px",
                 display: "grid",
                 overflowX: "auto",
-                minWidth: "200px",
+                minWidth: "250px",
                 borderRadius: "20px",
                 border: "1px solid #393939",
                 gap: "1px",
                 gridGap: "1px",
                 marginBottom: "20px",
+                gridTemplateRows: "1fr",
                 backgroundColor: "#393939"
             }}>
                 <div style={{ backgroundColor: "var(--bc)", padding: "5px", paddingLeft: "10px", gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
