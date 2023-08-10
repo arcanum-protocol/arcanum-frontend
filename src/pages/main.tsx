@@ -9,8 +9,16 @@ import { useMobileMedia } from '../hooks/tokens';
 import { useSearchParams } from 'react-router-dom';
 import { Faucet } from '../components/faucet-modal';
 
-export function Arbi() {
+export function Cpt() {
     return (<Main assetAddress={'0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38'} />)
+}
+
+export function Arbi() {
+    return (<Main assetAddress={'0x990c5f02e2d1b11cf12360005645dff886038758'} />)
+}
+
+export function Bini() {
+    return (<Main assetAddress={'0x755f06fcc2c7225fbcba32655bef0954aa1f4eeb'} />)
 }
 
 export function Custom() {

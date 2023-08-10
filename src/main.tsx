@@ -5,7 +5,7 @@ import "./index.css";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Swap } from "./pages/swap";
-import { Arbi, Custom } from "./pages/main";
+import { Arbi, Custom, Bini, Cpt } from "./pages/main";
 
 const router = createBrowserRouter([
     {
@@ -29,6 +29,14 @@ const router = createBrowserRouter([
                         element: <Custom />,
                     },
                 ]
+            },
+            {
+                path: "/cpt",
+                element: <Cpt />,
+            },
+            {
+                path: "/bini",
+                element: <Bini />,
             },
         ]
     },
