@@ -1,6 +1,6 @@
 import "./App.css";
 import { createConfig, useAccount, WagmiConfig } from "wagmi";
-import { polygonMumbai, arbitrumGoerli } from "wagmi/chains";
+import { arbitrumGoerli } from "wagmi/chains";
 import {
     ChainIcon,
     ConnectKitButton,
@@ -20,6 +20,25 @@ Modal.setAppElement('#root');
 
 import logo from '/logo.svg';
 import { useMobileMedia } from "./hooks/tokens";
+
+export const polygonMumbai = {
+    id: 80001,
+    name: 'Polygon Mumbai',
+    network: 'Polygon Mumbai',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'MATIC',
+        symbol: 'MATIC',
+    },
+    rpcUrls: {
+        public: { http: ['https://rpc.ankr.com/polygon_mumbai'] },
+        default: { http: ['https://rpc.ankr.com/polygon_mumbai'] },
+    },
+    blockExplorers: {
+        etherscan: { name: 'PolygonScan', url: 'https://mumbai.polygonscan.com' },
+        default: { name: 'PolygonScan', url: 'https://mumbai.polygonscan.com' },
+    },
+};
 
 export const opBnb = {
     id: 5611,
