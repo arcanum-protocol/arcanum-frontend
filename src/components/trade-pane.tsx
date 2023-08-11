@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MultipoolAssetSelector } from "./multipool-assets-selector";
-import { routerAddress, type MultipoolAsset } from "../lib/multipool";
+import { multipoolAddress, type MultipoolAsset } from "../lib/multipool";
 import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { QuantityInput } from './quantity-input';
@@ -76,6 +76,8 @@ export type SendTransactionParams = {
     tokenOut: TokenWithAddress,
     priceIn: number,
     priceOut: number,
+    routerAddress: string,
+    multipoolAddress: string,
 };
 
 export type TradeLogicAdapter = {
@@ -99,6 +101,8 @@ export function TradePane({
     paneTexts,
     selectTokenParent,
     networkId,
+    routerAddress,
+    multipoolAddress,
 }) {
     const texts: TradePaneTexts = paneTexts;
     const adapter: TradeLogicAdapter = tradeLogicAdapter;
@@ -139,6 +143,8 @@ export function TradePane({
         tokenOut: outTokenData.data,
         priceIn: Number(assetIn?.price?.toString() || 0),
         priceOut: Number(assetOut?.price?.toString() || 0),
+        routerAddress: routerAddress,
+        multipoolAddress: multipoolAddress,
     };
 
     const {

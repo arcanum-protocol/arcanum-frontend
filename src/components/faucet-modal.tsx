@@ -53,8 +53,8 @@ export function Faucet({ assets }) {
     }
 
     return (
-        <div>
-            <button style={{ background: "none" }} onClick={openModal}>get test tokens</button>
+        <div style={{ margin: "0", width: "200px" }}>
+            <button style={{ background: "none", width: "200px", }} onClick={openModal}>get test tokens</button>
             <Modal
                 isOpen={modalIsOpen}
                 style={customStyles}

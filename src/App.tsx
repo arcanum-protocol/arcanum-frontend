@@ -1,6 +1,6 @@
 import "./App.css";
 import { createConfig, useAccount, WagmiConfig } from "wagmi";
-import { polygonMumbai, sepolia, arbitrum, mainnet } from "wagmi/chains";
+import { polygonMumbai, arbitrumGoerli } from "wagmi/chains";
 import {
     ChainIcon,
     ConnectKitButton,
@@ -21,12 +21,31 @@ Modal.setAppElement('#root');
 import logo from '/logo.svg';
 import { useMobileMedia } from "./hooks/tokens";
 
+export const opBnb = {
+    id: 5611,
+    name: 'OpBNB Testnet',
+    network: 'OpBNB Testnet',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'tcBNB',
+        symbol: 'tcBNB',
+    },
+    rpcUrls: {
+        public: { http: ['https://opbnb-testnet-rpc.bnbchain.org'] },
+        default: { http: ['https://opbnb-testnet-rpc.bnbchain.org'] },
+    },
+    blockExplorers: {
+        etherscan: { name: 'SnowTrace', url: 'https://opbnb-testnet.bscscan.com' },
+        default: { name: 'SnowTrace', url: 'https://opbnb-testnet.bscscan.com' },
+    },
+};
+
 const config = createConfig(
     getDefaultConfig({
         alchemyId: "K7c6nsX9dY6D4OhdtkKc2f05yEcFdtqU",
         walletConnectProjectId: "1d63d7e43fd1d5ea177bdb4a8939ade4",
 
-        chains: [mainnet, polygonMumbai, sepolia, arbitrum],
+        chains: [arbitrumGoerli, polygonMumbai, opBnb],
 
         // Required
         appName: "ARCANUM",

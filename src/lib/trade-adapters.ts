@@ -1,4 +1,3 @@
-import { routerAddress, multipoolAddress } from "../lib/multipool";
 import routerABI from '../abi/ROUTER';
 import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter, TradePane } from '../components/trade-pane';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
@@ -9,19 +8,19 @@ export const mintAdapter: TradeLogicAdapter = {
     ): EstimationTransactionBody | undefined => {
         if (params.quantities.in) {
             return {
-                address: routerAddress,
+                address: params.routerAddress,
                 abi: routerABI,
                 functionName: 'estimateMintSharesOut',
-                args: [multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.in],
-                enabled: multipoolAddress != undefined && params.tokenIn != undefined,
+                args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.in],
+                enabled: params.multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else if (params.quantities.out) {
             return {
-                address: routerAddress,
+                address: params.routerAddress,
                 abi: routerABI,
                 functionName: 'estimateMintAmountIn',
-                args: [multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out],
-                enabled: multipoolAddress != undefined && params.tokenIn != undefined,
+                args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out],
+                enabled: params.multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else {
             return undefined;
@@ -49,10 +48,10 @@ export const mintAdapter: TradeLogicAdapter = {
                 maximumAmountIn: undefined,
                 minimalAmountOut: minimalAmountOut,
                 txn: {
-                    address: routerAddress,
+                    address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'mintWithAmountIn',
-                    args: [multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
                     enabled: true,
                 }
             };
@@ -71,10 +70,10 @@ export const mintAdapter: TradeLogicAdapter = {
                 minimalAmountOut: undefined,
                 maximumAmountIn: maximumAmountIn,
                 txn: {
-                    address: routerAddress,
+                    address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'mintWithSharesOut',
-                    args: [multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
                     enabled: true,
                 }
             };
@@ -120,19 +119,19 @@ export const swapAdapter: TradeLogicAdapter = {
     ): EstimationTransactionBody | undefined => {
         if (params.quantities.in) {
             return {
-                address: routerAddress,
+                address: params.routerAddress,
                 abi: routerABI,
                 functionName: 'estimateSwapAmountOut',
-                args: [multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in],
-                enabled: multipoolAddress != undefined && params.tokenIn != undefined && params.tokenOut != undefined,
+                args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in],
+                enabled: params.multipoolAddress != undefined && params.tokenIn != undefined && params.tokenOut != undefined,
             };
         } else if (params.quantities.out) {
             return {
-                address: routerAddress,
+                address: params.routerAddress,
                 abi: routerABI,
                 functionName: 'estimateSwapAmountIn',
-                args: [multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.out],
-                enabled: multipoolAddress != undefined && params.tokenIn != undefined && params.tokenOut != undefined,
+                args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.out],
+                enabled: params.multipoolAddress != undefined && params.tokenIn != undefined && params.tokenOut != undefined,
             };
         } else {
             return undefined;
@@ -160,10 +159,10 @@ export const swapAdapter: TradeLogicAdapter = {
                 maximumAmountIn: undefined,
                 minimalAmountOut: minimalAmountOut,
                 txn: {
-                    address: routerAddress,
+                    address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'swapWithAmountIn',
-                    args: [multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
                     enabled: true,
                 }
             };
@@ -182,10 +181,10 @@ export const swapAdapter: TradeLogicAdapter = {
                 minimalAmountOut: undefined,
                 maximumAmountIn: maximumAmountIn,
                 txn: {
-                    address: routerAddress,
+                    address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'swapWithAmountOut',
-                    args: [multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
                     enabled: true,
                 }
             };
@@ -202,19 +201,19 @@ export const burnAdapter: TradeLogicAdapter = {
     ): EstimationTransactionBody | undefined => {
         if (params.quantities.in) {
             return {
-                address: routerAddress,
+                address: params.routerAddress,
                 abi: routerABI,
                 functionName: 'estimateBurnAmountOut',
-                args: [multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.in],
-                enabled: multipoolAddress != undefined && params.tokenIn != undefined,
+                args: [params.multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.in],
+                enabled: params.multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else if (params.quantities.out) {
             return {
-                address: routerAddress,
+                address: params.routerAddress,
                 abi: routerABI,
                 functionName: 'estimateBurnSharesIn',
-                args: [multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.out],
-                enabled: multipoolAddress != undefined && params.tokenIn != undefined,
+                args: [params.multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.out],
+                enabled: params.multipoolAddress != undefined && params.tokenIn != undefined,
             };
         } else {
             return undefined;
@@ -242,10 +241,10 @@ export const burnAdapter: TradeLogicAdapter = {
                 maximumAmountIn: undefined,
                 minimalAmountOut: minimalAmountOut,
                 txn: {
-                    address: routerAddress,
+                    address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'burnWithSharesIn',
-                    args: [multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
                     enabled: true,
                 }
             };
@@ -264,10 +263,10 @@ export const burnAdapter: TradeLogicAdapter = {
                 minimalAmountOut: undefined,
                 maximumAmountIn: maximumAmountIn,
                 txn: {
-                    address: routerAddress,
+                    address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'burnWithAmountOut',
-                    args: [multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
                     enabled: true,
                 }
             };

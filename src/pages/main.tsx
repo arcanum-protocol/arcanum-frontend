@@ -2,7 +2,7 @@ import * as React from 'react';
 import { fetchAssets, type MultipoolAsset, MultipoolShareAsset, SolidAsset } from "../lib/multipool";
 import { useState, useEffect, useRef } from 'react';
 import { TradePane } from '../components/trade-pane';
-import { mintAdapter, burnAdapter } from '../lib/trade-adapters';
+import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
 import { TVChartContainer } from '../components/tv-chart';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { useMobileMedia } from '../hooks/tokens';
@@ -10,24 +10,33 @@ import { useSearchParams } from 'react-router-dom';
 import { Faucet } from '../components/faucet-modal';
 
 export function Cpt() {
-    return (<Main assetAddress={'0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38'} />)
+    return (<Main
+        assetAddress={'0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38'}
+        routerAddress={'0xBd16d2Bf77b7Ae6c2d186E9AD3A599Abdedbb8da'}
+    />)
 }
 
 export function Arbi() {
-    return (<Main assetAddress={'0x990c5f02e2d1b11cf12360005645dff886038758'} />)
+    return (<Main
+        assetAddress={'0x990c5f02e2d1b11cf12360005645dff886038758'}
+        routerAddress={'0x92569E03b6FDE67bdeA790140f1CCE5E813dcc7c'}
+    />)
 }
 
 export function Bini() {
-    return (<Main assetAddress={'0x755f06fcc2c7225fbcba32655bef0954aa1f4eeb'} />)
+    return (<Main
+        assetAddress={'0x755f06fcc2c7225fbcba32655bef0954aa1f4eeb'}
+        routerAddress={'0x055B9CBFc5b6789c1A1bf7356942ADF0Bce802CC'}
+    />)
 }
 
 export function Custom() {
     const [searchParams, setSearchParams] = useSearchParams();
     console.log(searchParams);
-    return (<Main assetAddress={searchParams.get("address")} />)
+    return (<Main assetAddress={searchParams.get("address")} routerAddress={searchParams.get("router")} />)
 }
 
-export function Main({ assetAddress }) {
+export function Main({ assetAddress, routerAddress }) {
 
     const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
     const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
@@ -58,7 +67,14 @@ export function Main({ assetAddress }) {
                         {multipoolAsset && <TVChartContainer symbol={multipoolAsset.symbol} />}
                         <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
                     </div>
-                    <MintBurnTabs fetchedAssets={fetchedAssets} multipoolAsset={multipoolAsset} />
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", maxWidth: "400px", width: "100%" }}>
+                        <MintBurnTabs
+                            fetchedAssets={fetchedAssets}
+                            multipoolAsset={multipoolAsset}
+                            routerAddress={routerAddress}
+                        />
+                        <Faucet assets={fetchedAssets} />
+                    </div>
                 </div >
 
             </div >
@@ -77,7 +93,12 @@ export function Main({ assetAddress }) {
                 }}>
                     <Head multipool={multipoolAsset} />
                     {multipoolAsset && <TVChartContainer symbol={multipoolAsset.symbol} />}
-                    <MintBurnTabs fetchedAssets={fetchedAssets} multipoolAsset={multipoolAsset} />
+                    <MintBurnTabs
+                        routerAddress={routerAddress}
+                        fetchedAssets={fetchedAssets}
+                        multipoolAsset={multipoolAsset}
+                    />
+                    <Faucet assets={fetchedAssets} />
                     <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
                 </div >
             </div >
@@ -85,10 +106,11 @@ export function Main({ assetAddress }) {
     }
 }
 
-export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
+export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
 
-    const [isMintDisplayed, setMintDisplayed] = useState<boolean>(true);
+    const [displayed, setDisplayed] = useState<number>(1);
     const me = useRef(null);
+    console.log("displayed", displayed);
 
     function displayOrHide(hide: boolean, props: React.CSSProperties): React.CSSProperties {
         if (hide) {
@@ -140,10 +162,10 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                                 padding: "5px",
                                 borderRadius: "10px",
                                 color: "#fff",
-                                backgroundColor: !isMintDisplayed ? "#1B1B1B" : "var(--bl)",
+                                backgroundColor: displayed != 1 ? "#1B1B1B" : "var(--bl)",
                             }}
-                            disabled={isMintDisplayed}
-                            onClick={() => setMintDisplayed(true)}>
+                            disabled={displayed == 1}
+                            onClick={() => setDisplayed(1)}>
                             Mint
                         </button>
                         <button
@@ -154,16 +176,30 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                                 margin: "0",
                                 padding: "2px",
                                 color: "#fff",
-                                backgroundColor: isMintDisplayed ? "#1B1B1B" : "var(--bl)",
+                                backgroundColor: displayed != 2 ? "#1B1B1B" : "var(--bl)",
                             }}
-                            disabled={!isMintDisplayed}
-                            onClick={() => setMintDisplayed(false)}>
+                            disabled={displayed == 2}
+                            onClick={() => setDisplayed(2)}>
                             Burn
+                        </button>
+                        <button
+                            style={{
+                                width: "100%",
+                                fontSize: "20px",
+                                borderRadius: "10px",
+                                margin: "0",
+                                padding: "2px",
+                                color: "#fff",
+                                backgroundColor: displayed != 3 ? "#1B1B1B" : "var(--bl)",
+                            }}
+                            disabled={displayed == 3}
+                            onClick={() => setDisplayed(3)}>
+                            Swap
                         </button>
                     </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                    <div style={displayOrHide(!isMintDisplayed, { width: "100%" })}>
+                    <div style={displayOrHide(displayed != 1, { width: "100%" })}>
                         <TradePane
                             assetsIn={fetchedAssets}
                             assetsOut={[multipoolAsset]}
@@ -171,6 +207,8 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                             assetOutDisableFilter={() => false}
                             tradeLogicAdapter={mintAdapter}
                             selectTokenParent={me}
+                            routerAddress={routerAddress}
+                            multipoolAddress={multipoolAsset?.assetAddress}
                             networkId={multipoolAsset?.chainId}
                             paneTexts={{
                                 buttonAction: "Mint",
@@ -179,13 +217,15 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                             }} />
 
                     </div >
-                    <div style={displayOrHide(isMintDisplayed, { width: "100%" })}>
+                    <div style={displayOrHide(displayed != 2, { width: "100%" })}>
                         <TradePane
                             assetsIn={[multipoolAsset]}
                             assetsOut={fetchedAssets}
                             assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
+                            multipoolAddress={multipoolAsset?.assetAddress}
                             assetInDisableFilter={() => false}
                             tradeLogicAdapter={burnAdapter}
+                            routerAddress={routerAddress}
                             selectTokenParent={me}
                             networkId={multipoolAsset?.chainId}
                             paneTexts={{
@@ -194,6 +234,23 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset }) {
                                 section2Name: "Receive",
                             }} />
 
+                    </div >
+                    <div style={displayOrHide(displayed != 3, { width: "100%" })}>
+                        <TradePane
+                            assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
+                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
+                            routerAddress={routerAddress}
+                            multipoolAddress={multipoolAsset?.assetAddress}
+                            assetsIn={fetchedAssets}
+                            assetsOut={fetchedAssets}
+                            tradeLogicAdapter={swapAdapter}
+                            networkId={multipoolAsset?.chainId}
+                            selectTokenParent={me}
+                            paneTexts={{
+                                buttonAction: "Swap",
+                                section1Name: "Send",
+                                section2Name: "Receive",
+                            }} />
                     </div >
                 </div >
             </div>

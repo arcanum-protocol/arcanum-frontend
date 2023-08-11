@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { fetchAssets, type MultipoolAsset } from "../lib/multipool";
+import { fetchAssets, routerAddress, type MultipoolAsset } from "../lib/multipool";
 import { useState, useEffect, useRef } from 'react';
 import { TradePane } from '../components/trade-pane';
 import { Faucet } from '../components/faucet-modal';
@@ -48,9 +48,9 @@ export function Swap() {
                     <TradePane
                         assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
                         assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
+                        routerAddress={routerAddress}
                         assetsIn={fetchedAssets}
                         assetsOut={fetchedAssets}
-                        initialOutIndex={1}
                         tradeLogicAdapter={swapAdapter}
                         networkId={multipoolAsset?.chainId}
                         selectTokenParent={me}

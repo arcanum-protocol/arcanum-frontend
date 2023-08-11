@@ -41,6 +41,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                     lineHeight: "105.01%", /* 12.601px */
                     height: "16px",
                     margin: "0",
+                    marginRight: "10px",
                 }} >{symbol}</p>
             </div>
         </div >
@@ -55,7 +56,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             justifyItems: "flex-end",
             gap: "5px",
             height: "30px",
-            minWidth: "80px",
+            minWidth: "100px",
         }}>
             {
                 (logo != undefined || symbol != undefined) ?
