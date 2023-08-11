@@ -58,7 +58,7 @@ export const mintAdapter: TradeLogicAdapter = {
         } else if (params.quantities.out) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
-            const maximumAmountIn = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorIn, params.priceIn);
+            const maximumAmountIn = toAllFormats(applySlippage(v[0], params.slippage, false), denominatorIn, params.priceIn);
             return {
                 isIn: false,
                 isOut: true,
@@ -169,7 +169,7 @@ export const swapAdapter: TradeLogicAdapter = {
         } else if (params.quantities.out) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
-            const maximumAmountIn = toAllFormats(applySlippage(v[1], params.slippage, true), denominatorIn, params.priceIn);
+            const maximumAmountIn = toAllFormats(applySlippage(v[1], params.slippage, false), denominatorIn, params.priceIn);
             return {
                 isIn: false,
                 isOut: true,
@@ -251,7 +251,7 @@ export const burnAdapter: TradeLogicAdapter = {
         } else if (params.quantities.out) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
-            const maximumAmountIn = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorIn, params.priceIn);
+            const maximumAmountIn = toAllFormats(applySlippage(v[0], params.slippage, false), denominatorIn, params.priceIn);
             return {
                 isIn: false,
                 isOut: true,

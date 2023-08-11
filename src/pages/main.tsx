@@ -19,14 +19,14 @@ export function Cpt() {
 export function Arbi() {
     return (<Main
         assetAddress={'0x990c5f02e2d1b11cf12360005645dff886038758'}
-        routerAddress={'0x92569E03b6FDE67bdeA790140f1CCE5E813dcc7c'}
+        routerAddress={'0x0529aB0A0094C950aef23e3D0A7275971C729ef3'}
     />)
 }
 
 export function Bini() {
     return (<Main
         assetAddress={'0x755f06fcc2c7225fbcba32655bef0954aa1f4eeb'}
-        routerAddress={'0x055B9CBFc5b6789c1A1bf7356942ADF0Bce802CC'}
+        routerAddress={'0xb92BA9677D62E52f273dcF23EC32444eEFBB9932'}
     />)
 }
 
