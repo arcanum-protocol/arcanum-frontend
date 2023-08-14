@@ -39,29 +39,57 @@ export function Swap() {
             <div
                 style={{
                     display: "flex",
-                    backgroundColor: "#1B1B1B",
-                    borderRadius: "20px",
-                    margin: "10px",
-                    width: !isMobile ? "400px" : "100%",
-                    justifyContent: "center"
+                    justifyContent: "center",
+                    flexDirection: isMobile ? "column" : undefined,
+                    gap: "10px",
+                    width: "100%",
                 }}>
-                <div style={{ display: "flex", width: "100%" }} ref={me}>
-                    <TradePane
-                        assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                        assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
-                        routerAddress={routerAddress}
-                        multipoolAddress={multipoolAddress}
-                        assetsIn={fetchedAssets}
-                        assetsOut={fetchedAssets}
-                        tradeLogicAdapter={swapAdapter}
-                        networkId={multipoolAsset?.chainId}
-                        selectTokenParent={me}
-                        paneTexts={{
-                            buttonAction: "Swap",
-                            section1Name: "Send",
-                            section2Name: "Receive",
-                        }} />
+                <div
+                    style={{
+                        display: "flex",
+                        backgroundColor: "#1B1B1B",
+                        maxWidth: "400px",
+                        justifySelf: "center",
+                        borderRadius: "20px",
+                        marginLeft: isMobile ? "auto" : undefined,
+                        marginRight: isMobile ? "auto" : undefined,
+                        width: !isMobile ? "400px" : "100%",
+                        justifyContent: "center"
+                    }}>
+                    <div style={{ display: "flex", width: "100%", justifyContent: "center" }} ref={me}>
+                        <TradePane
+                            assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
+                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
+                            routerAddress={routerAddress}
+                            multipoolAddress={multipoolAddress}
+                            assetsIn={fetchedAssets}
+                            assetsOut={fetchedAssets}
+                            tradeLogicAdapter={swapAdapter}
+                            networkId={multipoolAsset?.chainId}
+                            selectTokenParent={me}
+                            paneTexts={{
+                                buttonAction: "Swap",
+                                section1Name: "Send",
+                                section2Name: "Receive",
+                            }} />
+                    </div >
                 </div >
+                <div style={{
+                    display: "flex",
+                    maxWidth: isMobile ? undefined : "200px",
+                    marginTop: "15px",
+                    justifyContent: "center",
+                    width: isMobile ? "100%" : undefined,
+                }}>
+                    <div style={{ textAlign: isMobile ? "center" : "left" }}>
+                        <p style={{ fontWeight: "bold" }}>Note</p>
+                        This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Polygon Mumbai only.<br />
+                        <p style={{ fontWeight: "bold" }}>What is it for?</p>
+                        - For swapping of assets between ETFs on one chain. This creates more arbitrage opportunities - between ETFs' pools on Arcanum platform.<br />
+                        <p style={{ fontWeight: "bold" }}>When can I test?</p>
+                        - When more than one ETF on one chain is released
+                    </div>
+                </div>
             </div >
             <Faucet assets={fetchedAssets} />
         </div >
