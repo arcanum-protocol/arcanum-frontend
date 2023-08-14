@@ -35,7 +35,7 @@ const router = createBrowserRouter([
                 element: <Cpt />,
             },
             {
-                path: "/bini",
+                path: "/bali",
                 element: <Bini />,
             },
         ]
