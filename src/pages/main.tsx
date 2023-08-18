@@ -23,9 +23,9 @@ export function Arbi() {
     />)
 }
 
-export function Bini() {
+export function Bali() {
     return (<Main
-        assetAddress={'0x755f06fcc2c7225fbcba32655bef0954aa1f4eeb'}
+        assetAddress={'0xae8094419f19d0e14ce1f30b7c41ec1bf7d93daa'}
         routerAddress={'0xb92BA9677D62E52f273dcF23EC32444eEFBB9932'}
     />)
 }
