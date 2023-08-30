@@ -119,7 +119,9 @@ export function useEstimate(
     if (error?.message.includes("MULTIPOOL: DO")) {
         errorMessage = "Too big quantity";
     } else if (error?.message.includes("MULTIPOOL: QE")) {
-        errorMessage = "Insufficient balance";
+        errorMessage = "Insufficient liquidity";
+    } else if (isError) {
+        //errorMessage = error?.message;
     }
 
 

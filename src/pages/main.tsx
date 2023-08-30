@@ -12,14 +12,14 @@ import { Faucet } from '../components/faucet-modal';
 export function Cpt() {
     return (<Main
         assetAddress={'0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38'}
-        routerAddress={'0xBd16d2Bf77b7Ae6c2d186E9AD3A599Abdedbb8da'}
+        routerAddress={'0xbd16d2bf77b7ae6c2d186e9ad3a599abdedbb8da'}
     />)
 }
 
 export function Arbi() {
     return (<Main
-        assetAddress={'0x990c5f02e2d1b11cf12360005645dff886038758'}
-        routerAddress={'0x0529aB0A0094C950aef23e3D0A7275971C729ef3'}
+        assetAddress={'0x936154414520a1d925f15a2ee88a1ce31ae24c1e'}
+        routerAddress={'0x991d49476a0555795d402d5db8ac0273a75b7b93'}
     />)
 }
 

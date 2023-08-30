@@ -50,8 +50,8 @@ export const arbitrumSepolia = {
         symbol: 'ETH',
     },
     rpcUrls: {
-        public: { http: ['sepolia-rollup.arbitrum.io/rpc'] },
-        default: { http: ['sepolia-rollup.arbitrum.io/rpc'] },
+        public: { http: ['https://sepolia-rollup.arbitrum.io/rpc'] },
+        default: { http: ['https://sepolia-rollup.arbitrum.io/rpc'] },
     },
     blockExplorers: {
         etherscan: { name: 'ArbiScan', url: 'https://sepolia-explorer.arbitrum.io' },
