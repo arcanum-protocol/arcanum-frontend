@@ -29,7 +29,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             minWidth: "80px",
         }}>
             <div style={{ display: "flex", width: "25px", height: "25px", margin: "2px", borderRadius: "50%", overflow: "hidden", }}>
-                <img src={logo || "https://arcanum.to/logo.png"} />
+                <img src={logo || "https://api.arcanum.to/logo.png"} />
             </div>
             <div >
                 <p style={{
@@ -133,7 +133,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                 <div style={{
                     display: "flex", borderRadius: "50%", width: "35px", height: "35px", overflow: "hidden",
                 }}>
-                    <img style={{ width: "35px", height: "35px", }} src={asset.logo || "https://arcanum.to/logo.png"} />
+                    <img style={{ width: "35px", height: "35px", }} src={asset.logo || "https://api.arcanum.to/logo.png"} />
                 </div>
                 <div style={{ display: "flex", flex: "1", flexDirection: "column", alignItems: "flex-start", marginLeft: "10px" }}>
                     <p style={{ margin: "0", padding: "0", fontSize: "18px" }}>
