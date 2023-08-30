@@ -41,7 +41,7 @@ export interface SolidAsset {
 export const routerAddress = '0xBd16d2Bf77b7Ae6c2d186E9AD3A599Abdedbb8da';
 export const multipoolAddress = '0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38';
 
-export const etfAssetOrigin = 'https://arcanum.to/api/multipool/info';
+export const etfAssetOrigin = 'https://api.arcanum.to/api/multipool/info';
 
 export async function fetchAssets(
     address: String = multipoolAddress,

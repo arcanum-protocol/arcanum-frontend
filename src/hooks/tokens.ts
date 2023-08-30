@@ -116,9 +116,9 @@ export function useEstimate(
         watch: true,
     });
     let errorMessage: undefined | string = undefined;
-    if (error?.message.includes("deviation overflows limit")) {
+    if (error?.message.includes("MULTIPOOL: DO")) {
         errorMessage = "Too big quantity";
-    } else if (error?.message.includes("can't burn more assets than exist")) {
+    } else if (error?.message.includes("MULTIPOOL: QE")) {
         errorMessage = "Insufficient balance";
     }
 

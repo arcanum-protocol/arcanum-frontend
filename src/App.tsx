@@ -1,6 +1,6 @@
 import "./App.css";
 import { createConfig, useAccount, WagmiConfig } from "wagmi";
-import { arbitrumGoerli } from "wagmi/chains";
+//import { arbitrumGoerli } from "wagmi/chains";
 import {
     ChainIcon,
     ConnectKitButton,
@@ -40,6 +40,25 @@ export const polygonMumbai = {
     },
 };
 
+export const arbitrumSepolia = {
+    id: 421614,
+    name: 'Arbitrum sepolia',
+    network: 'Arbitrum sepolia',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'ETH',
+        symbol: 'ETH',
+    },
+    rpcUrls: {
+        public: { http: ['sepolia-rollup.arbitrum.io/rpc'] },
+        default: { http: ['sepolia-rollup.arbitrum.io/rpc'] },
+    },
+    blockExplorers: {
+        etherscan: { name: 'ArbiScan', url: 'https://sepolia-explorer.arbitrum.io' },
+        default: { name: 'ArbiScan', url: 'https://sepolia-explorer.arbitrum.io' },
+    },
+};
+
 export const opBnb = {
     id: 5611,
     name: 'OpBNB Testnet',
@@ -64,7 +83,7 @@ const config = createConfig(
         alchemyId: "K7c6nsX9dY6D4OhdtkKc2f05yEcFdtqU",
         walletConnectProjectId: "1d63d7e43fd1d5ea177bdb4a8939ade4",
 
-        chains: [arbitrumGoerli, polygonMumbai, opBnb],
+        chains: [arbitrumSepolia, polygonMumbai, opBnb],
 
         // Required
         appName: "ARCANUM",
