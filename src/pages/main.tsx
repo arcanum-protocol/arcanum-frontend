@@ -19,7 +19,7 @@ export function Cpt() {
 export function Arbi() {
     return (<Main
         assetAddress={'0x936154414520a1d925f15a2ee88a1ce31ae24c1e'}
-        routerAddress={'0x991d49476a0555795d402d5db8ac0273a75b7b93'}
+        routerAddress={'0x04c13f9763b3bda8662edd5bc5131b77512cce6c'}
     />)
 }
 
