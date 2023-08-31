@@ -59,13 +59,13 @@ export async function fetchAssets(
     let total_ideal_share = FixedNumber.fromString("0");
 
     fetched_assets.forEach((a: any) => {
-        total_cap = total_cap.addUnsafe(FixedNumber.from(a.quantity).mulUnsafe(FixedNumber.from(a.chain_price)));
+        total_cap = total_cap.addUnsafe(FixedNumber.from(BigNumber.from(a.quantity).mul(BigNumber.from(10).pow(BigNumber.from(18 - a.decimals)))).mulUnsafe(FixedNumber.from(a.chain_price)));
         total_ideal_share = total_ideal_share.addUnsafe(FixedNumber.from(a.ideal_share));
     });
 
     return {
         assets: fetched_assets.map((a: any): MultipoolAsset => {
-            const currentShare = total_cap.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.quantity).mulUnsafe(FixedNumber.fromString("100")).mulUnsafe(FixedNumber.from(a.chain_price)).divUnsafe(total_cap);
+            const currentShare = total_cap.isZero() ? FixedNumber.from(0) : FixedNumber.from(BigNumber.from(a.quantity).mul(BigNumber.from(10).pow(BigNumber.from(18 - a.decimals)))).mulUnsafe(FixedNumber.fromString("100")).mulUnsafe(FixedNumber.from(a.chain_price)).divUnsafe(total_cap);
             const idealShare = total_ideal_share.isZero() ? FixedNumber.from(0) : FixedNumber.from(a.ideal_share).mulUnsafe(FixedNumber.fromString("100")).divUnsafe(total_ideal_share);
             return {
                 name: a.name,

@@ -115,7 +115,7 @@ export function TradePane({
         tokenAddress: assetIn?.assetAddress,
         userAddress: address,
         allowanceTo: routerAddress,
-    })
+    });
 
     const [assetOut, setAssetOut] = useState<MultipoolAsset>(assetsOut[initialOutIndex] || assetsOut);
     const bindAssetOut = (value: MultipoolAsset) => setAssetOut(value);
@@ -124,7 +124,10 @@ export function TradePane({
         tokenAddress: assetOut?.assetAddress,
         userAddress: address,
         allowanceTo: routerAddress,
-    })
+    });
+    console.log("TD: ", outTokenData);
+    console.log("TP: ", assetOut);
+
 
     const [slippage, setSlippage] = useState<number>(0.5);
     const [quantity, setQuantity] = useState<Quantities>({
@@ -244,6 +247,7 @@ export function TokenQuantityInput({
                 </div>
                 <QuantityInput
                     disabled={isDisabled}
+                    decimals={tokenData?.data?.decimals}
                     quantitySetter={quantitySetter}
                     initialQuantity={initialQuantity}
                 />

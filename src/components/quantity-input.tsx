@@ -2,9 +2,11 @@ import { useState, useEffect } from "react";
 import * as React from 'react';
 import { parseUnits } from "ethers";
 import { useDebounce } from "use-debounce";
+import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 
 export function QuantityInput({
     disabled = false,
+    decimals,
     quantitySetter,
     initialQuantity = undefined,
 }) {
@@ -20,20 +22,23 @@ export function QuantityInput({
 
     useEffect(() => {
         if (!initial) {
-            console.log(debouncedQuantity);
             let num: bigint;
             if (debouncedQuantity == "") {
                 quantitySetter(undefined);
             }
             try {
-                num = parseUnits(debouncedQuantity, 18);
+                num = FixedNumber
+                    .fromString(debouncedQuantity)
+                    .mulUnsafe(
+                        FixedNumber.fromValue(BigNumber.from("10").pow(BigNumber.from(decimals.toString())))
+                    ).toString().split(".")[0];
             } catch {
                 quantitySetter(undefined);
                 return;
             }
-            quantitySetter(num);
+            quantitySetter(BigInt(num));
         }
-    }, [debouncedQuantity, initial]);
+    }, [debouncedQuantity, initial, decimals]);
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>

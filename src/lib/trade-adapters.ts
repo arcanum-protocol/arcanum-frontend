@@ -41,7 +41,7 @@ export const mintAdapter: TradeLogicAdapter = {
                 isIn: true,
                 isOut: false,
                 estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
-                estimatedCashbackOut: toAllFormats(BigInt(0), denominatorIn, params.priceIn),
+                estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
                 fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
@@ -63,7 +63,7 @@ export const mintAdapter: TradeLogicAdapter = {
                 isIn: false,
                 isOut: true,
                 estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
-                estimatedCashbackOut: toAllFormats(BigInt(0), denominatorIn, params.priceIn),
+                estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[0], denominatorIn, params.priceIn),
                 fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
@@ -106,6 +106,7 @@ function withDenominatorToUsd(value: BigInt, denominator: BigInt, price: Number)
 }
 
 function toAllFormats(value: BigInt, denominator: BigInt, price: Number): { row: BigInt, formatted: string, usd: string } {
+    console.log("af", value, denominator, price);
     return {
         row: value,
         formatted: withDenominator(value, denominator),
@@ -144,9 +145,11 @@ export const swapAdapter: TradeLogicAdapter = {
         if (!v) {
             return undefined;
         }
+        console.log(v);
         if (params.quantities.in) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            console.log("den", denominatorIn, denominatorOut, params.priceOut, params.priceIn);
             const minimalAmountOut = toAllFormats(applySlippage(v[1], params.slippage, true), denominatorOut, params.priceOut);
             return {
                 isIn: true,
@@ -234,7 +237,7 @@ export const burnAdapter: TradeLogicAdapter = {
                 isIn: true,
                 isOut: false,
                 estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
-                estimatedCashbackOut: toAllFormats(BigInt(0), denominatorIn, params.priceIn),
+                estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
                 fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),

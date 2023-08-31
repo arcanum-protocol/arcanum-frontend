@@ -47,7 +47,13 @@ export function Main({ assetAddress, routerAddress }) {
             setFetchedAssets(result.assets);
             setMultipoolAsset(result.multipool);
         }
+        const id = setInterval(() => {
+            inner();
+        }, 10000);
+
         inner();
+
+        return () => clearInterval(id);
     }, []);
 
     const isMobile = useMobileMedia();

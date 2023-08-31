@@ -17,12 +17,18 @@ export function Swap() {
 
     useEffect(() => {
         async function inner() {
-            const result = await fetchAssets();
+            const result = await fetchAssets('0x936154414520a1d925f15a2ee88a1ce31ae24c1e');
             setFetchedAssets(result.assets);
             setMultipoolAsset(result.multipool);
-            console.log(result.multipool);
         }
+
+        const id = setInterval(() => {
+            inner();
+        }, 10000);
+
         inner();
+
+        return () => clearInterval(id);
     }, []);
 
     return (
