@@ -82,7 +82,7 @@ const getLanguageFromURL = (): LanguageCode | null => {
     return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' ')) as LanguageCode;
 };
 
-export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv' }) => {
+export const TVChartContainer = React.memo(({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv' }) => {
     const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
 
     const isMobile = useMobileMedia();
@@ -164,6 +164,5 @@ export const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to
             className={'TVChartContainer'}
         />
     );
-};
-
+});
 

@@ -106,7 +106,6 @@ function withDenominatorToUsd(value: BigInt, denominator: BigInt, price: Number)
 }
 
 function toAllFormats(value: BigInt, denominator: BigInt, price: Number): { row: BigInt, formatted: string, usd: string } {
-    console.log("af", value, denominator, price);
     return {
         row: value,
         formatted: withDenominator(value, denominator),
@@ -145,11 +144,9 @@ export const swapAdapter: TradeLogicAdapter = {
         if (!v) {
             return undefined;
         }
-        console.log(v);
         if (params.quantities.in) {
             const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
             const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
-            console.log("den", denominatorIn, denominatorOut, params.priceOut, params.priceIn);
             const minimalAmountOut = toAllFormats(applySlippage(v[1], params.slippage, true), denominatorOut, params.priceOut);
             return {
                 isIn: true,

@@ -18,8 +18,8 @@ export function Cpt() {
 
 export function Arbi() {
     return (<Main
-        assetAddress={'0x936154414520a1d925f15a2ee88a1ce31ae24c1e'}
-        routerAddress={'0x04c13f9763b3bda8662edd5bc5131b77512cce6c'}
+        assetAddress={'0x060bf7c37fcb1ef52e10fde3f645ce9b8f163134'}
+        routerAddress={'0x32056276c08538a91ee2cc8171d96ccb5fe61fbe'}
     />)
 }
 
@@ -36,25 +36,9 @@ export function Custom() {
     return (<Main assetAddress={searchParams.get("address")} routerAddress={searchParams.get("router")} />)
 }
 
-export function Main({ assetAddress, routerAddress }) {
 
-    const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
-    const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
+export function MainInner({ assetAddress, routerAddress, multipoolAsset, fetchedAssets }) {
 
-    useEffect(() => {
-        async function inner() {
-            const result = await fetchAssets(assetAddress);
-            setFetchedAssets(result.assets);
-            setMultipoolAsset(result.multipool);
-        }
-        const id = setInterval(() => {
-            inner();
-        }, 10000);
-
-        inner();
-
-        return () => clearInterval(id);
-    }, []);
 
     const isMobile = useMobileMedia();
 
@@ -110,6 +94,38 @@ export function Main({ assetAddress, routerAddress }) {
             </div >
         );
     }
+}
+
+export const MemoInner = React.memo(MainInner);
+export function Main({ assetAddress, routerAddress }) {
+    const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
+    const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
+
+    useEffect(() => {
+        async function inner() {
+            const result = await fetchAssets(assetAddress);
+            if (fetchedAssets != result.assets) {
+                setFetchedAssets(result.assets);
+            }
+            if (multipoolAsset != result.multipool) {
+                setMultipoolAsset(result.multipool);
+            }
+        }
+        const id = setInterval(() => {
+            inner();
+        }, 10000);
+
+        inner();
+
+        return () => clearInterval(id);
+    }, []);
+
+    return <MemoInner
+        assetAddress={assetAddress}
+        routerAddress={routerAddress}
+        fetchedAssets={fetchedAssets}
+        multipoolAsset={multipoolAsset}
+    />;
 }
 
 export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {

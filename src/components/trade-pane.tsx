@@ -125,9 +125,6 @@ export function TradePane({
         userAddress: address,
         allowanceTo: routerAddress,
     });
-    console.log("TD: ", outTokenData);
-    console.log("TP: ", assetOut);
-
 
     const [slippage, setSlippage] = useState<number>(0.5);
     const [quantity, setQuantity] = useState<Quantities>({

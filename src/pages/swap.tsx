@@ -6,6 +6,7 @@ import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
 import { useMobileMedia } from '../hooks/tokens';
 import { SolidAsset } from '../lib/multipool';
+import chevron from '/chevron-down.svg';
 
 export function Swap() {
 
@@ -30,6 +31,7 @@ export function Swap() {
 
         return () => clearInterval(id);
     }, []);
+
 
     return (
         <div
@@ -80,25 +82,56 @@ export function Swap() {
                             }} />
                     </div >
                 </div >
-                <div style={{
-                    display: "flex",
-                    maxWidth: isMobile ? undefined : "200px",
-                    marginTop: "15px",
-                    justifyContent: "center",
-                    width: isMobile ? "100%" : undefined,
-                }}>
-                    <div style={{ textAlign: isMobile ? "center" : "left" }}>
-                        <p style={{ fontWeight: "bold" }}>Note</p>
-                        This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Polygon Mumbai only.<br />
-                        <p style={{ fontWeight: "bold" }}>What is it for?</p>
-                        - For swapping of assets between ETFs on one chain. This creates more arbitrage opportunities - between ETFs' pools on Arcanum platform.<br />
-                        <p style={{ fontWeight: "bold" }}>When can I test?</p>
-                        - When more than one ETF on one chain is released
-                    </div>
-                </div>
             </div >
+            <Accordion title={"Note"} />
             <Faucet assets={fetchedAssets} />
         </div >
     );
 }
 
+// <div style={{
+//     display: "flex",
+//     maxWidth: isMobile ? undefined : "200px",
+//     marginTop: "15px",
+//     justifyContent: "center",
+//     width: isMobile ? "100%" : undefined,
+// }}>
+//     <div style={{ textAlign: isMobile ? "center" : "left" }}>
+//         <p style={{ fontWeight: "bold" }}>Note</p>
+//         This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Polygon Mumbai only.<br />
+//         <p style={{ fontWeight: "bold" }}>What is it for?</p>
+//         - For swapping of assets between ETFs on one chain. This creates more arbitrage opportunities - between ETFs' pools on Arcanum platform.<br />
+//         <p style={{ fontWeight: "bold" }}>When can I test?</p>
+//         - When more than one ETF on one chain is released
+//     </div>
+// </div>
+export function Accordion({ title, content }) {
+    const isMobile = useMobileMedia();
+    const [isOpened, setOpen] = useState(false);
+    return (
+        <>
+
+            <div
+                onClick={(e) => setOpen(!isOpened)}
+                style={{
+                    display: "flex",
+                    backgroundColor: "#1B1B1B",
+                    maxWidth: "400px",
+                    justifySelf: "center",
+                    borderRadius: "10px",
+                    marginLeft: isMobile ? "auto" : undefined,
+                    marginRight: isMobile ? "auto" : undefined,
+                    width: !isMobile ? "400px" : "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}>
+                <div style={{ display: "flex", margin: "0", marginLeft: "20" }}>
+                    {title}
+                </div>
+                <div style={{ marginLeft: "auto", display: "flex", width: "25px", height: "25px", margin: "2px", borderRadius: "50%", overflow: "hidden", }}>
+                    <img src={chevron} />
+                </div>
+            </div>
+        </>
+    );
+}
