@@ -41,7 +41,7 @@ export function Swap() {
                 alignItems: "center",
                 justifyContent: "center",
                 flexDirection: "column",
-                rowGap: "10px",
+                rowGap: "5px",
                 width: "100%",
             }}>
             <div
@@ -83,7 +83,18 @@ export function Swap() {
                     </div >
                 </div >
             </div >
-            <Accordion title={"Note"} />
+            <Accordion
+                title={"Note?"}
+                content={"This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Polygon Mumbai only."}
+            />
+            <Accordion
+                title={"What is it for?"}
+                content={"For swapping of assets between ETFs on one chain. This creates more arbitrage opportunities - between ETFs' pools on Arcanum platform."}
+            />
+            <Accordion
+                title={"When can I test?"}
+                content={"When more than one ETF on one chain is released."}
+            />
             <Faucet assets={fetchedAssets} />
         </div >
     );
@@ -124,12 +135,51 @@ export function Accordion({ title, content }) {
                     width: !isMobile ? "400px" : "100%",
                     justifyContent: "center",
                     alignItems: "center",
+                    flexDirection: "column",
                 }}>
-                <div style={{ display: "flex", margin: "0", marginLeft: "20" }}>
-                    {title}
+                <div style={{
+                    display: "flex",
+                    maxWidth: "400px",
+                    justifySelf: "center",
+                    width: !isMobile ? "400px" : "100%",
+                }}>
+                    <div style={{
+                        display: "flex",
+                        paddingTop: "4px",
+                        justifySelf: "center", margin: "0", marginLeft: "20px",
+                        fontWeight: "bold"
+                    }}>
+                        {title}
+                    </div>
+                    <div style={{
+                        marginLeft: "auto", flex: 1,
+                        marginRight: "20px",
+                        justifySelf: "flex-end",
+                        justifyContent: "flex-end",
+                        display: "flex", width: "20px", height: "20px",
+                        margin: "2px",
+                    }}>
+                        <img style={{
+                            transform: isOpened ? "rotate(180deg)" : undefined,
+                            transition: "transform 2s",
+                            transitionDelay: "0.1s",
+                        }} src={chevron} />
+                    </div>
                 </div>
-                <div style={{ marginLeft: "auto", display: "flex", width: "25px", height: "25px", margin: "2px", borderRadius: "50%", overflow: "hidden", }}>
-                    <img src={chevron} />
+                <div style={{
+                    display: "flex",
+                    maxWidth: "400px",
+                    justifySelf: "center",
+                    transition: "max-height 2s",
+                    transitionDelay: "0.1s",
+                    maxHeight: isOpened ? "400px" : "0",
+                    overflow: "hidden",
+                    width: !isMobile ? "400px" : "100%",
+                    textAlign: isMobile ? "center" : "left",
+                }}>
+                    <p style={{ marginLeft: "10px", marginRight: "10px" }}>
+                        {content}
+                    </p>
                 </div>
             </div>
         </>
