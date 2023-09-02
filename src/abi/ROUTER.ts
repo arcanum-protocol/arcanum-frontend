@@ -130,37 +130,43 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_asset",
-                "type": "address"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountOut",
-                "type": "uint256"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_sharesInMax",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_to",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "deadline",
+                "name": "amountOut",
                 "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sharesInMax",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
             }
         ],
         "name": "burnWithAmountOut",
-        "outputs": [],
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "shares",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "refund",
+                "type": "uint256"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -168,37 +174,43 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_asset",
-                "type": "address"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_sharesIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountOutMin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_to",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "deadline",
+                "name": "sharesIn",
                 "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amountOutMin",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
             }
         ],
         "name": "burnWithSharesIn",
-        "outputs": [],
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "refund",
+                "type": "uint256"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -206,34 +218,34 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_asset",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
-                "internalType": "UD60x18",
-                "name": "_sharesIn",
+                "internalType": "uint256",
+                "name": "sharesIn",
                 "type": "uint256"
             }
         ],
         "name": "estimateBurnAmountOut",
         "outputs": [
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "amountOut",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "fee",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "cashbackOut",
                 "type": "uint256"
             }
@@ -245,34 +257,34 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_asset",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
-                "internalType": "UD60x18",
-                "name": "_amountOut",
+                "internalType": "uint256",
+                "name": "amountOut",
                 "type": "uint256"
             }
         ],
         "name": "estimateBurnSharesIn",
         "outputs": [
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "sharesIn",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "fee",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "cashbackOut",
                 "type": "uint256"
             }
@@ -284,34 +296,34 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_asset",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
-                "internalType": "UD60x18",
-                "name": "_sharesOut",
+                "internalType": "uint256",
+                "name": "sharesOut",
                 "type": "uint256"
             }
         ],
         "name": "estimateMintAmountIn",
         "outputs": [
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "amountIn",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "fee",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "cashbackIn",
                 "type": "uint256"
             }
@@ -323,34 +335,34 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_asset",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
-                "internalType": "UD60x18",
-                "name": "_amountIn",
+                "internalType": "uint256",
+                "name": "amountIn",
                 "type": "uint256"
             }
         ],
         "name": "estimateMintSharesOut",
         "outputs": [
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "sharesOut",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "fee",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "cashbackIn",
                 "type": "uint256"
             }
@@ -362,49 +374,49 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_assetIn",
+                "name": "assetInAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_assetOut",
+                "name": "assetOutAddress",
                 "type": "address"
             },
             {
-                "internalType": "UD60x18",
-                "name": "_amountOut",
+                "internalType": "uint256",
+                "name": "amountOut",
                 "type": "uint256"
             }
         ],
         "name": "estimateSwapAmountIn",
         "outputs": [
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "shares",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "amountIn",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "fee",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "cashbackIn",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "cashbackOut",
                 "type": "uint256"
             }
@@ -416,49 +428,49 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_assetIn",
+                "name": "assetInAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_assetOut",
+                "name": "assetOutAddress",
                 "type": "address"
             },
             {
-                "internalType": "UD60x18",
-                "name": "_amountIn",
+                "internalType": "uint256",
+                "name": "amountIn",
                 "type": "uint256"
             }
         ],
         "name": "estimateSwapAmountOut",
         "outputs": [
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "shares",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "amountOut",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "fee",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "cashbackIn",
                 "type": "uint256"
             },
             {
-                "internalType": "UD60x18",
+                "internalType": "uint256",
                 "name": "cashbackOut",
                 "type": "uint256"
             }
@@ -470,37 +482,43 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_asset",
-                "type": "address"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_sharesOutMin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_to",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "deadline",
+                "name": "amountIn",
                 "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sharesOutMin",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
             }
         ],
         "name": "mintWithAmountIn",
-        "outputs": [],
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "shares",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "refund",
+                "type": "uint256"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -508,85 +526,43 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_asset",
+                "name": "assetAddress",
                 "type": "address"
             },
             {
-                "internalType": "UD60x18",
-                "name": "_sharesOut",
+                "internalType": "uint256",
+                "name": "sharesOut",
                 "type": "uint256"
             },
             {
                 "internalType": "uint256",
-                "name": "_amountInMax",
+                "name": "amountInMax",
                 "type": "uint256"
             },
             {
                 "internalType": "address",
-                "name": "_to",
+                "name": "to",
                 "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "deadline",
-                "type": "uint256"
             }
         ],
         "name": "mintWithSharesOut",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
+        "outputs": [
             {
-                "internalType": "address",
-                "name": "_pool",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_assetIn",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "_assetOut",
-                "type": "address"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountInMax",
+                "internalType": "uint256",
+                "name": "amount",
                 "type": "uint256"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountOutMin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_shares",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_to",
-                "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "deadline",
+                "name": "refund",
                 "type": "uint256"
             }
         ],
-        "name": "swap",
-        "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -594,42 +570,53 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_assetIn",
+                "name": "assetInAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_assetOut",
-                "type": "address"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountOutMin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_to",
+                "name": "assetOutAddress",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "deadline",
+                "name": "amountIn",
                 "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amountOutMin",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
             }
         ],
         "name": "swapWithAmountIn",
-        "outputs": [],
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "amountOut",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "refundIn",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "refundOut",
+                "type": "uint256"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "function"
     },
@@ -637,43 +624,55 @@ export default [
         "inputs": [
             {
                 "internalType": "address",
-                "name": "_pool",
+                "name": "poolAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_assetIn",
+                "name": "assetInAddress",
                 "type": "address"
             },
             {
                 "internalType": "address",
-                "name": "_assetOut",
-                "type": "address"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountOut",
-                "type": "uint256"
-            },
-            {
-                "internalType": "UD60x18",
-                "name": "_amountInMax",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "_to",
+                "name": "assetOutAddress",
                 "type": "address"
             },
             {
                 "internalType": "uint256",
-                "name": "deadline",
+                "name": "amountOut",
                 "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amountInMax",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
             }
         ],
         "name": "swapWithAmountOut",
-        "outputs": [],
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "amountIn",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "refundIn",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "refundOut",
+                "type": "uint256"
+            }
+        ],
         "stateMutability": "nonpayable",
         "type": "function"
     }
-];
+]
+

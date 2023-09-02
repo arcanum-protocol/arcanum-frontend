@@ -70,6 +70,7 @@ export function Swap() {
                             assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
                             routerAddress={routerAddress}
                             multipoolAddress={multipoolAddress}
+                            initialOutIndex={1}
                             assetsIn={fetchedAssets}
                             assetsOut={fetchedAssets}
                             tradeLogicAdapter={swapAdapter}

@@ -162,7 +162,7 @@ export const swapAdapter: TradeLogicAdapter = {
                     address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'swapWithAmountIn',
-                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to],
                     enabled: true,
                 }
             };
