@@ -51,7 +51,7 @@ export const mintAdapter: TradeLogicAdapter = {
                     address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'mintWithAmountIn',
-                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to],
                     enabled: true,
                 }
             };
@@ -73,7 +73,7 @@ export const mintAdapter: TradeLogicAdapter = {
                     address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'mintWithSharesOut',
-                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to],
                     enabled: true,
                 }
             };
@@ -184,7 +184,7 @@ export const swapAdapter: TradeLogicAdapter = {
                     address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'swapWithAmountOut',
-                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenIn?.tokenAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to],
                     enabled: true,
                 }
             };
@@ -244,7 +244,7 @@ export const burnAdapter: TradeLogicAdapter = {
                     address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'burnWithSharesIn',
-                    args: [params.multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.in, minimalAmountOut.row, params.to],
                     enabled: true,
                 }
             };
@@ -266,7 +266,7 @@ export const burnAdapter: TradeLogicAdapter = {
                     address: params.routerAddress,
                     abi: routerABI,
                     functionName: 'burnWithAmountOut',
-                    args: [params.multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to, BigInt("10000000000000000")],
+                    args: [params.multipoolAddress, params.tokenOut?.tokenAddress, params.quantities.out, maximumAmountIn.row, params.to],
                     enabled: true,
                 }
             };
