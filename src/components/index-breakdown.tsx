@@ -28,7 +28,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 {Number(asset.price.toString()).toFixed(2)}$
             </div>
             <div key={"6" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
-                {toHumanReadable(FixedNumber.fromValue(asset.quantity).divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(asset.decimals))))}
+                {toHumanReadable(FixedNumber.fromValue(asset.quantity).divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(18))))}
             </div>
             <div key={"7" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
                 {toHumanReadable(asset.mcap.toString())}$

@@ -40,7 +40,7 @@ export const mintAdapter: TradeLogicAdapter = {
             return {
                 isIn: true,
                 isOut: false,
-                estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
+                estimatedCashbackIn: toAllFormats(v[3], denominatorIn, params.priceIn),
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
@@ -62,7 +62,7 @@ export const mintAdapter: TradeLogicAdapter = {
             return {
                 isIn: false,
                 isOut: true,
-                estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
+                estimatedCashbackIn: toAllFormats(v[3], denominatorIn, params.priceIn),
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[0], denominatorIn, params.priceIn),
@@ -151,8 +151,8 @@ export const swapAdapter: TradeLogicAdapter = {
             return {
                 isIn: true,
                 isOut: false,
-                estimatedCashbackIn: toAllFormats(v[3], denominatorIn, params.priceIn),
-                estimatedCashbackOut: toAllFormats(v[4], denominatorOut, params.priceOut),
+                estimatedCashbackIn: toAllFormats(v[4], denominatorIn, params.priceIn),
+                estimatedCashbackOut: toAllFormats(v[5], denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[1], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
                 fee: withDenominator(v[2], BigInt(10) ** BigInt(16)),
@@ -173,8 +173,8 @@ export const swapAdapter: TradeLogicAdapter = {
             return {
                 isIn: false,
                 isOut: true,
-                estimatedCashbackIn: toAllFormats(v[3], denominatorIn, params.priceIn),
-                estimatedCashbackOut: toAllFormats(v[4], denominatorOut, params.priceOut),
+                estimatedCashbackIn: toAllFormats(v[4], denominatorIn, params.priceIn),
+                estimatedCashbackOut: toAllFormats(v[5], denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[1], denominatorIn, params.priceIn),
                 fee: withDenominator(v[2], BigInt(10) ** BigInt(16)),
@@ -233,7 +233,7 @@ export const burnAdapter: TradeLogicAdapter = {
             return {
                 isIn: true,
                 isOut: false,
-                estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
+                estimatedCashbackIn: toAllFormats(v[3], denominatorIn, params.priceIn),
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
@@ -255,7 +255,7 @@ export const burnAdapter: TradeLogicAdapter = {
             return {
                 isIn: false,
                 isOut: true,
-                estimatedCashbackIn: toAllFormats(v[2], denominatorIn, params.priceIn),
+                estimatedCashbackIn: toAllFormats(v[3], denominatorIn, params.priceIn),
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorIn, params.priceIn),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[0], denominatorIn, params.priceIn),

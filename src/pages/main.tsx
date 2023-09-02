@@ -11,22 +11,22 @@ import { Faucet } from '../components/faucet-modal';
 
 export function Cpt() {
     return (<Main
-        assetAddress={'0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38'}
-        routerAddress={'0xbd16d2bf77b7ae6c2d186e9ad3a599abdedbb8da'}
+        assetAddress={''}
+        routerAddress={''}
     />)
 }
 
 export function Arbi() {
     return (<Main
-        assetAddress={'0x060bf7c37fcb1ef52e10fde3f645ce9b8f163134'}
-        routerAddress={'0x32056276c08538a91ee2cc8171d96ccb5fe61fbe'}
+        assetAddress={'0x452f9ca404c55722b9073575af8b35bfd655e61e'}
+        routerAddress={'0xad79b9d522367294d228379d7c040b952bd3b462'}
     />)
 }
 
 export function Bali() {
     return (<Main
-        assetAddress={'0xae8094419f19d0e14ce1f30b7c41ec1bf7d93daa'}
-        routerAddress={'0xb92BA9677D62E52f273dcF23EC32444eEFBB9932'}
+        assetAddress={''}
+        routerAddress={''}
     />)
 }
 

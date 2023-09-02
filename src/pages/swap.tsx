@@ -130,7 +130,7 @@ export function Accordion({ title, content }) {
                 }}>
                     <div style={{
                         display: "flex",
-                        paddingTop: "4px",
+                        paddingTop: "0px",
                         justifySelf: "center", margin: "0", marginLeft: "20px",
                         fontWeight: "bold"
                     }}>

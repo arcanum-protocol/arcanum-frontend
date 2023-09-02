@@ -241,7 +241,12 @@ export default [
             },
             {
                 "internalType": "uint256",
-                "name": "fee",
+                "name": "assetPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sharePrice",
                 "type": "uint256"
             },
             {
@@ -280,7 +285,12 @@ export default [
             },
             {
                 "internalType": "uint256",
-                "name": "fee",
+                "name": "assetPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sharePrice",
                 "type": "uint256"
             },
             {
@@ -319,7 +329,12 @@ export default [
             },
             {
                 "internalType": "uint256",
-                "name": "fee",
+                "name": "assetPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sharePrice",
                 "type": "uint256"
             },
             {
@@ -358,7 +373,12 @@ export default [
             },
             {
                 "internalType": "uint256",
-                "name": "fee",
+                "name": "assetPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "sharePrice",
                 "type": "uint256"
             },
             {
@@ -407,7 +427,12 @@ export default [
             },
             {
                 "internalType": "uint256",
-                "name": "fee",
+                "name": "assetInPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "assetOutPrice",
                 "type": "uint256"
             },
             {
@@ -461,7 +486,12 @@ export default [
             },
             {
                 "internalType": "uint256",
-                "name": "fee",
+                "name": "assetInPrice",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "assetOutPrice",
                 "type": "uint256"
             },
             {
@@ -674,5 +704,4 @@ export default [
         "stateMutability": "nonpayable",
         "type": "function"
     }
-]
-
+];
