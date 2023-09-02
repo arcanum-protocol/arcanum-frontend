@@ -90,7 +90,7 @@ export async function fetchAssets(
                 deviationPercent: currentShare.subUnsafe(idealShare),
                 ticker: a.ticker
             };
-        }).sort((a: MultipoolAsset, b: MultipoolAsset): number => Math.abs(b.idealShare.subUnsafe(b.currentShare).toUnsafeFloat()) - Math.abs(a.idealShare.subUnsafe(a.currentShare).toUnsafeFloat())),
+        }),
         multipool: {
             assetAddress: fetched_multipool.address,
             name: fetched_multipool.name,

@@ -272,22 +272,16 @@ export function TokenQuantityInput({
         </div>);
 }
 
-//import _ from "lodash";
+import _ from "lodash";
 import deepEqual from 'deep-equal';
 
-export const TradePane = React.memo(TradePaneInner
-    //, (o, n) => {
-    //return deepEqual(o, n);
-    // let val = isEqual(o.assetsIn, n.assetsIn) &&
-    //     isEqual(o.assetsOut, n.assetsOut) &&
-    //     isEqual(o.routerAddress, n.routerAddress) &&
-    //     isEqual(o.multipoolAddress, n.multipoolAddress) &&
-    //     isEqual(o.selectTokenParent, n.selectTokenParent) &&
-    //     isEqual(o.networkId, n.networkId);
-    // console.log("RES", val);
-    // console.log(o, n);
-    // return val;
-    //}
+export const TradePane = React.memo(
+    TradePaneInner,
+    (o, n) => {
+        let val = _.isEqual(o, n);
+        console.log(val, o, n);
+        return val;
+    }
 );
 
 const isEqual = (a, b) => {

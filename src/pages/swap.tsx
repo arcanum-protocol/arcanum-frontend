@@ -23,13 +23,13 @@ export function Swap() {
             setMultipoolAsset(result.multipool);
         }
 
-        // const id = setInterval(() => {
-        //     inner();
-        // }, 10000);
+        const id = setInterval(() => {
+            inner();
+        }, 10000);
 
         inner();
 
-        // return () => clearInterval(id);
+        return () => clearInterval(id);
     }, []);
 
 
@@ -67,7 +67,7 @@ export function Swap() {
                     <div style={{ display: "flex", width: "100%", justifyContent: "center" }} ref={me}>
                         <TradePane
                             assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
+                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
                             routerAddress={routerAddress}
                             multipoolAddress={multipoolAddress}
                             assetsIn={fetchedAssets}

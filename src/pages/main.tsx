@@ -111,13 +111,13 @@ export function Main({ assetAddress, routerAddress }) {
                 setMultipoolAsset(result.multipool);
             }
         }
-        // const id = setInterval(() => {
-        //     inner();
-        // }, 10000);
+        const id = setInterval(() => {
+            inner();
+        }, 10000);
 
         inner();
 
-        // return () => clearInterval(id);
+        return () => clearInterval(id);
     }, []);
 
     return <MemoInner
@@ -243,7 +243,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                         <TradePane
                             assetsIn={[multipoolAsset]}
                             assetsOut={fetchedAssets}
-                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
+                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
                             multipoolAddress={multipoolAsset?.assetAddress}
                             assetInDisableFilter={() => false}
                             tradeLogicAdapter={burnAdapter}

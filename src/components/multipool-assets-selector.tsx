@@ -10,10 +10,19 @@ const RED = "#fa3c58";
 
 export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent, disableFilter }) {
     const [selectedAsset, setSelectedAsset] = useState<MultipoolAsset | undefined>(undefined);
+    const [selectedAssetSymbol, setSelectedAssetSymbol] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        setSelectedAsset(assetList.filter(a => !disableFilter(a))[initialIndex]);
-        setter(assetList.filter(a => !disableFilter(a))[initialIndex])
+        if (!selectedAssetSymbol) {
+            setSelectedAsset(assetList.filter(a => !disableFilter(a))[initialIndex]);
+            setSelectedAssetSymbol(selectedAsset?.symbol);
+            setter(assetList.filter(a => !disableFilter(a))[initialIndex])
+        } else {
+            let asset = assetList.filter(a => !disableFilter(a)).find((a) => a.symbol == selectedAssetSymbol);
+            if (asset != selectedAsset) {
+                setSelectedAsset(asset);
+            }
+        }
     }, [assetList]);
 
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
@@ -125,7 +134,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             }}
             disabled={isDisabled}
             key={asset.id}
-            onClick={() => { setSelectedAsset(asset); setter(asset); closeModal() }}
+            onClick={() => { setSelectedAsset(asset); setSelectedAssetSymbol(asset.symbol); setter(asset); closeModal() }}
             onMouseOver={e => setButtonHovered(index)}
             onMouseOut={e => setButtonHovered(null)}
         >
