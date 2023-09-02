@@ -19,13 +19,13 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 {!isMobile ? <>{asset.name} ({asset.symbol})</> : <>{asset.symbol}</>}
             </div>
             <div key={"3" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
-                {asset.idealShare.toString()}%
+                {Number(asset.idealShare.toString()).toFixed(2)}%
             </div>
             <div key={"4" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "3", display: "flex", justifyContent: "flex-end" }}>
-                {Number(asset.currentShare.toString()).toFixed(4)}%
+                {Number(asset.currentShare.toString()).toFixed(2)}%
             </div>
             <div key={"5" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
-                {Number(asset.price.toString()).toFixed(4)}$
+                {Number(asset.price.toString()).toFixed(2)}$
             </div>
             <div key={"6" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
                 {toHumanReadable(FixedNumber.fromValue(asset.quantity).divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(asset.decimals))))}

@@ -62,15 +62,13 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Cashback {p.tokenIn?.symbol}</p>
                     <p style={{ margin: "0" }}>
-                        {e?.estimatedCashbackIn?.formatted || "0"}
-                        ({e?.estimatedCashbackIn?.usd || "0"}$)
+                        {e?.estimatedCashbackIn?.usd || "0"}$
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Cashback {p.tokenOut?.symbol}</p>
                     <p style={{ margin: "0" }}>
-                        {e?.estimatedCashbackOut?.formatted || "0"}
-                        ({e?.estimatedCashbackOut?.usd || "0"}$)
+                        {e?.estimatedCashbackOut?.usd || "0"}$
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -79,7 +77,7 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Transaction cost</p>
-                    <p style={{ margin: "0" }}>{"0"}</p>
+                    <p style={{ margin: "0" }}>{"0"}$</p>
                 </div>
             </div>
         </div >
@@ -87,7 +85,7 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
 }
 
 export function SlippageSelector({ slippageSetter }) {
-    const [slippage, setSlippage] = useState<number>();
+    const [slippage, setSlippage] = useState<number>(1);
 
     useEffect(() => { slippage && slippageSetter(slippage) }, [slippage]);
 

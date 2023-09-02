@@ -90,7 +90,7 @@ export type TradeLogicAdapter = {
 export type Quantities = { in: BigInt | undefined, out: BigInt | undefined };
 
 
-export function TradePane({
+export function TradePaneInner({
     assetsIn,
     initialInIndex = 0,
     assetInDisableFilter,
@@ -271,3 +271,45 @@ export function TokenQuantityInput({
             </div>
         </div>);
 }
+
+//import _ from "lodash";
+import deepEqual from 'deep-equal';
+
+export const TradePane = React.memo(TradePaneInner
+    //, (o, n) => {
+    //return deepEqual(o, n);
+    // let val = isEqual(o.assetsIn, n.assetsIn) &&
+    //     isEqual(o.assetsOut, n.assetsOut) &&
+    //     isEqual(o.routerAddress, n.routerAddress) &&
+    //     isEqual(o.multipoolAddress, n.multipoolAddress) &&
+    //     isEqual(o.selectTokenParent, n.selectTokenParent) &&
+    //     isEqual(o.networkId, n.networkId);
+    // console.log("RES", val);
+    // console.log(o, n);
+    // return val;
+    //}
+);
+
+const isEqual = (a, b) => {
+    if (a === b) return true;
+    if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
+    if (!a || !b || (typeof a !== 'object' && typeof b !== 'object')) return a === b;
+    if (a === null || a === undefined || b === null || b === undefined) return false;
+    if (a.prototype !== b.prototype) return false;
+    let keys = Object.keys(a);
+    if (keys.length !== Object.keys(b).length) return false;
+    return keys.every(k => isEqual(a[k], b[k]));
+};
+
+//assetsIn,
+//    initialInIndex = 0,
+//    assetInDisableFilter,
+//    assetOutDisableFilter,
+//    assetsOut,
+//    initialOutIndex = 0,
+//    tradeLogicAdapter,
+//    paneTexts,
+//    selectTokenParent,
+//    networkId,
+//    routerAddress,
+//    multipoolAddress,

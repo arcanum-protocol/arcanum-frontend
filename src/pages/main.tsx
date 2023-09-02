@@ -111,13 +111,13 @@ export function Main({ assetAddress, routerAddress }) {
                 setMultipoolAsset(result.multipool);
             }
         }
-        const id = setInterval(() => {
-            inner();
-        }, 10000);
+        // const id = setInterval(() => {
+        //     inner();
+        // }, 10000);
 
         inner();
 
-        return () => clearInterval(id);
+        // return () => clearInterval(id);
     }, []);
 
     return <MemoInner

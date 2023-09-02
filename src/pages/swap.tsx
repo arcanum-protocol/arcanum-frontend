@@ -18,18 +18,18 @@ export function Swap() {
 
     useEffect(() => {
         async function inner() {
-            const result = await fetchAssets('0x936154414520a1d925f15a2ee88a1ce31ae24c1e');
+            const result = await fetchAssets('0x060bf7c37fcb1ef52e10fde3f645ce9b8f163134');
             setFetchedAssets(result.assets);
             setMultipoolAsset(result.multipool);
         }
 
-        const id = setInterval(() => {
-            inner();
-        }, 10000);
+        // const id = setInterval(() => {
+        //     inner();
+        // }, 10000);
 
         inner();
 
-        return () => clearInterval(id);
+        // return () => clearInterval(id);
     }, []);
 
 
@@ -100,22 +100,6 @@ export function Swap() {
     );
 }
 
-// <div style={{
-//     display: "flex",
-//     maxWidth: isMobile ? undefined : "200px",
-//     marginTop: "15px",
-//     justifyContent: "center",
-//     width: isMobile ? "100%" : undefined,
-// }}>
-//     <div style={{ textAlign: isMobile ? "center" : "left" }}>
-//         <p style={{ fontWeight: "bold" }}>Note</p>
-//         This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Polygon Mumbai only.<br />
-//         <p style={{ fontWeight: "bold" }}>What is it for?</p>
-//         - For swapping of assets between ETFs on one chain. This creates more arbitrage opportunities - between ETFs' pools on Arcanum platform.<br />
-//         <p style={{ fontWeight: "bold" }}>When can I test?</p>
-//         - When more than one ETF on one chain is released
-//     </div>
-// </div>
 export function Accordion({ title, content }) {
     const isMobile = useMobileMedia();
     const [isOpened, setOpen] = useState(false);
