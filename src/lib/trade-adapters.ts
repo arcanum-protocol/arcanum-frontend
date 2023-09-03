@@ -44,7 +44,7 @@ export const mintAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
-                fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
+                fee: ((Number(params.quantities.in.toString()) * Number(v[1].toString()) / Number(v[2].toString()) / Number(v[0].toString()) - 1) * 100).toFixed(4),
                 maximumAmountIn: undefined,
                 minimalAmountOut: minimalAmountOut,
                 txn: {
@@ -177,7 +177,10 @@ export const swapAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(v[5], denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[1], denominatorIn, params.priceIn),
-                fee: withDenominator(v[2], BigInt(10) ** BigInt(16)),
+                //fee: "0",
+                fee: Math.abs(Number(withDenominator(
+                    BigInt(v[1]) * BigInt(v[2]) / BigInt(v[3]) / BigInt(params.quantities.out) - BigInt(1),
+                    BigInt(10) ** BigInt(16)).toString())),
                 minimalAmountOut: undefined,
                 maximumAmountIn: maximumAmountIn,
                 txn: {

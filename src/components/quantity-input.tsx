@@ -9,26 +9,31 @@ export function QuantityInput({
     decimals,
     quantitySetter,
     initialQuantity = undefined,
+    otherQuantity,
 }) {
     const initial: { row: BigInt, formatted: string } | undefined = initialQuantity;
-    const [quantity, setQuantity] = useState<string>("0");
-    const [debouncedQuantity] = useDebounce(quantity, 1000);
+    const [quantity, setQuantity] = useState<string | undefined>();
 
     useEffect(() => {
-        if (initial) {
+        if (otherQuantity != undefined && initial != undefined) {
             setQuantity(Number(initial.formatted).toFixed(4));
         }
-    }, [initialQuantity]);
+    }, [initial, otherQuantity]);
 
     useEffect(() => {
-        if (!initial) {
+        //if (initial == undefined && debouncedQuantity != initial?.formatted) {
+        if (
+            quantity != undefined &&
+            quantity != "0" &&
+            (initial == undefined || quantity != Number(initial.formatted).toFixed(4))
+        ) {
             let num: bigint;
-            if (debouncedQuantity == "") {
+            if (quantity == "") {
                 quantitySetter(undefined);
             }
             try {
                 num = FixedNumber
-                    .fromString(debouncedQuantity)
+                    .fromString(quantity)
                     .mulUnsafe(
                         FixedNumber.fromValue(BigNumber.from("10").pow(BigNumber.from(decimals.toString())))
                     ).toString().split(".")[0];
@@ -38,7 +43,7 @@ export function QuantityInput({
             }
             quantitySetter(BigInt(num));
         }
-    }, [debouncedQuantity, initial, decimals]);
+    }, [quantity, decimals]);
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>

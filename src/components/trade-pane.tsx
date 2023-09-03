@@ -128,8 +128,8 @@ export function TradePaneInner({
 
     const [slippage, setSlippage] = useState<number>(0.5);
     const [quantity, setQuantity] = useState<Quantities>({
-        in: BigInt("0"),
-        out: BigInt("0"),
+        in: undefined,
+        out: undefined,
     });
     const bindQuantityIn = (value: bigint) => setQuantity({ in: value, out: undefined });
     const bindQuantityOut = (value: bigint) => setQuantity({ in: undefined, out: value });
@@ -149,6 +149,7 @@ export function TradePaneInner({
 
     const {
         data: estimationResults,
+        transactionCost: transactionCost,
         isLoading: estimationIsLoading,
         isError: estimationIsError,
         error: estimationErrorMessage,
@@ -172,7 +173,8 @@ export function TradePaneInner({
                 text={texts.section1Name}
                 assetSetter={bindAssetIn}
                 quantitySetter={bindQuantityIn}
-                initialQuantity={!estimationResults?.isIn && estimationResults?.estimatedAmountIn}
+                initialQuantity={!estimationResults?.isIn ? estimationResults?.estimatedAmountIn : undefined}
+                otherQuantity={quantity.out}
                 tokenData={inTokenData}
                 assets={assetsIn}
                 initialAssetIndex={initialInIndex}
@@ -183,7 +185,8 @@ export function TradePaneInner({
                 assetDisableFilter={assetOutDisableFilter}
                 text={texts.section2Name}
                 assetSetter={bindAssetOut}
-                initialQuantity={!estimationResults?.isOut && estimationResults?.estimatedAmountOut}
+                initialQuantity={!estimationResults?.isOut ? estimationResults?.estimatedAmountOut : undefined}
+                otherQuantity={quantity.in}
                 quantitySetter={bindQuantityOut}
                 tokenData={outTokenData}
                 assets={assetsOut}
@@ -192,7 +195,7 @@ export function TradePaneInner({
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
-                {address ? <TransactionParamsSelector estimates={estimationResults} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
+                {address ? <TransactionParamsSelector estimates={estimationResults} txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
                 <InteractionWithApprovalButton
                     interactionTxnBody={estimationResults?.txn}
                     interactionBalance={estimationResults?.estimatedAmountIn?.row}
@@ -219,6 +222,7 @@ export function TokenQuantityInput({
     assets,
     initialQuantity,
     selectTokenParent,
+    otherQuantity,
 }) {
     return (
         <div style={{
@@ -247,6 +251,7 @@ export function TokenQuantityInput({
                     decimals={tokenData?.data?.decimals}
                     quantitySetter={quantitySetter}
                     initialQuantity={initialQuantity}
+                    otherQuantity={otherQuantity}
                 />
                 <p style={{
                     margin: "0", marginTop: "1px", fontSize: "13px",
@@ -279,21 +284,9 @@ export const TradePane = React.memo(
     TradePaneInner,
     (o, n) => {
         let val = _.isEqual(o, n);
-        console.log(val, o, n);
         return val;
     }
 );
-
-const isEqual = (a, b) => {
-    if (a === b) return true;
-    if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
-    if (!a || !b || (typeof a !== 'object' && typeof b !== 'object')) return a === b;
-    if (a === null || a === undefined || b === null || b === undefined) return false;
-    if (a.prototype !== b.prototype) return false;
-    let keys = Object.keys(a);
-    if (keys.length !== Object.keys(b).length) return false;
-    return keys.every(k => isEqual(a[k], b[k]));
-};
 
 //assetsIn,
 //    initialInIndex = 0,

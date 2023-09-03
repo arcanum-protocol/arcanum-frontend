@@ -1,8 +1,11 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
-import { useContractRead, useToken } from 'wagmi'
+import { useContractRead, useToken, useNetwork, useFeeData, useAccount } from 'wagmi'
 import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter } from '../components/trade-pane';
 import { useMedia } from 'react-use';
+import { useDebounce } from 'use-debounce';
+import * as React from 'react';
+import { chains, publicClient } from '../config';
 
 export type TokenWithAddress = {
     tokenAddress: string,
@@ -101,6 +104,11 @@ export function useEstimate(
     params: SendTransactionParams,
 ): {
     data: EstimatedValues | undefined,
+    transactionCost: {
+        gas: number,
+        gasPrice: number,
+        cost: number,
+    } | undefined,
     isLoading: boolean,
     isError: boolean,
     error: string | undefined,
@@ -112,7 +120,6 @@ export function useEstimate(
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
         enabled: txnBodyParts != undefined && txnBodyParts.enabled,
-        staleTime: 20_000,
         watch: true,
     });
     let errorMessage: undefined | string = undefined;
@@ -124,13 +131,53 @@ export function useEstimate(
         //errorMessage = error?.message;
     }
 
+    const [cost, setCost] = React.useState()
 
-    let returnData: EstimatedValues | undefined = undefined;
-    if (!isLoading && !isError) {
-        returnData = adapter.parseEstimationResult(txnData, params);
-    }
+    const [returnData, setReturnData] = React.useState<EstimatedValues | undefined>();
+    const [debouncedReturnData] = useDebounce(returnData, 1000);
+
+    React.useEffect(() => {
+        async function inner() {
+            if (!isLoading && !isError) {
+                setReturnData(adapter.parseEstimationResult(txnData, params));
+            }
+        }
+
+        inner();
+
+    }, [txnData]);
+
+
+    const { address } = useAccount();
+    const { chain, chains } = useNetwork();
+
+    React.useEffect(() => {
+        async function inner() {
+            if (debouncedReturnData != undefined && address != undefined) {
+                let gasPrice: any = await publicClient(chain?.id).getGasPrice();
+                gasPrice = Number(gasPrice) / Math.pow(10, 15);
+                const gas = await publicClient(chain?.id).estimateContractGas({
+                    account: address,
+                    abi: debouncedReturnData.txn.abi,
+                    address: debouncedReturnData.txn.address,
+                    args: debouncedReturnData.txn.args,
+                    functionName: debouncedReturnData.txn.functionName,
+                });
+                setCost({
+                    gas: Number(gas),
+                    gasPrice: Number(gasPrice),
+                    cost: Number(gas) * Number(gasPrice),
+                });
+            }
+        }
+
+        inner();
+
+    }, [debouncedReturnData]);
+
     return {
         data: returnData,
+        transactionCost: cost,
         isError: isError,
         isLoading: isLoading,
         error: errorMessage,

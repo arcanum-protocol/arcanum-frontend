@@ -8,9 +8,11 @@ import { useMobileMedia } from "../hooks/tokens";
 import chevron from '/chevron-down.svg';
 import { FixedNumber } from "ethers";
 
-export function TransactionParamsSelector({ txnParams, estimates, slippageSetter }) {
+export function TransactionParamsSelector({ txnParams, txnCost, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;
     const e: EstimatedValues = estimates;
+
+    console.log("COSR", txnCost);
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
@@ -77,7 +79,7 @@ export function TransactionParamsSelector({ txnParams, estimates, slippageSetter
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Transaction cost</p>
-                    <p style={{ margin: "0" }}>{"0"}$</p>
+                    <p style={{ margin: "0" }}>{txnCost?.cost.toFixed("4") || "0"}$</p>
                 </div>
             </div>
         </div >
