@@ -37,7 +37,10 @@ export type EstimatedValues = {
         formatted: string,
         usd: string,
     } | undefined,
-    fee: string,
+    fee: {
+        percent: string
+        usd: string,
+    } | undefined,
     minimalAmountOut: {
         row: BigInt,
         formatted: string,

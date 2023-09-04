@@ -75,7 +75,7 @@ export function TransactionParamsSelector({ txnParams, txnCost, estimates, slipp
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Fee</p>
-                    <p style={{ margin: "0" }}>{e?.fee || 0}%</p>
+                    <p style={{ margin: "0" }}>{e?.fee?.usd || 0}$ ({e?.fee?.percent || 0}%)</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Transaction cost</p>

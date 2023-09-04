@@ -14,6 +14,7 @@ export function InteractionWithApprovalButton({
     approveMax = true,
     tokenData,
     networkId,
+    updatePaneCb,
 }) {
     const {
         data: token,
@@ -32,7 +33,7 @@ export function InteractionWithApprovalButton({
         abi: multipoolABI,
         functionName: 'approve',
         args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
-        enabled: !isTokenDataLoading && !isTokenDataUnset,
+        enabled: !isTokenDataLoading && !isTokenDataUnset && allowance >= interactionBalance,
     })
     const { data: mayBeApprovalHash, write: sendBalanceApproval } = useContractWrite(approvalConfig)
 
@@ -47,9 +48,6 @@ export function InteractionWithApprovalButton({
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,
     })
-
-    // render
-    let mintButton: any;
 
     let defaultStyle = (isDisabled: any) => {
         return {

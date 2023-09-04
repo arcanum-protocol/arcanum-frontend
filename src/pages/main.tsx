@@ -263,6 +263,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                             assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
                             routerAddress={routerAddress}
                             multipoolAddress={multipoolAsset?.assetAddress}
+                            initialOutIndex={1}
                             assetsIn={fetchedAssets}
                             assetsOut={fetchedAssets}
                             tradeLogicAdapter={swapAdapter}

@@ -34,8 +34,8 @@ export const mintAdapter: TradeLogicAdapter = {
             return undefined;
         }
         if (params.quantities.in) {
-            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
-            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenIn?.decimals || 0)).toString());
+            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenOut?.decimals || 0)).toString());
             const minimalAmountOut = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorOut, params.priceOut);
             return {
                 isIn: true,
@@ -44,7 +44,7 @@ export const mintAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
-                fee: ((Number(params.quantities.in.toString()) * Number(v[1].toString()) / Number(v[2].toString()) / Number(v[0].toString()) - 1) * 100).toFixed(4),
+                fee: makeFee(params.quantities.in, v[1], v[2], v[0], denominatorIn, denominatorOut),
                 maximumAmountIn: undefined,
                 minimalAmountOut: minimalAmountOut,
                 txn: {
@@ -56,8 +56,8 @@ export const mintAdapter: TradeLogicAdapter = {
                 }
             };
         } else if (params.quantities.out) {
-            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
-            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenIn?.decimals || 0)).toString());
+            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenOut?.decimals || 0)).toString());
             const maximumAmountIn = toAllFormats(applySlippage(v[0], params.slippage, false), denominatorIn, params.priceIn);
             return {
                 isIn: false,
@@ -66,7 +66,7 @@ export const mintAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[0], denominatorIn, params.priceIn),
-                fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
+                fee: makeFee(params.quantities.out, v[2], v[1], v[0], denominatorOut, denominatorIn),
                 minimalAmountOut: undefined,
                 maximumAmountIn: maximumAmountIn,
                 txn: {
@@ -81,6 +81,19 @@ export const mintAdapter: TradeLogicAdapter = {
             return undefined;
         }
     },
+}
+
+function makeFee(inp: BigInt, priceIn: BigInt, priceOut: BigInt, op: BigInt, denominatorIn: BigInt, denominatorOut: BigInt): { percent: string, usd: string } {
+    const inVal = Number(inp.toString()) / Number(denominatorIn.toString());
+    const outVal = Number(op.toString()) / Number(denominatorOut.toString());
+    const percent =
+        (inVal * Number(priceIn.toString())) /
+        (Number(priceOut.toString()) * outVal) - 1;
+    const usdVal = percent * inVal;
+    return {
+        percent: Math.abs(percent * 100).toFixed(4),
+        usd: Math.abs(usdVal).toFixed(4),
+    }
 }
 
 function applySlippage(value: BigInt, slippage: number, recv: boolean): BigInt {
@@ -145,8 +158,8 @@ export const swapAdapter: TradeLogicAdapter = {
             return undefined;
         }
         if (params.quantities.in) {
-            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
-            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenIn?.decimals || 0)).toString());
+            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenOut?.decimals || 0)).toString());
             const minimalAmountOut = toAllFormats(applySlippage(v[1], params.slippage, true), denominatorOut, params.priceOut);
             return {
                 isIn: true,
@@ -155,7 +168,7 @@ export const swapAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(v[5], denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[1], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
-                fee: withDenominator(v[2], BigInt(10) ** BigInt(16)),
+                fee: makeFee(params.quantities.in, v[1], v[2], v[0], denominatorIn, denominatorOut),
                 maximumAmountIn: undefined,
                 minimalAmountOut: minimalAmountOut,
                 txn: {
@@ -167,8 +180,8 @@ export const swapAdapter: TradeLogicAdapter = {
                 }
             };
         } else if (params.quantities.out) {
-            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
-            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenIn?.decimals || 0)).toString());
+            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenOut?.decimals || 0)).toString());
             const maximumAmountIn = toAllFormats(applySlippage(v[1], params.slippage, false), denominatorIn, params.priceIn);
             return {
                 isIn: false,
@@ -177,10 +190,7 @@ export const swapAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(v[5], denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[1], denominatorIn, params.priceIn),
-                //fee: "0",
-                fee: Math.abs(Number(withDenominator(
-                    BigInt(v[1]) * BigInt(v[2]) / BigInt(v[3]) / BigInt(params.quantities.out) - BigInt(1),
-                    BigInt(10) ** BigInt(16)).toString())),
+                fee: makeFee(params.quantities.out, v[1], v[2], v[0], denominatorOut, denominatorIn),
                 minimalAmountOut: undefined,
                 maximumAmountIn: maximumAmountIn,
                 txn: {
@@ -230,8 +240,8 @@ export const burnAdapter: TradeLogicAdapter = {
             return undefined;
         }
         if (params.quantities.in) {
-            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
-            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenIn?.decimals || 0)).toString());
+            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenOut?.decimals || 0)).toString());
             const minimalAmountOut = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorOut, params.priceOut);
             return {
                 isIn: true,
@@ -240,7 +250,7 @@ export const burnAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[0], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
-                fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
+                fee: makeFee(params.quantities.in, v[2], v[1], v[0], denominatorIn, denominatorOut),
                 maximumAmountIn: undefined,
                 minimalAmountOut: minimalAmountOut,
                 txn: {
@@ -252,8 +262,8 @@ export const burnAdapter: TradeLogicAdapter = {
                 }
             };
         } else if (params.quantities.out) {
-            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenIn.decimals)).toString());
-            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params.tokenOut.decimals)).toString());
+            const denominatorIn = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenIn?.decimals || 0)).toString());
+            const denominatorOut = BigInt(BigNumber.from(10).pow(BigNumber.from(params?.tokenOut?.decimals || 0)).toString());
             const maximumAmountIn = toAllFormats(applySlippage(v[0], params.slippage, false), denominatorIn, params.priceIn);
             return {
                 isIn: false,
@@ -262,7 +272,7 @@ export const burnAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(BigInt(0), denominatorIn, params.priceIn),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[0], denominatorIn, params.priceIn),
-                fee: withDenominator(v[1], BigInt(10) ** BigInt(16)),
+                fee: makeFee(params.quantities.out, v[1], v[2], v[0], denominatorOut, denominatorIn),
                 minimalAmountOut: undefined,
                 maximumAmountIn: maximumAmountIn,
                 txn: {

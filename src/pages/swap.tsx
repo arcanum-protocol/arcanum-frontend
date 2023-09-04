@@ -96,6 +96,10 @@ export function Swap() {
                 title={"When can I test?"}
                 content={"When more than one ETF on one chain is released."}
             />
+            <Accordion
+                title={"Where can I get test native(gas) tokens?"}
+                content={"Best choise is to find tokens on faucet.quicknode.com"}
+            />
             <Faucet assets={fetchedAssets} />
         </div >
     );
