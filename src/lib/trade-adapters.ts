@@ -96,6 +96,20 @@ function makeFee(inp: BigInt, priceIn: BigInt, priceOut: BigInt, op: BigInt, den
     }
 }
 
+function makeFeeSwap(inp: BigInt, priceIn: BigInt, priceOut: BigInt, op: BigInt, denominatorIn: BigInt, denominatorOut: BigInt): { percent: string, usd: string } {
+    const inVal = Number(inp.toString()) / Number(denominatorIn.toString());
+    const outVal = Number(op.toString()) / Number(denominatorOut.toString());
+    console.log(inVal, priceIn, priceOut, outVal);
+    const percent =
+        (inVal * Number(priceIn.toString())) /
+        (Number(priceOut.toString()) * outVal) - 1;
+    const usdVal = percent * inVal;
+    return {
+        percent: Math.abs(percent * 100).toFixed(4),
+        usd: Math.abs(usdVal).toFixed(4),
+    }
+}
+
 function applySlippage(value: BigInt, slippage: number, recv: boolean): BigInt {
     return BigInt(FixedNumber
         .fromString(value.toString())
@@ -168,7 +182,7 @@ export const swapAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(v[5], denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(v[1], denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(params.quantities.in, denominatorIn, params.priceIn),
-                fee: makeFee(params.quantities.in, v[1], v[2], v[0], denominatorIn, denominatorOut),
+                fee: makeFee(params.quantities.in, v[2], v[3], v[1], denominatorIn, denominatorOut),
                 maximumAmountIn: undefined,
                 minimalAmountOut: minimalAmountOut,
                 txn: {
@@ -190,7 +204,7 @@ export const swapAdapter: TradeLogicAdapter = {
                 estimatedCashbackOut: toAllFormats(v[5], denominatorOut, params.priceOut),
                 estimatedAmountOut: toAllFormats(params.quantities.out, denominatorOut, params.priceOut),
                 estimatedAmountIn: toAllFormats(v[1], denominatorIn, params.priceIn),
-                fee: makeFee(params.quantities.out, v[1], v[2], v[0], denominatorOut, denominatorIn),
+                fee: makeFee(params.quantities.out, v[3], v[2], v[1], denominatorOut, denominatorIn),
                 minimalAmountOut: undefined,
                 maximumAmountIn: maximumAmountIn,
                 txn: {
