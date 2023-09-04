@@ -160,7 +160,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                     </div>
                     : undefined}
                 <div style={{ maxWidth: "100px", display: "flex", flex: "1", fontSize: "14px", justifyContent: "flex-end" }}>
-                    Deviation: {Number(asset.deviationPercent.toString()).toFixed(4)}
+                    Deviation: {Number(asset.deviationPercent.toString()).toFixed(2)}%
                 </div>
             </div>
         </button >
