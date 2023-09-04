@@ -11,8 +11,8 @@ import { Faucet } from '../components/faucet-modal';
 
 export function Cpt() {
     return (<Main
-        assetAddress={''}
-        routerAddress={''}
+        assetAddress={'0xe04062d2d9b5f8d4186d52cc582808df0477f29d'}
+        routerAddress={'0xf387bcf8a9c79267f5940505100806d09491cbcd'}
     />)
 }
 

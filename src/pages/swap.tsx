@@ -18,7 +18,7 @@ export function Swap() {
 
     useEffect(() => {
         async function inner() {
-            const result = await fetchAssets('0x060bf7c37fcb1ef52e10fde3f645ce9b8f163134');
+            const result = await fetchAssets('0xe04062d2d9b5f8d4186d52cc582808df0477f29d');
             setFetchedAssets(result.assets);
             setMultipoolAsset(result.multipool);
         }
