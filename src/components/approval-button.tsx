@@ -41,13 +41,25 @@ export function InteractionWithApprovalButton({
         hash: mayBeApprovalHash?.hash,
     })
 
+
+    const [interactionTxn, setInteractionTxn] = React.useState({ body: undefined, flag: false });
+    React.useEffect(() => {
+        setInteractionTxn({ body: interactionTxnBody, flag: !interactionTxnBody?.flag });
+        console.log("changed", interactionTxn);
+    }, [interactionTxnBody, tokenData]);
+
     // send interaction
-    const { config } = usePrepareContractWrite(interactionTxnBody);
+    const { config } = usePrepareContractWrite(interactionTxn?.body);
+    console.log("config", config, "ip", interactionTxn?.body);
     const { data: mayBeHash, write: sendTxn } = useContractWrite(config)
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,
     })
+
+    if (mayBeApprovalHash != undefined && sendTxn == undefined) {
+        window.location.reload();
+    }
 
     let defaultStyle = (isDisabled: any) => {
         return {
@@ -90,6 +102,9 @@ export function InteractionWithApprovalButton({
             contents = "Approve balance";
             onClick = sendBalanceApproval;
         } else {
+            console.log("HEREEEEEE");
+            console.log(interactionTxnBody);
+            console.log(sendTxn);
             contents = actionName;
             onClick = sendTxn;
         }
