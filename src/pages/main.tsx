@@ -25,8 +25,8 @@ export function Arbi() {
 
 export function Bali() {
     return (<Main
-        assetAddress={''}
-        routerAddress={''}
+        assetAddress={'0xc7d2b08a1dfb6c4ac1a951fdb7269638bbc7155c'}
+        routerAddress={'0x241630cf68AB007AfA8E503554249f0746c8DC66'}
     />)
 }
 
