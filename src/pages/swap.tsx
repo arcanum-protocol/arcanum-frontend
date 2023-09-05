@@ -18,7 +18,7 @@ export function Swap() {
 
     useEffect(() => {
         async function inner() {
-            const result = await fetchAssets('0xe04062d2d9b5f8d4186d52cc582808df0477f29d');
+            const result = await fetchAssets('0x452f9ca404c55722b9073575af8b35bfd655e61e');
             setFetchedAssets(result.assets);
             setMultipoolAsset(result.multipool);
         }
@@ -86,7 +86,7 @@ export function Swap() {
             </div >
             <Accordion
                 title={"Note?"}
-                content={"This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Polygon Mumbai only."}
+                content={"This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Arbitrum sepolia only."}
             />
             <Accordion
                 title={"What is it for?"}
