@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { fetchAssets, type MultipoolAsset, MultipoolShareAsset, SolidAsset } from "../lib/multipool";
+import { fetchAssets, type MultipoolAsset, SolidAsset } from "../lib/multipool";
 import { useState, useEffect, useRef } from 'react';
 import { TradePane } from '../components/trade-pane';
 import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
-import { TVChartContainer } from '../components/tv-chart';
+import TVChartContainer from '../components/tv-chart';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { useMobileMedia } from '../hooks/tokens';
 import { useSearchParams } from 'react-router-dom';
@@ -286,6 +286,21 @@ export function Head({ multipool }) {
     const multipoolInfo: SolidAsset | undefined = multipool;
     const RED = "#fa3c58";
     const GREEN = "#0ecc83";
+
+    function getColor(asset: SolidAsset | undefined): string {
+        if (asset == undefined) {
+            return "var(--bl)";
+        }
+
+        if (Number(asset.change24h) > 0) {
+            return GREEN;
+        } else if (Number(asset.change24h) < 0) {
+            return RED;
+        } else {
+            return "var(--bl)";
+        }
+    }
+
     return (
         <div
             style={{
@@ -337,7 +352,7 @@ export function Head({ multipool }) {
                             <p style={{
                                 fontSize: "16px",
                                 margin: "0px", padding: "0px",
-                                color: multipoolInfo?.change24h > 0 ? GREEN : (multipoolInfo?.change24h < 0 ? RED : undefined),
+                                color: getColor(multipoolInfo),
                             }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</p>
                         </div>
                         <div style={{

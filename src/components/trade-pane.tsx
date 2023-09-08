@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { MultipoolAssetSelector } from "./multipool-assets-selector";
-import { multipoolAddress, type MultipoolAsset } from "../lib/multipool";
 import { useState } from 'react';
-import { useDebounce } from 'use-debounce';
-import { QuantityInput } from './quantity-input';
 import { useAccount } from 'wagmi'
-import { type TokenWithAddress, useTokenWithAddress, useEstimate, useMobileMedia } from '../hooks/tokens';
-import { InteractionWithApprovalButton } from './approval-button';
-import { TransactionParamsSelector } from './transaction-params-selector';
+import { QuantityInput } from './quantity-input';
 import { toHumanReadable } from '../lib/format-number';
+import { type MultipoolAsset } from "../lib/multipool";
+import { InteractionWithApprovalButton } from './approval-button';
+import { MultipoolAssetSelector } from "./multipool-assets-selector";
+import { TransactionParamsSelector } from './transaction-params-selector';
+import { type TokenWithAddress, useTokenWithAddress, useEstimate } from '../hooks/tokens';
 
 export type TradePaneTexts = {
     buttonAction: string,
@@ -138,12 +137,12 @@ export function TradePaneInner({
     const bindQuantityOut = (value: bigint) => setQuantity({ in: undefined, out: value });
 
     let sendTransctionParams: SendTransactionParams = {
-        to: address,
+        to: `0x${address}`,
         deadline: BigInt(0),
         slippage: slippage,
         quantities: quantity,
-        tokenIn: inTokenData.data,
-        tokenOut: outTokenData.data,
+        tokenIn: inTokenData.data!,
+        tokenOut: outTokenData.data!,
         priceIn: Number(assetIn?.price?.toString() || 0),
         priceOut: Number(assetOut?.price?.toString() || 0),
         routerAddress: routerAddress,
@@ -154,7 +153,6 @@ export function TradePaneInner({
         data: estimationResults,
         transactionCost: transactionCost,
         isLoading: estimationIsLoading,
-        isError: estimationIsError,
         error: estimationErrorMessage,
     } = useEstimate(adapter, sendTransctionParams);
 
@@ -196,6 +194,7 @@ export function TradePaneInner({
                 initialAssetIndex={initialOutIndex}
                 selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
+                isDisabled={estimationIsLoading}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
                 {address ? <TransactionParamsSelector estimates={estimationResults} txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}

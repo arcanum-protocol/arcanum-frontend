@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { fetchAssets, type MultipoolAsset, type SolidAsset } from "../lib/multipool";
 import * as React from 'react';
+import { useState } from "react";
 import Modal from 'react-modal';
-import { erc20ABI, fetchToken, writeContract } from "@wagmi/core";
-import { BigNumber, FixedFormat, FixedNumber } from "@ethersproject/bignumber";
 import { useAccount } from "wagmi";
+import { fetchToken, writeContract } from "@wagmi/core";
+import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
+import { type MultipoolAsset } from "../lib/multipool";
 import erc20Abi from '../abi/ERC20';
 
 const customStyles = {
@@ -19,9 +19,6 @@ const customStyles = {
 };
 
 export function Faucet({ assets }) {
-    const [slippage, setSlippage] = useState<number>();
-    const [deadline, setDeadline] = useState<number>();
-
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
     const { address } = useAccount()
 
@@ -37,15 +34,15 @@ export function Faucet({ assets }) {
 
     async function mint(tokenAddress: string) {
         const token = await fetchToken({
-            address: tokenAddress,
+            address: `0x${tokenAddress}`,
         })
         const rowAmountToMint = FixedNumber
             .fromValue(BigNumber.from(amountToMint))
             .mulUnsafe(FixedNumber.fromValue(BigNumber.from(10).pow(BigNumber.from(token.decimals))))
             .toString()
             .slice(0, -2);
-        const { hash } = await writeContract({
-            address: tokenAddress,
+        await writeContract({
+            address: `0x${tokenAddress}`,
             abi: erc20Abi,
             functionName: 'mint',
             args: [address, BigInt(rowAmountToMint)],

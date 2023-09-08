@@ -1,12 +1,11 @@
-import { useEffect, useRef } from 'react';
+import * as React from 'react';
+import { useEffect, useRef, memo } from 'react';
 import {
     widget,
     ChartingLibraryWidgetOptions,
-    LanguageCode,
-    ResolutionString,
-    ChartingLibraryFeatureset,
+    type ResolutionString,
+    type ChartingLibraryFeatureset
 } from '../lib/charting_library';
-import * as React from 'react';
 import { useMobileMedia } from '../hooks/tokens';
 
 export const SUPPORTED_RESOLUTIONS = { 1: "1m", 3: "3m", 5: "5m", 15: "15m", 30: "30m", 60: "1h", 720: "12h", "1D": "1d" };
@@ -76,13 +75,7 @@ export interface ChartContainerProps {
     container: ChartingLibraryWidgetOptions['container'];
 }
 
-const getLanguageFromURL = (): LanguageCode | null => {
-    const regex = new RegExp('[\\?&]lang=([^&#]*)');
-    const results = regex.exec(location.search);
-    return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, ' ')) as LanguageCode;
-};
-
-export const TVChartContainer = React.memo(({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv' }) => {
+const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv' }) => {
     const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
 
     const isMobile = useMobileMedia();
@@ -92,7 +85,7 @@ export const TVChartContainer = React.memo(({ symbol, datafeedUrl = 'https://api
             theme: "dark",
             symbol: symbol as string,
             datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeedUrl),
-            interval: 15 as ChartingLibraryWidgetOptions['interval'],
+            interval: '15' as ResolutionString,
             container: chartContainerRef.current,
             library_path: defaultChartProps.library_path as string,
 
@@ -121,17 +114,15 @@ export const TVChartContainer = React.memo(({ symbol, datafeedUrl = 'https://api
                 "use_localstorage_for_settings",
                 "right_bar_stays_on_scroll",
                 "symbol_info",
-            ].concat(isMobile ? disabledFeaturesOnMobile : []),
+            ].concat(isMobile ? disabledFeaturesOnMobile : []) as ChartingLibraryFeatureset[],
             user_id: defaultChartProps.userId,
             custom_css_url: '/tradingview-chart.css',
             fullscreen: false,
             autosize: true,
-            //custom_font_family: 'Ubuntu',
             overrides: defaultChartProps.overrides,
             favorites: {
-                ...defaultChartProps.favorites, intervals: [15, 720, "1D"] //Object.keys(SUPPORTED_RESOLUTIONS)
+                ...defaultChartProps.favorites, intervals: ["15", "720", "1D"] as ResolutionString[],
             },
-            //custom_formatters: defaultChartProps.custom_formatters,
         };
 
         const tvWidget = new widget(widgetOptions);
@@ -164,5 +155,6 @@ export const TVChartContainer = React.memo(({ symbol, datafeedUrl = 'https://api
             className={'TVChartContainer'}
         />
     );
-});
+};
 
+export default memo(TVChartContainer);

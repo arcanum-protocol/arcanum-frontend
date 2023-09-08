@@ -1,12 +1,9 @@
-import { useState, useEffect } from "react";
-import { fetchAssets, type MultipoolAsset, type SolidAsset } from "../lib/multipool";
 import * as React from 'react';
-import { EstimatedValues, SendTransactionParams } from "./trade-pane";
-import Skeleton from 'react-loading-skeleton'
-import 'react-loading-skeleton/dist/skeleton.css'
-import { useMobileMedia } from "../hooks/tokens";
-import chevron from '/chevron-down.svg';
 import { FixedNumber } from "ethers";
+import { useState, useEffect } from "react";
+import { EstimatedValues, SendTransactionParams } from "./trade-pane";
+
+import 'react-loading-skeleton/dist/skeleton.css'
 
 export function TransactionParamsSelector({ txnParams, txnCost, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;

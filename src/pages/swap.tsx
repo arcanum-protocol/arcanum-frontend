@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { fetchAssets, routerAddress, type MultipoolAsset, multipoolAddress } from "../lib/multipool";
 import { useState, useEffect, useRef } from 'react';
-import { TradePane } from '../components/trade-pane';
-import { Faucet } from '../components/faucet-modal';
-import { swapAdapter } from '../lib/trade-adapters';
-import { useMobileMedia } from '../hooks/tokens';
+import { getSVG } from '../lib/svg-adapter';
 import { SolidAsset } from '../lib/multipool';
-import chevron from '/chevron-down.svg';
+import { useMobileMedia } from '../hooks/tokens';
+import { swapAdapter } from '../lib/trade-adapters';
+import { Faucet } from '../components/faucet-modal';
+import { TradePane } from '../components/trade-pane';
+import { fetchAssets, routerAddress, type MultipoolAsset, multipoolAddress } from "../lib/multipool";
 
 export function Swap() {
 
@@ -152,7 +152,7 @@ export function Accordion({ title, content }) {
                             transform: isOpened ? "rotate(180deg)" : undefined,
                             transition: "transform 2s",
                             transitionDelay: "0.1s",
-                        }} src={chevron} />
+                        }} src={getSVG("chevron-down")} />
                     </div>
                 </div>
                 <div style={{

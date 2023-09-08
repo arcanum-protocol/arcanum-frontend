@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
-import { fetchIndex, IndexAsset, type Index } from "../lib/indexes";
 import * as React from 'react';
+import { FixedNumber } from "@ethersproject/bignumber";
 import { MultipoolAsset } from "../lib/multipool";
 import { toHumanReadable } from "../lib/format-number";
 import { useMobileMedia } from "../hooks/tokens";
-import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 
 export function IndexAssetsBreakdown({ fetchedAssets }) {
     const isMobile = useMobileMedia();

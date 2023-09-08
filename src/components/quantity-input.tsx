@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import * as React from 'react';
 import { parseUnits } from "ethers";
-import { useDebounce } from "use-debounce";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 
 export function QuantityInput({
     disabled = false,
     decimals,
     quantitySetter,
-    initialQuantity = undefined,
+    initialQuantity,
     otherQuantity,
 }) {
     const initial: { row: BigInt, formatted: string } | undefined = initialQuantity;
@@ -27,7 +26,7 @@ export function QuantityInput({
             quantity != "0" &&
             (initial == undefined || quantity != Number(initial.formatted).toFixed(4))
         ) {
-            let num: bigint;
+            let num: string;
             if (quantity == "") {
                 quantitySetter(undefined);
             }
