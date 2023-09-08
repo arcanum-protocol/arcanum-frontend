@@ -1,48 +1,40 @@
-import { useState, useEffect } from "react";
-import * as React from 'react';
-import { parseUnits } from "ethers";
+import React, { useState, ChangeEvent } from "react";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
+
+interface QuantityInputProps {
+    disabled?: boolean;
+    decimals: number;
+    quantitySetter: (quantity: BigInt | undefined) => void;
+    initialQuantity?: { row: BigInt; formatted: string } | undefined;
+    otherQuantity?: any;
+}
 
 export function QuantityInput({
     disabled = false,
     decimals,
-    quantitySetter,
-    initialQuantity,
-    otherQuantity,
-}) {
-    const initial: { row: BigInt, formatted: string } | undefined = initialQuantity;
-    const [quantity, setQuantity] = useState<string | undefined>();
+    quantitySetter
+}: QuantityInputProps) {
+    const [quantity, setQuantity] = useState<string | undefined>("");
 
-    useEffect(() => {
-        if (otherQuantity != undefined && initial != undefined) {
-            setQuantity(Number(initial.formatted).toFixed(4));
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value;
+        setQuantity(inputValue);
+
+        if (inputValue === "" || inputValue === "0") {
+            quantitySetter(undefined);
+            return;
         }
-    }, [initial, otherQuantity]);
 
-    useEffect(() => {
-        //if (initial == undefined && debouncedQuantity != initial?.formatted) {
-        if (
-            quantity != undefined &&
-            quantity != "0" &&
-            (initial == undefined || quantity != Number(initial.formatted).toFixed(4))
-        ) {
-            let num: string;
-            if (quantity == "") {
-                quantitySetter(undefined);
-            }
-            try {
-                num = FixedNumber
-                    .fromString(quantity)
-                    .mulUnsafe(
-                        FixedNumber.fromValue(BigNumber.from("10").pow(BigNumber.from(decimals.toString())))
-                    ).toString().split(".")[0];
-            } catch {
-                quantitySetter(undefined);
-                return;
-            }
+        try {
+            const num = FixedNumber.fromString(inputValue)
+                .mulUnsafe(FixedNumber.fromValue(BigNumber.from("10").pow(BigNumber.from(decimals.toString()))))
+                .toString()
+                .split(".")[0];
             quantitySetter(BigInt(num));
+        } catch {
+            quantitySetter(undefined);
         }
-    }, [quantity, decimals]);
+    };
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
@@ -52,24 +44,17 @@ export function QuantityInput({
                     boxSizing: "content-box",
                     overflow: "hidden",
                     fontFamily: "Neue Machina",
-                    border: "none", outline: "none", fontSize: "24px", background: "none", color: "#fff"
+                    border: "none",
+                    outline: "none",
+                    fontSize: "24px",
+                    background: "none",
+                    color: "#fff",
                 }}
                 value={quantity}
                 disabled={disabled}
                 placeholder="0"
-                onChange={e => {
-                    let num: bigint;
-                    if (e.target.value == "") {
-                        setQuantity(e.target.value);
-                    }
-                    try {
-                        num = parseUnits(e.target.value.toString(), 18);
-                    } catch {
-                        return;
-                    }
-                    setQuantity(e.target.value);
-                }}
+                onChange={handleInputChange}
             />
-        </div >
+        </div>
     );
 }

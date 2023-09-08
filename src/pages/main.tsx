@@ -38,8 +38,6 @@ export function Custom() {
 
 
 export function MainInner({ assetAddress, routerAddress, multipoolAsset, fetchedAssets }) {
-
-
     const isMobile = useMobileMedia();
 
     if (!isMobile) {

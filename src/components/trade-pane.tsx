@@ -257,7 +257,7 @@ export function TokenQuantityInput({
                 />
                 <p style={{
                     margin: "0", marginTop: "1px", fontSize: "13px",
-                    opacity: "0.30000001192092896"
+                    opacity: "0.3"
                 }}>{usd}</p>
             </div>
             <div style={{
@@ -273,7 +273,7 @@ export function TokenQuantityInput({
                     setter={assetSetter} initialIndex={initialAssetIndex} />
                 <p style={{
                     margin: "0", fontSize: "13px",
-                    opacity: "0.30000001192092896"
+                    opacity: "0.3"
                 }}> Balance: {toHumanReadable(tokenData.data?.balance.formatted || "0")}</p>
             </div>
         </div>);
