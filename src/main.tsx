@@ -21,7 +21,7 @@ const router = createBrowserRouter([
                 element: <Swap />,
             },
             {
-                path: "/multipool?address=*",
+                path: "/multipool",
                 element: <Custom />,
             },
             {
