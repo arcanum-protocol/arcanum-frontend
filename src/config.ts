@@ -63,11 +63,23 @@ export const opBnb = {
 };
 
 
+import { createStorage } from 'wagmi'
+
+export const noopStorage: BaseStorage = {
+    getItem: (_key) => '',
+    setItem: (_key, _value) => null,
+    removeItem: (_key) => null,
+}
+
+const storage = createStorage({
+    storage: noopStorage,
+})
 
 export const chains = [arbitrumSepolia, polygonMumbai, opBnb];
 export const { publicClient } = configureChains(chains, [publicProvider()])
 
 export const config = createConfig({
+    //storage: storage,
     ...getDefaultConfig({
         publicClient,
         alchemyId: "K7c6nsX9dY6D4OhdtkKc2f05yEcFdtqU",

@@ -21,7 +21,7 @@ const router = createBrowserRouter([
                 element: <Swap />,
             },
             {
-                path: "/arbi",
+                path: "/multipool",
                 element: <Arbi />,
                 children: [
                     {
@@ -29,6 +29,10 @@ const router = createBrowserRouter([
                         element: <Custom />,
                     },
                 ]
+            },
+            {
+                path: "/arbi",
+                element: <Arbi />,
             },
             {
                 path: "/cpt",
