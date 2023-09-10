@@ -99,7 +99,6 @@ function makeFee(inp: BigInt, priceIn: BigInt, priceOut: BigInt, op: BigInt, den
 function makeFeeSwap(inp: BigInt, priceIn: BigInt, priceOut: BigInt, op: BigInt, denominatorIn: BigInt, denominatorOut: BigInt): { percent: string, usd: string } {
     const inVal = Number(inp.toString()) / Number(denominatorIn.toString());
     const outVal = Number(op.toString()) / Number(denominatorOut.toString());
-    console.log(inVal, priceIn, priceOut, outVal);
     const percent =
         (inVal * Number(priceIn.toString())) /
         (Number(priceOut.toString()) * outVal) - 1;

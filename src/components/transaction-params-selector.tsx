@@ -8,9 +8,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 export function TransactionParamsSelector({ txnParams, txnCost, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;
     const e: EstimatedValues = estimates;
-
-    console.log("COSR", txnCost);
-
+    
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
             <div

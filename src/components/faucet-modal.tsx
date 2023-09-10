@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from "react";
 import Modal from 'react-modal';
-import { useAccount } from "wagmi";
+import { useAccount, type Address } from "wagmi";
 import { fetchToken, writeContract } from "@wagmi/core";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 import { type MultipoolAsset } from "../lib/multipool";
@@ -34,7 +34,7 @@ export function Faucet({ assets }) {
 
     async function mint(tokenAddress: string) {
         const token = await fetchToken({
-            address: `0x${tokenAddress}`,
+            address: tokenAddress as Address,
         })
         const rowAmountToMint = FixedNumber
             .fromValue(BigNumber.from(amountToMint))
@@ -42,7 +42,7 @@ export function Faucet({ assets }) {
             .toString()
             .slice(0, -2);
         await writeContract({
-            address: `0x${tokenAddress}`,
+            address: tokenAddress as Address,
             abi: erc20Abi,
             functionName: 'mint',
             args: [address, BigInt(rowAmountToMint)],

@@ -32,7 +32,6 @@ export function Bali() {
 
 export function Custom() {
     const [searchParams, setSearchParams] = useSearchParams();
-    console.log(searchParams);
     return (<Main assetAddress={searchParams.get("address")} routerAddress={searchParams.get("router")} />)
 }
 
@@ -130,7 +129,6 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
 
     const [displayed, setDisplayed] = useState<number>(1);
     const me = useRef(null);
-    console.log("displayed", displayed);
 
     function displayOrHide(hide: boolean, props: React.CSSProperties): React.CSSProperties {
         if (hide) {

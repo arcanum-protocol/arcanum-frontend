@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { useAccount } from 'wagmi'
+import { Address, useAccount } from 'wagmi'
 import { QuantityInput } from './quantity-input';
 import { toHumanReadable } from '../lib/format-number';
 import { type MultipoolAsset } from "../lib/multipool";
@@ -137,7 +137,7 @@ export function TradePaneInner({
     const bindQuantityOut = (value: bigint) => setQuantity({ in: undefined, out: value });
 
     let sendTransctionParams: SendTransactionParams = {
-        to: `0x${address}`,
+        to: address as Address,
         deadline: BigInt(0),
         slippage: slippage,
         quantities: quantity,

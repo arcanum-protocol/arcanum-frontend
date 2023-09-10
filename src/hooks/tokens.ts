@@ -1,11 +1,11 @@
-import * as React from 'react';
+import multipoolABI from '../abi/ETF';
+import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
+import { useContractRead, useToken, useNetwork, useFeeData, useAccount, Address } from 'wagmi'
+import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter } from '../components/trade-pane';
 import { useMedia } from 'react-use';
 import { useDebounce } from 'use-debounce';
-import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
-import { useContractRead, useToken, useNetwork, useAccount } from 'wagmi'
-import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter } from '../components/trade-pane';
-import multipoolABI from '../abi/ETF';
-import { publicClient } from '../config';
+import * as React from 'react';
+import { chains, publicClient } from '../config';
 
 export type TokenWithAddress = {
     tokenAddress: string,
@@ -115,7 +115,7 @@ export function useEstimate(
 } {
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
     const { data: txnData, isError, error, isLoading } = useContractRead({
-        address: `0x${txnBodyParts?.address}`,
+        address: txnBodyParts?.address as Address,
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
@@ -131,11 +131,13 @@ export function useEstimate(
         //errorMessage = error?.message;
     }
 
-    const [cost, setCost] = React.useState<{
-        gas: number,
-        gasPrice: number,
-        cost: number,
-    } | undefined>();
+    const [cost, setCost] = React.useState<
+        {
+            gas: number,
+            gasPrice: number,
+            cost: number,
+        } | undefined
+    >();
 
     const [returnData, setReturnData] = React.useState<EstimatedValues | undefined>();
     const [debouncedReturnData] = useDebounce(returnData, 1000);
@@ -153,7 +155,7 @@ export function useEstimate(
 
 
     const { address } = useAccount();
-    const { chain } = useNetwork();
+    const { chain, chains } = useNetwork();
 
     React.useEffect(() => {
         async function inner() {
@@ -163,7 +165,7 @@ export function useEstimate(
                 const gas = await publicClient({ chainId: chain?.id }).estimateContractGas({
                     account: address,
                     abi: debouncedReturnData.txn.abi,
-                    address: `0x${debouncedReturnData.txn.address}`,
+                    address: debouncedReturnData.txn.address as Address,
                     args: debouncedReturnData.txn.args,
                     functionName: debouncedReturnData.txn.functionName,
                 });
