@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { FixedNumber } from "ethers";
 import { useState, useEffect } from "react";
-import { EstimatedValues, SendTransactionParams } from "./trade-pane";
+import { SendTransactionParams } from "./trade-pane";
+import type { EstimatedValues } from '../types/estimatedValues';
 
 import 'react-loading-skeleton/dist/skeleton.css'
 
 export function TransactionParamsSelector({ txnParams, txnCost, estimates, slippageSetter }) {
     const p: SendTransactionParams = txnParams;
     const e: EstimatedValues = estimates;
-    
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
             <div

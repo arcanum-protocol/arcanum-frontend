@@ -21,14 +21,12 @@ const router = createBrowserRouter([
                 element: <Swap />,
             },
             {
+                path: "/multipool",
+                element: <Custom />,
+            },
+            {
                 path: "/arbi",
                 element: <Arbi />,
-                children: [
-                    {
-                        path: "?address=*",
-                        element: <Custom />,
-                    },
-                ]
             },
             {
                 path: "/cpt",

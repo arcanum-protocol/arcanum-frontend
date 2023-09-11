@@ -1,10 +1,9 @@
-import * as React from 'react';
-import { useState } from "react";
+import React, { useState } from 'react';
+import type { MultipoolAsset } from '../types/multipoolAsset';
 import Modal from 'react-modal';
-import { useAccount, type Address } from "wagmi";
-import { fetchToken, writeContract } from "@wagmi/core";
+import { Address, fetchToken, writeContract } from "@wagmi/core";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
-import { type MultipoolAsset } from "../lib/multipool";
+import { useAccount } from "wagmi";
 import erc20Abi from '../abi/ERC20';
 
 const customStyles = {
@@ -34,14 +33,14 @@ export function Faucet({ assets }) {
 
     async function mint(tokenAddress: string) {
         const token = await fetchToken({
-            address: tokenAddress as Address,
+            address: tokenAddress as Address
         })
         const rowAmountToMint = FixedNumber
             .fromValue(BigNumber.from(amountToMint))
             .mulUnsafe(FixedNumber.fromValue(BigNumber.from(10).pow(BigNumber.from(token.decimals))))
             .toString()
             .slice(0, -2);
-        await writeContract({
+        const { hash } = await writeContract({
             address: tokenAddress as Address,
             abi: erc20Abi,
             functionName: 'mint',
@@ -59,14 +58,14 @@ export function Faucet({ assets }) {
                 contentLabel="Select tokens"
             >
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                    {assets.map((asset: MultipoolAsset) => {
+                    {assets ? assets.map((asset: MultipoolAsset) => {
                         return (
                             <div key={asset.assetAddress}>
                                 <button onClick={() => mint(asset.assetAddress)}>{asset.name}
                                 </button>
                             </div>
                         );
-                    })}
+                    }) : <></>}
                 </div>
             </Modal>
         </div >

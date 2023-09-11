@@ -1,37 +1,32 @@
-import * as React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import { getSVG } from '../lib/svg-adapter';
-import { SolidAsset } from '../lib/multipool';
+import React, { useState, useRef } from 'react';
 import { useMobileMedia } from '../hooks/tokens';
-import { swapAdapter } from '../lib/trade-adapters';
 import { Faucet } from '../components/faucet-modal';
+import { swapAdapter } from '../lib/trade-adapters';
 import { TradePane } from '../components/trade-pane';
-import { fetchAssets, routerAddress, type MultipoolAsset, multipoolAddress } from "../lib/multipool";
+import { type MultipoolAsset } from "../types/multipoolAsset";
+import { routerAddress, multipoolAddress, useFetchAssets } from '../lib/multipool';
+import { getSVG } from '../lib/svg-adapter';
 
 export function Swap() {
-
     const me = useRef(null);
     const isMobile = useMobileMedia();
 
-    const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
-    const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
+    const { data, error, isLoading } = useFetchAssets('0x452f9ca404c55722b9073575af8b35bfd655e61e');
 
-    useEffect(() => {
-        async function inner() {
-            const result = await fetchAssets('0x452f9ca404c55722b9073575af8b35bfd655e61e');
-            setFetchedAssets(result.assets);
-            setMultipoolAsset(result.multipool);
-        }
-
-        const id = setInterval(() => {
-            inner();
-        }, 10000);
-
-        inner();
-
-        return () => clearInterval(id);
-    }, []);
-
+    if (isLoading) {
+        return (
+            <div>
+                Loading...
+            </div>
+        )
+    }
+    if (error) {
+        return (
+            <div>
+                {error.message}
+            </div>
+        )
+    }
 
     return (
         <div
@@ -71,10 +66,10 @@ export function Swap() {
                             routerAddress={routerAddress}
                             multipoolAddress={multipoolAddress}
                             initialOutIndex={1}
-                            assetsIn={fetchedAssets}
-                            assetsOut={fetchedAssets}
+                            assetsIn={data?.assets!}
+                            assetsOut={data?.assets!}
                             tradeLogicAdapter={swapAdapter}
-                            networkId={multipoolAsset?.chainId}
+                            networkId={Number(data?.multipool?.chainId!)}
                             selectTokenParent={me}
                             paneTexts={{
                                 buttonAction: "Swap",
@@ -100,7 +95,7 @@ export function Swap() {
                 title={"Where can I get test native(gas) tokens?"}
                 content={"Best choise is to find tokens on faucet.quicknode.com"}
             />
-            <Faucet assets={fetchedAssets} />
+            <Faucet assets={data?.assets} />
         </div >
     );
 }
