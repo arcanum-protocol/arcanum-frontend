@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
-import { fetchAssets, type MultipoolAsset, type SolidAsset } from "../lib/multipool";
-import * as React from 'react';
+import React, { useState } from 'react';
+import type { MultipoolAsset } from '../types/multipoolAsset';
 import Modal from 'react-modal';
-import { erc20ABI, fetchToken, writeContract } from "@wagmi/core";
-import { BigNumber, FixedFormat, FixedNumber } from "@ethersproject/bignumber";
+import { Address, erc20ABI, fetchToken, writeContract } from "@wagmi/core";
+import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 import { useAccount } from "wagmi";
 import erc20Abi from '../abi/ERC20';
 
@@ -19,9 +18,6 @@ const customStyles = {
 };
 
 export function Faucet({ assets }) {
-    const [slippage, setSlippage] = useState<number>();
-    const [deadline, setDeadline] = useState<number>();
-
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
     const { address } = useAccount()
 
@@ -37,7 +33,7 @@ export function Faucet({ assets }) {
 
     async function mint(tokenAddress: string) {
         const token = await fetchToken({
-            address: tokenAddress,
+            address: tokenAddress as Address
         })
         const rowAmountToMint = FixedNumber
             .fromValue(BigNumber.from(amountToMint))
@@ -45,7 +41,7 @@ export function Faucet({ assets }) {
             .toString()
             .slice(0, -2);
         const { hash } = await writeContract({
-            address: tokenAddress,
+            address: tokenAddress as Address,
             abi: erc20Abi,
             functionName: 'mint',
             args: [address, BigInt(rowAmountToMint)],

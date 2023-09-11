@@ -1,97 +1,17 @@
-import * as React from 'react';
-import { MultipoolAssetSelector } from "./multipool-assets-selector";
-import { multipoolAddress, type MultipoolAsset } from "../lib/multipool";
-import { useState } from 'react';
-import { useDebounce } from 'use-debounce';
+import _ from "lodash";
+import React, { useState } from 'react';
+import { Address, useAccount } from 'wagmi'
+import { Quantities } from '../types/quantities';
 import { QuantityInput } from './quantity-input';
-import { useAccount } from 'wagmi'
-import { type TokenWithAddress, useTokenWithAddress, useEstimate, useMobileMedia } from '../hooks/tokens';
-import { InteractionWithApprovalButton } from './approval-button';
-import { TransactionParamsSelector } from './transaction-params-selector';
+import { MultipoolAsset } from "../lib/multipool";
+import { TradePaneTexts } from '../types/tradePane';
 import { toHumanReadable } from '../lib/format-number';
-
-export type TradePaneTexts = {
-    buttonAction: string,
-    section1Name: string,
-    section2Name: string,
-}
-
-export type EstimatedValues = {
-    estimatedCashbackIn: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    estimatedCashbackOut: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    estimatedAmountOut: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    estimatedAmountIn: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    fee: {
-        percent: string
-        usd: string,
-    } | undefined,
-    minimalAmountOut: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    maximumAmountIn: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    isIn: boolean,
-    isOut: boolean,
-    txn: {
-        address: string,
-        abi: any,
-        functionName: string,
-        args: any[],
-        enabled: boolean,
-    }
-}
-
-export type EstimationTransactionBody = {
-    address: string,
-    abi: any,
-    functionName: string,
-    args: any[],
-    enabled: boolean,
-};
-
-export type SendTransactionParams = {
-    to: string,
-    deadline: bigint,
-    slippage: number,
-    quantities: Quantities,
-    tokenIn: TokenWithAddress,
-    tokenOut: TokenWithAddress,
-    priceIn: number,
-    priceOut: number,
-    routerAddress: string,
-    multipoolAddress: string,
-};
-
-export type TradeLogicAdapter = {
-    genEstimationTxnBody: (
-        params: SendTransactionParams,
-    ) => EstimationTransactionBody | undefined,
-    parseEstimationResult: (v: any, params: SendTransactionParams) => EstimatedValues | undefined,
-}
-
-export type Quantities = { in: BigInt | undefined, out: BigInt | undefined };
-
+import { TradeLogicAdapter } from '../types/tradeLogicAdapter';
+import { InteractionWithApprovalButton } from './approval-button';
+import { MultipoolAssetSelector } from "./multipool-assets-selector";
+import { TransactionParamsSelector } from './transaction-params-selector';
+import { useTokenWithAddress, useEstimate } from '../hooks/tokens';
+import { SendTransactionParams } from '../types/sendTransactionParams';
 
 export function TradePaneInner({
     assetsIn,
@@ -138,12 +58,12 @@ export function TradePaneInner({
     const bindQuantityOut = (value: bigint) => setQuantity({ in: undefined, out: value });
 
     let sendTransctionParams: SendTransactionParams = {
-        to: address,
+        to: address as Address,
         deadline: BigInt(0),
         slippage: slippage,
         quantities: quantity,
-        tokenIn: inTokenData.data,
-        tokenOut: outTokenData.data,
+        tokenIn: inTokenData.data!,
+        tokenOut: outTokenData.data!,
         priceIn: Number(assetIn?.price?.toString() || 0),
         priceOut: Number(assetOut?.price?.toString() || 0),
         routerAddress: routerAddress,
@@ -185,6 +105,7 @@ export function TradePaneInner({
                 usd={estimationResults?.estimatedAmountIn ? estimationResults?.estimatedAmountIn.usd + "$" : "0$"}
             />
             <TokenQuantityInput
+                isDisabled={estimationIsLoading}
                 assetDisableFilter={assetOutDisableFilter}
                 text={texts.section2Name}
                 assetSetter={bindAssetOut}
@@ -207,6 +128,7 @@ export function TradePaneInner({
                     actionName={texts.buttonAction}
                     tokenData={inTokenData}
                     networkId={networkId}
+                    updatePaneCb={undefined}
                 />
             </div >
         </div >
@@ -258,7 +180,7 @@ export function TokenQuantityInput({
                 />
                 <p style={{
                     margin: "0", marginTop: "1px", fontSize: "13px",
-                    opacity: "0.30000001192092896"
+                    opacity: "0.3"
                 }}>{usd}</p>
             </div>
             <div style={{
@@ -274,14 +196,11 @@ export function TokenQuantityInput({
                     setter={assetSetter} initialIndex={initialAssetIndex} />
                 <p style={{
                     margin: "0", fontSize: "13px",
-                    opacity: "0.30000001192092896"
+                    opacity: "0.3"
                 }}> Balance: {toHumanReadable(tokenData.data?.balance.formatted || "0")}</p>
             </div>
         </div>);
 }
-
-import _ from "lodash";
-import deepEqual from 'deep-equal';
 
 export const TradePane = React.memo(
     TradePaneInner,
@@ -290,16 +209,3 @@ export const TradePane = React.memo(
         return val;
     }
 );
-
-//assetsIn,
-//    initialInIndex = 0,
-//    assetInDisableFilter,
-//    assetOutDisableFilter,
-//    assetsOut,
-//    initialOutIndex = 0,
-//    tradeLogicAdapter,
-//    paneTexts,
-//    selectTokenParent,
-//    networkId,
-//    routerAddress,
-//    multipoolAddress,

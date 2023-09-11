@@ -15,18 +15,24 @@ Modal.setAppElement('#root');
 import logo from '/logo.svg';
 import { useMobileMedia } from "./hooks/tokens";
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { config } from './config';
+
+const queryClient = new QueryClient();
 
 function App() {
     return (
-        <WagmiConfig config={config}>
-            <ConnectKitProvider theme="midnight">
-                <main>
-                    <Navbar />
-                    <Outlet />
-                </main >
-            </ConnectKitProvider>
-        </WagmiConfig>
+        <QueryClientProvider client={queryClient}>
+            <WagmiConfig config={config}>
+                <ConnectKitProvider theme="midnight">
+                    <main>
+                        <Navbar />
+                        <Outlet />
+                    </main >
+                </ConnectKitProvider>
+            </WagmiConfig>
+        </QueryClientProvider>
     );
 }
 
@@ -186,7 +192,7 @@ function Navbar() {
                     :
                     <div />
             }
-            {}
+            { }
             <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", alignContent: "center", justifyContent: "flex-start" }}>
                 <img src={logo} />
             </div>

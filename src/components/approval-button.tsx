@@ -5,11 +5,18 @@ import { MaxUint256 } from "ethers";
 import 'react-loading-skeleton/dist/skeleton.css'
 import { switchNetwork } from '@wagmi/core';
 import { useModal } from 'connectkit';
+import { useState } from 'react';
+
+interface ButtonState {
+    contents: string,
+    isDisabled: boolean,
+    onClick: () => void
+}
 
 export function InteractionWithApprovalButton({
     interactionTxnBody,
     interactionBalance,
-    externalErrorMessage = undefined,
+    externalErrorMessage,
     actionName,
     approveMax = true,
     tokenData,
@@ -29,13 +36,17 @@ export function InteractionWithApprovalButton({
     // hooks 
     // send approval
     const { config: approvalConfig } = usePrepareContractWrite({
-        address: token?.tokenAddress!,
+        address: token?.tokenAddress,
         abi: multipoolABI,
         functionName: 'approve',
         args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
         enabled: !isTokenDataLoading && !isTokenDataUnset && allowance >= interactionBalance,
-    })
-    const { data: mayBeApprovalHash, write: sendBalanceApproval } = useContractWrite(approvalConfig)
+        chainId: networkId
+    });
+
+    console.log("approvalConfig", approvalConfig);
+
+    const { data: mayBeApprovalHash, write: sendBalanceApproval } = useContractWrite(approvalConfig);
 
     const { isLoading: approvalTxnIsLoading } = useWaitForTransaction({
         hash: mayBeApprovalHash?.hash,
@@ -45,12 +56,10 @@ export function InteractionWithApprovalButton({
     const [interactionTxn, setInteractionTxn] = React.useState({ body: undefined, flag: false });
     React.useEffect(() => {
         setInteractionTxn({ body: interactionTxnBody, flag: !interactionTxnBody?.flag });
-        console.log("changed", interactionTxn);
     }, [interactionTxnBody, tokenData]);
 
     // send interaction
     const { config } = usePrepareContractWrite(interactionTxn?.body);
-    console.log("config", config, "ip", interactionTxn?.body);
     const { data: mayBeHash, write: sendTxn } = useContractWrite(config)
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
@@ -67,9 +76,11 @@ export function InteractionWithApprovalButton({
         }
     };
 
-    let contents: any;
-    let isDisabled = false;
-    let onClick: any;
+    let buttonState: ButtonState = {
+        contents: "Connect wallet",
+        isDisabled: false,
+        onClick: () => { }
+    };
 
     let switchNetworkCb = () => {
         switchNetwork({
@@ -81,38 +92,42 @@ export function InteractionWithApprovalButton({
     const { setOpen: openWalletModal } = useModal();
 
     if (!isConnected) {
-        contents = "Connect wallet";
-        onClick = () => openWalletModal(true);
+        buttonState.contents = "Connect wallet";
+        buttonState.onClick = () => openWalletModal(true);
     } else if (Array.isArray(chains) && networkId != chain?.id) {
-        onClick = switchNetworkCb;
-        contents = `Switch to ${chains.find(c => c.id == networkId)?.name}`;
+        buttonState.contents = `Switch to ${chains.find(c => c.id == networkId)?.name}`;
+        buttonState.onClick = switchNetworkCb;
     } else if (externalErrorMessage != undefined) {
-        contents = externalErrorMessage;
-        isDisabled = true;
+        buttonState.contents = externalErrorMessage;
+        buttonState.isDisabled = true;
     } else if (token == undefined || interactionTxnBody == undefined || isTokenDataLoading || approvalTxnIsLoading || txnIsLoading) {
-        contents = actionName;
-        isDisabled = true;
-
+        buttonState.contents = actionName;
+        buttonState.isDisabled = true;
     } else if (token.balance.row < interactionBalance || interactionBalance == BigInt(0)) {
-        contents = "Insufficient balance";
-        isDisabled = true;
+        buttonState.contents = "Insufficient balance";
+        buttonState.isDisabled = true;
     } else {
         const approveRequired = allowance < interactionBalance || allowance == BigInt(0);
         if (approveRequired) {
-            contents = "Approve balance";
-            onClick = sendBalanceApproval;
+            console.log("approve required");
+            console.log("approve balance txn", sendBalanceApproval);
+
+            buttonState.contents = "Approve balance";
+            buttonState.onClick = () => sendBalanceApproval;
         } else {
-            console.log("HEREEEEEE");
-            console.log(interactionTxnBody);
-            console.log(sendTxn);
-            contents = actionName;
-            onClick = sendTxn;
+            console.log("send txn");
+
+            buttonState.contents = actionName;
+            buttonState.onClick = () => sendTxn;
         }
     }
+
+    console.log(buttonState.onClick);
+
     return (
         <div>
-            <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={onClick}>
-                <p style={{ margin: "10px" }}>{contents}</p>
+            <button className='approvalBalanceButton' style={{ ...defaultStyle(buttonState.isDisabled) }} disabled={buttonState.isDisabled} onClick={buttonState.onClick}>
+                <p style={{ margin: "10px" }}>{buttonState.contents}</p>
             </button>
         </div >
     );

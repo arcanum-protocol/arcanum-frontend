@@ -12,8 +12,6 @@ export function TransactionParamsSelector({ txnParams, txnCost, estimates, slipp
     const p: SendTransactionParams = txnParams;
     const e: EstimatedValues = estimates;
 
-    console.log("COSR", txnCost);
-
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
             <div

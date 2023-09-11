@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { fetchAssets, type MultipoolAsset, MultipoolShareAsset, SolidAsset } from "../lib/multipool";
+import { useFetchAssets } from "../lib/multipool";
+import { SolidAsset } from '../types/solidAsset';
+import type { MultipoolAsset } from '../types/multipoolAsset';
 import { useState, useEffect, useRef } from 'react';
 import { TradePane } from '../components/trade-pane';
 import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
@@ -32,14 +34,11 @@ export function Bali() {
 
 export function Custom() {
     const [searchParams, setSearchParams] = useSearchParams();
-    console.log(searchParams);
     return (<Main assetAddress={searchParams.get("address")} routerAddress={searchParams.get("router")} />)
 }
 
 
 export function MainInner({ assetAddress, routerAddress, multipoolAsset, fetchedAssets }) {
-
-
     const isMobile = useMobileMedia();
 
     if (!isMobile) {
@@ -98,33 +97,13 @@ export function MainInner({ assetAddress, routerAddress, multipoolAsset, fetched
 
 export const MemoInner = React.memo(MainInner);
 export function Main({ assetAddress, routerAddress }) {
-    const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
-    const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
-
-    useEffect(() => {
-        async function inner() {
-            const result = await fetchAssets(assetAddress);
-            if (fetchedAssets != result.assets) {
-                setFetchedAssets(result.assets);
-            }
-            if (multipoolAsset != result.multipool) {
-                setMultipoolAsset(result.multipool);
-            }
-        }
-        const id = setInterval(() => {
-            inner();
-        }, 10000);
-
-        inner();
-
-        return () => clearInterval(id);
-    }, []);
+    const { data, error, isLoading } = useFetchAssets(assetAddress);
 
     return <MemoInner
         assetAddress={assetAddress}
         routerAddress={routerAddress}
-        fetchedAssets={fetchedAssets}
-        multipoolAsset={multipoolAsset}
+        fetchedAssets={data?.assets}
+        multipoolAsset={data?.multipool}
     />;
 }
 
@@ -132,7 +111,6 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
 
     const [displayed, setDisplayed] = useState<number>(1);
     const me = useRef(null);
-    console.log("displayed", displayed);
 
     function displayOrHide(hide: boolean, props: React.CSSProperties): React.CSSProperties {
         if (hide) {
