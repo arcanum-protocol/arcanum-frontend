@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from "react";
-import { fetchAssets, type MultipoolAsset, type SolidAsset } from "../lib/multipool";
 import * as React from 'react';
-import Modal from 'react-modal';
 import Skeleton from 'react-loading-skeleton'
+import { useState, useEffect, useRef } from "react";
+
+
 import 'react-loading-skeleton/dist/skeleton.css'
-import chevron from '/chevron-down.svg';
-import { FixedFormat } from "@ethersproject/bignumber";
-const RED = "#fa3c58";
+import { getSVG } from '../lib/svg-adapter';
+import { MultipoolAsset } from '../types/multipoolAsset';
+import { SolidAsset } from '../types/solidAsset';
 
 export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent, disableFilter }) {
     const [selectedAsset, setSelectedAsset] = useState<MultipoolAsset | undefined>(undefined);
@@ -28,7 +28,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
     const [hover, setHover] = useState(false);
 
-    const buttonInner = (logo: string | undefined, symbol: string | undefined, clickable: boolean) => (
+    const buttonInner = (logo: string | undefined, symbol: string | undefined) => (
         <div style={{
             display: "flex",
             alignItems: "center",
@@ -84,8 +84,8 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                                 }}
                             >
                                 <div style={{ display: "flex", alignItems: "center" }}>
-                                    {buttonInner(logo, symbol, clickable)}
-                                    <img src={chevron} style={{ width: "25px", height: "25px", margin: "2px" }} />
+                                    {buttonInner(logo, symbol)}
+                                    <img src={getSVG("chevron-down")} style={{ width: "25px", height: "25px", margin: "2px" }} />
                                 </div>
                             </button>
                             :
@@ -98,7 +98,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                                     background: "#1B1B1B",
                                 }}
                             >
-                                {buttonInner(logo, symbol, clickable)}
+                                {buttonInner(logo, symbol)}
                             </div>
                     ) :
                     <Skeleton containerClassName="flex-1" height={30} />
@@ -166,11 +166,11 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
         </button >
     });
 
-    const modal = useRef(null);
+    const modal = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        function handleClickOutside(event) {
-            if (modal.current && !modal.current.contains(event.target)) {
+        function handleClickOutside(event: MouseEvent) {
+            if (modal.current && !modal.current.contains(event.target as Node)) {
                 closeModal();
             }
         }
@@ -232,7 +232,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                                 width: backHovered ? "30px" : "25px",
                                 height: backHovered ? "30px" : "25px",
                                 transform: "rotate(90deg)",
-                            }} src={chevron} />
+                            }} src={getSVG("chevron-down")} />
                         </button>
                     </div>
                     <div style={{

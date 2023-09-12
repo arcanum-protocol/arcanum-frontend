@@ -5,57 +5,38 @@ import {
     ConnectKitProvider,
 } from "connectkit";
 import * as React from 'react';
-import { useLocation } from 'react-router-dom'
 import { Link, Outlet } from "react-router-dom";
 import Modal from 'react-modal';
-import navMenuIcon from '/nav-menu.svg';
-import closeIcon from '/close-icon.svg';
 Modal.setAppElement('#root');
-
-import logo from '/logo.svg';
 import { useMobileMedia } from "./hooks/tokens";
 
 import { config } from './config';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { getSVG } from "./lib/svg-adapter";
+
+const client = new QueryClient();
 
 function App() {
     return (
-        <WagmiConfig config={config}>
-            <ConnectKitProvider theme="midnight">
-                <main>
-                    <Navbar />
-                    <Outlet />
-                </main >
-            </ConnectKitProvider>
-        </WagmiConfig>
+        <QueryClientProvider client={client}>
+            <WagmiConfig config={config}>
+                <ConnectKitProvider theme="midnight">
+                    <main>
+                        <Navbar />
+                        <Outlet />
+                    </main >
+                </ConnectKitProvider>
+            </WagmiConfig>
+        </QueryClientProvider>
     );
 }
 
 function Navbar() {
-    const { state } = useLocation();
     const [hovered, setHovered] = React.useState(location.pathname);
     const isMobile = useMobileMedia();
     const [mobileReferencesActive, setMobileReferences] = React.useState(false);
 
     const modal = React.useRef(null);
-
-    React.useEffect(() => {
-        function handleClickOutside(event) {
-            if (modal.current && !modal.current.contains(event.target)) {
-                setMobileReferences(false);
-            }
-        }
-        // Bind the event listener
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            // Unbind the event listener on clean up
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [modal]);
-
-    console.log(state);
-    React.useEffect(() => {
-        setMobileReferences(false);
-    }, [state]);
 
     const links = [
         { title: "Swap", route: "/swap" },
@@ -103,9 +84,6 @@ function Navbar() {
         style={{
             position: "fixed",
             overflowX: "auto",
-            // safari don't support backdrop filters on scailing
-            //backdropFilter: "blur(50px)",
-            //WebkitBackdropFilter: "blur(50px)",
             backgroundColor: "var(--bc)",
             top: "0",
             left: "0",
@@ -121,7 +99,7 @@ function Navbar() {
         }}>
         <div style={{ marginLeft: "10px", marginTop: "10px", display: "flex", alignItems: "center" }}>
             <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", justifyContent: "flex-start" }}>
-                <img src={logo} />
+                <img src={getSVG("logo")} />
             </div>
             <div style={{
                 display: "flex",
@@ -133,7 +111,7 @@ function Navbar() {
             }}
                 onClick={() => setMobileReferences(false)}
             >
-                <img src={closeIcon} />
+                <img src={getSVG("closeIcon")} />
             </div>
         </div>
         <div style={{
@@ -181,14 +159,14 @@ function Navbar() {
                 isMobile ? <div
                     onClick={e => setMobileReferences(true)}
                     style={{ display: "flex", marginRight: "10px" }}>
-                    <img src={navMenuIcon} />
+                    <img src={getSVG("navMenuIcon")} />
                 </div >
                     :
                     <div />
             }
-            {}
+            { }
             <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", alignContent: "center", justifyContent: "flex-start" }}>
-                <img src={logo} />
+                <img src={getSVG("logo")} />
             </div>
             {!isMobile ? references : <div />}
             <div style={{ display: "flex", flex: "1", justifyContent: "flex-end", alignItems: "center", gap: "5px" }}>
@@ -198,4 +176,4 @@ function Navbar() {
     </nav >);
 }
 
-export default App;
+export { App };

@@ -1,151 +1,100 @@
-import * as React from 'react';
-import { MultipoolAssetSelector } from "./multipool-assets-selector";
-import { multipoolAddress, type MultipoolAsset } from "../lib/multipool";
-import { useState } from 'react';
-import { useDebounce } from 'use-debounce';
+import _ from "lodash";
+import React, { useState } from 'react';
+import { Address, useAccount } from 'wagmi'
+import type { Quantities } from '../types/quantities';
 import { QuantityInput } from './quantity-input';
-import { useAccount } from 'wagmi'
-import { type TokenWithAddress, useTokenWithAddress, useEstimate, useMobileMedia } from '../hooks/tokens';
-import { InteractionWithApprovalButton } from './approval-button';
-import { TransactionParamsSelector } from './transaction-params-selector';
+import { TradePaneTexts } from '../types/tradePane';
 import { toHumanReadable } from '../lib/format-number';
+import type { MultipoolAsset } from "../types/multipoolAsset";
+import type { TradeLogicAdapter } from '../types/tradeLogicAdapter';
+import { InteractionWithApprovalButton } from './approval-button';
+import { useTokenWithAddress, useEstimate } from '../hooks/tokens';
+import { MultipoolAssetSelector } from "./multipool-assets-selector";
+import { TransactionParamsSelector } from './transaction-params-selector';
+import type { SendTransactionParams } from '../types/sendTransactionParams';
+import { useTradeContext } from "../contexts/TradeContext";
+import { SolidAsset } from "../types/solidAsset";
 
-export type TradePaneTexts = {
-    buttonAction: string,
-    section1Name: string,
-    section2Name: string,
+
+interface TradePaneProps {
+    assetsIn: MultipoolAsset[];
+    initialInIndex?: number;
+    assetInDisableFilter?: (asset: MultipoolAsset) => boolean;
+    assetOutDisableFilter?: (asset: MultipoolAsset) => boolean;
+    assetsOut: MultipoolAsset[];
+    initialOutIndex?: number;
+    tradeLogicAdapter: TradeLogicAdapter;
+    paneTexts: TradePaneTexts;
+    selectTokenParent: React.RefObject<HTMLDivElement>;
+    networkId: number;
+    routerAddress: Address;
+    multipoolAddress: Address;
 }
-
-export type EstimatedValues = {
-    estimatedCashbackIn: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    estimatedCashbackOut: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    estimatedAmountOut: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    estimatedAmountIn: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    fee: {
-        percent: string
-        usd: string,
-    } | undefined,
-    minimalAmountOut: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    maximumAmountIn: {
-        row: BigInt,
-        formatted: string,
-        usd: string,
-    } | undefined,
-    isIn: boolean,
-    isOut: boolean,
-    txn: {
-        address: string,
-        abi: any,
-        functionName: string,
-        args: any[],
-        enabled: boolean,
-    }
-}
-
-export type EstimationTransactionBody = {
-    address: string,
-    abi: any,
-    functionName: string,
-    args: any[],
-    enabled: boolean,
-};
-
-export type SendTransactionParams = {
-    to: string,
-    deadline: bigint,
-    slippage: number,
-    quantities: Quantities,
-    tokenIn: TokenWithAddress,
-    tokenOut: TokenWithAddress,
-    priceIn: number,
-    priceOut: number,
-    routerAddress: string,
-    multipoolAddress: string,
-};
-
-export type TradeLogicAdapter = {
-    genEstimationTxnBody: (
-        params: SendTransactionParams,
-    ) => EstimationTransactionBody | undefined,
-    parseEstimationResult: (v: any, params: SendTransactionParams) => EstimatedValues | undefined,
-}
-
-export type Quantities = { in: BigInt | undefined, out: BigInt | undefined };
-
 
 export function TradePaneInner({
     assetsIn,
-    initialInIndex = 0,
-    assetInDisableFilter,
-    assetOutDisableFilter,
     assetsOut,
-    initialOutIndex = 0,
+    initialOutIndex,
     tradeLogicAdapter,
     paneTexts,
     selectTokenParent,
     networkId,
     routerAddress,
     multipoolAddress,
-}) {
+}: TradePaneProps) {
     const texts: TradePaneTexts = paneTexts;
+
+    const assetInDisableFilter = (asset: MultipoolAsset) => {
+        return Number(asset.deviationPercent) > 10;
+    };
+
+    const assetOutDisableFilter = (asset: MultipoolAsset) => {
+        return false;
+    };
+
+    const {
+        inputAsset,
+        setInputAsset,
+        outputAsset,
+        setOutputAsset,
+        setInputHumanReadable,
+        setOutputHumanReadable,
+        mainInput,
+        inputQuantity,
+        setInputQuantity,
+        outputQuantity,
+        setOutputQuantity,
+    } = useTradeContext();
+
     const adapter: TradeLogicAdapter = tradeLogicAdapter;
     const { address } = useAccount()
 
-    const [assetIn, setAssetIn] = useState<MultipoolAsset>(assetsIn[initialInIndex] || assetsIn);
-    const bindAssetIn = (value: MultipoolAsset) => setAssetIn(value);
-
     const inTokenData = useTokenWithAddress({
-        tokenAddress: assetIn?.assetAddress,
+        tokenAddress: inputAsset?.assetAddress,
         userAddress: address,
         allowanceTo: routerAddress,
     });
 
-    const [assetOut, setAssetOut] = useState<MultipoolAsset>(assetsOut[initialOutIndex] || assetsOut);
-    const bindAssetOut = (value: MultipoolAsset) => setAssetOut(value);
-
     const outTokenData = useTokenWithAddress({
-        tokenAddress: assetOut?.assetAddress,
+        tokenAddress: outputAsset?.assetAddress,
         userAddress: address,
         allowanceTo: routerAddress,
     });
 
     const [slippage, setSlippage] = useState<number>(0.5);
-    const [quantity, setQuantity] = useState<Quantities>({
-        in: undefined,
-        out: undefined,
-    });
-    const bindQuantityIn = (value: bigint) => setQuantity({ in: value, out: undefined });
-    const bindQuantityOut = (value: bigint) => setQuantity({ in: undefined, out: value });
 
     let sendTransctionParams: SendTransactionParams = {
-        to: address,
+        to: address as Address,
         deadline: BigInt(0),
         slippage: slippage,
-        quantities: quantity,
-        tokenIn: inTokenData.data,
-        tokenOut: outTokenData.data,
-        priceIn: Number(assetIn?.price?.toString() || 0),
-        priceOut: Number(assetOut?.price?.toString() || 0),
+        quantities: {
+            in: mainInput === "in" ? inputQuantity : undefined,
+            out: mainInput === "in" ? undefined : outputQuantity,
+        } as Quantities,
+        tokenIn: inTokenData.data!,
+        tokenOut: outTokenData.data!,
+        priceIn: Number(inputAsset?.price?.toString() || 0),
+        priceOut: Number(outputAsset?.price?.toString() || 0),
         routerAddress: routerAddress,
         multipoolAddress: multipoolAddress,
     };
@@ -154,9 +103,18 @@ export function TradePaneInner({
         data: estimationResults,
         transactionCost: transactionCost,
         isLoading: estimationIsLoading,
-        isError: estimationIsError,
         error: estimationErrorMessage,
     } = useEstimate(adapter, sendTransctionParams);
+
+    if (estimationResults !== undefined) {
+        if (mainInput === "in") {
+            setOutputHumanReadable(estimationResults.estimatedAmountOut?.formatted);
+            setOutputQuantity(estimationResults.estimatedAmountOut?.row);
+        } else {
+            setInputHumanReadable(estimationResults.estimatedAmountIn?.formatted);
+            setInputQuantity(estimationResults.estimatedAmountIn?.row);
+        }
+    }
 
     return (
         <div style={
@@ -174,26 +132,25 @@ export function TradePaneInner({
                 isDisabled={estimationIsLoading}
                 assetDisableFilter={assetInDisableFilter}
                 text={texts.section1Name}
-                assetSetter={bindAssetIn}
-                quantitySetter={bindQuantityIn}
-                initialQuantity={!estimationResults?.isIn ? estimationResults?.estimatedAmountIn : undefined}
-                otherQuantity={quantity.out}
+                assetSetter={setInputAsset}
+                quantitySetter={setInputQuantity}
                 tokenData={inTokenData}
                 assets={assetsIn}
-                initialAssetIndex={initialInIndex}
+                name="in"
+                initialAssetIndex={0}
                 selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountIn ? estimationResults?.estimatedAmountIn.usd + "$" : "0$"}
             />
             <TokenQuantityInput
+                isDisabled={estimationIsLoading}
                 assetDisableFilter={assetOutDisableFilter}
                 text={texts.section2Name}
-                assetSetter={bindAssetOut}
-                initialQuantity={!estimationResults?.isOut ? estimationResults?.estimatedAmountOut : undefined}
-                otherQuantity={quantity.in}
-                quantitySetter={bindQuantityOut}
+                assetSetter={setOutputAsset}
+                quantitySetter={setOutputQuantity}
                 tokenData={outTokenData}
                 assets={assetsOut}
-                initialAssetIndex={initialOutIndex}
+                name="out"
+                initialAssetIndex={initialOutIndex!}
                 selectTokenParent={selectTokenParent}
                 usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
             />
@@ -201,16 +158,33 @@ export function TradePaneInner({
                 {address ? <TransactionParamsSelector estimates={estimationResults} txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
                 <InteractionWithApprovalButton
                     interactionTxnBody={estimationResults?.txn}
-                    interactionBalance={estimationResults?.estimatedAmountIn?.row}
+                    interactionBalance={BigInt(String(estimationResults?.estimatedAmountIn?.row ? estimationResults?.estimatedAmountIn?.row : 0))}
                     externalErrorMessage={estimationErrorMessage}
                     approveMax={true}
-                    actionName={texts.buttonAction}
                     tokenData={inTokenData}
                     networkId={networkId}
+                    errorMessage={estimationErrorMessage}
+                    isLoading={estimationIsLoading}
                 />
             </div >
         </div >
     );
+}
+
+interface TokenQuantityInputProps {
+    initialAssetIndex: number;
+    assetDisableFilter?: (asset: MultipoolAsset) => boolean;
+    usd: string;
+    isDisabled: boolean;
+    text: string;
+    assetSetter?: (asset: MultipoolAsset | SolidAsset) => void;
+    quantitySetter: (quantity: BigInt | undefined) => void;
+    tokenData: ReturnType<typeof useTokenWithAddress>;
+    assets: MultipoolAsset[];
+    quantity?: BigInt;
+    selectTokenParent: React.RefObject<HTMLDivElement>;
+    otherQuantity?: BigInt;
+    name: string;
 }
 
 export function TokenQuantityInput({
@@ -220,13 +194,11 @@ export function TokenQuantityInput({
     isDisabled,
     text,
     assetSetter,
-    quantitySetter,
     tokenData,
     assets,
-    initialQuantity,
     selectTokenParent,
-    otherQuantity,
-}) {
+    name,
+}: TokenQuantityInputProps) {
     return (
         <div style={{
             display: "flex",
@@ -251,14 +223,12 @@ export function TokenQuantityInput({
                 </div>
                 <QuantityInput
                     disabled={isDisabled}
-                    decimals={tokenData?.data?.decimals}
-                    quantitySetter={quantitySetter}
-                    initialQuantity={initialQuantity}
-                    otherQuantity={otherQuantity}
+                    decimals={tokenData?.data?.decimals!}
+                    quantityInputName={text}
                 />
                 <p style={{
                     margin: "0", marginTop: "1px", fontSize: "13px",
-                    opacity: "0.30000001192092896"
+                    opacity: "0.3"
                 }}>{usd}</p>
             </div>
             <div style={{
@@ -274,32 +244,10 @@ export function TokenQuantityInput({
                     setter={assetSetter} initialIndex={initialAssetIndex} />
                 <p style={{
                     margin: "0", fontSize: "13px",
-                    opacity: "0.30000001192092896"
+                    opacity: "0.3"
                 }}> Balance: {toHumanReadable(tokenData.data?.balance.formatted || "0")}</p>
             </div>
         </div>);
 }
+export { TradeLogicAdapter };
 
-import _ from "lodash";
-import deepEqual from 'deep-equal';
-
-export const TradePane = React.memo(
-    TradePaneInner,
-    (o, n) => {
-        let val = _.isEqual(o, n);
-        return val;
-    }
-);
-
-//assetsIn,
-//    initialInIndex = 0,
-//    assetInDisableFilter,
-//    assetOutDisableFilter,
-//    assetsOut,
-//    initialOutIndex = 0,
-//    tradeLogicAdapter,
-//    paneTexts,
-//    selectTokenParent,
-//    networkId,
-//    routerAddress,
-//    multipoolAddress,

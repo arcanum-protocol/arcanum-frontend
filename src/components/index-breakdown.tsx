@@ -1,16 +1,20 @@
-import { useState, useEffect } from "react";
-import { fetchIndex, IndexAsset, type Index } from "../lib/indexes";
 import * as React from 'react';
+import { FixedNumber } from "@ethersproject/bignumber";
 import { MultipoolAsset } from "../lib/multipool";
 import { toHumanReadable } from "../lib/format-number";
 import { useMobileMedia } from "../hooks/tokens";
-import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 
-export function IndexAssetsBreakdown({ fetchedAssets }) {
+export function IndexAssetsBreakdown({fetchedAssets}) {
     const isMobile = useMobileMedia();
+    let randomindexes: number[] = [];
+
+    for (let i = 0; i < fetchedAssets?.length * 6; i++) {
+        randomindexes.push(Number((Math.random() * 10000).toFixed(0)));
+    }
+
     const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
         <>
-            <div key={"1" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
+            <div key={randomindexes[0 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
                 <div style={{
                     borderRadius: "50%", width: "25px", height: "25px", overflow: "clip", marginRight: "10px",
                 }}>
@@ -18,19 +22,19 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 </div>
                 {!isMobile ? <>{asset.name} ({asset.symbol})</> : <>{asset.symbol}</>}
             </div>
-            <div key={"3" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
+            <div key={randomindexes[1 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
                 {Number(asset.idealShare.toString()).toFixed(2)}%
             </div>
-            <div key={"4" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "3", display: "flex", justifyContent: "flex-end" }}>
+            <div key={randomindexes[2 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "3", display: "flex", justifyContent: "flex-end" }}>
                 {Number(asset.currentShare.toString()).toFixed(2)}%
             </div>
-            <div key={"5" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
+            <div key={randomindexes[3 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
                 {Number(asset.price.toString()).toFixed(2)}$
             </div>
-            <div key={"6" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
+            <div key={randomindexes[4 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
                 {toHumanReadable(FixedNumber.fromValue(asset.quantity).divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(18))))}
             </div>
-            <div key={"7" + index} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
+            <div key={randomindexes[5 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
                 {toHumanReadable(asset.mcap.toString())}$
             </div>
         </>

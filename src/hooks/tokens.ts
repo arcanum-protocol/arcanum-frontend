@@ -1,11 +1,14 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
-import { useContractRead, useToken, useNetwork, useFeeData, useAccount } from 'wagmi'
-import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter } from '../components/trade-pane';
+import { useContractRead, useToken, useNetwork, useFeeData, useAccount, Address } from 'wagmi'
+import { EstimatedValues } from '../types/estimatedValues';
+import { EstimationTransactionBody } from '../types/estimationTransactionBody';
+import { SendTransactionParams } from '../types/sendTransactionParams';
+import { TradeLogicAdapter } from '../components/trade-pane';
 import { useMedia } from 'react-use';
 import { useDebounce } from 'use-debounce';
 import * as React from 'react';
-import { chains, publicClient } from '../config';
+import { publicClient } from '../config';
 
 export type TokenWithAddress = {
     tokenAddress: string,
@@ -82,12 +85,12 @@ export function useTokenWithAddress({
                 formatted: tokenData!.totalSupply.formatted,
             },
             balance: {
-                row: tokenBalance,
-                formatted: tokenBalance && FixedNumber.from(tokenBalance).divUnsafe(FixedNumber.from(denominator)).toString(),
+                row: tokenBalance as bigint,
+                formatted: tokenBalance as string && FixedNumber.from(tokenBalance).divUnsafe(FixedNumber.from(denominator)).toString(),
             },
             approval: {
-                row: approvedTokenBalance,
-                formatted: tokenBalance && FixedNumber.from(approvedTokenBalance).divUnsafe(FixedNumber.from(denominator)).toString(),
+                row: approvedTokenBalance as bigint,
+                formatted: tokenBalance as string && FixedNumber.from(approvedTokenBalance).divUnsafe(FixedNumber.from(denominator)).toString(),
             },
         };
     }
@@ -115,7 +118,7 @@ export function useEstimate(
 } {
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
     const { data: txnData, isError, error, isLoading } = useContractRead({
-        address: txnBodyParts?.address,
+        address: txnBodyParts?.address as Address,
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
@@ -127,11 +130,17 @@ export function useEstimate(
         errorMessage = "Too big quantity";
     } else if (error?.message.includes("MULTIPOOL: QE")) {
         errorMessage = "Insufficient liquidity";
-    } else if (isError) {
-        //errorMessage = error?.message;
+    } else if (error?.message.includes("MULTIPOOL: IQ")) {
+        errorMessage = "Insufficient quantity"; // idk what each error means, so its placeholder
     }
 
-    const [cost, setCost] = React.useState()
+    const [cost, setCost] = React.useState<
+        {
+            gas: number,
+            gasPrice: number,
+            cost: number,
+        } | undefined
+    >();
 
     const [returnData, setReturnData] = React.useState<EstimatedValues | undefined>();
     const [debouncedReturnData] = useDebounce(returnData, 1000);
@@ -154,12 +163,12 @@ export function useEstimate(
     React.useEffect(() => {
         async function inner() {
             if (debouncedReturnData != undefined && address != undefined) {
-                let gasPrice: any = await publicClient(chain?.id).getGasPrice();
+                let gasPrice: any = await publicClient({ chainId: chain?.id }).getGasPrice();
                 gasPrice = Number(gasPrice) / Math.pow(10, 15);
-                const gas = await publicClient(chain?.id).estimateContractGas({
+                const gas = await publicClient({ chainId: chain?.id }).estimateContractGas({
                     account: address,
                     abi: debouncedReturnData.txn.abi,
-                    address: debouncedReturnData.txn.address,
+                    address: debouncedReturnData.txn.address as Address,
                     args: debouncedReturnData.txn.args,
                     functionName: debouncedReturnData.txn.functionName,
                 });
@@ -183,4 +192,3 @@ export function useEstimate(
         error: errorMessage,
     };
 }
-

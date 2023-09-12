@@ -1,13 +1,15 @@
-import * as React from 'react';
-import { fetchAssets, type MultipoolAsset, MultipoolShareAsset, SolidAsset } from "../lib/multipool";
-import { useState, useEffect, useRef } from 'react';
-import { TradePane } from '../components/trade-pane';
-import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
-import { TVChartContainer } from '../components/tv-chart';
-import { IndexAssetsBreakdown } from '../components/index-breakdown';
+import React, { useState, useRef } from 'react';
+import { useFetchAssets } from "../lib/multipool";
+import { SolidAsset } from '../types/solidAsset';
 import { useMobileMedia } from '../hooks/tokens';
 import { useSearchParams } from 'react-router-dom';
 import { Faucet } from '../components/faucet-modal';
+import TVChartContainer from '../components/tv-chart';
+import type { MultipoolAsset } from '../types/multipoolAsset';
+import { IndexAssetsBreakdown } from '../components/index-breakdown';
+import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
+import { TradeProvider } from '../contexts/TradeContext';
+import { TradePaneInner } from '../components/trade-pane';
 
 export function Cpt() {
     return (<Main
@@ -32,14 +34,17 @@ export function Bali() {
 
 export function Custom() {
     const [searchParams, setSearchParams] = useSearchParams();
-    console.log(searchParams);
-    return (<Main assetAddress={searchParams.get("address")} routerAddress={searchParams.get("router")} />)
+    return (<Main assetAddress={searchParams.get("address")!} routerAddress={searchParams.get("router")!} />)
 }
 
+interface MainInnerProps {
+    assetAddress: string;
+    routerAddress: string;
+    multipoolAsset: SolidAsset | undefined;
+    fetchedAssets: MultipoolAsset[] | undefined;
+}
 
-export function MainInner({ assetAddress, routerAddress, multipoolAsset, fetchedAssets }) {
-
-
+export function MainInner(props: MainInnerProps) {
     const isMobile = useMobileMedia();
 
     if (!isMobile) {
@@ -53,17 +58,17 @@ export function MainInner({ assetAddress, routerAddress, multipoolAsset, fetched
                     gap: "10px",
                 }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-                        <Head multipool={multipoolAsset} />
-                        {multipoolAsset && <TVChartContainer symbol={multipoolAsset.symbol} />}
-                        <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
+                        <Head multipool={props.multipoolAsset} />
+                        {props.multipoolAsset && <TVChartContainer symbol={props.multipoolAsset.symbol} />}
+                        <IndexAssetsBreakdown fetchedAssets={props.fetchedAssets} />
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", maxWidth: "400px", width: "100%" }}>
                         <MintBurnTabs
-                            fetchedAssets={fetchedAssets}
-                            multipoolAsset={multipoolAsset}
-                            routerAddress={routerAddress}
+                            fetchedAssets={props.fetchedAssets}
+                            multipoolAsset={props.multipoolAsset}
+                            routerAddress={props.routerAddress}
                         />
-                        <Faucet assets={fetchedAssets} />
+                        <Faucet assets={props.fetchedAssets} />
                     </div>
                 </div >
 
@@ -81,58 +86,56 @@ export function MainInner({ assetAddress, routerAddress, multipoolAsset, fetched
                     gap: "10px",
                     width: "100%",
                 }}>
-                    <Head multipool={multipoolAsset} />
-                    {multipoolAsset && <TVChartContainer symbol={multipoolAsset.symbol} />}
+                    <Head multipool={props.multipoolAsset} />
+                    {props.multipoolAsset && <TVChartContainer symbol={props.multipoolAsset.symbol} />}
                     <MintBurnTabs
-                        routerAddress={routerAddress}
-                        fetchedAssets={fetchedAssets}
-                        multipoolAsset={multipoolAsset}
+                        routerAddress={props.routerAddress}
+                        fetchedAssets={props.fetchedAssets}
+                        multipoolAsset={props.multipoolAsset}
                     />
-                    <Faucet assets={fetchedAssets} />
-                    <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
+                    <Faucet assets={props.fetchedAssets} />
+                    <IndexAssetsBreakdown fetchedAssets={props.fetchedAssets} />
                 </div >
             </div >
         );
     }
 }
 
-export const MemoInner = React.memo(MainInner);
-export function Main({ assetAddress, routerAddress }) {
-    const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
-    const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
+interface MainProps {
+    assetAddress: string;
+    routerAddress: string;
+}
 
-    useEffect(() => {
-        async function inner() {
-            const result = await fetchAssets(assetAddress);
-            if (fetchedAssets != result.assets) {
-                setFetchedAssets(result.assets);
-            }
-            if (multipoolAsset != result.multipool) {
-                setMultipoolAsset(result.multipool);
-            }
-        }
-        const id = setInterval(() => {
-            inner();
-        }, 10000);
+export function Main({assetAddress, routerAddress}: MainProps): JSX.Element {
+    const { data, error, isLoading } = useFetchAssets(assetAddress);
 
-        inner();
+    if (isLoading) {
+        return (
+            <div>
+                Loading...
+            </div>
+        )
+    }
 
-        return () => clearInterval(id);
-    }, []);
+    if (error) {
+        return (
+            <div>
+                {error.message}
+            </div>
+        )
+    }
 
-    return <MemoInner
+    return (<MainInner
         assetAddress={assetAddress}
         routerAddress={routerAddress}
-        fetchedAssets={fetchedAssets}
-        multipoolAsset={multipoolAsset}
-    />;
+        fetchedAssets={data?.assets}
+        multipoolAsset={data?.multipool}
+    />);
 }
 
 export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
-
     const [displayed, setDisplayed] = useState<number>(1);
     const me = useRef(null);
-    console.log("displayed", displayed);
 
     function displayOrHide(hide: boolean, props: React.CSSProperties): React.CSSProperties {
         if (hide) {
@@ -221,64 +224,66 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                     </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                    <div style={displayOrHide(displayed != 1, { width: "100%" })}>
-                        <TradePane
-                            assetsIn={fetchedAssets}
-                            assetsOut={[multipoolAsset]}
-                            assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                            assetOutDisableFilter={() => false}
-                            tradeLogicAdapter={mintAdapter}
-                            selectTokenParent={me}
-                            routerAddress={routerAddress}
-                            multipoolAddress={multipoolAsset?.assetAddress}
-                            networkId={multipoolAsset?.chainId}
-                            paneTexts={{
-                                buttonAction: "Mint",
-                                section1Name: "Send",
-                                section2Name: "Receive",
-                            }} />
-
-                    </div >
-                    <div style={displayOrHide(displayed != 2, { width: "100%" })}>
-                        <TradePane
-                            assetsIn={[multipoolAsset]}
-                            assetsOut={fetchedAssets}
-                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
-                            multipoolAddress={multipoolAsset?.assetAddress}
-                            assetInDisableFilter={() => false}
-                            tradeLogicAdapter={burnAdapter}
-                            routerAddress={routerAddress}
-                            selectTokenParent={me}
-                            networkId={multipoolAsset?.chainId}
-                            paneTexts={{
-                                buttonAction: "Burn",
-                                section1Name: "Send",
-                                section2Name: "Receive",
-                            }} />
-
-                    </div >
-                    <div style={displayOrHide(displayed != 3, { width: "100%" })}>
-                        <TradePane
-                            assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
-                            routerAddress={routerAddress}
-                            multipoolAddress={multipoolAsset?.assetAddress}
-                            initialOutIndex={1}
-                            assetsIn={fetchedAssets}
-                            assetsOut={fetchedAssets}
-                            tradeLogicAdapter={swapAdapter}
-                            networkId={multipoolAsset?.chainId}
-                            selectTokenParent={me}
-                            paneTexts={{
-                                buttonAction: "Swap",
-                                section1Name: "Send",
-                                section2Name: "Receive",
-                            }} />
-                    </div >
+                    <TradeProvider>
+                        <div style={displayOrHide(displayed != 1, { width: "100%" })}>
+                            <TradePaneInner
+                                assetsIn={fetchedAssets}
+                                assetsOut={[multipoolAsset]}
+                                tradeLogicAdapter={mintAdapter}
+                                selectTokenParent={me}
+                                routerAddress={routerAddress}
+                                multipoolAddress={multipoolAsset?.assetAddress}
+                                networkId={multipoolAsset?.chainId}
+                                paneTexts={{
+                                    buttonAction: "Mint",
+                                    section1Name: "Send",
+                                    section2Name: "Receive",
+                                }} />
+                        </div>
+                    </TradeProvider>
+                    <TradeProvider>
+                        <div style={displayOrHide(displayed != 2, { width: "100%" })}>
+                            <TradePaneInner
+                                assetsIn={[multipoolAsset]}
+                                assetsOut={fetchedAssets}
+                                assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
+                                multipoolAddress={multipoolAsset?.assetAddress}
+                                assetInDisableFilter={() => false}
+                                tradeLogicAdapter={burnAdapter}
+                                routerAddress={routerAddress}
+                                selectTokenParent={me}
+                                networkId={multipoolAsset?.chainId}
+                                paneTexts={{
+                                    buttonAction: "Burn",
+                                    section1Name: "Send",
+                                    section2Name: "Receive",
+                                }} />
+                        </div >
+                    </TradeProvider>
+                    <TradeProvider>
+                        <div style={displayOrHide(displayed != 3, { width: "100%" })}>
+                            <TradePaneInner
+                                assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
+                                assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
+                                routerAddress={routerAddress}
+                                multipoolAddress={multipoolAsset?.assetAddress}
+                                initialOutIndex={1}
+                                assetsIn={fetchedAssets}
+                                assetsOut={fetchedAssets}
+                                tradeLogicAdapter={swapAdapter}
+                                networkId={multipoolAsset?.chainId}
+                                selectTokenParent={me}
+                                paneTexts={{
+                                    buttonAction: "Swap",
+                                    section1Name: "Send",
+                                    section2Name: "Receive",
+                                }} />
+                        </div >
+                    </TradeProvider>
                 </div >
             </div>
         </div >
-    );
+    )
 }
 
 export function Head({ multipool }) {
@@ -286,6 +291,21 @@ export function Head({ multipool }) {
     const multipoolInfo: SolidAsset | undefined = multipool;
     const RED = "#fa3c58";
     const GREEN = "#0ecc83";
+
+    function getColor(asset: SolidAsset | undefined): string {
+        if (asset == undefined) {
+            return "var(--bl)";
+        }
+
+        if (Number(asset.change24h) > 0) {
+            return GREEN;
+        } else if (Number(asset.change24h) < 0) {
+            return RED;
+        } else {
+            return "var(--bl)";
+        }
+    }
+
     return (
         <div
             style={{
@@ -337,7 +357,7 @@ export function Head({ multipool }) {
                             <p style={{
                                 fontSize: "16px",
                                 margin: "0px", padding: "0px",
-                                color: multipoolInfo?.change24h > 0 ? GREEN : (multipoolInfo?.change24h < 0 ? RED : undefined),
+                                color: getColor(multipoolInfo),
                             }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</p>
                         </div>
                         <div style={{

@@ -1,37 +1,33 @@
-import * as React from 'react';
-import { fetchAssets, routerAddress, type MultipoolAsset, multipoolAddress } from "../lib/multipool";
-import { useState, useEffect, useRef } from 'react';
-import { TradePane } from '../components/trade-pane';
+import React, { useState, useRef } from 'react';
+import { useMobileMedia } from '../hooks/tokens';
 import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
-import { useMobileMedia } from '../hooks/tokens';
-import { SolidAsset } from '../lib/multipool';
-import chevron from '/chevron-down.svg';
+import { TradePaneInner } from '../components/trade-pane';
+import { type MultipoolAsset } from "../types/multipoolAsset";
+import { routerAddress, multipoolAddress, useFetchAssets } from '../lib/multipool';
+import { getSVG } from '../lib/svg-adapter';
+import { TradeProvider } from '../contexts/TradeContext';
 
 export function Swap() {
-
     const me = useRef(null);
     const isMobile = useMobileMedia();
 
-    const [fetchedAssets, setFetchedAssets] = useState<MultipoolAsset[]>([]);
-    const [multipoolAsset, setMultipoolAsset] = useState<SolidAsset | undefined>();
+    const { data, error, isLoading } = useFetchAssets('0x452f9ca404c55722b9073575af8b35bfd655e61e');
 
-    useEffect(() => {
-        async function inner() {
-            const result = await fetchAssets('0x452f9ca404c55722b9073575af8b35bfd655e61e');
-            setFetchedAssets(result.assets);
-            setMultipoolAsset(result.multipool);
-        }
-
-        const id = setInterval(() => {
-            inner();
-        }, 10000);
-
-        inner();
-
-        return () => clearInterval(id);
-    }, []);
-
+    if (isLoading) {
+        return (
+            <div>
+                Loading...
+            </div>
+        )
+    }
+    if (error) {
+        return (
+            <div>
+                {error.message}
+            </div>
+        )
+    }
 
     return (
         <div
@@ -65,22 +61,24 @@ export function Swap() {
                         justifyContent: "center"
                     }}>
                     <div style={{ display: "flex", width: "100%", justifyContent: "center" }} ref={me}>
-                        <TradePane
-                            assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
-                            routerAddress={routerAddress}
-                            multipoolAddress={multipoolAddress}
-                            initialOutIndex={1}
-                            assetsIn={fetchedAssets}
-                            assetsOut={fetchedAssets}
-                            tradeLogicAdapter={swapAdapter}
-                            networkId={multipoolAsset?.chainId}
-                            selectTokenParent={me}
-                            paneTexts={{
-                                buttonAction: "Swap",
-                                section1Name: "Send",
-                                section2Name: "Receive",
-                            }} />
+                        <TradeProvider>
+                            <TradePaneInner
+                                assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
+                                assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
+                                routerAddress={routerAddress}
+                                multipoolAddress={multipoolAddress}
+                                initialOutIndex={1}
+                                assetsIn={data?.assets!}
+                                assetsOut={data?.assets!}
+                                tradeLogicAdapter={swapAdapter}
+                                networkId={Number(data?.multipool?.chainId!)}
+                                selectTokenParent={me}
+                                paneTexts={{
+                                    buttonAction: "Swap",
+                                    section1Name: "Send",
+                                    section2Name: "Receive",
+                                }} />
+                        </TradeProvider>
                     </div >
                 </div >
             </div >
@@ -100,7 +98,7 @@ export function Swap() {
                 title={"Where can I get test native(gas) tokens?"}
                 content={"Best choise is to find tokens on faucet.quicknode.com"}
             />
-            <Faucet assets={fetchedAssets} />
+            <Faucet assets={data?.assets} />
         </div >
     );
 }
@@ -152,7 +150,7 @@ export function Accordion({ title, content }) {
                             transform: isOpened ? "rotate(180deg)" : undefined,
                             transition: "transform 2s",
                             transitionDelay: "0.1s",
-                        }} src={chevron} />
+                        }} src={getSVG("chevron-down")} />
                     </div>
                 </div>
                 <div style={{
