@@ -1,10 +1,12 @@
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton'
 import { useState, useEffect, useRef } from "react";
-import { type MultipoolAsset, type SolidAsset } from "../lib/multipool";
+
 
 import 'react-loading-skeleton/dist/skeleton.css'
 import { getSVG } from '../lib/svg-adapter';
+import { MultipoolAsset } from '../types/multipoolAsset';
+import { SolidAsset } from '../types/solidAsset';
 
 export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent, disableFilter }) {
     const [selectedAsset, setSelectedAsset] = useState<MultipoolAsset | undefined>(undefined);

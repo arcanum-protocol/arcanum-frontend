@@ -2,10 +2,11 @@ import React, { useState, useRef } from 'react';
 import { useMobileMedia } from '../hooks/tokens';
 import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
-import { TradePane } from '../components/trade-pane';
+import { TradePaneInner } from '../components/trade-pane';
 import { type MultipoolAsset } from "../types/multipoolAsset";
 import { routerAddress, multipoolAddress, useFetchAssets } from '../lib/multipool';
 import { getSVG } from '../lib/svg-adapter';
+import { TradeProvider } from '../contexts/TradeContext';
 
 export function Swap() {
     const me = useRef(null);
@@ -60,22 +61,24 @@ export function Swap() {
                         justifyContent: "center"
                     }}>
                     <div style={{ display: "flex", width: "100%", justifyContent: "center" }} ref={me}>
-                        <TradePane
-                            assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                            assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
-                            routerAddress={routerAddress}
-                            multipoolAddress={multipoolAddress}
-                            initialOutIndex={1}
-                            assetsIn={data?.assets!}
-                            assetsOut={data?.assets!}
-                            tradeLogicAdapter={swapAdapter}
-                            networkId={Number(data?.multipool?.chainId!)}
-                            selectTokenParent={me}
-                            paneTexts={{
-                                buttonAction: "Swap",
-                                section1Name: "Send",
-                                section2Name: "Receive",
-                            }} />
+                        <TradeProvider>
+                            <TradePaneInner
+                                assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
+                                assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
+                                routerAddress={routerAddress}
+                                multipoolAddress={multipoolAddress}
+                                initialOutIndex={1}
+                                assetsIn={data?.assets!}
+                                assetsOut={data?.assets!}
+                                tradeLogicAdapter={swapAdapter}
+                                networkId={Number(data?.multipool?.chainId!)}
+                                selectTokenParent={me}
+                                paneTexts={{
+                                    buttonAction: "Swap",
+                                    section1Name: "Send",
+                                    section2Name: "Receive",
+                                }} />
+                        </TradeProvider>
                     </div >
                 </div >
             </div >

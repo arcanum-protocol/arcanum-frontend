@@ -1,27 +1,25 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { ChangeEvent } from "react";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
+import { useTradeContext } from "../contexts/TradeContext";
 
 interface QuantityInputProps {
     disabled?: boolean;
     decimals: number;
-    quantitySetter: (quantity: BigInt | undefined) => void;
-    initialQuantity?: { row: BigInt; formatted: string } | undefined;
-    otherQuantity?: any;
+    quantityInputName?: string;
 }
 
 export function QuantityInput({
     disabled = false,
     decimals,
-    quantitySetter
+    quantityInputName
 }: QuantityInputProps) {
-    const [quantity, setQuantity] = useState<string | undefined>("");
+    const { inputHumanReadable, setInputHumanReadable, outputHumanReadable, setOutputHumanReadable, outputQuantity, setOutputQuantity, inputQuantity, setInputQuantity, mainInput, setMainInput } = useTradeContext();
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const inputValue = e.target.value;
-        setQuantity(inputValue);
 
         if (inputValue === "" || inputValue === "0") {
-            quantitySetter(undefined);
+            setOutputHumanReadable(undefined);
             return;
         }
 
@@ -30,11 +28,27 @@ export function QuantityInput({
                 .mulUnsafe(FixedNumber.fromValue(BigNumber.from("10").pow(BigNumber.from(decimals.toString()))))
                 .toString()
                 .split(".")[0];
-            quantitySetter(BigInt(num));
+            if (quantityInputName === "Send") {
+                setMainInput("in");
+                setInputQuantity(BigInt(num));
+                setInputHumanReadable(inputValue);
+            } else {
+                setMainInput("out");
+                setOutputQuantity(BigInt(num));
+                setOutputHumanReadable(inputValue);
+            }
         } catch {
-            quantitySetter(undefined);
+            setOutputHumanReadable(undefined);
         }
     };
+
+    function getValue(): string {
+        if (quantityInputName === "Send") {
+            return inputHumanReadable || "";
+        } else {
+            return outputHumanReadable || "";
+        }
+    }
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
@@ -50,7 +64,7 @@ export function QuantityInput({
                     background: "none",
                     color: "#fff",
                 }}
-                value={quantity}
+                value={getValue()}
                 disabled={disabled}
                 placeholder="0"
                 onChange={handleInputChange}

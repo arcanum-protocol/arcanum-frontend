@@ -5,7 +5,6 @@ import {
     ConnectKitProvider,
 } from "connectkit";
 import * as React from 'react';
-import { useLocation } from 'react-router-dom'
 import { Link, Outlet } from "react-router-dom";
 import Modal from 'react-modal';
 Modal.setAppElement('#root');
@@ -33,31 +32,11 @@ function App() {
 }
 
 function Navbar() {
-    const { state } = useLocation();
     const [hovered, setHovered] = React.useState(location.pathname);
     const isMobile = useMobileMedia();
     const [mobileReferencesActive, setMobileReferences] = React.useState(false);
 
     const modal = React.useRef(null);
-
-    React.useEffect(() => {
-        function handleClickOutside(event) {
-            if (modal.current && !modal.current.contains(event.target)) {
-                setMobileReferences(false);
-            }
-        }
-        // Bind the event listener
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            // Unbind the event listener on clean up
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [modal]);
-
-    console.log(state);
-    React.useEffect(() => {
-        setMobileReferences(false);
-    }, [state]);
 
     const links = [
         { title: "Swap", route: "/swap" },
@@ -105,9 +84,6 @@ function Navbar() {
         style={{
             position: "fixed",
             overflowX: "auto",
-            // safari don't support backdrop filters on scailing
-            //backdropFilter: "blur(50px)",
-            //WebkitBackdropFilter: "blur(50px)",
             backgroundColor: "var(--bc)",
             top: "0",
             left: "0",

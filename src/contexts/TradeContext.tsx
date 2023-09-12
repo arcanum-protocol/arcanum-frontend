@@ -2,48 +2,59 @@ import React, { useState, useContext, createContext } from 'react';
 import type { SolidAsset } from '../types/solidAsset';
 import { MultipoolAsset } from '../types/multipoolAsset';
 
-type Asset = SolidAsset | MultipoolAsset;
+export interface TradeContextValue {
+    assets: MultipoolAsset[];
+    setAssets: (assets: MultipoolAsset[]) => void;
 
-interface TradeContextValue {
-    assets: Asset[];
-    setAssets: (assets: Asset[]) => void;
+    inputHumanReadable: string | undefined;
+    setInputHumanReadable: (value: string | undefined) => void;
 
-    inputAsset: Asset | undefined;
-    setInputAsset: (index: Asset | undefined) => void;
+    outputHumanReadable: string | undefined;
+    setOutputHumanReadable: (value: string | undefined) => void;
 
-    outputAsset: Asset | undefined;
-    setOutputAsset: (index: Asset | undefined) => void;
+    inputQuantity: BigInt | undefined;
+    setInputQuantity: (quantity: BigInt | undefined) => void;
 
-    handleSelectAsset: (asset: Asset, isInput: 'in' | 'out') => void;
+    outputQuantity: BigInt | undefined;
+    setOutputQuantity: (quantity: BigInt | undefined) => void;
 
-    mainInput: string;
+    inputAsset: MultipoolAsset | SolidAsset | undefined;
+    setInputAsset: (asset: MultipoolAsset | SolidAsset) => void;
+
+    outputAsset: MultipoolAsset | SolidAsset | undefined;
+    setOutputAsset: (asset: MultipoolAsset | SolidAsset) => void;
+
+    handleSelectAsset: (asset: MultipoolAsset, isInput: 'out') => void;
+
+    mainInput: "in" | "out"; 
     setMainInput: (value: "in" | "out") => void;
 }
 
-const TradeMintContext = createContext<TradeContextValue | null>(null);
+const TradeContext = createContext<TradeContextValue | null>(null);
 
-export const TradeMintProvider: React.FunctionComponent<{children: React.ReactNode}> = ({ children }) => {
-    const [assets, setAssets] = useState<Asset[]>([]);
+export const TradeProvider: React.FunctionComponent<{children: React.ReactNode}> = ({ children }) => {
+    const [assets, setAssets] = useState<MultipoolAsset[]>([]);
+    
+    const [inputAsset, setInputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(undefined);
+    const [inputQuantity, setInputQuantity] = useState<BigInt | undefined>(undefined);
 
-    const [inputAsset, setInputAsset] = useState<Asset | undefined>(undefined);
-    const [outputAsset, setOutputAsset] = useState<Asset | undefined>(undefined);
+    const [outputAsset, setOutputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(undefined);
+    const [outputQuantity, setOutputQuantity] = useState<BigInt | undefined>(undefined);
+
     const [mainInput, setMainInput] = useState<"in" | "out">("in");
+    
+    const [inputHumanReadable, setinputHumanReadable] = useState<string | undefined>(undefined);
+    const [outputHumanReadable, setoutputHumanReadable] = useState<string | undefined>(undefined);
 
-    const handleSelectAsset = (asset: Asset, isInput: 'in' | 'out') => {
-        if (isInput === 'in' && asset === outputAsset) {
-            setOutputAsset(undefined);
-        }
-        if (isInput === 'out' && asset === inputAsset) {
-            setInputAsset(undefined);
-        }
-        if (isInput === 'in') {
-            setInputAsset(asset);
-        } else {
-            setOutputAsset(asset);
-        }
+    function setMainInputHandler(value: "in" | "out") {
+        setMainInput(value);
+    }; 
+    
+    const handleSelectAsset = (asset: MultipoolAsset) => {
+        setOutputAsset(asset);
     };
 
-    const value = {
+    const value: TradeContextValue = {
         assets,
         setAssets,
 
@@ -53,131 +64,35 @@ export const TradeMintProvider: React.FunctionComponent<{children: React.ReactNo
         outputAsset,
         setOutputAsset,
 
-        handleSelectAsset,
+        inputHumanReadable,
+        setInputHumanReadable: setinputHumanReadable,
 
-        mainInput,
-        setMainInput
-    };
+        outputHumanReadable,
+        setOutputHumanReadable: setoutputHumanReadable,
 
-    return (
-        <TradeMintContext.Provider value={value}>
-            {children}
-        </TradeMintContext.Provider>
-    );
-};
+        inputQuantity,
+        setInputQuantity,
 
-export const useMintTradeContext = () => {
-    const context = useContext(TradeMintContext);
-    if (!context) {
-        throw new Error('TradeContext must be used within a Provider');
-    }
-    return context;
-};
-
-const TradeSwapContext = createContext<TradeContextValue | null>(null);
-
-export const TradeSwapProvider: React.FunctionComponent<{children: React.ReactNode}> = ({ children }) => {
-    const [assets, setAssets] = useState<Asset[]>([]);
-
-    const [inputAsset, setInputAsset] = useState<number>(0);
-    const [outputAsset, setOutputAsset] = useState<number>(1);
-    const [mainInput, setMainInput] = useState<"in" | "out">("in");
-
-    const handleSelectAsset = (asset: number, isInput: 'in' | 'out') => {
-        if (isInput === 'in' && asset === outputAsset) {
-            setOutputAsset(0);
-        }
-        if (isInput === 'out' && asset === inputAsset) {
-            setInputAsset(1);
-        }
-        if (isInput === 'in') {
-            setInputAsset(asset);
-        } else {
-            setOutputAsset(asset);
-        }
-    };
-
-    const value = {
-        assets,
-        setAssets,
-
-        inputAsset,
-        setInputAsset,
-
-        outputAsset,
-        setOutputAsset,
+        outputQuantity,
+        setOutputQuantity,
 
         handleSelectAsset,
 
         mainInput,
-        setMainInput
+        setMainInput: setMainInputHandler
     };
 
     return (
-        <TradeSwapContext.Provider value={value}>
+        <TradeContext.Provider value={value}>
             {children}
-        </TradeSwapContext.Provider>
+        </TradeContext.Provider>
     );
 };
 
-export const useSwapTradeContext = () => {
-    const context = useContext(TradeSwapContext);
-    if (!context) {
-        throw new Error('TradeContext must be used within a Provider');
-    }
-    return context;
-};
-
-const TradeBurnContext = createContext<TradeContextValue | null>(null);
-
-export const TradeBurnProvider: React.FunctionComponent<{children: React.ReactNode}> = ({ children }) => {
-    const [assets, setAssets] = useState<Asset[]>([]);
-
-    const [inputAsset, setInputAsset] = useState<number>(0);
-    const [outputAsset, setOutputAsset] = useState<number>(1);
-    const [mainInput, setMainInput] = useState<"in" | "out">("in");
-
-    const handleSelectAsset = (asset: number, isInput: 'in' | 'out') => {
-        if (isInput === 'in' && asset === outputAsset) {
-            setOutputAsset(0);
+export const useTradeContext = () => {
+    const context = useContext(TradeContext);
+        if (!context) {
+            throw new Error('TradeContext must be used within a Provider');
         }
-        if (isInput === 'out' && asset === inputAsset) {
-            setInputAsset(1);
-        }
-        if (isInput === 'in') {
-            setInputAsset(asset);
-        } else {
-            setOutputAsset(asset);
-        }
-    };
-
-    const value = {
-        assets,
-        setAssets,
-
-        inputAsset,
-        setInputAsset,
-
-        outputAsset,
-        setOutputAsset,
-
-        handleSelectAsset,
-
-        mainInput,
-        setMainInput
-    };
-
-    return (
-        <TradeBurnContext.Provider value={value}>
-            {children}
-        </TradeBurnContext.Provider>
-    );
-};
-
-export const useBurnTradeContext = () => {
-    const context = useContext(TradeBurnContext);
-    if (!context) {
-        throw new Error('TradeContext must be used within a Provider');
-    }
-    return context;
+        return context;
 };

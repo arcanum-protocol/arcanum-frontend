@@ -1,27 +1,37 @@
 import * as React from 'react';
-import multipoolABI from '../abi/ETF';
-import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAccount, useNetwork } from 'wagmi'
 import { MaxUint256 } from "ethers";
-import 'react-loading-skeleton/dist/skeleton.css'
-import { switchNetwork } from '@wagmi/core';
 import { useModal } from 'connectkit';
+import multipoolABI from '../abi/ETF';
+import { Address, switchNetwork } from '@wagmi/core';
+import 'react-loading-skeleton/dist/skeleton.css'
+import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAccount, useNetwork } from 'wagmi'
+import { TokenWithAddress } from '../hooks/tokens';
 
-interface ButtonState {
-    contents: string,
-    isDisabled: boolean,
-    onClick: () => void
+export interface InteractionWithApprovalButtonProps {
+    interactionTxnBody: any,
+    interactionBalance: bigint,
+    externalErrorMessage?: string,
+    approveMax?: boolean,
+    tokenData: {
+        data: TokenWithAddress | undefined;
+        isLoading: boolean;
+        isError: boolean;
+        isUnset: boolean;
+    },
+    networkId: number,
+    errorMessage?: string
+    isLoading?: boolean
 }
 
 export function InteractionWithApprovalButton({
     interactionTxnBody,
     interactionBalance,
     externalErrorMessage,
-    actionName,
-    approveMax = true,
+    approveMax,
     tokenData,
-    networkId,
-    updatePaneCb,
-}) {
+    networkId
+}: InteractionWithApprovalButtonProps) {
+    console.log("token", tokenData);
     const {
         data: token,
         isLoading: isTokenDataLoading,
@@ -29,45 +39,53 @@ export function InteractionWithApprovalButton({
         isUnset: isTokenDataUnset,
     } = tokenData;
 
+    if (externalErrorMessage != undefined) {
+        return (
+            <div>
+                <button className='approvalBalanceButton' style={{ width: "100%" }} disabled={true}>
+                    <p style={{ margin: "10px" }}>{externalErrorMessage}</p>
+                </button>
+            </div >
+        );
+    }
+
+    if (isTokenDataError || isTokenDataUnset) {
+        return (
+            <div>
+                <button className='approvalBalanceButton' style={{ width: "100%" }} disabled={true}>
+                    <p style={{ margin: "10px" }}>{"Error"}</p>
+                </button>
+            </div >
+        );
+    }
+
     const allowance: bigint = token?.approval?.row || BigInt(0);
     const { isConnected } = useAccount();
 
     // hooks 
     // send approval
     const { config: approvalConfig } = usePrepareContractWrite({
-        address: token?.tokenAddress,
+        address: token?.tokenAddress as Address,
         abi: multipoolABI,
         functionName: 'approve',
         args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
-        enabled: !isTokenDataLoading && !isTokenDataUnset && allowance >= interactionBalance,
-        chainId: networkId
+        // enabled: !isTokenDataLoading && !isTokenDataUnset && allowance >= interactionBalance,
+        chainId: networkId,
     });
-
-    console.log("approvalConfig", approvalConfig);
-
-    const { data: mayBeApprovalHash, write: sendBalanceApproval } = useContractWrite(approvalConfig);
+    
+    const { data: mayBeApprovalHash, write: sendBalanceApproval } = useContractWrite(approvalConfig)
 
     const { isLoading: approvalTxnIsLoading } = useWaitForTransaction({
         hash: mayBeApprovalHash?.hash,
     })
 
-
-    const [interactionTxn, setInteractionTxn] = React.useState({ body: undefined, flag: false });
-    React.useEffect(() => {
-        setInteractionTxn({ body: interactionTxnBody, flag: !interactionTxnBody?.flag });
-    }, [interactionTxnBody, tokenData]);
-
     // send interaction
-    const { config } = usePrepareContractWrite(interactionTxn?.body);
+    const { config } = usePrepareContractWrite(interactionTxnBody);
     const { data: mayBeHash, write: sendTxn } = useContractWrite(config)
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,
     })
-
-    if (mayBeApprovalHash != undefined && sendTxn == undefined) {
-        window.location.reload();
-    }
 
     let defaultStyle = (isDisabled: any) => {
         return {
@@ -75,11 +93,7 @@ export function InteractionWithApprovalButton({
         }
     };
 
-    let buttonState: ButtonState = {
-        contents: "Connect wallet",
-        isDisabled: false,
-        onClick: () => { }
-    };
+    let isDisabled = false;
 
     let switchNetworkCb = () => {
         switchNetwork({
@@ -91,43 +105,71 @@ export function InteractionWithApprovalButton({
     const { setOpen: openWalletModal } = useModal();
 
     if (!isConnected) {
-        buttonState.contents = "Connect wallet";
-        buttonState.onClick = () => openWalletModal(true);
+        console.log("not connected")
+        return (
+            <div>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={() => openWalletModal(true)}>
+                    <p style={{ margin: "10px" }}>Connect Wallet</p>
+                </button>
+            </div >
+        );
     } else if (Array.isArray(chains) && networkId != chain?.id) {
-        buttonState.contents = `Switch to ${chains.find(c => c.id == networkId)?.name}`;
-        buttonState.onClick = switchNetworkCb;
+        console.log("wrong network")
+        return (
+            <div>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={switchNetworkCb}>
+                    <p style={{ margin: "10px" }}>Switch to {chains.find(c => c.id == networkId)?.name}</p>
+                </button>
+            </div >
+        );
     } else if (externalErrorMessage != undefined) {
-        buttonState.contents = externalErrorMessage;
-        buttonState.isDisabled = true;
+        console.log("external error")
+        return (
+            <div>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled}>
+                    <p style={{ margin: "10px" }}>{externalErrorMessage}</p>
+                </button>
+            </div >
+        );
     } else if (token == undefined || interactionTxnBody == undefined || isTokenDataLoading || approvalTxnIsLoading || txnIsLoading) {
-        buttonState.contents = actionName;
-        buttonState.isDisabled = true;
+        console.log("loading")
+        return (
+            <div>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={true}>
+                    <p style={{ margin: "10px" }}>{"Mint"}</p>
+                </button>
+            </div >
+        );
     } else if (token.balance.row < interactionBalance || interactionBalance == BigInt(0)) {
-        buttonState.contents = "Insufficient balance";
-        buttonState.isDisabled = true;
+        console.log("insufficient balance")
+        return (
+            <div>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled}>
+                    <p style={{ margin: "10px" }}>{"Insufficient Balance"}</p>
+                </button>
+            </div >
+        );
     } else {
         const approveRequired = allowance < interactionBalance || allowance == BigInt(0);
         if (approveRequired) {
-            console.log("approve required");
-            console.log("approve balance txn", sendBalanceApproval);
-
-            buttonState.contents = "Approve balance";
-            buttonState.onClick = () => sendBalanceApproval;
+            console.log("approve required")
+            console.log(sendBalanceApproval)
+            return (
+                <div>
+                    <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={sendBalanceApproval}>
+                        <p style={{ margin: "10px" }}>{"Approve"}</p>
+                    </button>
+                </div >
+            );
         } else {
-            console.log("send txn");
-
-            buttonState.contents = actionName;
-            buttonState.onClick = () => sendTxn;
+            console.log("approve not required")
+            return (
+                <div>
+                    <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={sendTxn}>
+                        <p style={{ margin: "10px" }}>{"Mint"}</p>
+                    </button>
+                </div >
+            );
         }
     }
-
-    console.log(buttonState.onClick);
-
-    return (
-        <div>
-            <button className='approvalBalanceButton' style={{ ...defaultStyle(buttonState.isDisabled) }} disabled={buttonState.isDisabled} onClick={buttonState.onClick}>
-                <p style={{ margin: "10px" }}>{buttonState.contents}</p>
-            </button>
-        </div >
-    );
 }

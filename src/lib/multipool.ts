@@ -78,6 +78,8 @@ export function useFetchAssets(
             multipool: multipool
         };
     }, {
-        refetchInterval: 1000
+        // refetchInterval: 10000,
+        // staleTime: 10000,
+        // cacheTime: 10000,
     });
 }

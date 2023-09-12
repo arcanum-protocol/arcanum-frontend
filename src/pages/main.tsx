@@ -4,12 +4,12 @@ import { SolidAsset } from '../types/solidAsset';
 import { useMobileMedia } from '../hooks/tokens';
 import { useSearchParams } from 'react-router-dom';
 import { Faucet } from '../components/faucet-modal';
-import { TradePane } from '../components/trade-pane';
 import TVChartContainer from '../components/tv-chart';
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
-import { TradeBurnProvider, TradeMintProvider, TradeSwapProvider } from '../contexts/TradeContext';
+import { TradeProvider } from '../contexts/TradeContext';
+import { TradePaneInner } from '../components/trade-pane';
 
 export function Cpt() {
     return (<Main
@@ -34,7 +34,7 @@ export function Bali() {
 
 export function Custom() {
     const [searchParams, setSearchParams] = useSearchParams();
-    return (<Main assetAddress={searchParams.get("address")} routerAddress={searchParams.get("router")} />)
+    return (<Main assetAddress={searchParams.get("address")!} routerAddress={searchParams.get("router")!} />)
 }
 
 interface MainInnerProps {
@@ -106,8 +106,8 @@ interface MainProps {
     routerAddress: string;
 }
 
-export function Main(MainProps): JSX.Element {
-    const { data, error, isLoading } = useFetchAssets(MainProps.assetAddress);
+export function Main({assetAddress, routerAddress}: MainProps): JSX.Element {
+    const { data, error, isLoading } = useFetchAssets(assetAddress);
 
     if (isLoading) {
         return (
@@ -126,8 +126,8 @@ export function Main(MainProps): JSX.Element {
     }
 
     return (<MainInner
-        assetAddress={MainProps.assetAddress}
-        routerAddress={MainProps.routerAddress}
+        assetAddress={assetAddress}
+        routerAddress={routerAddress}
         fetchedAssets={data?.assets}
         multipoolAsset={data?.multipool}
     />);
@@ -224,13 +224,11 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                     </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                    <TradeMintProvider>
+                    <TradeProvider>
                         <div style={displayOrHide(displayed != 1, { width: "100%" })}>
-                            <TradePane
+                            <TradePaneInner
                                 assetsIn={fetchedAssets}
                                 assetsOut={[multipoolAsset]}
-                                assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                                assetOutDisableFilter={() => false}
                                 tradeLogicAdapter={mintAdapter}
                                 selectTokenParent={me}
                                 routerAddress={routerAddress}
@@ -242,10 +240,10 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                                     section2Name: "Receive",
                                 }} />
                         </div>
-                    </TradeMintProvider>
-                    <TradeBurnProvider>
+                    </TradeProvider>
+                    <TradeProvider>
                         <div style={displayOrHide(displayed != 2, { width: "100%" })}>
-                            <TradePane
+                            <TradePaneInner
                                 assetsIn={[multipoolAsset]}
                                 assetsOut={fetchedAssets}
                                 assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
@@ -261,10 +259,10 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                                     section2Name: "Receive",
                                 }} />
                         </div >
-                    </TradeBurnProvider>
-                    <TradeSwapProvider>
+                    </TradeProvider>
+                    <TradeProvider>
                         <div style={displayOrHide(displayed != 3, { width: "100%" })}>
-                            <TradePane
+                            <TradePaneInner
                                 assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
                                 assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
                                 routerAddress={routerAddress}
@@ -281,7 +279,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                                     section2Name: "Receive",
                                 }} />
                         </div >
-                    </TradeSwapProvider>
+                    </TradeProvider>
                 </div >
             </div>
         </div >

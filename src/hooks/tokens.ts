@@ -1,11 +1,14 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
 import { useContractRead, useToken, useNetwork, useFeeData, useAccount, Address } from 'wagmi'
-import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter } from '../components/trade-pane';
+import { EstimatedValues } from '../types/estimatedValues';
+import { EstimationTransactionBody } from '../types/estimationTransactionBody';
+import { SendTransactionParams } from '../types/sendTransactionParams';
+import { TradeLogicAdapter } from '../components/trade-pane';
 import { useMedia } from 'react-use';
 import { useDebounce } from 'use-debounce';
 import * as React from 'react';
-import { chains, publicClient } from '../config';
+import { publicClient } from '../config';
 
 export type TokenWithAddress = {
     tokenAddress: string,
@@ -127,8 +130,8 @@ export function useEstimate(
         errorMessage = "Too big quantity";
     } else if (error?.message.includes("MULTIPOOL: QE")) {
         errorMessage = "Insufficient liquidity";
-    } else if (isError) {
-        //errorMessage = error?.message;
+    } else if (error?.message.includes("MULTIPOOL: IQ")) {
+        errorMessage = "Insufficient quantity"; // idk what each error means, so its placeholder
     }
 
     const [cost, setCost] = React.useState<
