@@ -31,7 +31,6 @@ export function InteractionWithApprovalButton({
     tokenData,
     networkId
 }: InteractionWithApprovalButtonProps) {
-    console.log("token", tokenData);
     const {
         data: token,
         isLoading: isTokenDataLoading,
