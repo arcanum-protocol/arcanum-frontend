@@ -6,7 +6,7 @@ import {
 } from "connectkit";
 
 export const arbitrumMainnet = {
-    id: 80001,
+    id: 42161,
     name: 'Arbitrum',
     network: 'Arbitrum',
     nativeCurrency: {
