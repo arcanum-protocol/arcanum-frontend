@@ -5,6 +5,25 @@ import {
     getDefaultConfig,
 } from "connectkit";
 
+export const arbitrumMainnet = {
+    id: 80001,
+    name: 'Arbitrum',
+    network: 'Arbitrum',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'ETH',
+        symbol: 'ETH',
+    },
+    rpcUrls: {
+        public: { http: ['https://arbitrum.llamarpc.com'] },
+        default: { http: ['https://arbitrum.llamarpc.com'] },
+    },
+    blockExplorers: {
+        etherscan: { name: 'ArbiScan', url: 'https://arbiscan.io' },
+        default: { name: 'ArbiScan', url: 'https://arbiscan.io' },
+    },
+};
+
 export const polygonMumbai = {
     id: 80001,
     name: 'Polygon Mumbai',
@@ -75,7 +94,7 @@ const storage = createStorage({
     storage: noopStorage,
 })
 
-export const chains = [arbitrumSepolia, polygonMumbai, opBnb];
+export const chains = [arbitrumSepolia, arbitrumMainnet, polygonMumbai, opBnb];
 export const { publicClient } = configureChains(chains, [publicProvider()])
 
 export const config = createConfig({
