@@ -163,7 +163,6 @@ export function TradePaneInner({
                     approveMax={true}
                     tokenData={inTokenData}
                     networkId={networkId}
-                    errorMessage={estimationErrorMessage}
                     isLoading={estimationIsLoading}
                 />
             </div >

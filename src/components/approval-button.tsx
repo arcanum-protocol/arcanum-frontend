@@ -48,16 +48,6 @@ export function InteractionWithApprovalButton({
         );
     }
 
-    if (isTokenDataError || isTokenDataUnset) {
-        return (
-            <div>
-                <button className='approvalBalanceButton' style={{ width: "100%" }} disabled={true}>
-                    <p style={{ margin: "10px" }}>{"Error"}</p>
-                </button>
-            </div >
-        );
-    }
-
     const allowance: bigint = token?.approval?.row || BigInt(0);
     const { isConnected } = useAccount();
 
@@ -86,13 +76,11 @@ export function InteractionWithApprovalButton({
         hash: mayBeHash?.hash,
     })
 
-    let defaultStyle = (isDisabled: any) => {
+    let defaultStyle = () => {
         return {
             width: "100%",
         }
     };
-
-    let isDisabled = false;
 
     let switchNetworkCb = () => {
         switchNetwork({
@@ -100,50 +88,46 @@ export function InteractionWithApprovalButton({
         })
     };
 
+    
     const { chain, chains } = useNetwork()
     const { setOpen: openWalletModal } = useModal();
 
     if (!isConnected) {
-        console.log("not connected")
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={() => openWalletModal(true)}>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true} onClick={() => openWalletModal(true)}>
                     <p style={{ margin: "10px" }}>Connect Wallet</p>
                 </button>
             </div >
         );
     } else if (Array.isArray(chains) && networkId != chain?.id) {
-        console.log("wrong network")
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={switchNetworkCb}>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={switchNetworkCb}>
                     <p style={{ margin: "10px" }}>Switch to {chains.find(c => c.id == networkId)?.name}</p>
                 </button>
             </div >
         );
     } else if (externalErrorMessage != undefined) {
-        console.log("external error")
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled}>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
                     <p style={{ margin: "10px" }}>{externalErrorMessage}</p>
                 </button>
             </div >
         );
     } else if (token == undefined || interactionTxnBody == undefined || isTokenDataLoading || approvalTxnIsLoading || txnIsLoading) {
-        console.log("loading")
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={true}>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false}>
                     <p style={{ margin: "10px" }}>{"Mint"}</p>
                 </button>
             </div >
         );
     } else if (token.balance.row < interactionBalance || interactionBalance == BigInt(0)) {
-        console.log("insufficient balance")
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled}>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
                     <p style={{ margin: "10px" }}>{"Insufficient Balance"}</p>
                 </button>
             </div >
@@ -151,20 +135,17 @@ export function InteractionWithApprovalButton({
     } else {
         const approveRequired = allowance < interactionBalance || allowance == BigInt(0);
         if (approveRequired) {
-            console.log("approve required")
-            console.log(sendBalanceApproval)
             return (
                 <div>
-                    <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={sendBalanceApproval}>
+                    <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={sendBalanceApproval}>
                         <p style={{ margin: "10px" }}>{"Approve"}</p>
                     </button>
                 </div >
             );
         } else {
-            console.log("approve not required")
             return (
                 <div>
-                    <button className='approvalBalanceButton' style={{ ...defaultStyle(isDisabled) }} disabled={isDisabled} onClick={sendTxn}>
+                    <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={sendTxn}>
                         <p style={{ margin: "10px" }}>{"Mint"}</p>
                     </button>
                 </div >
