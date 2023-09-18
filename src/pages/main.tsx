@@ -331,7 +331,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }: M
                     </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
+                    <TradeProvider contextOutputAddress={multipoolAsset} tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
                         <div style={displayOrHide(displayed != 1, { width: "100%" })}>
                             <TradePaneInner
                                 assetsIn={fetchedAssets}
@@ -348,7 +348,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }: M
                                 }} />
                         </div>
                     </TradeProvider>
-                    <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
+                    <TradeProvider contextInputAsset={multipoolAsset} tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
                         <div style={displayOrHide(displayed != 2, { width: "100%" })}>
                             <TradePaneInner
                                 assetsIn={multipoolAsset}

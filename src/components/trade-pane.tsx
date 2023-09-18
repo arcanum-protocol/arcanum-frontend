@@ -34,13 +34,7 @@ export function TradePaneInner({
     networkId
 }: TradePaneProps) {
     const texts: TradePaneTexts = paneTexts;
-
-    console.log({assetsIn,
-        assetsOut,
-        paneTexts,
-        selectTokenParent,
-        networkId})
-
+    
     const {
         userAddress,
         setSlippage,
@@ -50,6 +44,8 @@ export function TradePaneInner({
         transactionCost,
         sendTransctionParams
     } = useTradeContext();
+    
+    console.log(inputAsset, outputAsset);
 
     const tokenIn = useTokenWithAddress({ tokenAddress: inputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
     const tokenOut = useTokenWithAddress({ tokenAddress: outputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
@@ -115,7 +111,7 @@ export function TokenQuantityInput({
     selectTokenParent,
     balance
 }: TokenQuantityInputProps) {
-    const { usdValues } = useTradeContext();
+    const { estimatedValues } = useTradeContext();
     return (
         <div style={{
             display: "flex",
@@ -145,7 +141,7 @@ export function TokenQuantityInput({
                 <p style={{
                     margin: "0", marginTop: "1px", fontSize: "13px",
                     opacity: "0.3"
-                }}>{(text === "Send" ? usdValues.in || "0" : usdValues.out || "0") + "$"}</p>
+                }}>{(text === "Send" ? estimatedValues?.estimatedAmountIn?.usd || "0" : estimatedValues?.estimatedAmountOut?.usd || "0") + "$"}</p>
             </div>
             <div style={{
                 display: "flex", flexDirection: "column",

@@ -1,10 +1,11 @@
-import React, { ChangeEvent } from "react";
+import React, { ChangeEvent, useEffect } from "react";
 import { useTradeContext } from "../contexts/TradeContext";
 import { SendTransactionParams } from "./trade-pane";
 import { Address } from "wagmi";
 import { useEstimate, useTokenWithAddress } from "../hooks/tokens";
 import { Quantities } from "../types/quantities";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
+import { useMount } from "react-use";
 
 interface QuantityInputProps {
     decimals: number;
@@ -86,6 +87,19 @@ export function QuantityInput({
         inputQuantityScope = outputHumanReadable || "";
     }
 
+    useEffect(() => {
+        if (estimationResults) {
+            console.log(estimationResults);
+            setEstimatedValues(estimationResults);
+            setTransactionCost(transactionCostScope);
+            setSendTransctionParams(sendTransactionParams);
+            setUsdValues({
+                in: estimationResults.estimatedAmountIn?.usd.toString() || "",
+                out: estimationResults.estimatedAmountOut?.usd.toString() || "",
+            });
+        }
+    });
+
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
         if (e.target.value == undefined || e.target.value === "") {
             setInputHumanReadable("");
@@ -127,15 +141,6 @@ export function QuantityInput({
                 setOutputHumanReadable("");
             }
         }
-
-        setEstimationErrorMessage(estimationErrorMessageScope);
-        setEstimatedValues(estimationResults);
-        setTransactionCost(transactionCostScope);
-        setSendTransctionParams(sendTransactionParams);
-        setUsdValues({
-            in: estimationResults?.estimatedAmountIn?.usd,
-            out: estimationResults?.estimatedAmountOut?.usd,
-        });
     };
 
     return (

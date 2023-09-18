@@ -78,13 +78,13 @@ export interface TradeContextValue {
 
 const TradeContext = createContext<TradeContextValue | null>(null);
 
-export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLogicAdapter, multipoolAddress: Address, routerAddress: Address, fetchedAssets: MultipoolAsset[], children: React.ReactNode }> = ({ tradeLogicAdapter, multipoolAddress, routerAddress, fetchedAssets, children }) => {
+export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: MultipoolAsset | SolidAsset, contextOutputAddress?: MultipoolAsset | SolidAsset, tradeLogicAdapter: TradeLogicAdapter, multipoolAddress: Address, routerAddress: Address, fetchedAssets: MultipoolAsset[], children: React.ReactNode }> = ({ contextInputAsset, contextOutputAddress, tradeLogicAdapter, multipoolAddress, routerAddress, fetchedAssets, children }) => {
     const user = useAccount();
     const [userAddress, setAddress] = useState<Address>(user.address as Address);
     const [assets, setAssets] = useState<MultipoolAsset[]>([]);
 
-    const [inputAsset, setInputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(fetchedAssets[0]);
-    const [outputAsset, setOutputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(fetchedAssets[1]);
+    const [inputAsset, setInputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(contextInputAsset || fetchedAssets[0]);
+    const [outputAsset, setOutputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(contextOutputAddress || fetchedAssets[1]);
     
     const [inputQuantity, setInputQuantity] = useState<string | undefined>(undefined);
     const [outputQuantity, setOutputQuantity] = useState<string | undefined>(undefined);
