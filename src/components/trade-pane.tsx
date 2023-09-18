@@ -1,28 +1,23 @@
 import _ from "lodash";
-import React, { useState } from 'react';
+import React from 'react';
 import { Address, useAccount } from 'wagmi'
-import type { Quantities } from '../types/quantities';
 import { QuantityInput } from './quantity-input';
 import { TradePaneTexts } from '../types/tradePane';
 import { toHumanReadable } from '../lib/format-number';
-import type { MultipoolAsset } from "../types/multipoolAsset";
-import type { TradeLogicAdapter } from '../types/tradeLogicAdapter';
 import { InteractionWithApprovalButton } from './approval-button';
-import { useTokenWithAddress, useEstimate } from '../hooks/tokens';
+import { useTokenWithAddress } from '../hooks/tokens';
 import { MultipoolAssetSelector } from "./multipool-assets-selector";
 import { TransactionParamsSelector } from './transaction-params-selector';
-import type { SendTransactionParams } from '../types/sendTransactionParams';
 import { useTradeContext } from "../contexts/TradeContext";
 import { SolidAsset } from "../types/solidAsset";
+import type { MultipoolAsset } from "../types/multipoolAsset";
+import type { TradeLogicAdapter } from '../types/tradeLogicAdapter';
+import type { SendTransactionParams } from '../types/sendTransactionParams';
 
 
 interface TradePaneProps {
-    assetsIn: MultipoolAsset[];
-    initialInIndex?: number;
-    assetInDisableFilter?: (asset: MultipoolAsset) => boolean;
-    assetOutDisableFilter?: (asset: MultipoolAsset) => boolean;
-    assetsOut: MultipoolAsset[];
-    initialOutIndex?: number;
+    assetsIn: MultipoolAsset[] | SolidAsset;
+    assetsOut: MultipoolAsset[] | SolidAsset;
     tradeLogicAdapter: TradeLogicAdapter;
     paneTexts: TradePaneTexts;
     selectTokenParent: React.RefObject<HTMLDivElement>;
@@ -34,87 +29,30 @@ interface TradePaneProps {
 export function TradePaneInner({
     assetsIn,
     assetsOut,
-    initialOutIndex,
-    tradeLogicAdapter,
     paneTexts,
     selectTokenParent,
-    networkId,
-    routerAddress,
-    multipoolAddress,
+    networkId
 }: TradePaneProps) {
     const texts: TradePaneTexts = paneTexts;
 
-    const assetInDisableFilter = (asset: MultipoolAsset) => {
-        return Number(asset.deviationPercent) > 10;
-    };
-
-    const assetOutDisableFilter = (asset: MultipoolAsset) => {
-        return false;
-    };
+    console.log({assetsIn,
+        assetsOut,
+        paneTexts,
+        selectTokenParent,
+        networkId})
 
     const {
+        userAddress,
+        setSlippage,
         inputAsset,
-        setInputAsset,
         outputAsset,
-        setOutputAsset,
-        setInputHumanReadable,
-        setOutputHumanReadable,
-        mainInput,
-        inputQuantity,
-        setInputQuantity,
-        outputQuantity,
-        setOutputQuantity,
+        routerAddress,
+        transactionCost,
+        sendTransctionParams
     } = useTradeContext();
 
-    const adapter: TradeLogicAdapter = tradeLogicAdapter;
-    const { address } = useAccount()
-
-    const inTokenData = useTokenWithAddress({
-        tokenAddress: inputAsset?.assetAddress,
-        userAddress: address,
-        allowanceTo: routerAddress,
-    });
-
-    const outTokenData = useTokenWithAddress({
-        tokenAddress: outputAsset?.assetAddress,
-        userAddress: address,
-        allowanceTo: routerAddress,
-    });
-
-    const [slippage, setSlippage] = useState<number>(0.5);
-
-    let sendTransctionParams: SendTransactionParams = {
-        to: address as Address,
-        deadline: BigInt(0),
-        slippage: slippage,
-        quantities: {
-            in: mainInput === "in" ? inputQuantity : undefined,
-            out: mainInput === "in" ? undefined : outputQuantity,
-        } as Quantities,
-        tokenIn: inTokenData.data!,
-        tokenOut: outTokenData.data!,
-        priceIn: Number(inputAsset?.price?.toString() || 0),
-        priceOut: Number(outputAsset?.price?.toString() || 0),
-        routerAddress: routerAddress,
-        multipoolAddress: multipoolAddress,
-    };
-
-    const {
-        data: estimationResults,
-        transactionCost: transactionCost,
-        isLoading: estimationIsLoading,
-        error: estimationErrorMessage,
-    } = useEstimate(adapter, sendTransctionParams);
-
-    if (estimationResults !== undefined) {
-        if (mainInput === "in") {
-            setOutputHumanReadable(estimationResults.estimatedAmountOut?.formatted);
-            setOutputQuantity(estimationResults.estimatedAmountOut?.row);
-        } else {
-            setInputHumanReadable(estimationResults.estimatedAmountIn?.formatted);
-            setInputQuantity(estimationResults.estimatedAmountIn?.row);
-        }
-    }
+    const tokenIn = useTokenWithAddress({ tokenAddress: inputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
+    const tokenOut = useTokenWithAddress({ tokenAddress: outputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
 
     return (
         <div style={
@@ -129,41 +67,29 @@ export function TradePaneInner({
             }
         }>
             <TokenQuantityInput
-                isDisabled={estimationIsLoading}
-                assetDisableFilter={assetInDisableFilter}
+                assetDisableFilter={(asset: MultipoolAsset) => Number(asset.deviationPercent) > 10}
                 text={texts.section1Name}
-                assetSetter={setInputAsset}
-                quantitySetter={setInputQuantity}
-                tokenData={inTokenData}
+                decimals={tokenIn.data?.decimals!}
                 assets={assetsIn}
-                name="in"
                 initialAssetIndex={0}
                 selectTokenParent={selectTokenParent}
-                usd={estimationResults?.estimatedAmountIn ? estimationResults?.estimatedAmountIn.usd + "$" : "0$"}
+                balance={tokenIn.data?.balance.formatted || "0"}
             />
             <TokenQuantityInput
-                isDisabled={estimationIsLoading}
-                assetDisableFilter={assetOutDisableFilter}
+                assetDisableFilter={(asset: MultipoolAsset) => Number(asset.deviationPercent) < -10}
                 text={texts.section2Name}
-                assetSetter={setOutputAsset}
-                quantitySetter={setOutputQuantity}
-                tokenData={outTokenData}
+                decimals={tokenOut.data?.decimals!}
                 assets={assetsOut}
-                name="out"
-                initialAssetIndex={initialOutIndex!}
+                initialAssetIndex={1}
                 selectTokenParent={selectTokenParent}
-                usd={estimationResults?.estimatedAmountOut ? estimationResults?.estimatedAmountOut.usd + "$" : "0$"}
+                balance={tokenOut.data?.balance.formatted || "0"}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
-                {address ? <TransactionParamsSelector estimates={estimationResults} txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={setSlippage} /> : undefined}
+                {userAddress ? <TransactionParamsSelector txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={() => setSlippage} /> : undefined}
                 <InteractionWithApprovalButton
-                    interactionTxnBody={estimationResults?.txn}
-                    interactionBalance={BigInt(String(estimationResults?.estimatedAmountIn?.row ? estimationResults?.estimatedAmountIn?.row : 0))}
-                    externalErrorMessage={estimationErrorMessage}
                     approveMax={true}
-                    tokenData={inTokenData}
+                    tokenData={tokenIn}
                     networkId={networkId}
-                    isLoading={estimationIsLoading}
                 />
             </div >
         </div >
@@ -172,32 +98,24 @@ export function TradePaneInner({
 
 interface TokenQuantityInputProps {
     initialAssetIndex: number;
-    assetDisableFilter?: (asset: MultipoolAsset) => boolean;
-    usd: string;
-    isDisabled: boolean;
-    text: string;
-    assetSetter?: (asset: MultipoolAsset | SolidAsset) => void;
-    quantitySetter: (quantity: BigInt | undefined) => void;
-    tokenData: ReturnType<typeof useTokenWithAddress>;
-    assets: MultipoolAsset[];
-    quantity?: BigInt;
+    assetDisableFilter: (asset: MultipoolAsset) => boolean;
+    text: "Send" | "Receive";
+    decimals: number;
+    assets: MultipoolAsset[] | SolidAsset;
     selectTokenParent: React.RefObject<HTMLDivElement>;
-    otherQuantity?: BigInt;
-    name: string;
+    balance: string;
 }
 
 export function TokenQuantityInput({
     initialAssetIndex,
     assetDisableFilter,
-    usd,
-    isDisabled,
     text,
-    assetSetter,
-    tokenData,
+    decimals,
     assets,
     selectTokenParent,
-    name,
+    balance
 }: TokenQuantityInputProps) {
+    const { usdValues } = useTradeContext();
     return (
         <div style={{
             display: "flex",
@@ -221,14 +139,13 @@ export function TokenQuantityInput({
                     }}> {text} </p>
                 </div>
                 <QuantityInput
-                    disabled={isDisabled}
-                    decimals={tokenData?.data?.decimals!}
+                    decimals={decimals}
                     quantityInputName={text}
                 />
                 <p style={{
                     margin: "0", marginTop: "1px", fontSize: "13px",
                     opacity: "0.3"
-                }}>{usd}</p>
+                }}>{(text === "Send" ? usdValues.in || "0" : usdValues.out || "0") + "$"}</p>
             </div>
             <div style={{
                 display: "flex", flexDirection: "column",
@@ -238,15 +155,17 @@ export function TokenQuantityInput({
                 height: "80%",
             }}>
                 <MultipoolAssetSelector
+                    name={text}
                     disableFilter={assetDisableFilter}
-                    modalParent={selectTokenParent} assetList={assets}
-                    setter={assetSetter} initialIndex={initialAssetIndex} />
+                    modalParent={selectTokenParent}
+                    assetList={assets}
+                    initialIndex={initialAssetIndex} />
                 <p style={{
                     margin: "0", fontSize: "13px",
                     opacity: "0.3"
-                }}> Balance: {toHumanReadable(tokenData.data?.balance.formatted || "0")}</p>
+                }}> Balance: {toHumanReadable(balance)}</p>
             </div>
         </div>);
 }
-export { TradeLogicAdapter };
+export { TradeLogicAdapter, SendTransactionParams };
 

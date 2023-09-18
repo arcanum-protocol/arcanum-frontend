@@ -6,11 +6,9 @@ import { Address, switchNetwork } from '@wagmi/core';
 import 'react-loading-skeleton/dist/skeleton.css'
 import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAccount, useNetwork } from 'wagmi'
 import { TokenWithAddress } from '../hooks/tokens';
+import { useTradeContext } from '../contexts/TradeContext';
 
 export interface InteractionWithApprovalButtonProps {
-    interactionTxnBody: any,
-    interactionBalance: bigint,
-    externalErrorMessage?: string,
     approveMax?: boolean,
     tokenData: {
         data: TokenWithAddress | undefined;
@@ -20,17 +18,17 @@ export interface InteractionWithApprovalButtonProps {
     },
     networkId: number,
     errorMessage?: string
-    isLoading?: boolean
 }
 
 export function InteractionWithApprovalButton({
-    interactionTxnBody,
-    interactionBalance,
-    externalErrorMessage,
     approveMax,
     tokenData,
     networkId
 }: InteractionWithApprovalButtonProps) {
+    const { estimationErrorMessage, estimatedValues } = useTradeContext();
+    const interactionBalance = BigInt(String(estimatedValues?.estimatedAmountIn?.row ? estimatedValues?.estimatedAmountIn?.row : 0));
+    const interactionTxnBody = estimatedValues?.txn;
+    
     const {
         data: token,
         isLoading: isTokenDataLoading,
@@ -38,11 +36,11 @@ export function InteractionWithApprovalButton({
         isUnset: isTokenDataUnset,
     } = tokenData;
 
-    if (externalErrorMessage != undefined) {
+    if (estimationErrorMessage != undefined) {
         return (
             <div>
                 <button className='approvalBalanceButton' style={{ width: "100%" }} disabled={true}>
-                    <p style={{ margin: "10px" }}>{externalErrorMessage}</p>
+                    <p style={{ margin: "10px" }}>{estimationErrorMessage}</p>
                 </button>
             </div >
         );
@@ -108,11 +106,11 @@ export function InteractionWithApprovalButton({
                 </button>
             </div >
         );
-    } else if (externalErrorMessage != undefined) {
+    } else if (estimationErrorMessage != undefined) {
         return (
             <div>
                 <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
-                    <p style={{ margin: "10px" }}>{externalErrorMessage}</p>
+                    <p style={{ margin: "10px" }}>{estimationErrorMessage}</p>
                 </button>
             </div >
         );

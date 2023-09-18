@@ -2,13 +2,25 @@ import * as React from 'react';
 import { FixedNumber } from "ethers";
 import { useState, useEffect } from "react";
 import { SendTransactionParams } from "./trade-pane";
-import type { EstimatedValues } from '../types/estimatedValues';
 
 import 'react-loading-skeleton/dist/skeleton.css'
+import { useTradeContext } from '../contexts/TradeContext';
 
-export function TransactionParamsSelector({ txnParams, txnCost, estimates, slippageSetter }) {
-    const p: SendTransactionParams = txnParams;
-    const e: EstimatedValues = estimates;
+interface TransactionParamsSelectorProps {
+    txnParams: SendTransactionParams | undefined;
+    txnCost: {
+        gas: number;
+        gasPrice: number;
+        cost: number;
+    } | undefined;
+    slippageSetter: (slippage: number) => void;
+}
+
+export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }: TransactionParamsSelectorProps) {
+    const { estimatedValues } = useTradeContext();
+
+    const p: SendTransactionParams | undefined = txnParams;
+    
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
             <div
@@ -21,60 +33,60 @@ export function TransactionParamsSelector({ txnParams, txnCost, estimates, slipp
                 }}>
                 <SlippageSelector slippageSetter={slippageSetter} />
                 {
-                    e?.minimalAmountOut != undefined ?
+                    estimatedValues?.minimalAmountOut != undefined ?
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <p style={{ margin: "0" }}>Minimal receive</p>
                             <p style={{ margin: "0" }}>
-                                {e.minimalAmountOut.formatted}({e.minimalAmountOut.usd}$)
+                                {estimatedValues?.minimalAmountOut.formatted}({estimatedValues?.minimalAmountOut.usd}$)
                             </p>
                         </div>
                         : (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <p style={{ margin: "0" }}>Maximum send</p>
                                 <p style={{ margin: "0" }}>
-                                    {e?.maximumAmountIn?.formatted || 0}({e?.maximumAmountIn?.usd || 0}$)
+                                    {estimatedValues?.maximumAmountIn?.formatted || 0}({estimatedValues?.maximumAmountIn?.usd || 0}$)
                                 </p>
                             </div>
 
                         )
                 }
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>{p.tokenIn?.symbol} price</p>
+                    <p style={{ margin: "0" }}>{p?.tokenIn?.symbol} price</p>
                     <p style={{ margin: "0" }}>
-                        {(Number(e?.estimatedAmountOut?.formatted || "0")
-                            / Number(e?.estimatedAmountIn?.formatted || "1")).toFixed(4)}
+                        {(Number(estimatedValues?.estimatedAmountOut?.formatted || "0")
+                            / Number(estimatedValues?.estimatedAmountIn?.formatted || "1")).toFixed(4)}
                         {" "}
-                        {p.tokenOut?.symbol}
+                        {p?.tokenOut?.symbol}
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>{p.tokenOut?.symbol} price</p>
+                    <p style={{ margin: "0" }}>{p?.tokenOut?.symbol} price</p>
                     <p style={{ margin: "0" }}>
-                        {(Number(e?.estimatedAmountIn?.formatted || "0")
-                            / Number(e?.estimatedAmountOut?.formatted || "1")).toFixed(4)}
+                        {(Number(estimatedValues?.estimatedAmountIn?.formatted || "0")
+                            / Number(estimatedValues?.estimatedAmountOut?.formatted || "1")).toFixed(4)}
                         {" "}
-                        {p.tokenIn?.symbol}
+                        {p?.tokenIn?.symbol}
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>Cashback {p.tokenIn?.symbol}</p>
+                    <p style={{ margin: "0" }}>Cashback {p?.tokenIn?.symbol}</p>
                     <p style={{ margin: "0" }}>
-                        {e?.estimatedCashbackIn?.usd || "0"}$
+                        {Number(estimatedValues?.estimatedCashbackIn?.usd).toString() || "0"}$
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>Cashback {p.tokenOut?.symbol}</p>
+                    <p style={{ margin: "0" }}>Cashback {p?.tokenOut?.symbol}</p>
                     <p style={{ margin: "0" }}>
-                        {e?.estimatedCashbackOut?.usd || "0"}$
+                        {Number(estimatedValues?.estimatedCashbackOut?.usd).toString() || "0"}$
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Fee</p>
-                    <p style={{ margin: "0" }}>{e?.fee?.usd || 0}$ ({e?.fee?.percent || 0}%)</p>
+                    <p style={{ margin: "0" }}>{estimatedValues?.fee?.usd || 0}$ ({estimatedValues?.fee?.percent || 0}%)</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Transaction cost</p>
-                    <p style={{ margin: "0" }}>{txnCost?.cost.toFixed("4") || "0"}$</p>
+                    <p style={{ margin: "0" }}>{txnCost?.cost.toFixed(4) || "0"}$</p>
                 </div>
             </div>
         </div >

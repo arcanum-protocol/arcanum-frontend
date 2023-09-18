@@ -13,6 +13,7 @@ import { useMobileMedia } from "./hooks/tokens";
 import { config } from './config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getSVG } from "./lib/svg-adapter";
+import { useRef, useState } from "react";
 
 const client = new QueryClient();
 
@@ -32,11 +33,11 @@ function App() {
 }
 
 function Navbar() {
-    const [hovered, setHovered] = React.useState(location.pathname);
+    const [hovered, setHovered] = useState(location.pathname);
     const isMobile = useMobileMedia();
-    const [mobileReferencesActive, setMobileReferences] = React.useState(false);
+    const [mobileReferencesActive, setMobileReferences] = useState(false);
 
-    const modal = React.useRef(null);
+    const modal = useRef(null);
 
     const links = [
         { title: "Swap", route: "/swap" },

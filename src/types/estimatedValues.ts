@@ -1,3 +1,5 @@
+import { Address } from "viem"
+
 type EstimatedValues = {
     estimatedCashbackIn: {
         row: BigInt,
@@ -36,7 +38,7 @@ type EstimatedValues = {
     isIn: boolean,
     isOut: boolean,
     txn: {
-        address: string,
+        address: Address,
         abi: any,
         functionName: string,
         args: any[],
