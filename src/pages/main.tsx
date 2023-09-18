@@ -10,6 +10,7 @@ import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
 import { TradeProvider } from '../contexts/TradeContext';
 import { TradePaneInner } from '../components/trade-pane';
+import { Address } from 'viem';
 
 export function Cpt() {
     return (<Main
@@ -41,7 +42,7 @@ interface MainInnerProps {
     assetAddress: string;
     routerAddress: string;
     multipoolAsset: SolidAsset | undefined;
-    fetchedAssets: MultipoolAsset[] | undefined;
+    fetchedAssets: MultipoolAsset[];
 }
 
 export function MainInner(props: MainInnerProps) {
@@ -101,15 +102,15 @@ export function MainInner(props: MainInnerProps) {
     }
 }
 
-interface MainProps {
+export interface MainProps {
     assetAddress: string;
     routerAddress: string;
 }
 
-export function Main({assetAddress, routerAddress}: MainProps): JSX.Element {
+export function Main({ assetAddress, routerAddress }: MainProps): JSX.Element {
     const { data, error, isLoading } = useFetchAssets(assetAddress);
 
-    if (isLoading) {
+    if (isLoading || data == undefined) {
         return (
             <div>
                 Loading...
@@ -128,12 +129,18 @@ export function Main({assetAddress, routerAddress}: MainProps): JSX.Element {
     return (<MainInner
         assetAddress={assetAddress}
         routerAddress={routerAddress}
-        fetchedAssets={data?.assets}
-        multipoolAsset={data?.multipool}
+        fetchedAssets={data.assets}
+        multipoolAsset={data.multipool}
     />);
 }
 
-export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
+interface MintBurnTabsProps {
+    fetchedAssets: MultipoolAsset[];
+    multipoolAsset: SolidAsset | undefined;
+    routerAddress: string;
+}
+
+export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }: MintBurnTabsProps) {
     const [displayed, setDisplayed] = useState<number>(1);
     const me = useRef(null);
 
@@ -144,6 +151,106 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
             props.display = "flex";
         }
         return props;
+    }
+
+    if (fetchedAssets == undefined || multipoolAsset == undefined) {
+        return (
+            <div
+            style={{
+                display: "flex",
+                alignItems: "center",
+                backgroundColor: "var(--bc)",
+                justifyContent: "center",
+                flexDirection: "column",
+                borderRadius: "20px",
+                width: "100%",
+                maxWidth: "400px",
+            }}>
+            <div
+                style={{
+                    display: "flex", width: "100%",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    maxWidth: "400px",
+                }}
+                ref={me}
+            >
+                <div style={{ margin: "5px 10px", marginBottom: "0px", display: "flex", width: "100%" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            width: "100%",
+                            justifyContent: "space-between",
+                            margin: "10px",
+                            padding: "5px",
+                            backgroundColor: "#1B1B1B",
+                            borderRadius: "16px",
+                            border: "1px solid #363636",
+                        }}>
+                        <button
+                            style={{
+                                width: "100%",
+                                fontSize: "20px",
+                                margin: "0",
+                                padding: "5px",
+                                borderRadius: "10px",
+                                color: "#fff",
+                                backgroundColor: displayed != 1 ? "#1B1B1B" : "var(--bl)",
+                            }}
+                            disabled={displayed == 1}
+                            onClick={() => setDisplayed(1)}>
+                            Mint
+                        </button>
+                        <button
+                            style={{
+                                width: "100%",
+                                fontSize: "20px",
+                                borderRadius: "10px",
+                                margin: "0",
+                                padding: "2px",
+                                color: "#fff",
+                                backgroundColor: displayed != 2 ? "#1B1B1B" : "var(--bl)",
+                            }}
+                            disabled={displayed == 2}
+                            onClick={() => setDisplayed(2)}>
+                            Burn
+                        </button>
+                        <button
+                            style={{
+                                width: "100%",
+                                fontSize: "20px",
+                                borderRadius: "10px",
+                                margin: "0",
+                                padding: "2px",
+                                color: "#fff",
+                                backgroundColor: displayed != 3 ? "#1B1B1B" : "var(--bl)",
+                            }}
+                            disabled={displayed == 3}
+                            onClick={() => setDisplayed(3)}>
+                            Swap
+                        </button>
+                    </div>
+                </div>
+                <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
+                        <div style={displayOrHide(displayed != 1, { width: "100%" })}>
+                            {"Loading..."}
+                        </div>
+                    </TradeProvider>
+                    <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
+                        <div style={displayOrHide(displayed != 2, { width: "100%" })}>
+                            {"Loading..."}
+                        </div >
+                    </TradeProvider>
+                    <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
+                        <div style={displayOrHide(displayed != 3, { width: "100%" })}>
+                            {"Loading..."}
+                        </div >
+                    </TradeProvider>
+                </div >
+            </div>
+        </div >
+        )
     }
 
     return (
@@ -224,16 +331,16 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                     </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                    <TradeProvider>
+                    <TradeProvider contextOutputAddress={multipoolAsset} tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
                         <div style={displayOrHide(displayed != 1, { width: "100%" })}>
                             <TradePaneInner
                                 assetsIn={fetchedAssets}
-                                assetsOut={[multipoolAsset]}
+                                assetsOut={multipoolAsset}
                                 tradeLogicAdapter={mintAdapter}
                                 selectTokenParent={me}
-                                routerAddress={routerAddress}
-                                multipoolAddress={multipoolAsset?.assetAddress}
-                                networkId={multipoolAsset?.chainId}
+                                routerAddress={routerAddress as Address}
+                                multipoolAddress={multipoolAsset?.assetAddress as Address}
+                                networkId={multipoolAsset?.chainId as number}
                                 paneTexts={{
                                     buttonAction: "Mint",
                                     section1Name: "Send",
@@ -241,18 +348,16 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                                 }} />
                         </div>
                     </TradeProvider>
-                    <TradeProvider>
+                    <TradeProvider contextInputAsset={multipoolAsset} tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
                         <div style={displayOrHide(displayed != 2, { width: "100%" })}>
                             <TradePaneInner
-                                assetsIn={[multipoolAsset]}
+                                assetsIn={multipoolAsset}
                                 assetsOut={fetchedAssets}
-                                assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
-                                multipoolAddress={multipoolAsset?.assetAddress}
-                                assetInDisableFilter={() => false}
+                                multipoolAddress={multipoolAsset?.assetAddress as Address}
                                 tradeLogicAdapter={burnAdapter}
-                                routerAddress={routerAddress}
+                                routerAddress={routerAddress as Address}
                                 selectTokenParent={me}
-                                networkId={multipoolAsset?.chainId}
+                                networkId={multipoolAsset?.chainId as number}
                                 paneTexts={{
                                     buttonAction: "Burn",
                                     section1Name: "Send",
@@ -260,18 +365,15 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }) {
                                 }} />
                         </div >
                     </TradeProvider>
-                    <TradeProvider>
+                    <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
                         <div style={displayOrHide(displayed != 3, { width: "100%" })}>
                             <TradePaneInner
-                                assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                                assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10}
-                                routerAddress={routerAddress}
-                                multipoolAddress={multipoolAsset?.assetAddress}
-                                initialOutIndex={1}
+                                routerAddress={routerAddress as Address}
+                                multipoolAddress={multipoolAsset?.assetAddress as Address}
                                 assetsIn={fetchedAssets}
                                 assetsOut={fetchedAssets}
                                 tradeLogicAdapter={swapAdapter}
-                                networkId={multipoolAsset?.chainId}
+                                networkId={multipoolAsset?.chainId as number}
                                 selectTokenParent={me}
                                 paneTexts={{
                                     buttonAction: "Swap",

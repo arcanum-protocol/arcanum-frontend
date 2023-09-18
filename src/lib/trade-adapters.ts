@@ -1,5 +1,8 @@
 import routerABI from '../abi/ROUTER';
-import { EstimatedValues, EstimationTransactionBody, SendTransactionParams, TradeLogicAdapter, TradePane } from '../components/trade-pane';
+import { TradeLogicAdapter } from '../components/trade-pane';
+import { EstimatedValues } from '../types/estimatedValues';
+import { EstimationTransactionBody } from '../types/estimationTransactionBody';
+import { SendTransactionParams } from '../types/sendTransactionParams';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
 
 export const mintAdapter: TradeLogicAdapter = {

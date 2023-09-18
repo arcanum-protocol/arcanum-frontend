@@ -1,6 +1,6 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
-import { useContractRead, useToken, useNetwork, useFeeData, useAccount, Address } from 'wagmi'
+import { useContractRead, useToken, useNetwork, useAccount, Address } from 'wagmi'
 import { EstimatedValues } from '../types/estimatedValues';
 import { EstimationTransactionBody } from '../types/estimationTransactionBody';
 import { SendTransactionParams } from '../types/sendTransactionParams';
@@ -35,11 +35,17 @@ export function useMobileMedia(): boolean {
     return useMedia("(max-width: 550px)");
 }
 
+interface TokenWithAddressParams {
+    tokenAddress: Address,
+    userAddress: Address,
+    allowanceTo: Address,
+}
+
 export function useTokenWithAddress({
     tokenAddress,
     userAddress,
     allowanceTo,
-}): {
+}: TokenWithAddressParams): {
     data: TokenWithAddress | undefined,
     isLoading: boolean,
     isError: boolean,
@@ -116,7 +122,11 @@ export function useEstimate(
     isError: boolean,
     error: string | undefined,
 } {
+    const { address } = useAccount();
+    const { chain } = useNetwork();
+
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
+
     const { data: txnData, isError, error, isLoading } = useContractRead({
         address: txnBodyParts?.address as Address,
         abi: txnBodyParts?.abi,
@@ -126,13 +136,6 @@ export function useEstimate(
         watch: true,
     });
     let errorMessage: undefined | string = undefined;
-    if (error?.message.includes("MULTIPOOL: DO")) {
-        errorMessage = "Too big quantity";
-    } else if (error?.message.includes("MULTIPOOL: QE")) {
-        errorMessage = "Insufficient liquidity";
-    } else if (error?.message.includes("MULTIPOOL: IQ")) {
-        errorMessage = "Insufficient quantity"; // idk what each error means, so its placeholder
-    }
 
     const [cost, setCost] = React.useState<
         {
@@ -146,42 +149,47 @@ export function useEstimate(
     const [debouncedReturnData] = useDebounce(returnData, 1000);
 
     React.useEffect(() => {
-        async function inner() {
+        function inner() {
             if (!isLoading && !isError) {
                 setReturnData(adapter.parseEstimationResult(txnData, params));
             }
         }
 
         inner();
-
     }, [txnData]);
-
-
-    const { address } = useAccount();
-    const { chain, chains } = useNetwork();
 
     React.useEffect(() => {
         async function inner() {
             if (debouncedReturnData != undefined && address != undefined) {
                 let gasPrice: any = await publicClient({ chainId: chain?.id }).getGasPrice();
                 gasPrice = Number(gasPrice) / Math.pow(10, 15);
-                const gas = await publicClient({ chainId: chain?.id }).estimateContractGas({
-                    account: address,
-                    abi: debouncedReturnData.txn.abi,
-                    address: debouncedReturnData.txn.address as Address,
-                    args: debouncedReturnData.txn.args,
-                    functionName: debouncedReturnData.txn.functionName,
-                });
-                setCost({
-                    gas: Number(gas),
-                    gasPrice: Number(gasPrice),
-                    cost: Number(gas) * Number(gasPrice),
-                });
+                try {
+                    const gas = await publicClient({ chainId: chain?.id }).estimateContractGas({
+                        account: address,
+                        abi: debouncedReturnData.txn.abi,
+                        address: debouncedReturnData.txn.address as Address,
+                        args: debouncedReturnData.txn.args,
+                        functionName: debouncedReturnData.txn.functionName,
+                    });
+                    setCost({
+                        gas: Number(gas),
+                        gasPrice: Number(gasPrice),
+                        cost: Number(gas) * Number(gasPrice),
+                    });
+                } catch (e) {
+                    if (error?.message.includes("MULTIPOOL: DO")) {
+                        errorMessage = "Too big quantity";
+                    } else if (error?.message.includes("MULTIPOOL: QE")) {
+                        errorMessage = "Insufficient liquidity";
+                    } else if (error?.message.includes("MULTIPOOL: IQ")) {
+                        errorMessage = "Insufficient quantity";
+                    }
+                    setCost(undefined);
+                }
             }
         }
 
         inner();
-
     }, [debouncedReturnData]);
 
     return {

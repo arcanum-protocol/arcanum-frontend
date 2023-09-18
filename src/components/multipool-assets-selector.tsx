@@ -1,34 +1,65 @@
-import * as React from 'react';
+import React, { useState, useRef } from 'react';
 import Skeleton from 'react-loading-skeleton'
-import { useState, useEffect, useRef } from "react";
-
-
 import 'react-loading-skeleton/dist/skeleton.css'
 import { getSVG } from '../lib/svg-adapter';
 import { MultipoolAsset } from '../types/multipoolAsset';
 import { SolidAsset } from '../types/solidAsset';
+import { useTradeContext } from '../contexts/TradeContext';
 
-export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, modalParent, disableFilter }) {
-    const [selectedAsset, setSelectedAsset] = useState<MultipoolAsset | undefined>(undefined);
-    const [selectedAssetSymbol, setSelectedAssetSymbol] = useState<string | undefined>(undefined);
+interface MultipoolAssetSelectorProps {
+    name: "Send" | "Receive";
+    assetList: MultipoolAsset[] | SolidAsset;
+    initialIndex?: number;
+    modalParent?: React.RefObject<HTMLDivElement>;
+    disableFilter: (asset: MultipoolAsset) => boolean;
+}
 
-    useEffect(() => {
-        if (!selectedAssetSymbol) {
-            setSelectedAsset(assetList.filter(a => !disableFilter(a))[initialIndex]);
-            setSelectedAssetSymbol(selectedAsset?.symbol);
-            setter(assetList.filter(a => !disableFilter(a))[initialIndex])
+export function MultipoolAssetSelector({ name, assetList, modalParent, disableFilter }: MultipoolAssetSelectorProps) {
+    const { inputAsset, setInputAsset, outputAsset, setOutputAsset } = useTradeContext();
+
+    function setter(asset: MultipoolAsset | SolidAsset) {
+        if (name == "Send") {
+            console.log({ inputAsset, outputAsset });
+            if (asset == outputAsset) {
+                setOutputAsset(inputAsset!);
+                setInputAsset(asset);
+            } else {
+                setInputAsset(asset);
+            }
         } else {
-            let asset = assetList.filter(a => !disableFilter(a)).find((a) => a.symbol == selectedAssetSymbol);
-            if (asset != selectedAsset) {
-                setSelectedAsset(asset);
+            if (asset == inputAsset) {
+                setInputAsset(outputAsset!);
+                setOutputAsset(asset);
+            } else {
+                setOutputAsset(asset);
             }
         }
-    }, [assetList]);
+    }
+
+    function getter() {
+        if (name == "Send") {
+            if (inputAsset == undefined) {
+                if (Array.isArray(assetList)) {
+                    return assetList[0];
+                }
+                return assetList;
+            }
+            return inputAsset;
+        } else {
+            if (outputAsset == undefined) {
+                if (Array.isArray(assetList)) {
+                    return assetList[1];
+                }
+                return assetList;
+            }
+            return outputAsset;
+        }
+    }
 
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
     const [hover, setHover] = useState(false);
 
-    const buttonInner = (logo: string | undefined, symbol: string | undefined) => (
+    const buttonInner = (logo: string | null, symbol: string | undefined) => (
         <div style={{
             display: "flex",
             alignItems: "center",
@@ -58,7 +89,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
 
 
     //backgroundColor: !isMintDisplayed ? "#DFDFDF" : "#F9F9F9",
-    const selected = (logo: string | undefined, symbol: string | undefined, clickable: boolean) =>
+    const selected = (logo: string | null, symbol: string | undefined, clickable: boolean) =>
         <div style={{
             display: "flex",
             alignItems: "center",
@@ -74,7 +105,7 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                             <button
                                 onMouseOver={() => setHover(true)}
                                 onMouseOut={() => setHover(false)}
-                                onClick={openModal}
+                                onClick={() => setIsOpen(true)}
                                 style={{
                                     margin: "0px",
                                     padding: "0px",
@@ -105,22 +136,12 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             }
         </div >;
 
-    if (assetList.length == 1) {
-        const asset: SolidAsset = assetList[0];
-        setter(asset);
-        return selected(asset?.logo || undefined, asset?.symbol, false);
+    const [buttonHovered, setButtonHovered] = useState<number | null>(null);
+
+    if (!Array.isArray(assetList)) {
+        const asset: SolidAsset = assetList as SolidAsset;
+        return selected(asset?.logo, asset?.symbol, false);
     }
-
-
-    function openModal() {
-        setIsOpen(true);
-    }
-
-    function closeModal() {
-        setIsOpen(false);
-    }
-
-    const [buttonHovered, setButtonHovered] = useState(null);
 
     const assets = assetList?.map((asset: MultipoolAsset, index) => {
         const isDisabled = disableFilter(asset);
@@ -134,9 +155,9 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
             }}
             disabled={isDisabled}
             key={asset.id}
-            onClick={() => { setSelectedAsset(asset); setSelectedAssetSymbol(asset.symbol); setter(asset); closeModal() }}
-            onMouseOver={e => setButtonHovered(index)}
-            onMouseOut={e => setButtonHovered(null)}
+            onClick={() => { setter(asset); setIsOpen(false); }}
+            onMouseOver={() => setButtonHovered(index)}
+            onMouseOut={() => setButtonHovered(null)}
         >
             <div style={{ display: "flex", width: "100%", alignItems: "center", color: isDisabled ? "#363636" : "var(--wh)" }}>
                 <div style={{
@@ -168,25 +189,20 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
 
     const modal = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (modal.current && !modal.current.contains(event.target as Node)) {
-                closeModal();
-            }
+    function handleClickOutside(event: MouseEvent) {
+        if (modal.current && !modal.current.contains(event.target as Node)) {
+            setIsOpen(false);
         }
-        // Bind the event listener
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            // Unbind the event listener on clean up
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [modal]);
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.removeEventListener("mousedown", handleClickOutside);
 
     const [backHovered, setBackHovered] = useState(false);
 
     return (
         <div>
-            {selected(selectedAsset?.logo || undefined, selectedAsset?.symbol || undefined, true)}
+            {selected(getter()?.logo, getter()?.symbol, true)}
             <div
                 ref={modal}
                 style={{
@@ -224,9 +240,9 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
                             width: "30px",
                             padding: "0",
                         }}
-                            onMouseOver={e => { setBackHovered(true) }}
-                            onMouseOut={e => { setBackHovered(false) }}
-                            onClick={e => closeModal()}
+                            onMouseOver={() => setBackHovered(true)}
+                            onMouseOut={() => setBackHovered(false)}
+                            onClick={() => setIsOpen(false)}
                         >
                             <img style={{
                                 width: backHovered ? "30px" : "25px",
@@ -262,4 +278,3 @@ export function MultipoolAssetSelector({ assetList, setter, initialIndex = 0, mo
         </div >
     );
 }
-

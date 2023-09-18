@@ -3,16 +3,32 @@ import { useMobileMedia } from '../hooks/tokens';
 import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
 import { TradePaneInner } from '../components/trade-pane';
-import { type MultipoolAsset } from "../types/multipoolAsset";
-import { routerAddress, multipoolAddress, useFetchAssets } from '../lib/multipool';
+import { multipoolAddress, useFetchAssets } from '../lib/multipool';
 import { getSVG } from '../lib/svg-adapter';
 import { TradeProvider } from '../contexts/TradeContext';
+import { Address } from 'wagmi';
+import { useNetwork } from 'wagmi';
 
 export function Swap() {
+    const { chain } = useNetwork();
+
+    let assetAddress = "";
+    let routerAddress = "";
+
+    if (chain) {
+        assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
+        routerAddress = "0xad79b9d522367294d228379d7c040b952bd3b462";
+    }
+    
+    if (chain?.id === 421614) {
+        assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
+        routerAddress = "0xad79b9d522367294d228379d7c040b952bd3b462";
+    }
+
     const me = useRef(null);
     const isMobile = useMobileMedia();
 
-    const { data, error, isLoading } = useFetchAssets('0x452f9ca404c55722b9073575af8b35bfd655e61e');
+    const { data, error, isLoading } = useFetchAssets(assetAddress);
 
     if (isLoading) {
         return (
@@ -61,13 +77,10 @@ export function Swap() {
                         justifyContent: "center"
                     }}>
                     <div style={{ display: "flex", width: "100%", justifyContent: "center" }} ref={me}>
-                        <TradeProvider>
+                        <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={data?.assets!}>
                             <TradePaneInner
-                                assetInDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) > 10}
-                                assetOutDisableFilter={(a: MultipoolAsset) => Number(a.deviationPercent) < -10 || a.quantity.isZero()}
-                                routerAddress={routerAddress}
-                                multipoolAddress={multipoolAddress}
-                                initialOutIndex={1}
+                                routerAddress={routerAddress as Address}
+                                multipoolAddress={multipoolAddress as Address}
                                 assetsIn={data?.assets!}
                                 assetsOut={data?.assets!}
                                 tradeLogicAdapter={swapAdapter}

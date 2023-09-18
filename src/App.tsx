@@ -1,6 +1,7 @@
 import "./App.css";
-import { WagmiConfig } from "wagmi";
+import { WagmiConfig, useNetwork } from "wagmi";
 import {
+    ChainIcon,
     ConnectKitButton,
     ConnectKitProvider,
 } from "connectkit";
@@ -10,9 +11,10 @@ import Modal from 'react-modal';
 Modal.setAppElement('#root');
 import { useMobileMedia } from "./hooks/tokens";
 
-import { config } from './config';
+import { chains, config } from './config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getSVG } from "./lib/svg-adapter";
+import { useRef, useState } from "react";
 
 const client = new QueryClient();
 
@@ -32,11 +34,12 @@ function App() {
 }
 
 function Navbar() {
-    const [hovered, setHovered] = React.useState(location.pathname);
+    const { chain } = useNetwork();
+    const [hovered, setHovered] = useState(location.pathname);
     const isMobile = useMobileMedia();
-    const [mobileReferencesActive, setMobileReferences] = React.useState(false);
+    const [mobileReferencesActive, setMobileReferences] = useState(false);
 
-    const modal = React.useRef(null);
+    const modal = useRef(null);
 
     const links = [
         { title: "Swap", route: "/swap" },
@@ -170,6 +173,9 @@ function Navbar() {
             </div>
             {!isMobile ? references : <div />}
             <div style={{ display: "flex", flex: "1", justifyContent: "flex-end", alignItems: "center", gap: "5px" }}>
+                <div>
+                    <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={30} />
+                </div>
                 <ConnectKitButton />
             </div>
         </div>

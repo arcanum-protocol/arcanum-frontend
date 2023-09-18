@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { FixedNumber } from "@ethersproject/bignumber";
-import { MultipoolAsset } from "../lib/multipool";
+import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
 import { useMobileMedia } from "../hooks/tokens";
 

@@ -21,6 +21,7 @@ export function useFetchAssets(
     error: any,
 } {
     return useQuery(['assets'], async () => {
+        console.log('fetching assets', address, etfAssetUrl);
         const response = await axios.get(`${etfAssetUrl}?address=${address}`);
         const { assets: fetched_assets, multipool: fetched_multipool } = response.data;
 
@@ -78,8 +79,8 @@ export function useFetchAssets(
             multipool: multipool
         };
     }, {
-        // refetchInterval: 10000,
-        // staleTime: 10000,
-        // cacheTime: 10000,
+        refetchInterval: 10000,
+        staleTime: 100000,
+        cacheTime: 100000,
     });
 }
