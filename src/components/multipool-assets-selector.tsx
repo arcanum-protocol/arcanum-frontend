@@ -143,6 +143,28 @@ export function MultipoolAssetSelector({ name, assetList, modalParent, disableFi
         return selected(asset?.logo, asset?.symbol, false);
     }
 
+    const RED = "#fa3c58";
+    const GREEN = "#0ecc83";
+    const coloriseDeviation = (deviation: any) => {
+        if (name == "Send") {
+            if (deviation > 0) {
+                return RED;
+            } else if (deviation < 0) {
+                return GREEN;
+            } else {
+                return undefined;
+            }
+        } else {
+            if (deviation > 0) {
+                return GREEN;
+            } else if (deviation < 0) {
+                return RED;
+            } else {
+                return undefined;
+            }
+        }
+    };
+
     const assets = assetList?.map((asset: MultipoolAsset, index) => {
         const isDisabled = disableFilter(asset);
         return <button
@@ -180,8 +202,15 @@ export function MultipoolAssetSelector({ name, assetList, modalParent, disableFi
                         </p>
                     </div>
                     : undefined}
-                <div style={{ maxWidth: "100px", display: "flex", flex: "1", fontSize: "14px", justifyContent: "flex-end" }}>
-                    Deviation: {Number(asset.deviationPercent.toString()).toFixed(2)}%
+                <div style={{ maxWidth: "100px", flexDirection: "column", display: "flex", flex: "1", fontSize: "14px", justifyContent: "flex-end" }}>
+                    <p
+                        style={{ margin: "0" }}>
+                        Deviation:
+                    </p>
+                    <p
+                        style={{ margin: "0", color: coloriseDeviation(asset.deviationPercent) }}>
+                        {Number(asset.deviationPercent.toString()).toFixed(2)}%
+                    </p>
                 </div>
             </div>
         </button >
