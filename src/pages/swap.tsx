@@ -7,7 +7,6 @@ import { multipoolAddress, useFetchAssets } from '../lib/multipool';
 import { getSVG } from '../lib/svg-adapter';
 import { TradeProvider } from '../contexts/TradeContext';
 import { Address } from 'wagmi';
-import { MainProps } from './main';
 import { useNetwork } from 'wagmi';
 
 export function Swap() {
@@ -16,6 +15,11 @@ export function Swap() {
     let assetAddress = "";
     let routerAddress = "";
 
+    if (chain) {
+        assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
+        routerAddress = "0xad79b9d522367294d228379d7c040b952bd3b462";
+    }
+    
     if (chain?.id === 421614) {
         assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
         routerAddress = "0xad79b9d522367294d228379d7c040b952bd3b462";
