@@ -47,8 +47,8 @@ export const polygonMumbai = {
 
 export const arbitrumSepolia = {
     id: 421614,
-    name: 'Arbitrum sepolia',
-    network: 'Arbitrum sepolia',
+    name: 'Arbitrum Sepolia',
+    network: 'Arbitrum Sepolia',
     testnet: true,
     nativeCurrency: {
         decimals: 18,
