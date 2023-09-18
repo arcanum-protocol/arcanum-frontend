@@ -3,7 +3,7 @@ import type { MultipoolAsset } from '../types/multipoolAsset';
 import Modal from 'react-modal';
 import { Address, fetchToken, writeContract } from "@wagmi/core";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import erc20Abi from '../abi/ERC20';
 
 const customStyles = {
@@ -18,6 +18,8 @@ const customStyles = {
 };
 
 export function Faucet({ assets }) {
+    const { chain } = useNetwork();
+
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
     const { address } = useAccount()
 
@@ -46,6 +48,10 @@ export function Faucet({ assets }) {
             functionName: 'mint',
             args: [address, BigInt(rowAmountToMint)],
         })
+    }
+
+    if (chain == undefined || chain.testnet !== true) {
+        return <></>
     }
 
     return (

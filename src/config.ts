@@ -9,6 +9,7 @@ export const arbitrumMainnet = {
     id: 42161,
     name: 'Arbitrum',
     network: 'Arbitrum',
+    testnet: false,
     nativeCurrency: {
         decimals: 18,
         name: 'ETH',
@@ -28,6 +29,7 @@ export const polygonMumbai = {
     id: 80001,
     name: 'Polygon Mumbai',
     network: 'Polygon Mumbai',
+    testnet: true, 
     nativeCurrency: {
         decimals: 18,
         name: 'MATIC',
@@ -47,6 +49,7 @@ export const arbitrumSepolia = {
     id: 421614,
     name: 'Arbitrum sepolia',
     network: 'Arbitrum sepolia',
+    testnet: true,
     nativeCurrency: {
         decimals: 18,
         name: 'ETH',
@@ -66,6 +69,7 @@ export const opBnb = {
     id: 5611,
     name: 'OpBNB Testnet',
     network: 'OpBNB Testnet',
+    testnet: true,
     nativeCurrency: {
         decimals: 18,
         name: 'tcBNB',
@@ -98,7 +102,6 @@ export const chains = [arbitrumSepolia, arbitrumMainnet, polygonMumbai, opBnb];
 export const { publicClient } = configureChains(chains, [publicProvider()])
 
 export const config = createConfig({
-    //storage: storage,
     ...getDefaultConfig({
         publicClient,
         alchemyId: "K7c6nsX9dY6D4OhdtkKc2f05yEcFdtqU",
