@@ -3,7 +3,7 @@ import { useMobileMedia } from '../hooks/tokens';
 import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
 import { TradePaneInner } from '../components/trade-pane';
-import { multipoolAddress, useFetchAssets } from '../lib/multipool';
+import { useFetchAssets } from '../lib/multipool';
 import { getSVG } from '../lib/svg-adapter';
 import { TradeProvider } from '../contexts/TradeContext';
 import { Address } from 'wagmi';
@@ -80,7 +80,7 @@ export function Swap() {
                         <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={data?.assets!}>
                             <TradePaneInner
                                 routerAddress={routerAddress as Address}
-                                multipoolAddress={multipoolAddress as Address}
+                                multipoolAddress={assetAddress as Address}
                                 assetsIn={data?.assets!}
                                 assetsOut={data?.assets!}
                                 tradeLogicAdapter={swapAdapter}

@@ -4,14 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { SolidAsset } from '../types/solidAsset';
 
-
-export const routerAddress = '0xBd16d2Bf77b7Ae6c2d186E9AD3A599Abdedbb8da';
-export const multipoolAddress = '0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38';
 export const etfAssetOrigin = 'https://api.arcanum.to/api/multipool/info';
 
 export function useFetchAssets(
-    address: string = multipoolAddress,
-    etfAssetUrl: string = etfAssetOrigin,
+    address: string
 ): {
     data: {
         assets: MultipoolAsset[],
@@ -20,12 +16,9 @@ export function useFetchAssets(
     isLoading: boolean,
     error: any,
 } {
-    if (address === "") {
-        address = multipoolAddress;
-    }
     return useQuery(['assets'], async () => {
-        console.log('fetching assets', address, etfAssetUrl);
-        const response = await axios.get(`${etfAssetUrl}?address=${address}`);
+        console.log('fetching assets', address, etfAssetOrigin);
+        const response = await axios.get(`${etfAssetOrigin}?address=${address}`);
         const { assets: fetched_assets, multipool: fetched_multipool } = response.data;
 
         let total_cap = FixedNumber.fromString("0");
