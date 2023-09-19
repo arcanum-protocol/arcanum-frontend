@@ -12,13 +12,8 @@ import { useNetwork } from 'wagmi';
 export function Swap() {
     const { chain } = useNetwork();
 
-    let assetAddress = "";
-    let routerAddress = "";
-
-    if (chain) {
-        assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
-        routerAddress = "0xad79b9d522367294d228379d7c040b952bd3b462";
-    }
+    let assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
+    let routerAddress = "0xad79b9d522367294d228379d7c040b952bd3b462";
     
     if (chain?.id === 421614) {
         assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
