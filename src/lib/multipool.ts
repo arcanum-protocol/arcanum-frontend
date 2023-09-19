@@ -20,7 +20,9 @@ export function useFetchAssets(
     isLoading: boolean,
     error: any,
 } {
-    
+    if (address === "") {
+        address = multipoolAddress;
+    }
     return useQuery(['assets'], async () => {
         console.log('fetching assets', address, etfAssetUrl);
         const response = await axios.get(`${etfAssetUrl}?address=${address}`);
