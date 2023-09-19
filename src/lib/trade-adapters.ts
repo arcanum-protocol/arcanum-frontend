@@ -48,7 +48,7 @@ export const mintAdapter: TradeLogicAdapter = {
             const priceOut = new BigNumber(params.priceOut);
 
             const minimalAmountOut = toAllFormats(applySlippage(v[0], params.slippage, true), denominatorOut, priceOut);
-            
+
             return {
                 isIn: true,
                 isOut: false,

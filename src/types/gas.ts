@@ -1,7 +1,7 @@
 interface Gas {
-    gas: number;
-    gasPrice: number;
-    cost: number;
+    gas: string;
+    gasPrice: string;
+    cost: string;
 }
 
 export { type Gas };

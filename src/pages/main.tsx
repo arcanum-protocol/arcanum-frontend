@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { useMultipoolData } from "../lib/multipool";
+import { getMassiveMintRouter, useMultipoolData } from "../lib/multipool";
 import { useSearchParams } from 'react-router-dom';
 import { Faucet } from '../components/faucet-modal';
 import TVChartContainer from '../components/tv-chart';
-import type { MultipoolAsset, SolidAsset } from '../types/multipoolAsset';
+import type { SolidAsset } from '../types/multipoolAsset';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
 import { TradeProvider } from '../contexts/TradeContext';
@@ -46,14 +45,13 @@ export function MainInner({ multipool_id }: MainInnerProps) {
     const { data, error, isLoading } = useMultipoolData(multipool_id);
     const { ExternalAssets } = useArbitrumTokens();
 
-    // if (error) {
-    //     console.log("error", error)
-    //     return (
-    //         <div>
-    //             {"Error"}
-    //         </div>
-    //     );
-    // }
+    if (error) {
+        return (
+            <div>
+                {"Error"}
+            </div>
+        );
+    }
 
     const routerAddress = data?.multipool?.routerAddress;
     const fetchedAssets = data?.assets;
@@ -93,6 +91,8 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
         setSelectedTab,
     } = useMultiPoolContext();
 
+    const massiveMintRouter = getMassiveMintRouter();
+
     return (
         <div className={className}>
             <Tabs className="grid-cols-3 w-[400px] bg-[#09090b] rounded-xl border" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
@@ -106,7 +106,7 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
 
                 </TabsList>
                 <TabsContent value="mint">
-                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipool?.address} routerAddress={router}>
+                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipool?.address} routerAddress={router} MassiveMintRouter={massiveMintRouter}>
                         <TradePaneInner
                             action="mint" />
                     </TradeProvider>

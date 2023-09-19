@@ -66,5 +66,8 @@
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.3",
     "vite": "^4.4.11"
-  }
+  },
+  "workspaces": [
+    "src/*"
+  ]
 }

@@ -1,5 +1,6 @@
 import { ExternalAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import React, { createContext, useState } from 'react';
+import { useTradeContext } from './TradeContext';
 
 export interface MultiPoolContextProps {
     externalAssets: ExternalAsset[] | undefined;
@@ -99,16 +100,16 @@ const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, Ex
             }
             if (newValue === "burn") {
                 if (tokenOut === multipool) {
-                    setTokenOut(externalAssets?.[0]);
+                    setTokenOut(assets?.[0]);
                 }
                 setTokenIn(multipool);
             }
             if (newValue === "swap") {
                 if (tokenIn === multipool) {
-                    setTokenIn(externalAssets?.filter((asset) => asset.address !== tokenOut?.address)?.[0]);
+                    setTokenIn(assets?.filter((asset) => asset.address !== tokenOut?.address)?.[0]);
                 }
                 if (tokenOut === multipool) {
-                    setTokenOut(externalAssets?.filter((asset) => asset.address !== tokenIn?.address)?.[0]);
+                    setTokenOut(assets?.filter((asset) => asset.address !== tokenIn?.address)?.[0]);
                 }
             }
         }

@@ -22,7 +22,7 @@ interface TokenSelectorProps {
     className?: string;
 }
 
-function TokenSelector({ className, action }: TokenSelectorProps) {
+function TokenSelector({ action }: TokenSelectorProps) {
     const {
         externalAssets,
         assets,
@@ -37,7 +37,8 @@ function TokenSelector({ className, action }: TokenSelectorProps) {
     const [search, setSearch] = useState("");
 
     const { address } = useAccount();
-    const { ExternalAssets: tokens, isLoading } = useExternalAssets(address, externalAssets);
+    
+    const { ExternalAssets: tokens, isLoading } = useExternalAssets(address, externalAssets, !(selectedSCTab != "mint"));
     const { assets: tokenList } = useMultiPoolTokens(tokens, assets);
 
     function toHumanReadable(number: number | undefined, decimals: number) {
@@ -140,8 +141,7 @@ function TokenSelector({ className, action }: TokenSelectorProps) {
                                 <div key={index} className={
                                     `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer px-3 ` +
                                     (data.map((token) => token.address).includes(token.address) ? "" : "hidden")
-                                } onClick={() => setToken(token)}
-                                >
+                                } onClick={() => setToken(token)}>
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={token.logo} alt="Logo" />

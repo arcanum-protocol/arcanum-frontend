@@ -3,6 +3,7 @@ import { ExternalAsset, MultipoolAsset } from '@/types/multipoolAsset';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Address } from 'viem';
+import { flare } from 'viem/chains';
 
 function useArbitrumTokens(): {
     ExternalAssets: ExternalAsset[] | undefined;
@@ -103,7 +104,10 @@ function useUpdateTokenBalances(address: Address | undefined, tokens: ExternalAs
     };
 }
 
-function useExternalAssets(address?: Address | undefined, ExternalAssetsPrefetch?: ExternalAsset[] | undefined): {
+function useExternalAssets(
+    address?: Address | undefined, 
+    ExternalAssetsPrefetch?: ExternalAsset[] | undefined,
+    enabled?: boolean): {
     ExternalAssets: ExternalAsset[] | undefined;
     isLoading: boolean;
     error: any;
@@ -118,6 +122,12 @@ function useExternalAssets(address?: Address | undefined, ExternalAssetsPrefetch
     const isLoading = balanceLoading || pricesLoading;
     const error = balanceError || priceError;
 
+    if (enabled === false) return {
+        ExternalAssets: undefined,
+        isLoading,
+        error,
+    };
+
     return {
         ExternalAssets: pricesLoading ? balanceLoading ? ExternalAssetsPrefetch : tokenBalance : tokenPrices,
         isLoading,
@@ -130,7 +140,7 @@ function useMultiPoolTokens(externalAssets: ExternalAsset[] | undefined, multipo
 } {
     if (!externalAssets) {
         return {
-            assets: undefined,
+            assets: multipoolTokens,
         };
     }
 

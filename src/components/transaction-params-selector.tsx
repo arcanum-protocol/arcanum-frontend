@@ -4,7 +4,9 @@ import { SendTransactionParams } from "./trade-pane";
 
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useTradeContext } from '../contexts/TradeContext';
-import { Tooltip } from './tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+
 
 interface TransactionParamsSelectorProps {
     txnParams: SendTransactionParams | undefined;
@@ -33,30 +35,40 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                 {
                     estimatedValues?.minimalAmountOut != undefined ?
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            <Tooltip>
-                                <p style={{ margin: "0", textDecoration: "underline" }}>
-                                    Minimal receive
-                                </p>
-                                <p style={{ margin: "5px" }}>
-                                    The minimum amount of tokens you'll receive in case of the maximal slippage.
-                                </p>
-                            </Tooltip>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex flex-row items-center gap-1">
+                                            Minimal receive
+                                            <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                        <p>The minimum amount of tokens you'll receive in case of the maximal slippage.</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                             <p style={{ margin: "0" }}>
                                 {estimatedValues?.minimalAmountOut.formatted}({estimatedValues?.minimalAmountOut.usd}$)
                             </p>
                         </div>
                         : (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                <Tooltip>
-                                    <p style={{ margin: "0", textDecoration: "underline" }}>
-                                        Maximum send
-                                    </p>
-                                    <p style={{ margin: "5px" }}>
-                                        The maximum amount of tokens you'll pay in the case of the maximal slippage.
-                                    </p>
-                                </Tooltip>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <div className="flex flex-row items-center gap-1">
+                                                Maximum send
+                                                <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                            <p>The maximum amount of tokens you'll pay in the case of the maximal slippage.</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                                 <p style={{ margin: "0" }}>
-                                    {estimatedValues?.maximumAmountIn?.formatted || 0}({estimatedValues?.maximumAmountIn?.usd || 0}$)
+                                    {estimatedValues?.maximumAmountIn?.formatted || 0} ({estimatedValues?.maximumAmountIn?.usd || 0}$)
                                 </p>
                             </div>
 
@@ -65,14 +77,19 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                 <div
                     onClick={() => togglePrice(!priceToggled)}
                     style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Price
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Current price of the input token estimated in the output token.
-                        </p>
-                    </Tooltip>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex flex-row items-center gap-1">
+                                    Price
+                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                <p>Current price of the input token estimated in the output token.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                     <p
                         className={p ? "price-pane" : undefined}
                         style={{ margin: "0" }}
@@ -101,14 +118,19 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Cashback
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            The amount of tokens in the corresponding asset you'll get for your pool balancing swaps (good actions). Cashback equal 0 means that your action was not directed towards balance.
-                        </p>
-                    </Tooltip>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex flex-row items-center gap-1">
+                                    Cashback
+                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                <p>The amount of tokens in the corresponding asset you'll get for your pool balancing swaps (good actions). Cashback equal 0 means that your action was not directed towards balance.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                     {p ?
                         <Tooltip>
                             <p
@@ -148,28 +170,38 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                     }
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Fee
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Platform fee is a summ of base fee and deviation fee.<br />
-                            Base fee - the platform's commission, for swaps is equal 0.01%. It is zero for minting and burning. <br />
-                            Deviation fee is added when you increase the current deviation of the token.
-                        </p>
-                    </Tooltip>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex flex-row items-center gap-1">
+                                    Fee
+                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                <p>Platform fee is a summ of base fee and deviation fee.<br />
+                                    Base fee - the platform's commission, for swaps is equal 0.01%. It is zero for minting and burning. <br />
+                                    Deviation fee is added when you increase the current deviation of the token.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                     <p style={{ margin: "0" }}>{estimatedValues?.fee?.usd || 0}$ ({estimatedValues?.fee?.percent || 0}%)</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Transaction cost
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Cost of the transaction on the blockchain.
-                        </p>
-                    </Tooltip>
-                    <p style={{ margin: "0" }}>{transactionCost?.cost?.toFixed(4) || "0"}$</p>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex flex-row items-center gap-1">
+                                    Transaction cost
+                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                <p>Cost of the transaction on the blockchain.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    <p style={{ margin: "0" }}>{Number(transactionCost?.cost || "0").toFixed(4)}$</p>
                 </div>
             </div >
         </div >
@@ -181,7 +213,7 @@ export function SlippageSelector() {
 
     // 0,1,2,3 - presets, 4 - custom
     const slippagePresets = [0.1, 0.5, 1, 3];
-    
+
     return (
         <div className='flex w-full mb-0'>
             <div className='flex flex-col w-full gap-[10px] w-full'>
@@ -229,14 +261,19 @@ export function SlippageSelector() {
                 </div>
                 <div className='flex w-full justify-between'>
                     <div className='flex'>
-                        <Tooltip>
-                            <p className='m-0 underline'>
-                                Slippage tolerance
-                            </p>
-                            <p className='m-3'>
-                                The parameter that shows how much funds is allowed to be spend according to fast price change.
-                            </p>
-                        </Tooltip>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="flex flex-row items-center gap-1">
+                                        Slippage tolerance
+                                        <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                    <p>The parameter that shows how much funds is allowed to be spend according to fast price change.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </div>
                     <div style={{ display: "flex" }}>
                         <p style={{ margin: "0" }}>{slippage}%</p>

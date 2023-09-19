@@ -155,6 +155,7 @@ export function useMultipoolPrice(multipoolId: string,
         enabled: true,
     }): {
     data: {
+        address: Address,
         price: BigNumber,
         tokens: {
             address: Address,
@@ -214,8 +215,8 @@ export function useMultipoolPrice(multipoolId: string,
 
     return {
         data: {
-            // price: usdCap.div(totalSupply),
-            price: new BigNumber(0),
+            address: multipoolScheme.address,
+            price: usdCap.div(totalSupply),
             tokens: tokens as any,
             totalSupply,
         },

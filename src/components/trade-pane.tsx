@@ -1,6 +1,5 @@
 import { Button } from "./ui/button";
 import { useEstimate, useTokenWithAddress } from '../hooks/tokens';
-import { toHumanReadable } from '../lib/format-number';
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useTradeContext } from "../contexts/TradeContext";
 import { InteractionWithApprovalButton } from './approval-button';
@@ -9,11 +8,11 @@ import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
 import type { TradeLogicAdapter } from '../types/tradeLogicAdapter';
 import { TransactionParamsSelector } from './transaction-params-selector';
 import type { SendTransactionParams } from '../types/sendTransactionParams';
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { BigNumber } from "bignumber.js";
 import { Quantities } from "@/types/quantities";
 import { Address } from "viem";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useMultipoolPrice } from "@/lib/multipool";
 
 interface TradePaneProps {
     action: "mint" | "burn" | "swap";
@@ -31,8 +30,13 @@ export function TradePaneInner({
     const {
         userAddress,
         routerAddress,
-        sendTransctionParams
+        sendTransctionParams,
+        clearValues,
     } = useTradeContext();
+
+    useEffect(() => {
+        clearValues();
+    }, [tokenIn, tokenOut]);
 
     const { data: inputToken } = useTokenWithAddress({ address: tokenIn?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
     const { data: outputToken } = useTokenWithAddress({ address: tokenOut?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
@@ -64,6 +68,17 @@ export function TradePaneInner({
             </div>
         </div>
     );
+}
+
+function toHumanReadable(number: number | undefined, decimals: number | undefined) {
+    if (!number) {
+        return "0";
+    }
+
+    const root = new BigNumber(number);
+    const divisor = new BigNumber(10).pow(decimals || 18);
+
+    return root.div(divisor).toFixed(4).toString();
 }
 
 interface TokenQuantityInputProps {
@@ -106,21 +121,30 @@ export function TokenQuantityInput({
         setEstimationErrorMessage
     } = useTradeContext();
 
-    // console.log("tokenIn", tokenIn, "tokenOut", tokenOut);
-
-    const {data: tokenInData } = useTokenWithAddress({
+    const { data: tokenInData } = useTokenWithAddress({
         address: tokenIn?.address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
         chainId: multipool?.chainId,
     });
 
-    const {data: tokenOutData } = useTokenWithAddress({
+    const { data: tokenOutData } = useTokenWithAddress({
         address: tokenOut?.address as Address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
         chainId: multipool?.chainId,
     });
+
+    const { data: arbiData } = useMultipoolPrice("arbi");
+
+    // inkect price into the token if it's solidAsset
+    if (tokenIn?.type === "solid") {
+        tokenIn.price = arbiData?.price.toNumber();
+    }
+
+    if (tokenOut?.type === "solid") {
+        tokenOut.price = arbiData?.price.toNumber();
+    }
 
     const adapter = tradeLogicAdapter;
 
@@ -142,18 +166,25 @@ export function TokenQuantityInput({
 
     const thisInput = text === "Send" ? 'in' : 'out';
     const shouldCallMassiveMint = action === "mint";
-    
+    const anythingToCalculateInCase = transactionParams.quantities.in !== undefined && transactionParams.quantities.in.isGreaterThan(0);
+    const anythingToCalculateOutCase = transactionParams.quantities.out !== undefined && transactionParams.quantities.out.isGreaterThan(0);
+    const anythingToCalculate = anythingToCalculateInCase || anythingToCalculateOutCase;
+
+    // console.log("useEstimate", thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint);
+
     const { data, error } = useEstimate(
         adapter,
         transactionParams,
         multipool?.chainId!, {
-            enabled: thisInput === mainInput && transactionParams.quantities.in !== undefined && transactionParams.quantities.in.isGreaterThan(0) && shouldCallMassiveMint,
-        }
-    );
-
-    setEstimatedValues(data.estimationResult);
-    setTransactionCost(data.transactionCost);
-    setEstimationErrorMessage(error);
+        enabled: thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint,
+    });
+    
+    if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
+        console.log("useEstimate called");
+        setEstimatedValues(data.estimationResult);
+        setTransactionCost(data.transactionCost);
+        setEstimationErrorMessage(error);
+    }
 
     function getEstimatedValuesText() {
         if (text === "Send") {
@@ -178,6 +209,12 @@ export function TokenQuantityInput({
     }
 
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
+        // prevent Receive input from being changed IF token in is type external
+
+        if (text === "Receive" && tokenIn?.type === "external") {
+            return;
+        }
+
         const regex = new RegExp("^[0-9]*[.,]?[0-9]*$");
         if (!regex.test(e.target.value)) {
             // prevent non-numeric input
@@ -194,7 +231,6 @@ export function TokenQuantityInput({
             const valueNumber = new BigNumber(value)
                 .multipliedBy(new BigNumber("10").pow(decimals));
 
-            console.log("setting input quantity", valueNumber.toString());
             setInputQuantity(valueNumber);
             setOutputQuantity(undefined);
         } else {
@@ -244,7 +280,12 @@ export function TokenQuantityInput({
                     {(text === "Send" ? inputDollarValue : outputDollarValue) + "$"}
                 </p>
                 <p className="m-0 text-gray-500 text-xs">
-                    Balance: {toHumanReadable(balance)}
+                    Balance: {
+                        toHumanReadable(
+                            parseFloat(balance),
+                            text === "Send" ? tokenIn?.decimals : tokenOut?.decimals
+                        )
+                    }
                 </p>
             </div>
         </div>
