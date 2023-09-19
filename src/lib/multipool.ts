@@ -10,8 +10,8 @@ export const multipoolAddress = '0x3a57210dc2cb93eb8e18055308f51ee2a20a3c38';
 export const etfAssetOrigin = 'https://api.arcanum.to/api/multipool/info';
 
 export function useFetchAssets(
-    address: String = multipoolAddress,
-    etfAssetUrl: String = etfAssetOrigin,
+    address: string = multipoolAddress,
+    etfAssetUrl: string = etfAssetOrigin,
 ): {
     data: {
         assets: MultipoolAsset[],
@@ -20,6 +20,7 @@ export function useFetchAssets(
     isLoading: boolean,
     error: any,
 } {
+    
     return useQuery(['assets'], async () => {
         console.log('fetching assets', address, etfAssetUrl);
         const response = await axios.get(`${etfAssetUrl}?address=${address}`);
