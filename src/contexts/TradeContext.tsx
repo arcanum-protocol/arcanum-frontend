@@ -7,7 +7,6 @@ import { TradeLogicAdapter } from '../types/tradeLogicAdapter';
 import React, { useState, useContext, createContext } from 'react';
 import { SendTransactionParams } from '../types/sendTransactionParams';
 import { useMultiPoolContext } from './MultiPoolContext';
-import MassiveMintRouter from '@/abi/MassiveMintRouter';
 
 export interface TradeContextValue {
     routerAddress: Address;

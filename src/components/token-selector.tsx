@@ -178,6 +178,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                     `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer px-3 ` +
                                     (data.map((token) => token.address).includes(token.address) ? "" : "hidden")
 <<<<<<< HEAD
+<<<<<<< HEAD
                                 } onClick={() => setToken(token)}>
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
@@ -185,6 +186,9 @@ function TokenSelector({ action }: TokenSelectorProps) {
 =======
                                 } onClick={() => setToken(token)}
                                 >
+=======
+                                } onClick={() => setToken(token)}>
+>>>>>>> 844e78f (standart types)
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={token.logo} alt="Logo" />

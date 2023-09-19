@@ -224,12 +224,17 @@ export function useMultipoolPrice(multipoolId: string,
     return {
         data: {
 <<<<<<< HEAD
+<<<<<<< HEAD
             address: multipoolScheme.address,
             price: usdCap.div(totalSupply),
 =======
             // price: usdCap.div(totalSupply),
             price: new BigNumber(0),
 >>>>>>> 13c17a2 (sync)
+=======
+            address: multipoolScheme.address,
+            price: usdCap.div(totalSupply),
+>>>>>>> 844e78f (standart types)
             tokens: tokens as any,
             totalSupply,
         },
