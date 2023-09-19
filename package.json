@@ -26,7 +26,6 @@
     "react-router-dom": "^6.14.1",
     "react-smooth-corners": "^1.0.4",
     "react-tabs": "^6.0.1",
-    "react-tooltip": "^5.21.4",
     "react-use": "^17.4.0",
     "typescript": "^5.1.6",
     "use-debounce": "^9.0.4",

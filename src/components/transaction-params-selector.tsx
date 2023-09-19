@@ -6,6 +6,7 @@ import { SendTransactionParams } from "./trade-pane";
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useTradeContext } from '../contexts/TradeContext';
 import { Tooltip } from './tooltip';
+import { useMobileMedia } from '../hooks/tokens';
 
 interface TransactionParamsSelectorProps {
     txnParams: SendTransactionParams | undefined;
@@ -148,6 +149,10 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
 
 export function SlippageSelector({ slippageSetter }) {
     const [slippage, setSlippage] = useState<number>(1);
+    const isMobile = useMobileMedia();
+    if (isMobile) {
+        return;
+    }
 
     useEffect(() => { slippage && slippageSetter(slippage) }, [slippage]);
 
@@ -157,7 +162,6 @@ export function SlippageSelector({ slippageSetter }) {
     return (
         <div style={{
             display: "flex", width: "100%",
-            overflow: "scroll",
             marginBottom: "0px"
         }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
@@ -170,12 +174,11 @@ export function SlippageSelector({ slippageSetter }) {
                 }}>
                     <div style={{
                         display: "flex",
-                        overflow: "auto",
                     }}>
                         <div style={{
                             display: "flex",
                             borderRadius: "10px",
-                            justifyContent: "flex-start"
+                            justifyContent: "center",
                         }}>
                             {slippagePresets.map((slippage: number, index: number) => {
                                 return (
@@ -186,17 +189,11 @@ export function SlippageSelector({ slippageSetter }) {
                                             borderRadius: "12px",
                                             color: index != selectedSlippageType ? undefined : "var(--bl)",
                                             backgroundColor: index == selectedSlippageType ? "var(--wh)" : undefined,
-                                        }}>
-                                        <button style={{
-                                            margin: "0",
-                                            padding: "0",
-                                            width: "60px",
+                                            cursor: "pointer",
+                                            justifySelf: "center",
                                             fontSize: "18px",
-                                            background: "none",
-                                            color: index != selectedSlippageType ? "var(--wh)" : "var(--bl)",
                                         }}>
-                                            {slippage}%
-                                        </button>
+                                        <p style={{ margin: "0 15px" }}>{slippage}%</p>
                                     </div>
                                 );
                             })}
