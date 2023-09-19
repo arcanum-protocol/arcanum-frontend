@@ -5,6 +5,7 @@ import { SendTransactionParams } from "./trade-pane";
 
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useTradeContext } from '../contexts/TradeContext';
+import { Tooltip } from './tooltip';
 
 interface TransactionParamsSelectorProps {
     txnParams: SendTransactionParams | undefined;
@@ -19,19 +20,23 @@ interface TransactionParamsSelectorProps {
 export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }: TransactionParamsSelectorProps) {
     const { estimatedValues } = useTradeContext();
 
+    const [priceToggled, togglePrice] = useState(true);
+
     const p: SendTransactionParams | undefined = txnParams;
-    
+
     return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
+        <div style={{
+            display: "flex",
+            flexDirection: "column"
+        }}>
+            <SlippageSelector slippageSetter={slippageSetter} />
             <div
                 style={{
                     display: "flex",
                     flexDirection: "column",
                     height: "auto",
                     transition: "max-height .5s",
-                    overflow: "hidden",
                 }}>
-                <SlippageSelector slippageSetter={slippageSetter} />
                 {
                     estimatedValues?.minimalAmountOut != undefined ?
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -50,35 +55,83 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
 
                         )
                 }
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>{p?.tokenIn?.symbol} price</p>
-                    <p style={{ margin: "0" }}>
-                        {(Number(estimatedValues?.estimatedAmountOut?.formatted || "0")
-                            / Number(estimatedValues?.estimatedAmountIn?.formatted || "1")).toFixed(4)}
-                        {" "}
-                        {p?.tokenOut?.symbol}
+                <div
+                    onClick={() => togglePrice(!priceToggled)}
+                    style={{ display: "flex", justifyContent: "space-between" }}>
+                    <p style={{ margin: "0" }}>Price</p>
+                    <p
+                        className={p ? "price-pane" : undefined}
+                        style={{ margin: "0" }}
+                    >
+                        {
+                            p ?
+                                priceToggled
+                                    ?
+                                    <>
+                                        1 {p?.tokenIn?.symbol
+                                        }={(Number(estimatedValues?.estimatedAmountOut?.formatted || "0")
+                                            / Number(estimatedValues?.estimatedAmountIn?.formatted || "1")).toFixed(4)}
+                                        {" "}
+                                        {p?.tokenOut?.symbol}
+                                    </>
+                                    :
+                                    <>
+                                        1 {p?.tokenOut?.symbol}={(Number(estimatedValues?.estimatedAmountIn?.formatted || "0")
+                                            / Number(estimatedValues?.estimatedAmountOut?.formatted || "1")).toFixed(4)}
+                                        {" "}
+                                        {p?.tokenIn?.symbol}
+                                    </>
+                                :
+                                <>{"-"}</>
+                        }
                     </p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>{p?.tokenOut?.symbol} price</p>
-                    <p style={{ margin: "0" }}>
-                        {(Number(estimatedValues?.estimatedAmountIn?.formatted || "0")
-                            / Number(estimatedValues?.estimatedAmountOut?.formatted || "1")).toFixed(4)}
-                        {" "}
-                        {p?.tokenIn?.symbol}
-                    </p>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>Cashback {p?.tokenIn?.symbol}</p>
-                    <p style={{ margin: "0" }}>
-                        {Number(estimatedValues?.estimatedCashbackIn?.usd).toString() || "0"}$
-                    </p>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>Cashback {p?.tokenOut?.symbol}</p>
-                    <p style={{ margin: "0" }}>
-                        {Number(estimatedValues?.estimatedCashbackOut?.usd).toString() || "0"}$
-                    </p>
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Cashback
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            Dis is cachback
+                        </p>
+                    </Tooltip>
+                    {p ?
+                        <Tooltip>
+                            <p
+                                style={{
+                                    margin: "0",
+                                    textDecoration: p ? "underline" : undefined,
+                                }}>
+                                {p ? <>
+                                    {
+                                        (
+                                            Number(estimatedValues?.estimatedCashbackIn?.usd || "0") +
+                                            Number(estimatedValues?.estimatedCashbackOut?.usd || "0")
+                                        ).toString()}$
+                                </> : <>{"-"} </>}
+                            </p>
+                            <div style={{ display: "flex", flexDirection: "column", margin: "5px" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                    <div style={{ margin: "0", marginRight: "10px" }}>
+                                        {p?.tokenIn?.symbol}:
+                                    </div>
+                                    <div style={{ margin: "0" }}>
+                                        {Number(estimatedValues?.estimatedCashbackIn?.formatted) || "0"}({Number(estimatedValues?.estimatedCashbackIn?.usd) || "0"})$
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                    <div style={{ margin: "0", marginRight: "10px" }}>
+                                        {p?.tokenOut?.symbol}:
+                                    </div>
+                                    <div style={{ margin: "0" }}>
+                                        {Number(estimatedValues?.estimatedCashbackOut?.formatted) || "0"}({Number(estimatedValues?.estimatedCashbackOut?.usd) || "0"})$
+                                    </div>
+                                </div>
+                            </div>
+                        </Tooltip>
+                        :
+                        <>{"-"}</>
+                    }
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <p style={{ margin: "0" }}>Fee</p>
@@ -88,7 +141,7 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                     <p style={{ margin: "0" }}>Transaction cost</p>
                     <p style={{ margin: "0" }}>{txnCost?.cost.toFixed(4) || "0"}$</p>
                 </div>
-            </div>
+            </div >
         </div >
     );
 }
@@ -102,25 +155,18 @@ export function SlippageSelector({ slippageSetter }) {
     const [selectedSlippageType, setType] = useState<number>(2);
     const slippagePresets = [0.1, 0.5, 1, 3];
     return (
-        <div style={{ display: "flex", width: "100%", marginBottom: "10px" }}>
+        <div style={{
+            display: "flex", width: "100%",
+            overflow: "scroll",
+            marginBottom: "0px"
+        }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-                <div style={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex" }}>
-                        <p style={{ margin: "0" }}>Slippage tolerance</p>
-                    </div>
-                    <div style={{ display: "flex" }}>
-                        <p style={{ margin: "0" }}>{slippage}%</p>
-                    </div>
-                </div>
                 <div style={{
                     display: "flex",
-                    backgroundColor: "var(--bl)",
+                    border: "1px solid #363636",
                     padding: "5px",
-                    paddingLeft: "5px",
-                    paddingRight: "5px",
                     margin: "auto",
-                    borderRadius: "10px",
-                    maxWidth: "90%",
+                    borderRadius: "16px",
                 }}>
                     <div style={{
                         display: "flex",
@@ -137,9 +183,9 @@ export function SlippageSelector({ slippageSetter }) {
                                         key={index}
                                         onClick={e => { setType(index); setSlippage(slippage) }}
                                         style={{
-                                            borderRadius: "10px",
-                                            color: index != selectedSlippageType ? "var(--wh)" : "var(--bl)",
-                                            backgroundColor: index == selectedSlippageType ? "var(--wh)" : "var(--bl)",
+                                            borderRadius: "12px",
+                                            color: index != selectedSlippageType ? undefined : "var(--bl)",
+                                            backgroundColor: index == selectedSlippageType ? "var(--wh)" : undefined,
                                         }}>
                                         <button style={{
                                             margin: "0",
@@ -157,10 +203,12 @@ export function SlippageSelector({ slippageSetter }) {
                             <input
                                 style={{
                                     display: "flex",
-                                    width: "80px",
+                                    width: "100%",
+                                    overflow: "hidden",
                                     border: "none",
                                     outline: "none",
                                     fontSize: "18px",
+                                    boxSizing: "border-box",
                                     background: "none",
                                     color: "var(--wh)",
                                 }}
@@ -182,6 +230,14 @@ export function SlippageSelector({ slippageSetter }) {
                                 }}
                             />
                         </div>
+                    </div>
+                </div>
+                <div style={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex" }}>
+                        <p style={{ margin: "0" }}>Slippage tolerance</p>
+                    </div>
+                    <div style={{ display: "flex" }}>
+                        <p style={{ margin: "0" }}>{slippage}%</p>
                     </div>
                 </div>
             </div>

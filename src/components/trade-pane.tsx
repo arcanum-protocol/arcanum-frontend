@@ -34,7 +34,7 @@ export function TradePaneInner({
     networkId
 }: TradePaneProps) {
     const texts: TradePaneTexts = paneTexts;
-    
+
     const {
         userAddress,
         setSlippage,
@@ -44,7 +44,7 @@ export function TradePaneInner({
         transactionCost,
         sendTransctionParams
     } = useTradeContext();
-    
+
     console.log(inputAsset, outputAsset);
 
     const tokenIn = useTokenWithAddress({ tokenAddress: inputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
@@ -54,7 +54,6 @@ export function TradePaneInner({
         <div style={
             {
                 display: "flex",
-                overflow: "auto",
                 flexDirection: "column",
                 justifyContent: "center",
                 maxWidth: "400px",

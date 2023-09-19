@@ -156,100 +156,100 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress }: M
     if (fetchedAssets == undefined || multipoolAsset == undefined) {
         return (
             <div
-            style={{
-                display: "flex",
-                alignItems: "center",
-                backgroundColor: "var(--bc)",
-                justifyContent: "center",
-                flexDirection: "column",
-                borderRadius: "20px",
-                width: "100%",
-                maxWidth: "400px",
-            }}>
-            <div
                 style={{
-                    display: "flex", width: "100%",
-                    flexDirection: "column",
+                    display: "flex",
                     alignItems: "center",
+                    backgroundColor: "var(--bc)",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    borderRadius: "20px",
+                    width: "100%",
                     maxWidth: "400px",
-                }}
-                ref={me}
-            >
-                <div style={{ margin: "5px 10px", marginBottom: "0px", display: "flex", width: "100%" }}>
-                    <div
-                        style={{
-                            display: "flex",
-                            width: "100%",
-                            justifyContent: "space-between",
-                            margin: "10px",
-                            padding: "5px",
-                            backgroundColor: "#1B1B1B",
-                            borderRadius: "16px",
-                            border: "1px solid #363636",
-                        }}>
-                        <button
+                }}>
+                <div
+                    style={{
+                        display: "flex", width: "100%",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        maxWidth: "400px",
+                    }}
+                    ref={me}
+                >
+                    <div style={{ margin: "5px 10px", marginBottom: "0px", display: "flex", width: "100%" }}>
+                        <div
                             style={{
+                                display: "flex",
                                 width: "100%",
-                                fontSize: "20px",
-                                margin: "0",
+                                justifyContent: "space-between",
+                                margin: "10px",
                                 padding: "5px",
-                                borderRadius: "10px",
-                                color: "#fff",
-                                backgroundColor: displayed != 1 ? "#1B1B1B" : "var(--bl)",
-                            }}
-                            disabled={displayed == 1}
-                            onClick={() => setDisplayed(1)}>
-                            Mint
-                        </button>
-                        <button
-                            style={{
-                                width: "100%",
-                                fontSize: "20px",
-                                borderRadius: "10px",
-                                margin: "0",
-                                padding: "2px",
-                                color: "#fff",
-                                backgroundColor: displayed != 2 ? "#1B1B1B" : "var(--bl)",
-                            }}
-                            disabled={displayed == 2}
-                            onClick={() => setDisplayed(2)}>
-                            Burn
-                        </button>
-                        <button
-                            style={{
-                                width: "100%",
-                                fontSize: "20px",
-                                borderRadius: "10px",
-                                margin: "0",
-                                padding: "2px",
-                                color: "#fff",
-                                backgroundColor: displayed != 3 ? "#1B1B1B" : "var(--bl)",
-                            }}
-                            disabled={displayed == 3}
-                            onClick={() => setDisplayed(3)}>
-                            Swap
-                        </button>
-                    </div>
-                </div>
-                <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
-                        <div style={displayOrHide(displayed != 1, { width: "100%" })}>
-                            {"Loading..."}
+                                backgroundColor: "#1B1B1B",
+                                borderRadius: "16px",
+                                border: "1px solid #363636",
+                            }}>
+                            <button
+                                style={{
+                                    width: "100%",
+                                    fontSize: "20px",
+                                    margin: "0",
+                                    padding: "5px",
+                                    borderRadius: "10px",
+                                    color: "#fff",
+                                    backgroundColor: displayed != 1 ? "#1B1B1B" : "var(--bl)",
+                                }}
+                                disabled={displayed == 1}
+                                onClick={() => setDisplayed(1)}>
+                                Mint
+                            </button>
+                            <button
+                                style={{
+                                    width: "100%",
+                                    fontSize: "20px",
+                                    borderRadius: "10px",
+                                    margin: "0",
+                                    padding: "2px",
+                                    color: "#fff",
+                                    backgroundColor: displayed != 2 ? "#1B1B1B" : "var(--bl)",
+                                }}
+                                disabled={displayed == 2}
+                                onClick={() => setDisplayed(2)}>
+                                Burn
+                            </button>
+                            <button
+                                style={{
+                                    width: "100%",
+                                    fontSize: "20px",
+                                    borderRadius: "10px",
+                                    margin: "0",
+                                    padding: "2px",
+                                    color: "#fff",
+                                    backgroundColor: displayed != 3 ? "#1B1B1B" : "var(--bl)",
+                                }}
+                                disabled={displayed == 3}
+                                onClick={() => setDisplayed(3)}>
+                                Swap
+                            </button>
                         </div>
-                    </TradeProvider>
-                    <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
-                        <div style={displayOrHide(displayed != 2, { width: "100%" })}>
-                            {"Loading..."}
-                        </div >
-                    </TradeProvider>
-                    <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
-                        <div style={displayOrHide(displayed != 3, { width: "100%" })}>
-                            {"Loading..."}
-                        </div >
-                    </TradeProvider>
-                </div >
-            </div>
-        </div >
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+                        <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
+                            <div style={displayOrHide(displayed != 1, { width: "100%" })}>
+                                {"Loading..."}
+                            </div>
+                        </TradeProvider>
+                        <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
+                            <div style={displayOrHide(displayed != 2, { width: "100%" })}>
+                                {"Loading..."}
+                            </div >
+                        </TradeProvider>
+                        <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipoolAsset?.assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={fetchedAssets}>
+                            <div style={displayOrHide(displayed != 3, { width: "100%" })}>
+                                {"Loading..."}
+                            </div >
+                        </TradeProvider>
+                    </div >
+                </div>
+            </div >
         )
     }
 
