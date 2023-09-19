@@ -173,8 +173,8 @@ function Navbar() {
             </div>
             {!isMobile ? references : <div />}
             <div style={{ display: "flex", flex: "1", justifyContent: "flex-end", alignItems: "center", gap: "5px" }}>
-                <div>
-                    <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={30} />
+                <div style={{ marginRight: "10px" }}>
+                    <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={25} />
                 </div>
                 <ConnectKitButton />
             </div>
