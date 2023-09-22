@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 import { getMassiveMintRouter, useMultipoolData } from "../lib/multipool";
+=======
+import React, { useState, useRef } from 'react';
+import { useMultipoolData } from "../lib/multipool";
+import { SolidAsset } from '../types/solidAsset';
+import { useMobileMedia } from '../hooks/tokens';
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
 import { useSearchParams } from 'react-router-dom';
 import { Faucet } from '../components/faucet-modal';
 import TVChartContainer from '../components/tv-chart';
@@ -15,35 +22,127 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 
 export function Cpt() {
+<<<<<<< HEAD
     return (<MainInner
         multipool_id='arbi-testnet'
+=======
+    return (<Main
+        multipool_id='arbi'
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
     />)
 }
 
 export function Arbi() {
+<<<<<<< HEAD
     return (<MainInner
+=======
+    return (<Main
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
         multipool_id='arbi'
     />)
 }
 
 export function Bali() {
+<<<<<<< HEAD
     return (<MainInner
         multipool_id='bali-testnet'
+=======
+    return (<Main
+        multipool_id='arbi'
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
     />)
 }
 
 export function Custom() {
     const [searchParams, setSearchParams] = useSearchParams();
+<<<<<<< HEAD
     return (<MainInner multipool_id={searchParams.get("id")!} />)
+=======
+    return (<Main multipool_id={searchParams.get("id")!} />)
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
 }
 
 interface MainInnerProps {
     multipool_id: string;
 }
 
+<<<<<<< HEAD
 export function MainInner({ multipool_id }: MainInnerProps) {
     const { data, error, isLoading } = useMultipoolData(multipool_id);
     const { ExternalAssets } = useArbitrumTokens();
+=======
+export function MainInner(props: MainInnerProps) {
+    const isMobile = useMobileMedia();
+
+    if (!isMobile) {
+        return (
+            <div>
+                <div style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    rowGap: "10px",
+                    marginTop: "20px",
+                    gap: "10px",
+                }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
+                        <Head multipool={props.multipoolAsset} />
+                        {props.multipoolAsset && <TVChartContainer symbol={props.multipoolAsset.symbol} />}
+                        <IndexAssetsBreakdown fetchedAssets={props.fetchedAssets} />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", maxWidth: "400px", width: "100%" }}>
+                        <MintBurnTabs
+                            fetchedAssets={props.fetchedAssets}
+                            multipoolAsset={props.multipoolAsset}
+                            routerAddress={props.routerAddress}
+                        />
+                        <Faucet assets={props.fetchedAssets} />
+                    </div>
+                </div >
+
+            </div >
+        );
+    } else {
+        return (
+            <div>
+                <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    rowGap: "10px",
+                    marginTop: "20px",
+                    gap: "10px",
+                    width: "100%",
+                }}>
+                    <Head multipool={props.multipoolAsset} />
+                    {props.multipoolAsset && <TVChartContainer symbol={props.multipoolAsset.symbol} />}
+                    <MintBurnTabs
+                        routerAddress={props.routerAddress}
+                        fetchedAssets={props.fetchedAssets}
+                        multipoolAsset={props.multipoolAsset}
+                    />
+                    <Faucet assets={props.fetchedAssets} />
+                    <IndexAssetsBreakdown fetchedAssets={props.fetchedAssets} />
+                </div >
+            </div >
+        );
+    }
+}
+
+export interface MainProps {
+    multipool_id: string;
+}
+
+export function Main({ multipool_id }: MainProps): JSX.Element {
+    const { data, error, isLoading } = useMultipoolData(multipool_id);
+
+    if (isLoading || data == undefined) {
+        return (
+            <div>
+                Loading...
+            </div>
+        )
+    }
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
 
     if (error) {
         return (
@@ -53,6 +152,7 @@ export function MainInner({ multipool_id }: MainInnerProps) {
         );
     }
 
+<<<<<<< HEAD
     const routerAddress = data?.multipool?.routerAddress;
     const fetchedAssets = data?.assets;
     const multipoolAsset = data?.multipool;
@@ -77,6 +177,14 @@ export function MainInner({ multipool_id }: MainInnerProps) {
             </MultiPoolProvider>
         </div >
     );
+=======
+    return (<MainInner
+        assetAddress={data.multipool.assetAddress}
+        routerAddress={data.multipool.routerAddress}
+        fetchedAssets={data.assets}
+        multipoolAsset={data.multipool}
+    />);
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
 }
 
 interface MintBurnTabsProps {
