@@ -1,4 +1,5 @@
 "arbi": 
+<<<<<<< HEAD
     "address": "0xB1947d7596840D0a14D30cCA91be69ddC24ab75d"
     "router_address": "0x4D3DA540Ae876e2A339722aC8eF2af0d253c26E1"
     "massive_mint_address": "0xb21E1e95E0fBAC00Ae2Ba4515AfDF51f6bccAA3f"
@@ -6,6 +7,13 @@
     "name": "ARBI"
     "chain_id": 42161
     "logo": "https://assets.coingecko.com/coins/images/32042/large/Frame_2881_%281%29.png?1696530839"
+=======
+    "address": "0xfc2f1678f7c0d78c3911090c92b86bca7cc3a8b7"
+    "router_address": "0x4D3DA540Ae876e2A339722aC8eF2af0d253c26E1"
+    "rpc_url": "https://arbitrum.llamarpc.com"
+    "name": "ARBI"
+    "chain_id": 42161
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
     "assets": 
         - "symbol": "GMX"
           "decimals": 18
@@ -42,13 +50,21 @@
           "coingecko_id": "mcdex"
           "address": "0x4e352cf164e64adcbad318c3a1e222e9eba4ce42"
           "price_origin": "gecko"
+<<<<<<< HEAD
 "arbi-testnet": 
     "address": "0x27b5be75d5362ececa15a61adaf4adf86a4abbf3"
+=======
+"arbi-1": 
+    "address": "0x452f9ca404c55722b9073575af8b35bfd655e61e"
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
     "router_address": "0xad79b9d522367294d228379d7c040b952bd3b462"
     "rpc_url": "https://sepolia-rollup.arbitrum.io/rpc"
     "name": "ARBI"
     "chain_id": 421614
+<<<<<<< HEAD
     "logo": "https://assets.coingecko.com/coins/images/32042/large/Frame_2881_%281%29.png?1696530839"
+=======
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
     "assets": 
         - "symbol": "GMX"
           "decimals": 18
@@ -85,6 +101,7 @@
           "coingecko_id": "mcdex"
           "address": "0xa6d918bee60067228ceb1ef8cdf2438ec33be6c9"
           "price_origin": "gecko"
+<<<<<<< HEAD
 "bali-testnet": 
     "address": "0x7b1d82E701cb8537B4C47173F395E2A9A63Af8da"
     "router_address": "0x241630cf68AB007AfA8E503554249f0746c8DC66"
@@ -125,3 +142,8 @@
           "address": "0x6CB1434FB22817198E294017c595043287b50cC5"
           "price_origin": "gecko"
           
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 5fcb4e7 (add config fetcher (#11))
+>>>>>>> 7c7bdfb (add config fetcher (#11))
