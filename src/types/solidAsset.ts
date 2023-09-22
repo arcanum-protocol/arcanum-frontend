@@ -2,6 +2,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 
 interface SolidAsset {
     assetAddress: string,
+    routerAddress: string,
     name: string,
     symbol: string,
     price: Number,
