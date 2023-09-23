@@ -3,7 +3,7 @@ import { useMobileMedia } from '../hooks/tokens';
 import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
 import { TradePaneInner } from '../components/trade-pane';
-import { useFetchAssets } from '../lib/multipool';
+import { useMultipoolData } from '../lib/multipool';
 import { getSVG } from '../lib/svg-adapter';
 import { TradeProvider } from '../contexts/TradeContext';
 import { Address } from 'wagmi';
@@ -12,18 +12,10 @@ import { useNetwork } from 'wagmi';
 export function Swap() {
     const { chain } = useNetwork();
 
-    let assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
-    let routerAddress = "0xad79b9d522367294d228379d7c040b952bd3b462";
-    
-    if (chain?.id === 421614) {
-        assetAddress = "0x452f9ca404c55722b9073575af8b35bfd655e61e";
-        routerAddress = "0xad79b9d522367294d228379d7c040b952bd3b462";
-    }
-
     const me = useRef(null);
     const isMobile = useMobileMedia();
 
-    const { data, error, isLoading } = useFetchAssets(assetAddress);
+    const { data, error, isLoading } = useMultipoolData('arbi');
 
     if (isLoading) {
         return (
@@ -72,10 +64,15 @@ export function Swap() {
                         justifyContent: "center"
                     }}>
                     <div style={{ display: "flex", width: "100%", justifyContent: "center" }} ref={me}>
-                        <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={assetAddress as Address} routerAddress={routerAddress as Address} fetchedAssets={data?.assets!}>
+                        <TradeProvider
+                            tradeLogicAdapter={swapAdapter}
+                            multipoolAddress={data?.multipool.assetAddress as Address}
+                            routerAddress={data?.multipool.routerAddress as Address}
+                            fetchedAssets={data?.assets!}
+                        >
                             <TradePaneInner
-                                routerAddress={routerAddress as Address}
-                                multipoolAddress={assetAddress as Address}
+                                routerAddress={data?.multipool.routerAddress as Address}
+                                multipoolAddress={data?.multipool.assetAddress as Address}
                                 assetsIn={data?.assets!}
                                 assetsOut={data?.assets!}
                                 tradeLogicAdapter={swapAdapter}

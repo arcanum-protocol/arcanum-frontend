@@ -43,3 +43,35 @@
 .read-the-docs {
   color: #888;
 }
+
+.price-pane:hover {
+  color: #575757;
+  cursor: pointer;
+}
+
+.tooltip-main:hover {
+  cursor: help;
+}
+
+.tooltip-main {
+  cursor: help;
+  position:relative;
+}
+
+.tooltip-main:hover .tooltip-hint{
+  display: block;
+}
+
+.tooltip-hint:hover{
+  display: block;
+}
+
+.tooltip-hint {
+  position:absolute;
+  display: none;
+  top: 100%;
+  right: 0%;
+  border-radius: 10px;
+  border: #575757 1px solid;
+  background-color: var(--bc);
+}

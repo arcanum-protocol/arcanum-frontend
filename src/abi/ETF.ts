@@ -654,7 +654,7 @@ export default [
                 "type": "address"
             }
         ],
-        "name": "getAssets",
+        "name": "getAsset",
         "outputs": [
             {
                 "components": [
@@ -1501,109 +1501,6 @@ export default [
     {
         "inputs": [
             {
-                "internalType": "uint256",
-                "name": "share",
-                "type": "uint256"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "uint256",
-                        "name": "usdCap",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "totalTargetShares",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "halfDeviationFee",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "deviationLimit",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "operationBaseFee",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "userCashbackBalance",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "depegBaseFee",
-                        "type": "uint256"
-                    }
-                ],
-                "internalType": "struct MpContext",
-                "name": "context",
-                "type": "tuple"
-            },
-            {
-                "components": [
-                    {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "price",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "collectedFees",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "collectedCashbacks",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "share",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "decimals",
-                        "type": "uint256"
-                    }
-                ],
-                "internalType": "struct MpAsset",
-                "name": "asset",
-                "type": "tuple"
-            },
-            {
-                "internalType": "uint256",
-                "name": "mpTotalSupply",
-                "type": "uint256"
-            }
-        ],
-        "name": "shareToAmount",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "pure",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "address",
                 "name": "assetInAddress",
                 "type": "address"
@@ -1861,4 +1758,5 @@ export default [
         "stateMutability": "nonpayable",
         "type": "function"
     }
-]; 
+];
+

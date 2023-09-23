@@ -1,0 +1,84 @@
+"arbi": 
+    "address": "0xfc2f1678f7c0d78c3911090c92b86bca7cc3a8b7"
+    "router_address": "0x4D3DA540Ae876e2A339722aC8eF2af0d253c26E1"
+    "rpc_url": "https://arbitrum.llamarpc.com"
+    "name": "ARBI"
+    "chain_id": 42161
+    "assets": 
+        - "symbol": "GMX"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/18323/large/arbit.png?1631532468"
+          "address": "0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a"
+          "defillama_id": "gmx"
+          "coingecko_id": "gmx"
+          "price_origin": "redstone"
+        - "symbol": "CRV"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/12124/large/Curve.png?1597369484"
+          "address": "0x11cdb42b0eb46d95f990bedd4695a6e3fa034978"
+          "defillama_id": "curve-finance"
+          "coingecko_id": "curve-dao-token"
+          "price_origin": "redstone"
+        - "symbol": "GNS"
+          "decimals": 18
+          "defillama_id": "gains-network"
+          "coingecko_id": "gains-network"
+          "logo": "https://assets.coingecko.com/coins/images/19737/large/logo.png?1635909203"
+          "address": "0x18c11fd286c5ec11c3b683caa813b77f5163a122"
+          "price_origin": "gecko"
+        - "symbol": "LVL"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/28628/large/Token.png?1672717607"
+          "defillama_id": "level-finance"
+          "coingecko_id": "level"
+          "address": "0xb64e280e9d1b5dbec4accedb2257a87b400db149"
+          "price_origin": "gecko"
+        - "symbol": "MCB"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/11796/large/mux.jpg?1660125796"
+          "defillama_id": "mux-protocol"
+          "coingecko_id": "mcdex"
+          "address": "0x4e352cf164e64adcbad318c3a1e222e9eba4ce42"
+          "price_origin": "gecko"
+"arbi-1": 
+    "address": "0x452f9ca404c55722b9073575af8b35bfd655e61e"
+    "router_address": "0xad79b9d522367294d228379d7c040b952bd3b462"
+    "rpc_url": "https://sepolia-rollup.arbitrum.io/rpc"
+    "name": "ARBI"
+    "chain_id": 421614
+    "assets": 
+        - "symbol": "GMX"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/18323/large/arbit.png?1631532468"
+          "defillama_id": "gmx"
+          "coingecko_id": "gmx"
+          "address": "0x167b876620dd8531c7a47da89ea32a1a37680407"
+          "price_origin": "redstone"
+        - "symbol": "CRV"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/12124/large/Curve.png?1597369484"
+          "defillama_id": "curve-finance"
+          "coingecko_id": "curve-dao-token"
+          "address": "0xc2e9c976cacfc317431c0856d5ff879c84cd6dd8"
+          "price_origin": "redstone" 
+        - "symbol": "GNS"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/19737/large/logo.png?1635909203"
+          "defillama_id": "gains-network"
+          "coingecko_id": "gains-network"
+          "address": "0xa54fe9d87dc7ab521ce0d868eae5678f7a37e489"
+          "price_origin": "gecko"
+        - "symbol": "LVL"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/28628/large/Token.png?1672717607"
+          "defillama_id": "level-finance"
+          "coingecko_id": "level"
+          "address": "0x58c1ce9632a3303ec1529c1ebd55e0b9b97db62a"
+          "price_origin": "gecko"
+        - "symbol": "MCB"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/11796/large/mux.jpg?1660125796"
+          "defillama_id": "mux-protocol"
+          "coingecko_id": "mcdex"
+          "address": "0xa6d918bee60067228ceb1ef8cdf2438ec33be6c9"
+          "price_origin": "gecko"
