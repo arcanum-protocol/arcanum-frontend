@@ -80,10 +80,10 @@ export function useMultipoolData(
 
     const { data: mpPriceData, isLoading: mpPriceIsLoading } = useQuery(['priceInfo'], async () => {
         const response = await axios.get(
-            `https://api.arcanum.to/api/multipool/info?address=${mp.address}`,
+            `https://api.arcanum.to/api/stats?multipool_id=${multipool_id}`,
         );
         console.log("DATA", response);
-        return response.data.multipool;
+        return response.data;
     }, {
         refetchInterval: 10000,
         staleTime: 100000,
@@ -110,7 +110,6 @@ export function useMultipoolData(
         price: Number(mpPriceData?.current_price || '0'),
         logo: '/logo.svg',
     };
-    console.log("HERE");
 
     console.log(geckoData);
     if (geckoData)

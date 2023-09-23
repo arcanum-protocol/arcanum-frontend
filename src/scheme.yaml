@@ -91,8 +91,7 @@
     "assets": 
         - "symbol": "KTC"
           "decimals": 18
-          "logo": "https://assets.coingecko.com/coins/images/18323/large/arbit.png?1631532468"
-          "defillama_id": "ktx-finance"
+          "logo": "https://assets.coingecko.com/coins/images/30537/large/KTX.jpeg?1684912193"
           "coingecko_id": "ktx-finance"
           "address": "0x3Ae6ea3e57f9c5b9D58630B41caA407a87Dc742a"
           "price_origin": "gecko"
@@ -105,8 +104,7 @@
           "price_origin": "redstone" 
         - "symbol": "RDNT"
           "decimals": 18
-          "logo": "https://assets.coingecko.com/coins/images/19737/large/logo.png?1635909203"
-          "defillama_id": "radiant-capital"
+          "logo": "https://assets.coingecko.com/coins/images/26536/large/Radiant-Logo-200x200.png?1658715865"
           "coingecko_id": "radiant-capital"
           "address": "0x4D3daAaEa954515C1f6418B9F282a11acc55Ee7a"
           "price_origin": "gecko"
@@ -119,8 +117,7 @@
           "price_origin": "gecko"
         - "symbol": "APX"
           "decimals": 18
-          "logo": "https://assets.coingecko.com/coins/images/11796/large/mux.jpg?1660125796"
-          "defillama_id": "apollox-2"
+          "logo": "https://assets.coingecko.com/coins/images/21972/large/apx.png?1640765293"
           "coingecko_id": "apollox-2"
           "address": "0x6CB1434FB22817198E294017c595043287b50cC5"
           "price_origin": "gecko"

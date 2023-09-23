@@ -40,6 +40,7 @@ interface MainInnerProps {
     routerAddress: string;
     multipoolAsset: SolidAsset | undefined;
     fetchedAssets: MultipoolAsset[];
+    multipool_id: string;
 }
 
 export function MainInner(props: MainInnerProps) {
@@ -57,7 +58,7 @@ export function MainInner(props: MainInnerProps) {
                 }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
                         <Head multipool={props.multipoolAsset} />
-                        {props.multipoolAsset && <TVChartContainer symbol={props.multipoolAsset.symbol} />}
+                        {props.multipoolAsset && <TVChartContainer symbol={props.multipool_id} />}
                         <IndexAssetsBreakdown fetchedAssets={props.fetchedAssets} />
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", maxWidth: "400px", width: "100%" }}>
@@ -85,7 +86,7 @@ export function MainInner(props: MainInnerProps) {
                     width: "100%",
                 }}>
                     <Head multipool={props.multipoolAsset} />
-                    {props.multipoolAsset && <TVChartContainer symbol={props.multipoolAsset.symbol} />}
+                    {props.multipoolAsset && <TVChartContainer symbol={props.multipool_id} />}
                     <MintBurnTabs
                         routerAddress={props.routerAddress}
                         fetchedAssets={props.fetchedAssets}
@@ -127,6 +128,7 @@ export function Main({ multipool_id }: MainProps): JSX.Element {
         routerAddress={data.multipool.routerAddress}
         fetchedAssets={data.assets}
         multipoolAsset={data.multipool}
+        multipool_id={multipool_id}
     />);
 }
 
