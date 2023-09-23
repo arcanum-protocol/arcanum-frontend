@@ -90,10 +90,10 @@ export function useMultipoolData(
         cacheTime: 100000,
     });
 
-    if (ctxIsLoading || assetsIsLoading || tsIsLoading || geckoIsLoading || mpPriceIsLoading)
+    if (ctxIsLoading || assetsIsLoading || tsIsLoading || geckoIsLoading)
         return {
             data: undefined,
-            isLoading: ctxIsLoading || assetsIsLoading || tsIsLoading || geckoIsLoading || mpPriceIsLoading,
+            isLoading: ctxIsLoading || assetsIsLoading || tsIsLoading || geckoIsLoading,
             error: undefined,
         };
 
@@ -104,10 +104,10 @@ export function useMultipoolData(
         chainId: Number(mp.chain_id),
         symbol: mp.name,
         totalSupply: BigNumber.from(totalSupply || '0'),
-        low24h: Number(mpPriceData.low_24h),
-        high24h: Number(mpPriceData.high_24h),
-        change24h: Number(mpPriceData.change_24h),
-        price: Number(mpPriceData.current_price),
+        low24h: Number(mpPriceData?.low_24h || '0'),
+        high24h: Number(mpPriceData?.high_24h || '0'),
+        change24h: Number(mpPriceData?.change_24h || '0'),
+        price: Number(mpPriceData?.current_price || '0'),
         logo: '/logo.svg',
     };
     console.log("HERE");

@@ -15,7 +15,7 @@ export function Swap() {
     const me = useRef(null);
     const isMobile = useMobileMedia();
 
-    const { data, error, isLoading } = useMultipoolData('arbi');
+    const { data, error, isLoading } = useMultipoolData('arbi-testnet');
 
     if (isLoading) {
         return (

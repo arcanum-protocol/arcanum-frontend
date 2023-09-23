@@ -40,8 +40,8 @@
           "coingecko_id": "mcdex"
           "address": "0x4e352cf164e64adcbad318c3a1e222e9eba4ce42"
           "price_origin": "gecko"
-"arbi-1": 
-    "address": "0x452f9ca404c55722b9073575af8b35bfd655e61e"
+"arbi-testnet": 
+    "address": "0xC89Fc9145b1eF0Dd18da722b2E87Cd5921064FB7"
     "router_address": "0xad79b9d522367294d228379d7c040b952bd3b462"
     "rpc_url": "https://sepolia-rollup.arbitrum.io/rpc"
     "name": "ARBI"
@@ -81,4 +81,46 @@
           "defillama_id": "mux-protocol"
           "coingecko_id": "mcdex"
           "address": "0xa6d918bee60067228ceb1ef8cdf2438ec33be6c9"
+          "price_origin": "gecko"
+"bali-testnet": 
+    "address": "0x7b1d82E701cb8537B4C47173F395E2A9A63Af8da"
+    "router_address": "0x241630cf68AB007AfA8E503554249f0746c8DC66"
+    "rpc_url": "https://opbnb-testnet-rpc.bnbchain.org"
+    "name": "BALI"
+    "chain_id": 5611
+    "assets": 
+        - "symbol": "KTC"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/18323/large/arbit.png?1631532468"
+          "defillama_id": "ktx-finance"
+          "coingecko_id": "ktx-finance"
+          "address": "0x3Ae6ea3e57f9c5b9D58630B41caA407a87Dc742a"
+          "price_origin": "gecko"
+        - "symbol": "CRV"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/12124/large/Curve.png?1597369484"
+          "defillama_id": "curve-finance"
+          "coingecko_id": "curve-dao-token"
+          "address": "0x3Ec6fF3D08BfDBd9cF7884Ed29F80A49B57185b1"
+          "price_origin": "redstone" 
+        - "symbol": "RDNT"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/19737/large/logo.png?1635909203"
+          "defillama_id": "radiant-capital"
+          "coingecko_id": "radiant-capital"
+          "address": "0x4D3daAaEa954515C1f6418B9F282a11acc55Ee7a"
+          "price_origin": "gecko"
+        - "symbol": "LVL"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/28628/large/Token.png?1672717607"
+          "defillama_id": "level-finance"
+          "coingecko_id": "level"
+          "address": "0x939Fa2E0E07517f2e29b42240B888F054e27e03E"
+          "price_origin": "gecko"
+        - "symbol": "APX"
+          "decimals": 18
+          "logo": "https://assets.coingecko.com/coins/images/11796/large/mux.jpg?1660125796"
+          "defillama_id": "apollox-2"
+          "coingecko_id": "apollox-2"
+          "address": "0x6CB1434FB22817198E294017c595043287b50cC5"
           "price_origin": "gecko"

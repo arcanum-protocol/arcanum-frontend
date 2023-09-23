@@ -14,19 +14,19 @@ import { Address } from 'viem';
 
 export function Cpt() {
     return (<Main
-        multipool_id='arbi'
+        multipool_id='arbi-testnet'
     />)
 }
 
 export function Arbi() {
     return (<Main
-        multipool_id='arbi'
+        multipool_id='arbi-testnet'
     />)
 }
 
 export function Bali() {
     return (<Main
-        multipool_id='arbi'
+        multipool_id='bali-testnet'
     />)
 }
 
