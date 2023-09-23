@@ -47,6 +47,13 @@ function Navbar() {
         { title: "Docs", route: "https://docs.arcanum.to" },
     ];
 
+    function getChainIcon() {
+        if (!chain) {
+            return <div />;
+        }
+        return <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={25} />;
+    }
+
     const references =
         <div style={{ display: "flex", fontSize: "20px", gap: "40px", flex: "1", alignItems: "center", justifyContent: "center" }}>
             {
@@ -173,8 +180,8 @@ function Navbar() {
             </div>
             {!isMobile ? references : <div />}
             <div style={{ display: "flex", flex: "1", justifyContent: "flex-end", alignItems: "center", gap: "5px" }}>
-                <div>
-                    <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={30} />
+                <div style={{ marginRight: "10px" }}>
+                    {getChainIcon()}
                 </div>
                 <ConnectKitButton />
             </div>
