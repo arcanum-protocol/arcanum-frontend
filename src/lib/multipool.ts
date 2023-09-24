@@ -46,7 +46,7 @@ export function useMultipoolData(
 
     const { data: onchainData, isError: assetsIsError, isLoading: assetsIsLoading } = useContractReads({
         contracts: mp.assets.map(asset => {
-            console.log(asset.address);
+            // console.log(asset.address);
             return {
                 address: mp.address,
                 abi: multipoolABI,
@@ -58,7 +58,7 @@ export function useMultipoolData(
         }),
         watch: true,
     });
-    console.log(onchainData);
+    // console.log(onchainData);
     if (onchainData)
         for (let i = 0; i < mp.assets.length; i++) {
             let asset = mp.assets[i];
@@ -82,7 +82,7 @@ export function useMultipoolData(
         const response = await axios.get(
             `https://api.arcanum.to/api/stats?multipool_id=${multipool_id}`,
         );
-        console.log("DATA", response);
+        // console.log("DATA", response);
         return response.data;
     }, {
         refetchInterval: 10000,
@@ -111,18 +111,18 @@ export function useMultipoolData(
         logo: '/logo.svg',
     };
 
-    console.log(geckoData);
+    // console.log(geckoData);
     if (geckoData)
         for (let i = 0; i < assets.length; i++) {
-            console.log(assets[i].coingecko_id, geckoData[assets[i].coingecko_id]);
+            // console.log(assets[i].coingecko_id, geckoData[assets[i].coingecko_id]);
             assets[i].gecko = geckoData[assets[i].coingecko_id];
         }
 
     const processedAssets = assets.map(asset => {
         const currentShare = asset.onchain == undefined ? 0 : Number(asset.onchain.price * asset.onchain.quantity / context.usdCap) * 100 / Number(parseEther('1'));
-        console.log(context);
+        // console.log(context);
         const idealShare = asset.onchain == undefined ? 0 : Number(asset.onchain.share * parseEther('1') / context.totalTargetShares) * 100 / Number(parseEther('1'));
-        console.log(idealShare);
+        // console.log(idealShare);
         return {
             name: asset.symbol,
             symbol: asset.symbol,

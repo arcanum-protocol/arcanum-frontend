@@ -45,8 +45,6 @@ export function TradePaneInner({
         sendTransctionParams
     } = useTradeContext();
 
-    console.log(inputAsset, outputAsset);
-
     const tokenIn = useTokenWithAddress({ tokenAddress: inputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
     const tokenOut = useTokenWithAddress({ tokenAddress: outputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
 

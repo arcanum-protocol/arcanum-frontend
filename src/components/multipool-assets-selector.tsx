@@ -19,7 +19,6 @@ export function MultipoolAssetSelector({ name, assetList, modalParent, disableFi
 
     function setter(asset: MultipoolAsset | SolidAsset) {
         if (name == "Send") {
-            console.log({ inputAsset, outputAsset });
             if (asset == outputAsset) {
                 setOutputAsset(inputAsset!);
                 setInputAsset(asset);
