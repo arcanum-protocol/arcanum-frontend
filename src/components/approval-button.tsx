@@ -56,7 +56,7 @@ export function InteractionWithApprovalButton({
         abi: multipoolABI,
         functionName: 'approve',
         args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
-        // enabled: !isTokenDataLoading && !isTokenDataUnset && allowance >= interactionBalance,
+        enabled: !isTokenDataLoading && !isTokenDataUnset && allowance >= interactionBalance,
         chainId: networkId,
     });
     
@@ -89,6 +89,8 @@ export function InteractionWithApprovalButton({
     
     const { chain, chains } = useNetwork()
     const { setOpen: openWalletModal } = useModal();
+
+    console.log("token", token, "interactionTxnBody", estimatedValues);
 
     if (!isConnected) {
         return (

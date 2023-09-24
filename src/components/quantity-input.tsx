@@ -98,7 +98,7 @@ export function QuantityInput({
                 out: estimationResults.estimatedAmountOut?.usd.toString() || "",
             });
         }
-    });
+    }, [estimationResults]);
 
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
         if (e.target.value == undefined || e.target.value === "") {
