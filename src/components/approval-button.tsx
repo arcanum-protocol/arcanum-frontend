@@ -32,7 +32,6 @@ export function InteractionWithApprovalButton({
     const {
         data: token,
         isLoading: isTokenDataLoading,
-        isError: isTokenDataError,
         isUnset: isTokenDataUnset,
     } = tokenData;
 
@@ -67,8 +66,8 @@ export function InteractionWithApprovalButton({
     })
 
     // send interaction
-    const { config } = usePrepareContractWrite(interactionTxnBody);
-    const { data: mayBeHash, write: sendTxn } = useContractWrite(config)
+    const { config, error } = usePrepareContractWrite(interactionTxnBody);
+    const { data: mayBeHash, error: writeMultipoolError, write: sendTxn } = useContractWrite(config);
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,
@@ -89,8 +88,6 @@ export function InteractionWithApprovalButton({
     
     const { chain, chains } = useNetwork()
     const { setOpen: openWalletModal } = useModal();
-
-    console.log("token", token, "interactionTxnBody", estimatedValues);
 
     if (!isConnected) {
         return (
@@ -116,10 +113,18 @@ export function InteractionWithApprovalButton({
                 </button>
             </div >
         );
-    } else if (token == undefined || interactionTxnBody == undefined || isTokenDataLoading || approvalTxnIsLoading || txnIsLoading) {
+    } else if (isTokenDataLoading || approvalTxnIsLoading || txnIsLoading) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false}>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
+                    <p style={{ margin: "10px" }}>{"Loading..."}</p>
+                </button>
+            </div >
+        );
+    } else if (token == undefined || interactionTxnBody == undefined) {
+        return (
+            <div>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
                     <p style={{ margin: "10px" }}>{"Mint"}</p>
                 </button>
             </div >
