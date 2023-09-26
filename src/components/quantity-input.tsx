@@ -113,22 +113,24 @@ export function QuantityInput({
             return;
         }
 
+        const value = e.target.value;
+
         if (quantityInputName === "Send") {
             setMainInput("in");
             try {
-                const valueNumber = FixedNumber.fromString(e.target.value)
+                const valueNumber = FixedNumber.fromString(value)
                     .mulUnsafe(FixedNumber.fromValue(BigNumber.from("10").pow(BigNumber.from(decimals.toString()))))
                     .toString()
                     .split(".")[0];
 
                 setInputQuantity(valueNumber);
-                setInputHumanReadable(e.target.value);
+                console.log(value);
+                setInputHumanReadable(value);
             } catch {
                 setInputHumanReadable("");
             }
         } else {
             setMainInput("out");
-            const value = e.target.value;
             try {
                 const valueNumber = FixedNumber.fromString(value)
                     .mulUnsafe(FixedNumber.fromValue(BigNumber.from("10").pow(BigNumber.from(decimals.toString()))))
