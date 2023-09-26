@@ -105,14 +105,6 @@ export function InteractionWithApprovalButton({
                 </button>
             </div >
         );
-    } else if (estimationErrorMessage != undefined) {
-        return (
-            <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
-                    <p style={{ margin: "10px" }}>{estimationErrorMessage}</p>
-                </button>
-            </div >
-        );
     } else if (isTokenDataLoading || approvalTxnIsLoading || txnIsLoading) {
         return (
             <div>

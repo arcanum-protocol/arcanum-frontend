@@ -9,6 +9,7 @@ import { useMedia } from 'react-use';
 import { useDebounce } from 'use-debounce';
 import * as React from 'react';
 import { publicClient } from '../config';
+import { useState } from 'react';
 
 export type TokenWithAddress = {
     tokenAddress: string,
@@ -127,6 +128,8 @@ export function useEstimate(
 
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
 
+    let [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+
     const { data: txnData, isError, error, isLoading } = useContractRead({
         address: txnBodyParts?.address as Address,
         abi: txnBodyParts?.abi,
@@ -134,8 +137,11 @@ export function useEstimate(
         args: txnBodyParts?.args,
         enabled: txnBodyParts != undefined && txnBodyParts.enabled,
         watch: true,
+        onError: (e) => {
+            setErrorMessage(e.message);
+            console.log(e);
+        },
     });
-    let errorMessage: undefined | string = undefined;
 
     const [cost, setCost] = React.useState<
         {
@@ -177,13 +183,6 @@ export function useEstimate(
                         cost: Number(gas) * Number(gasPrice),
                     });
                 } catch (e) {
-                    if (error?.message.includes("MULTIPOOL: DO")) {
-                        errorMessage = "Too big quantity";
-                    } else if (error?.message.includes("MULTIPOOL: QE")) {
-                        errorMessage = "Insufficient liquidity";
-                    } else if (error?.message.includes("MULTIPOOL: IQ")) {
-                        errorMessage = "Insufficient quantity";
-                    }
                     setCost(undefined);
                 }
             }
@@ -191,6 +190,14 @@ export function useEstimate(
 
         inner();
     }, [debouncedReturnData]);
+
+    if (errorMessage?.includes("MULTIPOOL: DO")) {
+        setErrorMessage("Deviation overflow");
+    } else if (errorMessage?.includes("MULTIPOOL: QE")) {
+        setErrorMessage("Insufficient liquidity");
+    } else if (errorMessage?.includes("MULTIPOOL: IQ")) {
+        setErrorMessage("Insufficient quantity");
+    }
 
     return {
         data: returnData,
