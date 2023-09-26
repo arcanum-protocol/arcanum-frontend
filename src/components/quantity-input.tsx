@@ -74,6 +74,10 @@ export function QuantityInput({
         error: estimationErrorMessageScope,
     } = useEstimate(tradeLogicAdapter, sendTransactionParams);
 
+    if (estimationErrorMessageScope) {
+        setEstimationErrorMessage(estimationErrorMessageScope);
+    }
+
     let inputQuantityScope: string = "";
     // const esimates: EstimatedValues | undefined = estimationResults;
 

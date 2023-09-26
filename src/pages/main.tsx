@@ -107,7 +107,7 @@ export interface MainProps {
 export function Main({ multipool_id }: MainProps): JSX.Element {
     const { data, error, isLoading } = useMultipoolData(multipool_id);
 
-    if (isLoading || data == undefined || data.assets.some((asset) => asset.price == 0)) {
+    if (isLoading || data == undefined) {
         return (
             <div>
                 Loading...

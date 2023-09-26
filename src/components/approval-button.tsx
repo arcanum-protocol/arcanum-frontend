@@ -67,7 +67,9 @@ export function InteractionWithApprovalButton({
 
     // send interaction
     const { config, error } = usePrepareContractWrite(interactionTxnBody);
+    console.log("error", error);
     const { data: mayBeHash, error: writeMultipoolError, write: sendTxn } = useContractWrite(config);
+    console.log("writeMultipoolError", writeMultipoolError);
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,
@@ -102,14 +104,6 @@ export function InteractionWithApprovalButton({
             <div>
                 <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={switchNetworkCb}>
                     <p style={{ margin: "10px" }}>Switch to {chains.find(c => c.id == networkId)?.name}</p>
-                </button>
-            </div >
-        );
-    } else if (estimationErrorMessage != undefined) {
-        return (
-            <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
-                    <p style={{ margin: "10px" }}>{estimationErrorMessage}</p>
                 </button>
             </div >
         );
