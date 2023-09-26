@@ -67,9 +67,7 @@ export function InteractionWithApprovalButton({
 
     // send interaction
     const { config, error } = usePrepareContractWrite(interactionTxnBody);
-    console.log("error", error);
     const { data: mayBeHash, error: writeMultipoolError, write: sendTxn } = useContractWrite(config);
-    console.log("writeMultipoolError", writeMultipoolError);
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,
