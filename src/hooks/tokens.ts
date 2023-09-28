@@ -40,12 +40,14 @@ interface TokenWithAddressParams {
     tokenAddress: Address,
     userAddress: Address,
     allowanceTo: Address,
+    chainId: number
 }
 
 export function useTokenWithAddress({
     tokenAddress,
     userAddress,
     allowanceTo,
+    chainId
 }: TokenWithAddressParams): {
     data: TokenWithAddress | undefined,
     isLoading: boolean,
@@ -55,6 +57,7 @@ export function useTokenWithAddress({
     const { data: tokenData, isError: isTokenError, isLoading: isTokenLoading } = useToken({
         address: tokenAddress,
         enabled: tokenAddress != undefined,
+        chainId: chainId,
     })
 
     const { data: tokenBalance, isError: isBalanceError, isLoading: isBalanceLoading } = useContractRead({
@@ -64,6 +67,7 @@ export function useTokenWithAddress({
         args: [userAddress],
         enabled: tokenAddress != undefined && userAddress != undefined,
         watch: true,
+        chainId: chainId,
     });
 
     const { data: approvedTokenBalance, isError: isAllowanceError, isLoading: isAllowanceLoading } = useContractRead({
@@ -73,6 +77,7 @@ export function useTokenWithAddress({
         args: [userAddress, allowanceTo],
         enabled: tokenAddress != undefined && allowanceTo != undefined && userAddress != undefined,
         watch: true,
+        chainId: chainId,
     });
     const isLoading = isTokenLoading || isAllowanceLoading || isBalanceLoading;
     const isError = isTokenError || isBalanceError || isAllowanceError;
@@ -112,6 +117,7 @@ export function useTokenWithAddress({
 export function useEstimate(
     adapter: TradeLogicAdapter,
     params: SendTransactionParams,
+    chainId: number,
 ): {
     data: EstimatedValues | undefined,
     transactionCost: {
@@ -124,7 +130,6 @@ export function useEstimate(
     error: string | undefined,
 } {
     const { address } = useAccount();
-    const { chain } = useNetwork();
 
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
 
@@ -137,9 +142,9 @@ export function useEstimate(
         args: txnBodyParts?.args,
         enabled: txnBodyParts != undefined && txnBodyParts.enabled,
         watch: true,
+        chainId: chainId,
         onError: (e) => {
             setErrorMessage(e.message);
-            console.log(e);
         },
     });
 
@@ -167,10 +172,10 @@ export function useEstimate(
     React.useEffect(() => {
         async function inner() {
             if (debouncedReturnData != undefined && address != undefined) {
-                let gasPrice: any = await publicClient({ chainId: chain?.id }).getGasPrice();
+                let gasPrice: any = await publicClient({ chainId: chainId }).getGasPrice();
                 gasPrice = Number(gasPrice) / Math.pow(10, 15);
                 try {
-                    const gas = await publicClient({ chainId: chain?.id }).estimateContractGas({
+                    const gas = await publicClient({ chainId: chainId }).estimateContractGas({
                         account: address,
                         abi: debouncedReturnData.txn.abi,
                         address: debouncedReturnData.txn.address as Address,
@@ -191,12 +196,18 @@ export function useEstimate(
         inner();
     }, [debouncedReturnData]);
 
+    let errorText: string | undefined = undefined;
+
     if (errorMessage?.includes("MULTIPOOL: DO")) {
-        setErrorMessage("Deviation overflow");
+        errorText = "Deviation overflow";
     } else if (errorMessage?.includes("MULTIPOOL: QE")) {
-        setErrorMessage("Insufficient liquidity");
+        errorText = "Insufficient liquidity";
     } else if (errorMessage?.includes("MULTIPOOL: IQ")) {
-        setErrorMessage("Insufficient quantity");
+        errorText = "Insufficient quantity";
+    } else if (errorMessage?.includes("MULTIPOOL: ZS")) {
+        errorText = "Zero share";
+    } else if (errorMessage == undefined) {
+        errorText = undefined;
     }
 
     return {
@@ -204,7 +215,6 @@ export function useEstimate(
         transactionCost: cost,
         isError: isError,
         isLoading: isLoading,
-        error: errorMessage,
+        error: errorText,
     };
 }
-
