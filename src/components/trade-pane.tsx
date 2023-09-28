@@ -45,8 +45,8 @@ export function TradePaneInner({
         sendTransctionParams
     } = useTradeContext();
 
-    const tokenIn = useTokenWithAddress({ tokenAddress: inputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
-    const tokenOut = useTokenWithAddress({ tokenAddress: outputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress });
+    const tokenIn = useTokenWithAddress({ tokenAddress: inputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress, chainId: networkId });
+    const tokenOut = useTokenWithAddress({ tokenAddress: outputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress, chainId: networkId });
 
     return (
         <div style={
@@ -67,6 +67,7 @@ export function TradePaneInner({
                 initialAssetIndex={0}
                 selectTokenParent={selectTokenParent}
                 balance={tokenIn.data?.balance.formatted || "0"}
+                chainId={networkId}
             />
             <TokenQuantityInput
                 assetDisableFilter={(asset: MultipoolAsset) => Number(asset.deviationPercent) < -10}
@@ -76,6 +77,7 @@ export function TradePaneInner({
                 initialAssetIndex={1}
                 selectTokenParent={selectTokenParent}
                 balance={tokenOut.data?.balance.formatted || "0"}
+                chainId={networkId}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
                 {userAddress ? <TransactionParamsSelector txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={() => setSlippage} /> : undefined}
@@ -97,6 +99,7 @@ interface TokenQuantityInputProps {
     assets: MultipoolAsset[] | SolidAsset;
     selectTokenParent: React.RefObject<HTMLDivElement>;
     balance: string;
+    chainId: number;
 }
 
 export function TokenQuantityInput({
@@ -106,7 +109,8 @@ export function TokenQuantityInput({
     decimals,
     assets,
     selectTokenParent,
-    balance
+    balance,
+    chainId
 }: TokenQuantityInputProps) {
     const { estimatedValues } = useTradeContext();
     return (
@@ -134,6 +138,7 @@ export function TokenQuantityInput({
                 <QuantityInput
                     decimals={decimals}
                     quantityInputName={text}
+                    chainId={chainId}
                 />
                 <p style={{
                     margin: "0", marginTop: "1px", fontSize: "13px",

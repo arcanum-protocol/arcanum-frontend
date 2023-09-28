@@ -29,13 +29,7 @@ export function InteractionWithApprovalButton({
     const interactionBalance = BigInt(String(estimatedValues?.estimatedAmountIn?.row ? estimatedValues?.estimatedAmountIn?.row : 0));
     const interactionTxnBody = estimatedValues?.txn;
     
-    const {
-        data: token,
-        isLoading: isTokenDataLoading,
-        isUnset: isTokenDataUnset,
-    } = tokenData;
-
-    if (estimationErrorMessage != undefined) {
+    if (estimationErrorMessage) {
         return (
             <div>
                 <button className='approvalBalanceButton' style={{ width: "100%" }} disabled={true}>
@@ -44,6 +38,12 @@ export function InteractionWithApprovalButton({
             </div >
         );
     }
+
+    const {
+        data: token,
+        isLoading: isTokenDataLoading,
+        isUnset: isTokenDataUnset,
+    } = tokenData;
 
     const allowance: bigint = token?.approval?.row || BigInt(0);
     const { isConnected } = useAccount();
@@ -67,9 +67,7 @@ export function InteractionWithApprovalButton({
 
     // send interaction
     const { config, error } = usePrepareContractWrite(interactionTxnBody);
-    console.log("error", error);
     const { data: mayBeHash, error: writeMultipoolError, write: sendTxn } = useContractWrite(config);
-    console.log("writeMultipoolError", writeMultipoolError);
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,

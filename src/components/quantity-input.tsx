@@ -5,16 +5,17 @@ import { Address } from "wagmi";
 import { useEstimate, useTokenWithAddress } from "../hooks/tokens";
 import { Quantities } from "../types/quantities";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
-import { useMount } from "react-use";
 
 interface QuantityInputProps {
     decimals: number;
     quantityInputName: string;
+    chainId: number;
 }
 
 export function QuantityInput({
     decimals,
-    quantityInputName
+    quantityInputName,
+    chainId,
 }: QuantityInputProps) {
     const { tradeLogicAdapter,
         inputAsset,
@@ -43,12 +44,14 @@ export function QuantityInput({
         tokenAddress: inputAsset?.assetAddress as Address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
+        chainId: chainId,
     });
 
     const outTokenData = useTokenWithAddress({
         tokenAddress: outputAsset?.assetAddress as Address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
+        chainId: chainId,
     });
 
     const sendTransactionParams: SendTransactionParams = {
@@ -71,11 +74,14 @@ export function QuantityInput({
         data: estimationResults,
         transactionCost: transactionCostScope,
         isLoading: estimationIsLoading,
+        isError: estimationIsError,
         error: estimationErrorMessageScope,
-    } = useEstimate(tradeLogicAdapter, sendTransactionParams);
+    } = useEstimate(tradeLogicAdapter, sendTransactionParams, chainId);
 
-    if (estimationErrorMessageScope) {
+    if (estimationIsError) {
         setEstimationErrorMessage(estimationErrorMessageScope);
+    } else {
+        setEstimationErrorMessage(undefined);
     }
 
     let inputQuantityScope: string = "";
@@ -93,7 +99,6 @@ export function QuantityInput({
 
     useEffect(() => {
         if (estimationResults) {
-            console.log(estimationResults);
             setEstimatedValues(estimationResults);
             setTransactionCost(transactionCostScope);
             setSendTransctionParams(sendTransactionParams);
@@ -128,7 +133,6 @@ export function QuantityInput({
                     .split(".")[0];
 
                 setInputQuantity(valueNumber);
-                console.log(value);
                 setInputHumanReadable(value);
             } catch {
                 setInputHumanReadable("");
