@@ -3,8 +3,9 @@ import { FixedNumber } from "@ethersproject/bignumber";
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
 import { useMobileMedia } from "../hooks/tokens";
+import { Tooltip } from './tooltip';
 
-export function IndexAssetsBreakdown({fetchedAssets}) {
+export function IndexAssetsBreakdown({ fetchedAssets }) {
     const isMobile = useMobileMedia();
     let randomindexes: number[] = [];
 
@@ -67,19 +68,54 @@ export function IndexAssetsBreakdown({fetchedAssets}) {
                     Name
                 </div>
                 <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
-                    Target share
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Target share
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            The share of the corresponding asset in the pool in its equilibrium state.
+                        </p>
+                    </Tooltip>
                 </div>
                 <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "3", display: "flex", justifyContent: "flex-end" }}>
-                    Current share
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Current share
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            The share of the corresponding asset in the pool in its current state.
+                        </p>
+                    </Tooltip>
                 </div>
                 <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
-                    Price
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Price
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            Current price of the asset.
+                        </p>
+                    </Tooltip>
                 </div>
                 <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
-                    Quantity
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Quantity
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            Current amount of assets in the pool (at the current share).
+                        </p>
+                    </Tooltip>
                 </div>
                 <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
-                    Market cap
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Market cap
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            Current market cap of the token.
+                        </p>
+                    </Tooltip>
                 </div>
                 {assets}
             </div>

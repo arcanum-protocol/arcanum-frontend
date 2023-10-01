@@ -5,6 +5,7 @@ import { getSVG } from '../lib/svg-adapter';
 import { MultipoolAsset } from '../types/multipoolAsset';
 import { SolidAsset } from '../types/solidAsset';
 import { useTradeContext } from '../contexts/TradeContext';
+import { Tooltip } from './tooltip';
 
 interface MultipoolAssetSelectorProps {
     name: "Send" | "Receive";
@@ -202,10 +203,14 @@ export function MultipoolAssetSelector({ name, assetList, modalParent, disableFi
                     </div>
                     : undefined}
                 <div style={{ maxWidth: "100px", flexDirection: "column", display: "flex", flex: "1", fontSize: "14px", justifyContent: "flex-end" }}>
-                    <p
-                        style={{ margin: "0" }}>
-                        Deviation:
-                    </p>
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Deviation:
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            Deviation shows the difference between current share and the target share of the corresponsing token in the pool in %. +% indicates that the amount of the token is more than the target share, -% - the shortage.
+                        </p>
+                    </Tooltip>
                     <p
                         style={{ margin: "0", color: coloriseDeviation(asset.deviationPercent) }}>
                         {Number(asset.deviationPercent.toString()).toFixed(2)}%

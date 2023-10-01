@@ -41,14 +41,28 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                 {
                     estimatedValues?.minimalAmountOut != undefined ?
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            <p style={{ margin: "0" }}>Minimal receive</p>
+                            <Tooltip>
+                                <p style={{ margin: "0", textDecoration: "underline" }}>
+                                    Minimal receive
+                                </p>
+                                <p style={{ margin: "5px" }}>
+                                    The minimum amount of tokens you'll receive in case of the maximal slippage.
+                                </p>
+                            </Tooltip>
                             <p style={{ margin: "0" }}>
                                 {estimatedValues?.minimalAmountOut.formatted}({estimatedValues?.minimalAmountOut.usd}$)
                             </p>
                         </div>
                         : (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                <p style={{ margin: "0" }}>Maximum send</p>
+                                <Tooltip>
+                                    <p style={{ margin: "0", textDecoration: "underline" }}>
+                                        Maximum send
+                                    </p>
+                                    <p style={{ margin: "5px" }}>
+                                        The maximum amount of tokens you'll pay in the case of the maximal slippage.
+                                    </p>
+                                </Tooltip>
                                 <p style={{ margin: "0" }}>
                                     {estimatedValues?.maximumAmountIn?.formatted || 0}({estimatedValues?.maximumAmountIn?.usd || 0}$)
                                 </p>
@@ -59,7 +73,14 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                 <div
                     onClick={() => togglePrice(!priceToggled)}
                     style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>Price</p>
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Price
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            Current price of one token measured in another.
+                        </p>
+                    </Tooltip>
                     <p
                         className={p ? "price-pane" : undefined}
                         style={{ margin: "0" }}
@@ -93,7 +114,7 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                             Cashback
                         </p>
                         <p style={{ margin: "5px" }}>
-                            Dis is cachback
+                            The amount of tokens in the corresponding asset you'll get for your pool balancing swaps (good actions). Cashback equal 0 means that your action was not directed towards balance.
                         </p>
                     </Tooltip>
                     {p ?
@@ -135,11 +156,27 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                     }
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>Fee</p>
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Fee
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            Platform fee is a summ of base fee and deviation fee.<br />
+                            Base fee - the platform's commission, for swaps is equal 0.01%. It is zero for minting and burning. <br />
+                            Deviation fee is added when you increase the current deviation of the token.
+                        </p>
+                    </Tooltip>
                     <p style={{ margin: "0" }}>{estimatedValues?.fee?.usd || 0}$ ({estimatedValues?.fee?.percent || 0}%)</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <p style={{ margin: "0" }}>Transaction cost</p>
+                    <Tooltip>
+                        <p style={{ margin: "0", textDecoration: "underline" }}>
+                            Transaction cost
+                        </p>
+                        <p style={{ margin: "5px" }}>
+                            Cost of the transaction on the blockchain.
+                        </p>
+                    </Tooltip>
                     <p style={{ margin: "0" }}>{txnCost?.cost.toFixed(4) || "0"}$</p>
                 </div>
             </div >
@@ -231,7 +268,14 @@ export function SlippageSelector({ slippageSetter }) {
                 </div>
                 <div style={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
                     <div style={{ display: "flex" }}>
-                        <p style={{ margin: "0" }}>Slippage tolerance</p>
+                        <Tooltip>
+                            <p style={{ margin: "0", textDecoration: "underline" }}>
+                                Slippage tolerance
+                            </p>
+                            <p style={{ margin: "5px" }}>
+                                The parameter that shows how much funds is allowed to be spend according to fast price change.
+                            </p>
+                        </Tooltip>
                     </div>
                     <div style={{ display: "flex" }}>
                         <p style={{ margin: "0" }}>{slippage}%</p>

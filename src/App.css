@@ -69,9 +69,13 @@
 .tooltip-hint {
   position:absolute;
   display: none;
+  text-align: left;
+  width: 300px;
+  max-width: 90vw;
   top: 100%;
   right: 0%;
   border-radius: 10px;
   border: #575757 1px solid;
   background-color: var(--bc);
+  z-index: 1000;
 }
