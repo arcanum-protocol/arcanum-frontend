@@ -80,7 +80,7 @@ export function TradePaneInner({
                 chainId={networkId}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
-                {userAddress ? <TransactionParamsSelector txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={() => setSlippage} /> : undefined}
+                <TransactionParamsSelector txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={() => setSlippage} />
                 <InteractionWithApprovalButton
                     approveMax={true}
                     tokenData={tokenIn}
