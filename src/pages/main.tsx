@@ -20,7 +20,7 @@ export function Cpt() {
 
 export function Arbi() {
     return (<Main
-        multipool_id='arbi-testnet'
+        multipool_id='arbi'
     />)
 }
 
