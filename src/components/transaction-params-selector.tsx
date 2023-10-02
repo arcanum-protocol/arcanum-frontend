@@ -19,7 +19,8 @@ interface TransactionParamsSelectorProps {
 }
 
 export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }: TransactionParamsSelectorProps) {
-    const { estimatedValues } = useTradeContext();
+    const { estimatedValues, transactionCost } = useTradeContext();
+    console.log(transactionCost);
 
     const [priceToggled, togglePrice] = useState(true);
 
@@ -177,7 +178,7 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                             Cost of the transaction on the blockchain.
                         </p>
                     </Tooltip>
-                    <p style={{ margin: "0" }}>{txnCost?.cost.toFixed(4) || "0"}$</p>
+                    <p style={{ margin: "0" }}>{transactionCost?.cost?.toFixed(4) || "0"}$</p>
                 </div>
             </div >
         </div >

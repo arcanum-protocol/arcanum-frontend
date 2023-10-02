@@ -171,25 +171,23 @@ export function useEstimate(
 
     React.useEffect(() => {
         async function inner() {
-            if (debouncedReturnData != undefined && address != undefined) {
-                let gasPrice: any = await publicClient({ chainId: chainId }).getGasPrice();
-                gasPrice = Number(gasPrice) / Math.pow(10, 15);
-                try {
-                    const gas = await publicClient({ chainId: chainId }).estimateContractGas({
-                        account: address,
-                        abi: debouncedReturnData.txn.abi,
-                        address: debouncedReturnData.txn.address as Address,
-                        args: debouncedReturnData.txn.args,
-                        functionName: debouncedReturnData.txn.functionName,
-                    });
-                    setCost({
-                        gas: Number(gas),
-                        gasPrice: Number(gasPrice),
-                        cost: Number(gas) * Number(gasPrice),
-                    });
-                } catch (e) {
-                    setCost(undefined);
-                }
+            let gasPrice: any = await publicClient({ chainId: chainId }).getGasPrice();
+            gasPrice = Number(gasPrice) / Math.pow(10, 15);
+            try {
+                const gas = await publicClient({ chainId: chainId }).estimateContractGas({
+                    account: address,
+                    abi: debouncedReturnData.txn.abi,
+                    address: debouncedReturnData.txn.address as Address,
+                    args: debouncedReturnData.txn.args,
+                    functionName: debouncedReturnData.txn.functionName,
+                });
+                setCost({
+                    gas: Number(gas),
+                    gasPrice: Number(gasPrice),
+                    cost: Number(gas) * Number(gasPrice),
+                });
+            } catch (e) {
+                setCost(undefined);
             }
         }
 
@@ -209,6 +207,8 @@ export function useEstimate(
     } else if (errorMessage == undefined) {
         errorText = undefined;
     }
+
+    console.log("cost", cost);
 
     return {
         data: returnData,

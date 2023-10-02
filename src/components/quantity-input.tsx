@@ -100,6 +100,7 @@ export function QuantityInput({
     useEffect(() => {
         if (estimationResults) {
             setEstimatedValues(estimationResults);
+            console.log("transactionCostScope", transactionCostScope);
             setTransactionCost(transactionCostScope);
             setSendTransctionParams(sendTransactionParams);
             setUsdValues({
