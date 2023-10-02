@@ -78,7 +78,7 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                             Price
                         </p>
                         <p style={{ margin: "5px" }}>
-                            Current price of one token measured in another.
+                            Current price of the input token estimated in the output token.
                         </p>
                     </Tooltip>
                     <p
