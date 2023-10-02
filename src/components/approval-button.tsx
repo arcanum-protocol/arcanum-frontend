@@ -92,7 +92,7 @@ export function InteractionWithApprovalButton({
     if (!isConnected) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true} onClick={() => openWalletModal(true)}>
+                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={() => openWalletModal(true)}>
                     <p style={{ margin: "10px" }}>Connect Wallet</p>
                 </button>
             </div >
