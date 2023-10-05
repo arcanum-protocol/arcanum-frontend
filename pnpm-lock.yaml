@@ -16,6 +16,7 @@ dependencies:
     version: 2.0.18(react@18.2.0)
   '@modyfi/vite-plugin-yaml':
     specifier: ^1.0.4
+<<<<<<< HEAD
     version: 1.0.4(vite@4.4.11)
   '@moralisweb3/common-evm-utils':
     specifier: ^2.23.1
@@ -47,6 +48,15 @@ dependencies:
   '@radix-ui/react-tooltip':
     specifier: ^1.0.7
     version: 1.0.7(@types/react-dom@18.2.13)(@types/react@18.2.28)(react-dom@18.2.0)(react@18.2.0)
+=======
+    version: 1.0.4(vite@4.4.0)
+  '@radix-ui/react-icons':
+    specifier: ^1.3.0
+    version: 1.3.0(react@18.2.0)
+  '@radix-ui/react-slot':
+    specifier: ^1.0.2
+    version: 1.0.2(@types/react@18.2.14)(react@18.2.0)
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   '@tanstack/react-query':
     specifier: ^4.36.1
     version: 4.36.1(react-dom@18.2.0)(react@18.2.0)
@@ -54,11 +64,16 @@ dependencies:
     specifier: ^1.4.4
     version: 1.4.4(@types/react@18.2.28)(react@18.2.0)(typescript@5.2.2)(viem@1.16.6)
   axios:
+<<<<<<< HEAD
     specifier: ^1.5.1
     version: 1.5.1
   bignumber.js:
     specifier: ^9.1.2
     version: 9.1.2
+=======
+    specifier: ^1.5.0
+    version: 1.5.0
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   class-variance-authority:
     specifier: ^0.7.0
     version: 0.7.0
@@ -130,24 +145,40 @@ dependencies:
     version: 1.4.4(@types/react@18.2.28)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)(viem@1.16.6)
 
 devDependencies:
+<<<<<<< HEAD
   '@types/lodash':
     specifier: ^4.14.199
     version: 4.14.199
   '@types/node':
     specifier: ^20.8.6
     version: 20.8.6
+=======
+  '@types/node':
+    specifier: ^20.8.2
+    version: 20.8.2
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   '@types/react':
     specifier: ^18.2.28
     version: 18.2.28
   '@types/react-dom':
+<<<<<<< HEAD
     specifier: ^18.2.13
     version: 18.2.13
+=======
+    specifier: ^18.2.6
+    version: 18.2.6
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   '@types/react-modal':
     specifier: ^3.16.1
     version: 3.16.1
   '@vitejs/plugin-react':
+<<<<<<< HEAD
     specifier: ^4.1.0
     version: 4.1.0(vite@4.4.11)
+=======
+    specifier: ^4.0.1
+    version: 4.0.1(vite@4.4.0)
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   autoprefixer:
     specifier: ^10.4.16
     version: 10.4.16(postcss@8.4.31)
@@ -161,8 +192,13 @@ devDependencies:
     specifier: ^4.6.0
     version: 4.6.0(eslint@8.51.0)
   eslint-plugin-react-refresh:
+<<<<<<< HEAD
     specifier: ^0.4.3
     version: 0.4.3(eslint@8.51.0)
+=======
+    specifier: ^0.4.1
+    version: 0.4.1(eslint@8.44.0)
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   postcss:
     specifier: ^8.4.31
     version: 8.4.31
@@ -170,8 +206,13 @@ devDependencies:
     specifier: ^3.3.3
     version: 3.3.3
   vite:
+<<<<<<< HEAD
     specifier: ^4.4.11
     version: 4.4.11(@types/node@20.8.6)
+=======
+    specifier: ^4.4.0
+    version: 4.4.0(@types/node@20.8.2)
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
 packages:
 
@@ -188,6 +229,7 @@ packages:
     resolution: {integrity: sha512-UK0bHA7hh9cR39V+4gl2/NnBBjoXIxkuWAPCaY4X7fbH4L/azIi7ilWOCjMUYfpJgraLUAqkRi2BqrjME8Rynw==}
     dev: false
 
+<<<<<<< HEAD
   /@alch/alchemy-web3@1.4.7:
     resolution: {integrity: sha512-7gmRdVDRLRT0PQnVHf4rizgGqHnQGeRJ0KuIjr0ewmMeXlRe8hJEIdEUTg9NjY9TC8jTJkOAiej5io7u9pppFQ==}
     dependencies:
@@ -214,6 +256,8 @@ packages:
       - utf-8-validate
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /@alloc/quick-lru@5.2.0:
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
@@ -278,8 +322,14 @@ packages:
     resolution: {integrity: sha512-y6EEzULok0Qvz8yyLkCvVX+02ic+By2UdOhylwUOvOn9dvYc9mKICJuuU1n1XBI02YWsNsnrY1kc6DVbjcXbtw==}
     engines: {node: '>=6.9.0'}
     dependencies:
+<<<<<<< HEAD
       '@babel/compat-data': 7.23.2
       '@babel/helper-validator-option': 7.22.15
+=======
+      '@babel/compat-data': 7.22.9
+      '@babel/core': 7.22.9
+      '@babel/helper-validator-option': 7.22.5
+>>>>>>> b9caeb6 (install and config ui.shadcn)
       browserslist: 4.22.1
       lru-cache: 5.1.1
       semver: 6.3.1
@@ -1023,7 +1073,11 @@ packages:
       '@rollup/pluginutils': 5.0.2
       js-yaml: 4.1.0
       tosource: 2.0.0-alpha.3
+<<<<<<< HEAD
       vite: 4.4.11(@types/node@20.8.6)
+=======
+      vite: 4.4.0(@types/node@20.8.2)
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     transitivePeerDependencies:
       - rollup
     dev: false
@@ -1158,6 +1212,46 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+<<<<<<< HEAD
+=======
+
+  /@radix-ui/react-compose-refs@1.0.1(@types/react@18.2.14)(react@18.2.0):
+    resolution: {integrity: sha512-fDSBgd44FKHa1FRMU59qBMPFcl2PZE+2nmqunj+BWFyYYjnhIDWL2ItDs3rrbJDQOtzt5nIebLCQc4QRfz6LJw==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.22.6
+      '@types/react': 18.2.14
+      react: 18.2.0
+    dev: false
+
+  /@radix-ui/react-icons@1.3.0(react@18.2.0):
+    resolution: {integrity: sha512-jQxj/0LKgp+j9BiTXz3O3sgs26RNet2iLWmsPyRz2SIcR4q/4SbazXfnYwbAr+vLYKSfc7qxzyGQA1HLlYiuNw==}
+    peerDependencies:
+      react: ^16.x || ^17.x || ^18.x
+    dependencies:
+      react: 18.2.0
+    dev: false
+
+  /@radix-ui/react-slot@1.0.2(@types/react@18.2.14)(react@18.2.0):
+    resolution: {integrity: sha512-YeTpuq4deV+6DusvVUW4ivBgnkHwECUu0BiN43L5UCDFgdhsRUWAghhTF5MbvNTPzmiFOx90asDSUjWuCNapwg==}
+    peerDependencies:
+      '@types/react': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+    dependencies:
+      '@babel/runtime': 7.22.6
+      '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.2.14)(react@18.2.0)
+      '@types/react': 18.2.14
+      react: 18.2.0
+    dev: false
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /@radix-ui/number@1.0.1:
     resolution: {integrity: sha512-T5gIdVO2mmPW3NNhjNgEP3cqMXjXL9UbO0BzWcXfvdBs+BohbQxvd/K5hSVKmn9/lbTdsQVKbUcP5WLCwvUbBg==}
@@ -2097,6 +2191,7 @@ packages:
   /@types/babel__core@7.20.2:
     resolution: {integrity: sha512-pNpr1T1xLUc2l3xJKuPtsEky3ybxN3m4fJkknfIpTCTfIZCDW57oAg+EfCgIIp2rvCe0Wn++/FfodDS4YXxBwA==}
     dependencies:
+<<<<<<< HEAD
       '@babel/parser': 7.23.0
       '@babel/types': 7.23.0
       '@types/babel__generator': 7.6.5
@@ -2127,6 +2222,9 @@ packages:
     resolution: {integrity: sha512-dkpZu0szUtn9UXTmw+e0AJFd4D2XAxDnsCLdc05SfqpqzPEBft8eQr8uaFitfo/dUUOZERaLec2hHMG87A4Dxg==}
     dependencies:
       '@types/node': 20.8.6
+=======
+      '@types/node': 20.8.2
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     dev: false
 
   /@types/cacheable-request@6.0.3:
@@ -2184,6 +2282,7 @@ packages:
     resolution: {integrity: sha512-N+0kuo9KgrUQ1Sn/ifDXsvg0TTleP7rIy4zOBGECxAljqvqfqpTfzx0Q1NUedOixRMBfe2Whhb056a42cWs26Q==}
     dev: false
 
+<<<<<<< HEAD
   /@types/node@20.8.6:
     resolution: {integrity: sha512-eWO4K2Ji70QzKUqRy6oyJWUeB7+g2cRagT3T/nxYibYcT4y2BDL8lqolRXjTHmkZCdJfIPaY73KbJAZmcryxTQ==}
     dependencies:
@@ -2208,10 +2307,18 @@ packages:
     dependencies:
       '@types/react': 18.2.28
     dev: true
+=======
+  /@types/node@20.8.2:
+    resolution: {integrity: sha512-Vvycsc9FQdwhxE3y3DzeIxuEJbWGDsnrxvMADzTDF/lcdR9/K+AQIeAghTQsHtotg/q0j3WEOYS/jQgSdWue3w==}
+
+  /@types/prop-types@15.7.5:
+    resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /@types/react@18.2.28:
     resolution: {integrity: sha512-ad4aa/RaaJS3hyGz0BGegdnSRXQBkd1CCYDCdNjBPg90UUpLgo+WlJqb9fMYUxtehmzF3PJaTWqRZjko6BRzBg==}
     dependencies:
+<<<<<<< HEAD
       '@types/prop-types': 15.7.8
       '@types/scheduler': 0.16.4
       csstype: 3.1.2
@@ -2221,6 +2328,26 @@ packages:
     dependencies:
       '@types/node': 20.8.6
     dev: false
+=======
+      '@types/react': 18.2.14
+    dev: true
+
+  /@types/react-modal@3.16.1:
+    resolution: {integrity: sha512-HsH2E3luJ2hdVOAovq93x/r+CmWqbhwT8hXW05KMp3zzbSEZsBn4egnMGU/VLwScwlCRPTyZgIEPqLycaz5EOw==}
+    dependencies:
+      '@types/react': 18.2.14
+    dev: true
+
+  /@types/react@18.2.14:
+    resolution: {integrity: sha512-A0zjq+QN/O0Kpe30hA1GidzyFjatVvrpIvWLxD+xv67Vt91TWWgco9IvrJBkeyHm1trGaFS/FSGqPlhyeZRm0g==}
+    dependencies:
+      '@types/prop-types': 15.7.5
+      '@types/scheduler': 0.16.3
+      csstype: 3.1.2
+
+  /@types/scheduler@0.16.3:
+    resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /@types/scheduler@0.16.4:
     resolution: {integrity: sha512-2L9ifAGl7wmXwP4v3pN4p2FLhD0O1qsJpvKmNin5VA8+UvNVb447UDaAEV6UdrkA+m/Xs58U1RFps44x6TFsVQ==}
@@ -2250,7 +2377,11 @@ packages:
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
+<<<<<<< HEAD
       '@types/node': 20.8.6
+=======
+      '@types/node': 20.8.2
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     dev: false
 
   /@vitejs/plugin-react@4.1.0(vite@4.4.11):
@@ -2264,7 +2395,11 @@ packages:
       '@babel/plugin-transform-react-jsx-source': 7.22.5(@babel/core@7.23.2)
       '@types/babel__core': 7.20.2
       react-refresh: 0.14.0
+<<<<<<< HEAD
       vite: 4.4.11(@types/node@20.8.6)
+=======
+      vite: 4.4.0(@types/node@20.8.2)
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -2973,8 +3108,13 @@ packages:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.22.1
+<<<<<<< HEAD
       caniuse-lite: 1.0.30001549
       fraction.js: 4.3.7
+=======
+      caniuse-lite: 1.0.30001546
+      fraction.js: 4.3.6
+>>>>>>> b9caeb6 (install and config ui.shadcn)
       normalize-range: 0.1.2
       picocolors: 1.0.0
       postcss: 8.4.31
@@ -3213,10 +3353,13 @@ packages:
       bindings: 1.5.0
     dev: false
 
+<<<<<<< HEAD
   /bignumber.js@9.1.2:
     resolution: {integrity: sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==}
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
@@ -3320,6 +3463,7 @@ packages:
     dependencies:
       fill-range: 7.0.1
 
+<<<<<<< HEAD
   /brorand@1.1.0:
     resolution: {integrity: sha512-cKV8tMCEpQs4hK/ik71d6LrPOnpkpGBR0wzxqr68g2m/LB2GxVYQroAjMJZRVM1Y4BCjCKc3vAamxSzOY2RP+w==}
     dev: false
@@ -3335,13 +3479,20 @@ packages:
       safe-buffer: 5.2.1
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /browserslist@4.22.1:
     resolution: {integrity: sha512-FEVc202+2iuClEhZhrWy6ZiAcRLvNMyYcxZ8raemul1DYVOVdFsbqckWLdsixQZCpJlwe77Z3UTalE7jsjnKfQ==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
+<<<<<<< HEAD
       caniuse-lite: 1.0.30001549
       electron-to-chromium: 1.4.556
+=======
+      caniuse-lite: 1.0.30001546
+      electron-to-chromium: 1.4.542
+>>>>>>> b9caeb6 (install and config ui.shadcn)
       node-releases: 2.0.13
       update-browserslist-db: 1.0.13(browserslist@4.22.1)
 
@@ -3441,12 +3592,17 @@ packages:
     resolution: {integrity: sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==}
     dev: false
 
+<<<<<<< HEAD
   /caniuse-lite@1.0.30001549:
     resolution: {integrity: sha512-qRp48dPYSCYaP+KurZLhDYdVE+yEyht/3NlmcJgVQ2VMGt6JL36ndQ/7rgspdZsJuxDPFIo/OzBT2+GmIJ53BA==}
 
   /caseless@0.12.0:
     resolution: {integrity: sha512-4tYFyifaFfGacoiObjJegolkwSU4xQNGbVgUiNYVUxbQ2x2lUsFvY4hVgVzGiIe6WLOPqycWXA40l+PWsxthUw==}
     dev: false
+=======
+  /caniuse-lite@1.0.30001546:
+    resolution: {integrity: sha512-zvtSJwuQFpewSyRrI3AsftF6rM0X80mZkChIt1spBGEvRglCrjTniXvinc8JKRoqTwXAgvqTImaN9igfSMtUBw==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /chalk@1.1.3:
     resolution: {integrity: sha512-U3lRVLMSlsCfjqYPbLyVv11M9CPW4I728d6TCKMAOJueEeB9/8o+eSsMnxPJD+Q+K909sdESg7C+tIkoH6on1A==}
@@ -3487,6 +3643,7 @@ packages:
       normalize-path: 3.0.0
       readdirp: 3.6.0
     optionalDependencies:
+<<<<<<< HEAD
       fsevents: 2.3.3
 
   /chownr@1.1.4:
@@ -3515,6 +3672,9 @@ packages:
   /class-is@1.1.0:
     resolution: {integrity: sha512-rhjH9AG1fvabIDoGRVH587413LPjTZgmDF9fOFCbFJQV4yuocX1mHxxvXI4g3cGwbVY9wAYIoKlg1N79frJKQw==}
     dev: false
+=======
+      fsevents: 2.3.2
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /class-variance-authority@0.7.0:
     resolution: {integrity: sha512-jFI8IQw4hczaL4ALINxqLEXQbWcNjoSkloa4IaufXCJr6QawJyw7tuRysRsrE8w2p/4gGaxKIt/hX3qz/IbD1A==}
@@ -3947,6 +4107,7 @@ packages:
       stream-shift: 1.0.1
     dev: false
 
+<<<<<<< HEAD
   /ecc-jsbn@0.1.2:
     resolution: {integrity: sha512-eh9O+hwRHNbG4BLTjEl3nw044CkGm5X6LoaCf7LPp7UU8Qrt47JYNi6nPX8xjW97TKGKm1ouctg0QSpZe9qrnw==}
     dependencies:
@@ -3972,6 +4133,10 @@ packages:
       minimalistic-assert: 1.0.1
       minimalistic-crypto-utils: 1.0.1
     dev: false
+=======
+  /electron-to-chromium@1.4.542:
+    resolution: {integrity: sha512-6+cpa00G09N3sfh2joln4VUXHquWrOFx3FLZqiVQvl45+zS9DskDBTPvob+BhvFRmTBkyDSk0vvLMMRo/qc6mQ==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -4800,6 +4965,7 @@ packages:
       mime-types: 2.1.35
     dev: false
 
+<<<<<<< HEAD
   /forwarded@0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
     engines: {node: '>= 0.6'}
@@ -4807,6 +4973,10 @@ packages:
 
   /fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
+=======
+  /fraction.js@4.3.6:
+    resolution: {integrity: sha512-n2aZ9tNfYDwaHhvFTkhFErqOMIb8uyzSQ+vGJBjZyanAKZVbGUQ1sngfk9FdkBw7G26O7AgNjLcecLffD1c7eg==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     dev: true
 
   /framer-motion@6.5.1(react-dom@18.2.0)(react@18.2.0):
@@ -5373,12 +5543,15 @@ packages:
   /is-extglob@2.1.1:
     resolution: {integrity: sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ==}
     engines: {node: '>=0.10.0'}
+<<<<<<< HEAD
 
   /is-finalizationregistry@1.0.2:
     resolution: {integrity: sha512-0by5vtUJs8iFQb5TYUHHPudOR+qXYIMKtiUzvLIZITZUjknFmziyBJuLhVRc+Ds0dREFlskDNJKYIdIzu/9pfw==}
     dependencies:
       call-bind: 1.0.2
     dev: true
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /is-finite@1.1.0:
     resolution: {integrity: sha512-cdyMtqX/BOqqNBBiKlIVkytNHm49MtMlYyn1zxzvJKWmFMlGzm+ry5BBfYyeY9YmNKbRSo/o7OX9w9ale0wg3w==}
@@ -5412,11 +5585,14 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       is-extglob: 2.1.1
+<<<<<<< HEAD
 
   /is-hex-prefixed@1.0.0:
     resolution: {integrity: sha512-WvtOiug1VFrE9v1Cydwm+FnXd3+w9GaeVUss5W4v/SLy3UW00vP+6iNF2SdnfiBoLy4bTqVdkftNGTUeOFVsbA==}
     engines: {node: '>=6.5.0', npm: '>=3'}
     dev: false
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /is-map@2.0.2:
     resolution: {integrity: sha512-cOZFQQozTha1f4MxLFzlgKYPTyj26picdZTx82hbc/Xf4K/tZOOXSCkMvU4pKioRXGDLJRn0GM7Upe7kR721yg==}
@@ -5779,8 +5955,13 @@ packages:
   /lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
+<<<<<<< HEAD
   /lit-element@3.3.3:
     resolution: {integrity: sha512-XbeRxmTHubXENkV4h8RIPyr8lXc+Ff28rkcQzw3G6up2xg5E8Zu1IgOWIwBLEQsu3cOVFqdYwiVi0hv0SlpqUA==}
+=======
+  /lit-element@3.3.2:
+    resolution: {integrity: sha512-xXAeVWKGr4/njq0rGC9dethMnYCq5hpKYrgQZYTzawt9YQhMiXfD+T1RgrdY3NamOxwq2aXlb0vOI6e29CKgVQ==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.1.2
       '@lit/reactive-element': 1.6.3
@@ -5898,6 +6079,7 @@ packages:
     resolution: {integrity: sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==}
     dev: false
 
+<<<<<<< HEAD
   /media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
@@ -5907,10 +6089,13 @@ packages:
     resolution: {integrity: sha512-cCi6g3/Zr1iqQi6ySbseM1Xvooa98N0w31jzUYrXPX2xqObmFGHJ0tQ5u74H3mVh7wLouTseZyYIq39g8cNp1w==}
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
+<<<<<<< HEAD
   /methods@1.1.2:
     resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
     engines: {node: '>= 0.6'}
@@ -5920,6 +6105,8 @@ packages:
     resolution: {integrity: sha512-/0LLxhzP0tfiR5hcQebtudP56gUurs2CLkGarnCiB/OqEyUFQ6U3paQi/tgLv0hBJYt2rnr9MNpxz4fiiugstg==}
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /micromatch@2.3.11:
     resolution: {integrity: sha512-LnU2XFEk9xxSJ6rfgAry/ty5qwUTyHYOBU0g4R6tIw5ljwgGIBmiKhRWLw5NpMOnrgUNcDJ4WMp8rl3sYVHLNA==}
     engines: {node: '>=0.10.0'}
@@ -6092,6 +6279,7 @@ packages:
     resolution: {integrity: sha512-HoMUjhH9T8DDBNT+6xzkrd9ga/XiBI4xLr58LJACwK6G3HTOPeMz4nB4KJs33L2BelrIJa7P0VuNaVF3hMYfjg==}
     dev: false
 
+<<<<<<< HEAD
   /multihashes@0.4.21:
     resolution: {integrity: sha512-uVSvmeCWf36pU2nB4/1kzYZjsXD9vofZKpgudqkceYY5g2aZZXJ5r9lxuzoRLl1OAp28XljXsEJ/X/85ZsKmKw==}
     dependencies:
@@ -6100,6 +6288,8 @@ packages:
       varint: 5.0.2
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /mz@2.7.0:
     resolution: {integrity: sha512-z81GNO7nnYMEhrGh9LeymoE4+Yr0Wn5McHIZMK5cfQCl+NDX08sCZgUc9/6MHni9IWuFLm1Z3HTCXu2z9fN62Q==}
     dependencies:
@@ -6215,6 +6405,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+<<<<<<< HEAD
   /normalize-url@6.1.0:
     resolution: {integrity: sha512-DlL+XwOy3NxAQ8xuC0okPgK46iuVNAK01YN7RueYBqqFeGsBjV9XmCAzAdgt+667bCl5kPh9EqKKDwnaPG1I7A==}
     engines: {node: '>=10'}
@@ -6228,6 +6419,8 @@ packages:
       strip-hex-prefix: 1.0.0
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /numbro@1.11.1:
     resolution: {integrity: sha512-qL0Etqbunz4RtPx4bNjMONe9HyUpgbrM4Sa3VpWY5oRdp9ry5DufAj6lCvnIcluRBA9QUacrllYc73QK0G6VAw==}
     dev: false
@@ -6244,8 +6437,13 @@ packages:
     resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
     engines: {node: '>= 6'}
 
+<<<<<<< HEAD
   /object-inspect@1.13.0:
     resolution: {integrity: sha512-HQ4J+ic8hKrgIt3mqk6cVOVrW2ozL4KdvHlqpBv9vDYWx9ysAgENAdvy4FoGF+KFdhR7nQTNm5J0ctAeOwn+3g==}
+=======
+  /object-inspect@1.12.3:
+    resolution: {integrity: sha512-geUvdk7c+eizMNUDkRpW1wJwgfOiOeHbxBR/hLXK1aT6zmVSO0jsQcs7fj6MGw89jC/cjGfLcNOrtMYtGqm81g==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /object-is@1.1.5:
     resolution: {integrity: sha512-3cyDsyHgtmi7I7DfSSI2LDp6SK2lwvtbg0p0R1e0RvTqF5ceGx+K2dfSjm1bKDMVCFEDAQvy+o8c6a7VujOddw==}
@@ -6593,7 +6791,11 @@ packages:
       postcss: 8.4.31
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
+<<<<<<< HEAD
       resolve: 1.22.8
+=======
+      resolve: 1.22.2
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /postcss-js@4.0.1(postcss@8.4.31):
     resolution: {integrity: sha512-dDLF8pEO191hJMtlHFPRa8xsizHaM82MLfNkUHdUtVEV3tgTp5oj+8qbEqYM57SLfc74KSbw//4SeJma2LRVIw==}
@@ -6618,7 +6820,11 @@ packages:
     dependencies:
       lilconfig: 2.1.0
       postcss: 8.4.31
+<<<<<<< HEAD
       yaml: 2.3.3
+=======
+      yaml: 2.3.2
+>>>>>>> b9caeb6 (install and config ui.shadcn)
 
   /postcss-nested@6.0.1(postcss@8.4.31):
     resolution: {integrity: sha512-mEp4xPMi5bSWiMbsgoPfcP74lsWLHkQbZc3sY+jWYd65CUwXrUaTp0fmNpa01ZcETKlIgUdFN/MpS2xZtqL9dQ==}
@@ -7785,6 +7991,7 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+<<<<<<< HEAD
   /swarm-js@0.1.42:
     resolution: {integrity: sha512-BV7c/dVlA3R6ya1lMlSSNPLYrntt0LUq4YMgy3iwpCIc6rZnS5W2wUoctarZ5pXlpKtxDDf9hNziEkcfrxdhqQ==}
     dependencies:
@@ -7805,6 +8012,8 @@ packages:
       - utf-8-validate
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /tailwind-merge@1.14.0:
     resolution: {integrity: sha512-3mFKyCo/MBcgyOTlrY8T7odzZFx+w+qKSMAmdFzRvqBfLlSigU6TZnlFHK0lkMwj9Bj8OYU+9yW9lmGuS0QEnQ==}
     dev: false
@@ -7842,11 +8051,16 @@ packages:
       postcss-load-config: 4.0.1(postcss@8.4.31)
       postcss-nested: 6.0.1(postcss@8.4.31)
       postcss-selector-parser: 6.0.13
+<<<<<<< HEAD
       resolve: 1.22.8
+=======
+      resolve: 1.22.2
+>>>>>>> b9caeb6 (install and config ui.shadcn)
       sucrase: 3.34.0
     transitivePeerDependencies:
       - ts-node
 
+<<<<<<< HEAD
   /tar@4.4.19:
     resolution: {integrity: sha512-a20gEsvHnWe0ygBY8JbxoM4w3SJdhc7ZAuxkLqh+nvNQN2IOt0B5lLgM490X5Hl8FF0dl0tOf2ewFYAlIFgzVA==}
     engines: {node: '>=4.5'}
@@ -7860,6 +8074,8 @@ packages:
       yallist: 3.1.1
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /test-exclude@4.2.3:
     resolution: {integrity: sha512-SYbXgY64PT+4GAL2ocI3HwPa4Q4TBKm0cwAVeKOt/Aoc0gSpNRjJX8w0pA1LMKZ3LBmd8pYBqApFNQLII9kavA==}
     dependencies:
@@ -8085,6 +8301,7 @@ packages:
       which-boxed-primitive: 1.0.2
     dev: true
 
+<<<<<<< HEAD
   /undici-types@5.25.3:
     resolution: {integrity: sha512-Ga1jfYwRn7+cP9v8auvEXN1rX3sWqlayd4HP7OKk4mZWylEmu3KzXDUGrQUN6Ol7qo1gPvB2e5gX6udnyEPgdA==}
 
@@ -8098,6 +8315,8 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
+=======
+>>>>>>> b9caeb6 (install and config ui.shadcn)
   /update-browserslist-db@1.0.13(browserslist@4.22.1):
     resolution: {integrity: sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==}
     hasBin: true
@@ -8250,8 +8469,13 @@ packages:
       - zod
     dev: false
 
+<<<<<<< HEAD
   /vite@4.4.11(@types/node@20.8.6):
     resolution: {integrity: sha512-ksNZJlkcU9b0lBwAGZGGaZHCMqHsc8OpgtoYhsQ4/I2v5cnpmmmqe5pM4nv/4Hn6G/2GhTdj0DhZh2e+Er1q5A==}
+=======
+  /vite@4.4.0(@types/node@20.8.2):
+    resolution: {integrity: sha512-Wf+DCEjuM8aGavEYiF77hnbxEZ+0+/jC9nABR46sh5Xi+GYeSvkeEFRiVuI3x+tPjxgZeS91h1jTAQTPFgePpA==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -8278,10 +8502,17 @@ packages:
       terser:
         optional: true
     dependencies:
+<<<<<<< HEAD
       '@types/node': 20.8.6
       esbuild: 0.18.20
       postcss: 8.4.31
       rollup: 3.29.4
+=======
+      '@types/node': 20.8.2
+      esbuild: 0.18.11
+      postcss: 8.4.31
+      rollup: 3.26.2
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     optionalDependencies:
       fsevents: 2.3.3
 
@@ -8869,8 +9100,13 @@ packages:
     resolution: {integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==}
     dev: false
 
+<<<<<<< HEAD
   /yaml@2.3.3:
     resolution: {integrity: sha512-zw0VAJxgeZ6+++/su5AFoqBbZbrEakwu+X0M5HmcwUiBL7AzcuPKjj5we4xfQLp78LkEMpD0cOnUhmgOVy3KdQ==}
+=======
+  /yaml@2.3.2:
+    resolution: {integrity: sha512-N/lyzTPaJasoDmfV7YTrYCI0G/3ivm/9wdG0aHuheKowWQwGTsK0Eoiw6utmzAnI6pkJa0DUVygvp3spqqEKXg==}
+>>>>>>> b9caeb6 (install and config ui.shadcn)
     engines: {node: '>= 14'}
 
   /yargs-parser@18.1.3:
