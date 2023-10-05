@@ -119,16 +119,27 @@ export function useMultipoolData(
         }
 
     const processedAssets = assets.map(asset => {
-        const currentShare = asset.onchain == undefined ? 0 : Number(asset.onchain.price * asset.onchain.quantity / context.usdCap) * 100 / Number(parseEther('1'));
-        // console.log(context);
-        const idealShare = asset.onchain == undefined ? 0 : Number(asset.onchain.share * parseEther('1') / context.totalTargetShares) * 100 / Number(parseEther('1'));
-        // console.log(idealShare);
+        const ONE: BigNumber = BigNumber.from((parseEther('1')));
+        const currentShare = asset.onchain == undefined ? FixedNumber.from(0) :
+            FixedNumber.fromValue(
+                BigNumber.from(asset.onchain.price)
+                    .mul(BigNumber.from(asset.onchain.quantity))
+                    .mul(BigNumber.from(100))
+                    .div(BigNumber.from(context.usdCap)))
+                .divUnsafe(FixedNumber.from(ONE));
+        const idealShare = asset.onchain == undefined ? FixedNumber.from(0) :
+            FixedNumber.fromValue(
+                BigNumber.from(asset.onchain.share)
+                    .mul(ONE)
+                    .mul(BigNumber.from(100))
+                    .div(BigNumber.from(context.totalTargetShares)))
+                .divUnsafe(FixedNumber.from(ONE));
         return {
             name: asset.symbol,
             symbol: asset.symbol,
             assetAddress: asset.address,
-            currentShare: FixedNumber.from(currentShare.toString()),
-            idealShare: FixedNumber.from(idealShare.toString()),
+            currentShare: currentShare,
+            idealShare: idealShare,
             price: FixedNumber.from(asset?.gecko?.usd.toString() || 0),
             quantity: BigNumber.from(asset?.onchain?.quantity || 0),
             logo: asset.logo,
@@ -143,7 +154,7 @@ export function useMultipoolData(
             mcap: FixedNumber.from(asset?.gecko?.usd_market_cap.toString() || 0),
             volume24h: FixedNumber.from(asset?.gecko?.usd_24h_vol.toString() || 0),
             priceChange24h: FixedNumber.from(asset?.gecko?.usd_24h_change.toString() || 0),
-            deviationPercent: FixedNumber.from(currentShare.toString()).subUnsafe(FixedNumber.from(idealShare.toString())),
+            deviationPercent: currentShare.subUnsafe(idealShare),
             ticker: asset.symbol,
         };
     });
