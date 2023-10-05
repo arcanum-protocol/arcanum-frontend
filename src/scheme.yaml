@@ -41,7 +41,7 @@
           "address": "0x4e352cf164e64adcbad318c3a1e222e9eba4ce42"
           "price_origin": "gecko"
 "arbi-testnet": 
-    "address": "0xd33b947658c9f80bffcd47c300c479e6125ec7bf"
+    "address": "0x27b5be75d5362ececa15a61adaf4adf86a4abbf3"
     "router_address": "0xad79b9d522367294d228379d7c040b952bd3b462"
     "rpc_url": "https://sepolia-rollup.arbitrum.io/rpc"
     "name": "ARBI"
