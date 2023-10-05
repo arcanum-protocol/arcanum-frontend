@@ -5,16 +5,18 @@ import {
     ConnectKitButton,
     ConnectKitProvider,
 } from "connectkit";
-import * as React from 'react';
 import { Link, Outlet } from "react-router-dom";
 import Modal from 'react-modal';
 Modal.setAppElement('#root');
 import { useMobileMedia } from "./hooks/tokens";
 
-import { chains, config } from './config';
+import { config } from './config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getSVG } from "./lib/svg-adapter";
 import { useRef, useState } from "react";
+import { Button } from "@/components/ui/button"
+import { ThemeProvider } from "./contexts/ThemeProvider";
+import "../app/globals.css";
 
 const client = new QueryClient();
 
@@ -23,10 +25,12 @@ function App() {
         <QueryClientProvider client={client}>
             <WagmiConfig config={config}>
                 <ConnectKitProvider theme="midnight">
-                    <main>
-                        <Navbar />
-                        <Outlet />
-                    </main >
+                    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                        <main>
+                            <Navbar />
+                            <Outlet />
+                        </main >
+                    </ThemeProvider>
                 </ConnectKitProvider>
             </WagmiConfig>
         </QueryClientProvider>
@@ -183,6 +187,7 @@ function Navbar() {
                 <div style={{ marginRight: "10px" }}>
                     {getChainIcon()}
                 </div>
+                <Button>Click me</Button>
                 <ConnectKitButton />
             </div>
         </div>
