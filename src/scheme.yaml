@@ -83,7 +83,7 @@
           "address": "0xa6d918bee60067228ceb1ef8cdf2438ec33be6c9"
           "price_origin": "gecko"
 "bali-testnet": 
-    "address": "0x7b1d82E701cb8537B4C47173F395E2A9A63Af8da"
+    "address": "0x36e8d65bdd7f60d091c1400b91c542ba10a6dc44"
     "router_address": "0x241630cf68AB007AfA8E503554249f0746c8DC66"
     "rpc_url": "https://opbnb-testnet-rpc.bnbchain.org"
     "name": "BALI"
