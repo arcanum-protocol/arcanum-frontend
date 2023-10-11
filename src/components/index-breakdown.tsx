@@ -1,12 +1,9 @@
-import * as React from 'react';
 import { FixedNumber } from "@ethersproject/bignumber";
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
-import { useMobileMedia } from "../hooks/tokens";
 import { Tooltip } from './tooltip';
 
 export function IndexAssetsBreakdown({ fetchedAssets }) {
-    const isMobile = useMobileMedia();
     let randomindexes: number[] = [];
 
     for (let i = 0; i < fetchedAssets?.length * 6; i++) {
@@ -21,7 +18,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 }}>
                     <img style={{ width: "25px", height: "25px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
                 </div>
-                {!isMobile ? <>{asset.name} ({asset.symbol})</> : <>{asset.symbol}</>}
+                {<>{asset.name} ({asset.symbol})</>}
             </div>
             <div key={randomindexes[1 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
                 {Number(asset.idealShare.toString()).toFixed(2)}%
@@ -50,7 +47,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
             borderRadius: "10px",
             width: "100%",
         }}>
-            <h1 style={{ display: "flex", marginTop: "15px", alignSelf: isMobile ? "center" : "flex-start", fontSize: "20px", marginLeft: !isMobile ? "15px" : undefined }}>Asset breakdown</h1>
+            <h1 style={{ display: "flex", marginTop: "15px", alignSelf: "center", fontSize: "20px", marginLeft: "15px" }}>Asset breakdown</h1>
             <div style={{
                 margin: "5px 10px",
                 display: "grid",

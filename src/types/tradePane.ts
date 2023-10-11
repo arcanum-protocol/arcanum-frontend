@@ -4,4 +4,4 @@ type TradePaneTexts = {
     section2Name: "Receive",
 }
 
-export { TradePaneTexts }
+export { type TradePaneTexts }

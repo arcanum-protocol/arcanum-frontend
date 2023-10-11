@@ -1,11 +1,9 @@
-import React, { useState, useContext, createContext, useEffect } from 'react';
-import type { SolidAsset } from '../types/solidAsset';
-import { MultipoolAsset } from '../types/multipoolAsset';
 import { Address } from 'viem';
-import { TradeLogicAdapter } from '../types/tradeLogicAdapter';
 import { useAccount } from 'wagmi';
-import { SendTransactionParams } from '../types/sendTransactionParams';
 import { EstimatedValues } from '../types/estimatedValues';
+import { TradeLogicAdapter } from '../types/tradeLogicAdapter';
+import React, { useState, useContext, createContext} from 'react';
+import { SendTransactionParams } from '../types/sendTransactionParams';
 
 export interface TradeContextValue {
     routerAddress: Address;
@@ -13,9 +11,6 @@ export interface TradeContextValue {
 
     userAddress: Address;
     setAdress: (value: Address) => void;
-
-    assets: MultipoolAsset[];
-    setAssets: (assets: MultipoolAsset[]) => void;
 
     inputHumanReadable: string | undefined;
     setInputHumanReadable: (value: string) => void;
@@ -28,12 +23,6 @@ export interface TradeContextValue {
 
     outputQuantity: string | undefined;
     setOutputQuantity: (quantity: string | undefined) => void;
-
-    inputAsset: MultipoolAsset | SolidAsset | undefined;
-    setInputAsset: (asset: MultipoolAsset | SolidAsset) => void;
-
-    outputAsset: MultipoolAsset | SolidAsset | undefined;
-    setOutputAsset: (asset: MultipoolAsset | SolidAsset) => void;
 
     slippage: number;
     setSlippage: (value: number) => void;
@@ -78,13 +67,12 @@ export interface TradeContextValue {
 
 const TradeContext = createContext<TradeContextValue | null>(null);
 
-export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: MultipoolAsset | SolidAsset, contextOutputAddress?: MultipoolAsset | SolidAsset, tradeLogicAdapter: TradeLogicAdapter, multipoolAddress: Address, routerAddress: Address, fetchedAssets: MultipoolAsset[], children: React.ReactNode }> = ({ contextInputAsset, contextOutputAddress, tradeLogicAdapter, multipoolAddress, routerAddress, fetchedAssets, children }) => {
+export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLogicAdapter, multipoolAddress: string | undefined, routerAddress: string | undefined, children: React.ReactNode }> = ({ tradeLogicAdapter, multipoolAddress, routerAddress, children }) => {
+    const _multipoolAddress = multipoolAddress as Address;
+    const _routerAddress = routerAddress as Address;
+
     const user = useAccount();
     const [userAddress, setAddress] = useState<Address>(user.address as Address);
-    const [assets, setAssets] = useState<MultipoolAsset[]>([]);
-
-    const [inputAsset, setInputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(contextInputAsset || fetchedAssets[0]);
-    const [outputAsset, setOutputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(contextOutputAddress || fetchedAssets[1]);
     
     const [inputQuantity, setInputQuantity] = useState<string | undefined>(undefined);
     const [outputQuantity, setOutputQuantity] = useState<string | undefined>(undefined);
@@ -94,7 +82,7 @@ export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: Multip
     const [inputHumanReadable, setInputHumanReadable] = useState<string | undefined>();
     const [outputHumanReadable, setOutputHumanReadable] = useState<string | undefined>();
 
-    const [slippage, setSlippage] = useState<number>(0.5);
+    const [slippage, setSlippage] = useState<number>(0.1);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -125,16 +113,7 @@ export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: Multip
         userAddress,
         setAdress: setAddress,
 
-        routerAddress,
-
-        assets,
-        setAssets,
-
-        inputAsset,
-        setInputAsset,
-
-        outputAsset,
-        setOutputAsset,
+        routerAddress: _routerAddress,
 
         slippage,
         setSlippage,
@@ -173,7 +152,7 @@ export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: Multip
         setMainInput: setMainInputHandler,
 
         tradeLogicAdapter,
-        multipoolAddress
+        multipoolAddress: _multipoolAddress,
     };
 
     return (

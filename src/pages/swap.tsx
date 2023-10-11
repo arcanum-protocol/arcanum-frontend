@@ -1,19 +1,18 @@
-import React, { useState, useRef } from 'react';
-import { useMobileMedia } from '../hooks/tokens';
+import { useRef } from 'react';
 import { Faucet } from '../components/faucet-modal';
 import { swapAdapter } from '../lib/trade-adapters';
 import { TradePaneInner } from '../components/trade-pane';
 import { useMultipoolData } from '../lib/multipool';
-import { getSVG } from '../lib/svg-adapter';
 import { TradeProvider } from '../contexts/TradeContext';
 import { Address } from 'wagmi';
-import { useNetwork } from 'wagmi';
+import {
+    Accordion,
+    ArcanumAccordion,
+} from "@/components/ui/accordion"
+
 
 export function Swap() {
-    const { chain } = useNetwork();
-
     const me = useRef(null);
-    const isMobile = useMobileMedia();
 
     const { data, error, isLoading } = useMultipoolData('arbi');
 
@@ -24,6 +23,7 @@ export function Swap() {
             </div>
         )
     }
+    
     if (error) {
         return (
             <div>
@@ -33,46 +33,19 @@ export function Swap() {
     }
 
     return (
-        <div
-            style={{
-                display: "flex",
-                marginTop: "40px",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-                rowGap: "5px",
-                width: "100%",
-            }}>
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    flexDirection: isMobile ? "column" : undefined,
-                    gap: "10px",
-                    width: "100%",
-                }}>
-                <div
-                    style={{
-                        display: "flex",
-                        backgroundColor: "#1B1B1B",
-                        maxWidth: "400px",
-                        justifySelf: "center",
-                        borderRadius: "20px",
-                        marginLeft: isMobile ? "auto" : undefined,
-                        marginRight: isMobile ? "auto" : undefined,
-                        width: !isMobile ? "400px" : "100%",
-                        justifyContent: "center"
-                    }}>
-                    <div style={{ display: "flex", width: "100%", justifyContent: "center" }} ref={me}>
+        <div className='flex flex-col justify-center items-center gap-5 mt-8 w-full'>
+            <div className='gap-10 w-fit'>
+                <div className='bg-zinc-900 rounded-2xl mx-auto'>
+                    <div className='flex w-full justify-center' ref={me}>
                         <TradeProvider
                             tradeLogicAdapter={swapAdapter}
-                            multipoolAddress={data?.multipool.assetAddress as Address}
+                            multipoolAddress={data?.multipool.address as Address}
                             routerAddress={data?.multipool.routerAddress as Address}
                             fetchedAssets={data?.assets!}
                         >
                             <TradePaneInner
                                 routerAddress={data?.multipool.routerAddress as Address}
-                                multipoolAddress={data?.multipool.assetAddress as Address}
+                                multipoolAddress={data?.multipool.address as Address}
                                 assetsIn={data?.assets!}
                                 assetsOut={data?.assets!}
                                 tradeLogicAdapter={swapAdapter}
@@ -86,94 +59,26 @@ export function Swap() {
                         </TradeProvider>
                     </div >
                 </div >
+                <Accordion type="single" collapsible style={{ width: "400px", "padding-left": "12px", "padding-right": "12px" }}>
+                    <ArcanumAccordion
+                        title={"Note?"}
+                        content={"This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Arbitrum sepolia only."}
+                    />
+                    <ArcanumAccordion
+                        title={"What is it for?"}
+                        content={"For swapping of assets between ETFs on one chain. This creates more arbitrage opportunities - between ETFs' pools on Arcanum platform."}
+                    />
+                    <ArcanumAccordion
+                        title={"When can I test?"}
+                        content={"When more than one ETF on one chain is released."}
+                    />
+                    <ArcanumAccordion
+                        title={"Where can I get test native(gas) tokens?"}
+                        content={"Best choise is to find tokens on faucet.quicknode.com"}
+                    />
+                </Accordion>
+                <Faucet assets={data?.assets} />
             </div >
-            <Accordion
-                title={"Note?"}
-                content={"This is the DEMO page for the Arcanum cross-ETF swaps. Currently available on Arbitrum sepolia only."}
-            />
-            <Accordion
-                title={"What is it for?"}
-                content={"For swapping of assets between ETFs on one chain. This creates more arbitrage opportunities - between ETFs' pools on Arcanum platform."}
-            />
-            <Accordion
-                title={"When can I test?"}
-                content={"When more than one ETF on one chain is released."}
-            />
-            <Accordion
-                title={"Where can I get test native(gas) tokens?"}
-                content={"Best choise is to find tokens on faucet.quicknode.com"}
-            />
-            <Faucet assets={data?.assets} />
         </div >
-    );
-}
-
-export function Accordion({ title, content }) {
-    const isMobile = useMobileMedia();
-    const [isOpened, setOpen] = useState(false);
-    return (
-        <>
-
-            <div
-                onClick={(e) => setOpen(!isOpened)}
-                style={{
-                    display: "flex",
-                    backgroundColor: "#1B1B1B",
-                    maxWidth: "400px",
-                    justifySelf: "center",
-                    borderRadius: "10px",
-                    marginLeft: isMobile ? "auto" : undefined,
-                    marginRight: isMobile ? "auto" : undefined,
-                    width: !isMobile ? "400px" : "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    flexDirection: "column",
-                }}>
-                <div style={{
-                    display: "flex",
-                    maxWidth: "400px",
-                    justifySelf: "center",
-                    width: !isMobile ? "400px" : "100%",
-                }}>
-                    <div style={{
-                        display: "flex",
-                        paddingTop: "0px",
-                        justifySelf: "center", margin: "0", marginLeft: "20px",
-                        fontWeight: "bold"
-                    }}>
-                        {title}
-                    </div>
-                    <div style={{
-                        marginLeft: "auto", flex: 1,
-                        marginRight: "20px",
-                        justifySelf: "flex-end",
-                        justifyContent: "flex-end",
-                        display: "flex", width: "20px", height: "20px",
-                        margin: "2px",
-                    }}>
-                        <img style={{
-                            transform: isOpened ? "rotate(180deg)" : undefined,
-                            transition: "transform 2s",
-                            transitionDelay: "0.1s",
-                        }} src={getSVG("chevron-down")} />
-                    </div>
-                </div>
-                <div style={{
-                    display: "flex",
-                    maxWidth: "400px",
-                    justifySelf: "center",
-                    transition: "max-height 2s",
-                    transitionDelay: "0.1s",
-                    maxHeight: isOpened ? "400px" : "0",
-                    overflow: "hidden",
-                    width: !isMobile ? "400px" : "100%",
-                    textAlign: isMobile ? "center" : "left",
-                }}>
-                    <p style={{ marginLeft: "10px", marginRight: "10px" }}>
-                        {content}
-                    </p>
-                </div>
-            </div>
-        </>
     );
 }

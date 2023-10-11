@@ -6,7 +6,6 @@ import {
     type ResolutionString,
     type ChartingLibraryFeatureset
 } from '../lib/charting_library';
-import { useMobileMedia } from '../hooks/tokens';
 
 export const SUPPORTED_RESOLUTIONS = { 1: "1m", 3: "3m", 5: "5m", 15: "15m", 30: "30m", 60: "1h", 720: "12h", "1D": "1d" };
 
@@ -78,8 +77,6 @@ export interface ChartContainerProps {
 const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv' }) => {
     const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
 
-    const isMobile = useMobileMedia();
-
     useEffect(() => {
         const widgetOptions: ChartingLibraryWidgetOptions = {
             theme: "dark",
@@ -114,7 +111,7 @@ const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv
                 "use_localstorage_for_settings",
                 "right_bar_stays_on_scroll",
                 "symbol_info",
-            ].concat(isMobile ? disabledFeaturesOnMobile : []) as ChartingLibraryFeatureset[],
+            ].concat(disabledFeaturesOnMobile) as ChartingLibraryFeatureset[],
             user_id: defaultChartProps.userId,
             custom_css_url: '/tradingview-chart.css',
             fullscreen: false,

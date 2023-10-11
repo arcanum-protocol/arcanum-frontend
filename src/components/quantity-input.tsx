@@ -7,12 +7,14 @@ import { Quantities } from "../types/quantities";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 
 interface QuantityInputProps {
+    className?: string;
     decimals: number;
     quantityInputName: string;
     chainId: number;
 }
 
 export function QuantityInput({
+    className,
     decimals,
     quantityInputName,
     chainId,
@@ -41,14 +43,14 @@ export function QuantityInput({
         setSendTransctionParams } = useTradeContext();
 
     const inTokenData = useTokenWithAddress({
-        tokenAddress: inputAsset?.assetAddress as Address,
+        tokenAddress: inputAsset?.address as Address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
         chainId: chainId,
     });
 
     const outTokenData = useTokenWithAddress({
-        tokenAddress: outputAsset?.assetAddress as Address,
+        tokenAddress: outputAsset?.address as Address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
         chainId: chainId,
@@ -155,7 +157,8 @@ export function QuantityInput({
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
+        <div className={className} 
+        style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
             <input
                 style={{
                     width: "100%",

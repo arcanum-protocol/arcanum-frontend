@@ -1,7 +1,7 @@
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 
 interface MultipoolAsset {
-    assetAddress: string,
+    address: string,
     multipoolAddress: string,
     assetId: string,
     idealShare: FixedNumber,
@@ -24,4 +24,4 @@ interface MultipoolAsset {
     deviationPercent: FixedNumber,
 }
 
-export { MultipoolAsset };
+export { type MultipoolAsset };

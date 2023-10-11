@@ -4,7 +4,6 @@
   font-weight: 400;
 
   color: #fff;
-  background-color: rgb(16, 16, 16);
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
@@ -24,16 +23,6 @@
 #navbar_ul li {
   display: inline;
   padding: 10px;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #747bff;
 }
 
 body {

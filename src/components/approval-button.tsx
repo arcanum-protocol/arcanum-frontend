@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { MaxUint256 } from "ethers";
 import { useModal } from 'connectkit';
 import multipoolABI from '../abi/ETF';
@@ -10,19 +9,14 @@ import { useTradeContext } from '../contexts/TradeContext';
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
-    tokenData: {
-        data: TokenWithAddress | undefined;
-        isLoading: boolean;
-        isError: boolean;
-        isUnset: boolean;
-    },
+    token: TokenWithAddress | undefined,
     networkId: number,
     errorMessage?: string
 }
 
 export function InteractionWithApprovalButton({
     approveMax,
-    tokenData,
+    token,
     networkId
 }: InteractionWithApprovalButtonProps) {
     const { estimationErrorMessage, estimatedValues } = useTradeContext();
@@ -39,12 +33,6 @@ export function InteractionWithApprovalButton({
         );
     }
 
-    const {
-        data: token,
-        isLoading: isTokenDataLoading,
-        isUnset: isTokenDataUnset,
-    } = tokenData;
-
     const allowance: bigint = token?.approval?.row || BigInt(0);
     const { isConnected } = useAccount();
 
@@ -55,7 +43,7 @@ export function InteractionWithApprovalButton({
         abi: multipoolABI,
         functionName: 'approve',
         args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
-        enabled: !isTokenDataLoading && !isTokenDataUnset && allowance >= interactionBalance,
+        enabled: allowance >= interactionBalance,
         chainId: networkId,
     });
     
@@ -105,7 +93,7 @@ export function InteractionWithApprovalButton({
                 </button>
             </div >
         );
-    } else if (isTokenDataLoading || approvalTxnIsLoading || txnIsLoading) {
+    } else if (approvalTxnIsLoading || txnIsLoading) {
         return (
             <div>
                 <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>

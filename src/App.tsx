@@ -8,14 +8,18 @@ import {
 import { Link, Outlet } from "react-router-dom";
 import Modal from 'react-modal';
 Modal.setAppElement('#root');
-import { useMobileMedia } from "./hooks/tokens";
 
-import { config } from './config';
+import { config, moralisConfig } from './config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getSVG } from "./lib/svg-adapter";
-import { useRef, useState } from "react";
-import { Button } from "@/components/ui/button"
 import { ThemeProvider } from "./contexts/ThemeProvider";
+import {
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import "../app/globals.css";
 
 const client = new QueryClient();
@@ -39,159 +43,50 @@ function App() {
 
 function Navbar() {
     const { chain } = useNetwork();
-    const [hovered, setHovered] = useState(location.pathname);
-    const isMobile = useMobileMedia();
-    const [mobileReferencesActive, setMobileReferences] = useState(false);
-
-    const modal = useRef(null);
-
-    const links = [
-        { title: "Swap", route: "/swap" },
-        { title: "Arbitrum index", route: "/arbi" },
-        { title: "Docs", route: "https://docs.arcanum.to" },
-    ];
 
     function getChainIcon() {
         if (!chain) {
             return <div />;
         }
-        return <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={25} />;
+        return <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={35} />;
     }
 
-    const references =
-        <div style={{ display: "flex", fontSize: "20px", gap: "40px", flex: "1", alignItems: "center", justifyContent: "center" }}>
-            {
-                links.map(({ title, route }, index) => {
-                    let item = <div
-                        key={index}
-                        style={{
-                            display: "flex",
-                            borderRadius: "10px",
-                            backgroundColor: hovered == route ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0)",
-                            color: "var(--wh)",
-                        }}
-                        onMouseOver={() => { setHovered(route) }}
-                        onMouseOut={() => { setHovered(location.pathname) }}
-                    >
-                        <span style={{ margin: "1px 10px" }}>{title}</span>
-                    </div>;
-                    return (
-                        route.startsWith('/') ?
-                            <Link
-                                key={index}
-                                to={route}
-                            >
-                                {item}
-                            </Link> :
-                            <a href={route}
-                                key={index}
-                            >
-                                {item}
-                            </a>
-                    );
-                })
-            }
-        </div >;
-
-    const mobileMenuModal = <div
-        ref={modal}
-        style={{
-            position: "fixed",
-            overflowX: "auto",
-            backgroundColor: "var(--bc)",
-            top: "0",
-            left: "0",
-            height: "100vh",
-            zIndex: "1",
-            display: "flex",
-            gap: "10px",
-            justifyItems: "flex-start",
-            flexDirection: "column",
-            width: "300px",
-            transition: "max-width .5s",
-            maxWidth: mobileReferencesActive ? "300px" : "0px",
-        }}>
-        <div style={{ marginLeft: "10px", marginTop: "10px", display: "flex", alignItems: "center" }}>
-            <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", justifyContent: "flex-start" }}>
+    return (
+        <div className="w-full flex flex-row justify-between items-center">
+            <div className="flex items-center justify-center w-12 h-12">
                 <img src={getSVG("logo")} />
             </div>
-            <div style={{
-                display: "flex",
-                width: "30px",
-                height: "30px",
-                flex: "1",
-                justifyContent: "flex-end",
-                marginRight: "10px",
-            }}
-                onClick={() => setMobileReferences(false)}
-            >
-                <img src={getSVG("closeIcon")} />
-            </div>
-        </div>
-        <div style={{
-            marginLeft: "10px",
-            marginTop: "10px", flexDirection: "column",
-            gap: "20px",
-            display: "flex", alignItems: "flex-start"
-        }}>
-            {
-                links.map(({ title, route }, index) => {
-                    let item = <div
-                        key={index}
-                        style={{
-                            display: "flex",
-                            borderRadius: "10px",
-                            color: "var(--wh)",
-                        }}
-                    >
-                        <span>{title}</span>
-                    </div>;
-                    return (
-                        route.startsWith('/') ?
-                            <Link key={index} to={route}
-                                state={{ reloaded: route }}
-                            >
-                                {item}
-                            </Link> :
-                            <a key={index}
-                                href={route}>
-                                {item}
-                            </a>
-                    );
-                })
-            }
-        </div>
-    </div >;
-
-    return (<nav>
-        <div style={{
-            display: "flex", alignItems: "center", width: "100%",
-            overflow: "auto"
-        }}>
-            {mobileMenuModal}
-            {
-                isMobile ? <div
-                    onClick={e => setMobileReferences(true)}
-                    style={{ display: "flex", marginRight: "10px" }}>
-                    <img src={getSVG("navMenuIcon")} />
-                </div >
-                    :
-                    <div />
-            }
-            { }
-            <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", alignContent: "center", justifyContent: "flex-start" }}>
-                <img src={getSVG("logo")} />
-            </div>
-            {!isMobile ? references : <div />}
-            <div style={{ display: "flex", flex: "1", justifyContent: "flex-end", alignItems: "center", gap: "5px" }}>
-                <div style={{ marginRight: "10px" }}>
-                    {getChainIcon()}
-                </div>
-                <Button>Click me</Button>
+            <NavigationMenu>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <Link to="/swap">
+                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                Swap
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <Link to="/arbi">
+                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                ARBI
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <Link to="https://docs.arcanum.to">
+                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                                Documentation
+                            </NavigationMenuLink>
+                        </Link>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+            <div className="flex flex-row justify-center items-center gap-3">
+                {getChainIcon()}
                 <ConnectKitButton />
             </div>
         </div>
-    </nav >);
+    );
 }
 
 export { App };

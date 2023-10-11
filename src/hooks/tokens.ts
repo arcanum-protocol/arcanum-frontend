@@ -32,12 +32,8 @@ export type TokenWithAddress = {
     } | undefined,
 }
 
-export function useMobileMedia(): boolean {
-    return useMedia("(max-width: 550px)");
-}
-
 interface TokenWithAddressParams {
-    tokenAddress: Address,
+    tokenAddress: string | undefined,
     userAddress: Address,
     allowanceTo: Address,
     chainId: number
@@ -55,13 +51,13 @@ export function useTokenWithAddress({
     isUnset: boolean,
 } {
     const { data: tokenData, isError: isTokenError, isLoading: isTokenLoading } = useToken({
-        address: tokenAddress,
+        address: tokenAddress as Address,
         enabled: tokenAddress != undefined,
         chainId: chainId,
     })
 
     const { data: tokenBalance, isError: isBalanceError, isLoading: isBalanceLoading } = useContractRead({
-        address: tokenAddress,
+        address: tokenAddress as Address,
         abi: multipoolABI,
         functionName: 'balanceOf',
         args: [userAddress],
@@ -71,7 +67,7 @@ export function useTokenWithAddress({
     });
 
     const { data: approvedTokenBalance, isError: isAllowanceError, isLoading: isAllowanceLoading } = useContractRead({
-        address: tokenAddress,
+        address: tokenAddress as Address,
         abi: multipoolABI,
         functionName: 'allowance',
         args: [userAddress, allowanceTo],
@@ -207,8 +203,6 @@ export function useEstimate(
     } else if (errorMessage == undefined) {
         errorText = undefined;
     }
-
-    console.log("cost", cost);
 
     return {
         data: returnData,

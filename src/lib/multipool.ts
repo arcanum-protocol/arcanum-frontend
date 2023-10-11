@@ -98,7 +98,7 @@ export function useMultipoolData(
         };
 
     const multipool = {
-        assetAddress: mp.address,
+        address: mp.address,
         routerAddress: mp.router_address,
         name: mp.name,
         chainId: Number(mp.chain_id),
@@ -126,7 +126,7 @@ export function useMultipoolData(
         return {
             name: asset.symbol,
             symbol: asset.symbol,
-            assetAddress: asset.address,
+            address: asset.address,
             currentShare: FixedNumber.from(currentShare.toString()),
             idealShare: FixedNumber.from(idealShare.toString()),
             price: FixedNumber.from(asset?.gecko?.usd.toString() || 0),

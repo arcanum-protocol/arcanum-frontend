@@ -9,4 +9,4 @@ type TradeLogicAdapter = {
     parseEstimationResult: (v: any, params: SendTransactionParams) => EstimatedValues | undefined,
 }
 
-export { TradeLogicAdapter }
+export {type TradeLogicAdapter }

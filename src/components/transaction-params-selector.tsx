@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { FixedNumber } from "ethers";
 import { useState, useEffect } from "react";
 import { SendTransactionParams } from "./trade-pane";
@@ -6,7 +5,6 @@ import { SendTransactionParams } from "./trade-pane";
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useTradeContext } from '../contexts/TradeContext';
 import { Tooltip } from './tooltip';
-import { useMobileMedia } from '../hooks/tokens';
 
 interface TransactionParamsSelectorProps {
     txnParams: SendTransactionParams | undefined;
@@ -20,7 +18,6 @@ interface TransactionParamsSelectorProps {
 
 export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }: TransactionParamsSelectorProps) {
     const { estimatedValues, transactionCost } = useTradeContext();
-    console.log(transactionCost);
 
     const [priceToggled, togglePrice] = useState(true);
 
@@ -187,10 +184,6 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
 
 export function SlippageSelector({ slippageSetter }) {
     const [slippage, setSlippage] = useState<number>(1);
-    const isMobile = useMobileMedia();
-    if (isMobile) {
-        return;
-    }
 
     useEffect(() => { slippage && slippageSetter(slippage) }, [slippage]);
 
@@ -198,62 +191,38 @@ export function SlippageSelector({ slippageSetter }) {
     const [selectedSlippageType, setType] = useState<number>(2);
     const slippagePresets = [0.1, 0.5, 1, 3];
     return (
-        <div style={{
-            display: "flex", width: "100%",
-            marginBottom: "0px"
-        }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-                <div style={{
-                    display: "flex",
-                    border: "1px solid #363636",
-                    padding: "5px",
-                    margin: "auto",
-                    borderRadius: "16px",
-                }}>
-                    <div style={{
-                        display: "flex",
-                    }}>
-                        <div style={{
-                            display: "flex",
-                            borderRadius: "10px",
-                            justifyContent: "center",
-                        }}>
-                            {slippagePresets.map((slippage: number, index: number) => {
-                                return (
-                                    <div
-                                        key={index}
-                                        onClick={e => { setType(index); setSlippage(slippage) }}
-                                        style={{
-                                            borderRadius: "12px",
-                                            color: index != selectedSlippageType ? undefined : "var(--bl)",
-                                            backgroundColor: index == selectedSlippageType ? "var(--wh)" : undefined,
-                                            cursor: "pointer",
-                                            justifySelf: "center",
-                                            fontSize: "18px",
-                                        }}>
-                                        <p style={{ margin: "0 15px" }}>{slippage}%</p>
-                                    </div>
-                                );
-                            })}
+        <div className='flex w-full mb-0'>
+            <div className='flex flex-col w-full gap-[10px] w-full'>
+                <div className='flex m-auto border border-[##292524] rounded-2xl min-w-full'>
+                    <div className='flex rounded-lg justify-between h-4 items-center min-w-full'>
+                        {slippagePresets.map((slippage: number, index: number) => {
+                            return (
+                                <div
+                                    key={index}
+                                    onClick={e => { setType(index); setSlippage(slippage) }}
+                                    className={
+                                        `flex-initial w-1/6 rounded-xl cursor-pointer justify-between text-lg transition ease-in-out delay-50 transition-all -my-1 -ml-[1px]
+                                        ${index == selectedSlippageType ? "bg-[#292524]" : "bg-transparent"}`
+                                    }>
+                                    <p className='text-xs font-thin min-h-full hover:border rounded-2xl'>{slippage}%</p>
+                                </div>
+                            );
+                        })}
+                        <div className={
+                            `inline-flex inline-flex flex-row w-2/6 hover:border rounded-2xl -mx-[0.5px] border border-transparent
+                            ${selectedSlippageType == 4 ? "bg-[#292524]" : "bg-transparent"}`
+                        }>
                             <input
-                                style={{
-                                    display: "flex",
-                                    width: "100%",
-                                    overflow: "hidden",
-                                    border: "none",
-                                    outline: "none",
-                                    fontSize: "18px",
-                                    boxSizing: "border-box",
-                                    background: "none",
-                                    color: "var(--wh)",
-                                }}
+                                className={
+                                    `flex-initial overflow-hidden text-xs font-thin slate-600 bg-transparent outline-none text-end mr-2`
+                                }
                                 value={selectedSlippageType == 4 ? slippage : undefined}
                                 placeholder="Custom"
                                 onChange={e => {
                                     setType(4);
                                     try {
                                         if (e.target.value == "") {
-                                            setSlippage(slippagePresets[2]);
+                                            setSlippage(slippagePresets[0]);
                                             setType(2);
                                         }
                                         let val = FixedNumber.fromString(e.target.value);
@@ -264,16 +233,17 @@ export function SlippageSelector({ slippageSetter }) {
                                     } catch { }
                                 }}
                             />
+                            <div className='text-xs font-thin'>%</div>
                         </div>
                     </div>
                 </div>
-                <div style={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex" }}>
+                <div className='flex w-full justify-between'>
+                    <div className='flex'>
                         <Tooltip>
-                            <p style={{ margin: "0", textDecoration: "underline" }}>
+                            <p className='m-0 underline'>
                                 Slippage tolerance
                             </p>
-                            <p style={{ margin: "5px" }}>
+                            <p className='m-3'>
                                 The parameter that shows how much funds is allowed to be spend according to fast price change.
                             </p>
                         </Tooltip>

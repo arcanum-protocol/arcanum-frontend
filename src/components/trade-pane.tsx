@@ -1,169 +1,149 @@
 import _ from "lodash";
-import React from 'react';
-import { Address, useAccount } from 'wagmi'
+import { Address } from 'wagmi'
+import { Button } from "./ui/button";
 import { QuantityInput } from './quantity-input';
-import { TradePaneTexts } from '../types/tradePane';
-import { toHumanReadable } from '../lib/format-number';
-import { InteractionWithApprovalButton } from './approval-button';
-import { useTokenWithAddress } from '../hooks/tokens';
-import { MultipoolAssetSelector } from "./multipool-assets-selector";
-import { TransactionParamsSelector } from './transaction-params-selector';
-import { useTradeContext } from "../contexts/TradeContext";
 import { SolidAsset } from "../types/solidAsset";
+import { useTokenWithAddress } from '../hooks/tokens';
+import { toHumanReadable } from '../lib/format-number';
+import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { useTradeContext } from "../contexts/TradeContext";
 import type { MultipoolAsset } from "../types/multipoolAsset";
+import { InteractionWithApprovalButton } from './approval-button';
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
 import type { TradeLogicAdapter } from '../types/tradeLogicAdapter';
+import { TransactionParamsSelector } from './transaction-params-selector';
 import type { SendTransactionParams } from '../types/sendTransactionParams';
 
 
 interface TradePaneProps {
     assetsIn: MultipoolAsset[] | SolidAsset;
     assetsOut: MultipoolAsset[] | SolidAsset;
-    tradeLogicAdapter: TradeLogicAdapter;
-    paneTexts: TradePaneTexts;
-    selectTokenParent: React.RefObject<HTMLDivElement>;
+    action: "mint" | "burn" | "swap" | "add";
     networkId: number;
-    routerAddress: Address;
-    multipoolAddress: Address;
 }
 
 export function TradePaneInner({
-    assetsIn,
-    assetsOut,
-    paneTexts,
-    selectTokenParent,
+    action,
     networkId
 }: TradePaneProps) {
-    const texts: TradePaneTexts = paneTexts;
+    const {
+        tokenIn,
+        tokenOut,
+        externalAssets,
+        setTokenIn,
+        setTokenOut,
+        multipool
+    } = useMultiPoolContext();
+
+    if (action === "mint") {
+        setTokenIn(externalAssets?.[0]);
+        setTokenOut(multipool);
+    }
+    if (action === "burn") {
+        setTokenIn(multipool);
+        setTokenOut(externalAssets?.[0]);
+    }
+    if (action === "swap") {
+        setTokenIn(externalAssets?.[0]);
+        setTokenOut(externalAssets?.[1]);
+    }
 
     const {
         userAddress,
         setSlippage,
-        inputAsset,
-        outputAsset,
         routerAddress,
         transactionCost,
         sendTransctionParams
     } = useTradeContext();
 
-    const tokenIn = useTokenWithAddress({ tokenAddress: inputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress, chainId: networkId });
-    const tokenOut = useTokenWithAddress({ tokenAddress: outputAsset?.assetAddress as Address, userAddress: userAddress, allowanceTo: routerAddress, chainId: networkId });
+    const { data: inputToken } = useTokenWithAddress({ tokenAddress: tokenIn?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: networkId });
+    const { data: outputToken } = useTokenWithAddress({ tokenAddress: tokenOut?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: networkId });
 
     return (
-        <div style={
-            {
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                maxWidth: "400px",
-                width: "100%",
-                marginTop: "20px",
-            }
-        }>
+        <div className="flex flex-col justify-center w-[400px] mt-[20px]">
             <TokenQuantityInput
-                assetDisableFilter={(asset: MultipoolAsset) => Number(asset.deviationPercent) > 10}
-                text={texts.section1Name}
-                decimals={tokenIn.data?.decimals!}
-                assets={assetsIn}
-                initialAssetIndex={0}
-                selectTokenParent={selectTokenParent}
-                balance={tokenIn.data?.balance.formatted || "0"}
+                text={"Send"}
+                decimals={inputToken?.decimals!}
+                balance={inputToken?.balance.formatted || "0"}
                 chainId={networkId}
             />
             <TokenQuantityInput
-                assetDisableFilter={(asset: MultipoolAsset) => Number(asset.deviationPercent) < -10}
-                text={texts.section2Name}
-                decimals={tokenOut.data?.decimals!}
-                assets={assetsOut}
-                initialAssetIndex={1}
-                selectTokenParent={selectTokenParent}
-                balance={tokenOut.data?.balance.formatted || "0"}
+                text={"Receive"}
+                decimals={outputToken?.decimals!}
+                balance={outputToken?.balance.formatted || "0"}
                 chainId={networkId}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
                 <TransactionParamsSelector txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={() => setSlippage} />
                 <InteractionWithApprovalButton
                     approveMax={true}
-                    tokenData={tokenIn}
+                    token={inputToken}
                     networkId={networkId}
                 />
-            </div >
-        </div >
+            </div>
+        </div>
     );
 }
 
 interface TokenQuantityInputProps {
-    initialAssetIndex: number;
-    assetDisableFilter: (asset: MultipoolAsset) => boolean;
     text: "Send" | "Receive";
     decimals: number;
-    assets: MultipoolAsset[] | SolidAsset;
-    selectTokenParent: React.RefObject<HTMLDivElement>;
     balance: string;
     chainId: number;
 }
 
 export function TokenQuantityInput({
-    initialAssetIndex,
-    assetDisableFilter,
     text,
     decimals,
-    assets,
-    selectTokenParent,
     balance,
     chainId
 }: TokenQuantityInputProps) {
     const { estimatedValues } = useTradeContext();
+    const { tokenIn, tokenOut, selectToken } = useMultiPoolContext();
+
+    let tokenSymbol: string | undefined = undefined;
+    let logoImage: string | undefined = undefined;
+    let estimatedValuesText: string | undefined = undefined;
+
+    if (text === "Send") {
+        tokenSymbol = tokenIn?.symbol || undefined;
+        logoImage = tokenIn?.logo || undefined;
+        estimatedValuesText = estimatedValues?.estimatedAmountIn?.usd || "0";
+    } else {
+        tokenSymbol = tokenOut?.symbol || undefined;
+        logoImage = tokenOut?.logo || undefined;
+        estimatedValuesText = estimatedValues?.estimatedAmountOut?.usd || "0";
+    }
+
     return (
-        <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            margin: "1px 20px",
-            borderRadius: "16px",
-            background: "var(--bl)",
-            height: "100%",
-        }}>
-            <div style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start", justifyContent: "space-between",
-                marginLeft: "10px", marginTop: "10px", marginBottom: "10px",
-            }}>
-                <div style={{ display: "flex", }}>
-                    <p style={{
-                        fontSize: "18px",
-                        margin: "0"
-                    }}> {text} </p>
-                </div>
-                <QuantityInput
+        <div className="flex flex-col justify-between items-start rounded-2xl border h-full mx-[20px] my-[1px] p-3">
+            <p className="text-xs m-0">{text} </p>
+            <div className="flex flex-row flex-start items-start justify-between">
+                <QuantityInput className="flex-auto w-3/4"
                     decimals={decimals}
                     quantityInputName={text}
                     chainId={chainId}
                 />
-                <p style={{
-                    margin: "0", marginTop: "1px", fontSize: "13px",
-                    opacity: "0.3"
-                }}>{(text === "Send" ? estimatedValues?.estimatedAmountIn?.usd || "0" : estimatedValues?.estimatedAmountOut?.usd || "0") + "$"}</p>
+                <Button className="grow max-w-min rounded-2xl pl-0.5 pr-0.5 justify-between" variant="secondary" onClick={() => selectToken(text)}>
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src={logoImage} alt="Logo" />
+                        <AvatarFallback>{tokenSymbol}</AvatarFallback>
+                    </Avatar>
+                    <p className="px-0.5">{tokenSymbol}</p>
+                    <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                </Button>
             </div>
-            <div style={{
-                display: "flex", flexDirection: "column",
-                alignItems: "flex-end", justifyContent: "space-between",
-                marginRight: "10px", marginTop: "10px", marginBottom: "10px",
-                width: "100%",
-                height: "80%",
-            }}>
-                <MultipoolAssetSelector
-                    name={text}
-                    disableFilter={assetDisableFilter}
-                    modalParent={selectTokenParent}
-                    assetList={assets}
-                    initialIndex={initialAssetIndex} />
-                <p style={{
-                    margin: "0", fontSize: "13px",
-                    opacity: "0.3"
-                }}> Balance: {toHumanReadable(balance)}</p>
+            <div className="flex flex-row justify-between w-full mt-[4px]">
+                <p className="m-0 text-xs text-gray-500">
+                    {estimatedValuesText + "$"}
+                </p>
+                <p className="m-0 text-gray-500 text-xs">
+                    Balance: {toHumanReadable(balance)}
+                </p>
             </div>
-        </div>);
+        </div>
+    );
 }
-export { TradeLogicAdapter, SendTransactionParams };
 
+export { TradeLogicAdapter, SendTransactionParams };

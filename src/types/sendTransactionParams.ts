@@ -14,4 +14,4 @@ type SendTransactionParams = {
     multipoolAddress: string,
 };
 
-export { SendTransactionParams }
+export { type SendTransactionParams }
