@@ -31,6 +31,8 @@ export function useMultipoolData(
         chainId: mp.chain_id,
         watch: true,
     });
+    console.log(context);
+    console.log(ctxIsError);
 
     const { data: totalSupply, isError: tsIsError, isLoading: tsIsLoading } = useContractRead({
         address: mp.address,
@@ -118,6 +120,7 @@ export function useMultipoolData(
             assets[i].gecko = geckoData[assets[i].coingecko_id];
         }
 
+    console.log(context.usdCap);
     const processedAssets = assets.map(asset => {
         const ONE: BigNumber = BigNumber.from((parseEther('1')));
         const currentShare = asset.onchain == undefined ? FixedNumber.from(0) :
