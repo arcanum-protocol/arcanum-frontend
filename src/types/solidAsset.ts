@@ -1,7 +1,7 @@
 import { BigNumber } from "@ethersproject/bignumber";
 
 interface SolidAsset {
-    assetAddress: string,
+    address: string,
     routerAddress: string,
     name: string,
     symbol: string,
@@ -14,4 +14,4 @@ interface SolidAsset {
     chainId: Number,
 }
 
-export { SolidAsset };
+export { type SolidAsset };
