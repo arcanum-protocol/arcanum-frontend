@@ -70,7 +70,14 @@ function TokenSelector({ action }: TokenSelectorProps) {
             return "";
         }
 
+<<<<<<< HEAD
         const value = toDollarValue(token);
+=======
+        const divisor = new BigNumber(10).pow(token.decimals);
+        const balance = new BigNumber(token.balance);
+        const price = new BigNumber(token.price).div(divisor);
+        const value = balance.div(divisor).multipliedBy(price);
+>>>>>>> f847ec7 (fix prices)
 
         return "$" + value.toFixed(5).toString();
     }
