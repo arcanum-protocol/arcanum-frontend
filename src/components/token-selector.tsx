@@ -34,9 +34,10 @@ function TokenSelector() {
             return "";
         }
 
-        const root = new BigNumber(token.balance);
         const divisor = new BigNumber(10).pow(token.decimals);
-        const value = root.div(divisor).multipliedBy(token.price);
+        const balance = new BigNumber(token.balance);
+        const price = new BigNumber(token.price).div(divisor);
+        const value = balance.div(divisor).multipliedBy(price);
 
         return "$" + value.toFixed(5).toString();
     }

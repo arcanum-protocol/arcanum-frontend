@@ -138,30 +138,35 @@ function useTokenPrices(tokens: ExternalToken[] | undefined): {
     isLoading: boolean;
     error: any;
 } {
+    if (!tokens) {
+        return {
+            tokenPrices: undefined,
+            isLoading: false,
+            error: "tokens was undefined"
+        };
+    }
+
     const { data, isLoading, error } = useQuery(['tokenPrices'], async () => {
-        const positiveTokens = tokens?.filter((token) => token.balance !== undefined && token.balance > 0).slice(0, 30);
-        const list = positiveTokens?.map((token) => token.address).join(',');
+        const configEthPriceRequest = {
+            method: 'get',
+            url: 'https://token-rates-aggregator.1inch.io/v1.0/native-token-rate?vs=USD'
+        };
+
+        const ethPriceResponse = await axios(configEthPriceRequest);
+        const ethPrice = Number(ethPriceResponse.data["42161"]["USD"]);
 
         const config = {
             method: 'get',
-            url: `https://api.dexscreener.com/latest/dex/tokens/${list}`
+            url: `https://token-prices.1inch.io/v1.1/42161`
         };
 
         const responce = await axios(config);
-        const contractPrice = responce.data.pairs.map((pair: any) => {
-            return {
-                contract: pair.contract,
-                price: pair.price
-            };
-        });
+        const contracts = Object.keys(responce.data);
 
-        return contractPrice;
-
-        tokens?.map((token) => {
-            const price = contractPrice.find((pair: any) => pair.contract === token.address);
-            if (price) {
-                token.price = price.price;
-            }
+        contracts?.map((token) => {
+            const tokenIndex = tokens?.findIndex((t) => t.address === token);
+            if (tokenIndex === -1) return;
+            tokens[tokenIndex].price = Number(responce.data[token]) * ethPrice;
         });
 
         return tokens;
