@@ -108,7 +108,7 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
     const massiveMintRouter = getMassiveMintRouter();
 
     setSelectedTab(selectedTab);
-    
+
     return (
         <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
             <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
@@ -169,6 +169,7 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
         }
     }
 
+<<<<<<< HEAD
     if (multipoolInfo == undefined) {
         // skeleton
         return (
@@ -226,6 +227,30 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
                     <p className='text-sm'>24h low</p>
                     <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
                 </div>
+=======
+    return (
+        <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
+            <p className='text-3xl p-0 font-bold'>{multipoolInfo?.symbol || ""}</p>
+            <div>
+                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</p>
+                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo?.price?.toFixed(4) : "0"}$</p>
+            </div>
+            <div>
+                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</p>
+                <p style={{
+                    fontSize: "16px",
+                    margin: "0px", padding: "0px",
+                    color: getColor(multipoolInfo),
+                }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</p>
+            </div>
+            <div>
+                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</p>
+                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.high24h.toFixed(4) : "0"}$</p>
+            </div>
+            <div>
+                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</p>
+                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</p>
+>>>>>>> a9e0f04 (fix head)
             </div>
         </div>
     );
