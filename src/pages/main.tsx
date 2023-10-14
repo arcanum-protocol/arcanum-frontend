@@ -98,7 +98,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress, cla
     } = useMultiPoolContext();
 
     setSelectedTab(selectedTab);
-    
+
     return (
         <div className={className}>
             <Tabs className="grid-cols-3 w-[400px] bg-[#09090b] rounded-xl border" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
@@ -151,7 +151,7 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress, cla
     )
 }
 
-export function Head({ multipool }) {
+export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
     const multipoolInfo: SolidAsset | undefined = multipool;
     const RED = "#fa3c58";
     const GREEN = "#0ecc83";
@@ -171,73 +171,27 @@ export function Head({ multipool }) {
     }
 
     return (
-        <div className='flex w-full rounded-lg border'
-            style={{
-                gap: "40px",
-            }}>
-            <p style={{
-                fontSize: "35px",
-                padding: "0",
-                marginTop: "5px",
-                marginBottom: "0px",
-                alignSelf: "center",
-                height: "95%",
-                justifySelf: "flex-start",
-                gridRow: "1/12",
-                gridColumn: "1",
-                marginLeft: "10px",
-            }}>{multipoolInfo?.symbol || ""}</p>
-            <div style={{
-                display: "flex",
-                flex: "1",
-                justifyContent: "space-around",
-                marginTop: "8px",
-                height: "100%",
-                alignItems: "flex-start"
-            }}>
-                <div style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    height: "100%",
-                    alignItems: "flex-start"
-                }}>
-                    <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</p>
-                    <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo?.price?.toFixed(4) : "0"}$</p>
-                </div>
-                <>
-                    <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "flex-start"
-                    }}>
-                        <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</p>
-                        <p style={{
-                            fontSize: "16px",
-                            margin: "0px", padding: "0px",
-                            color: getColor(multipoolInfo),
-                        }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</p>
-                    </div>
-                    <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "flex-start"
-                    }}>
-                        <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</p>
-                        <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.high24h.toFixed(4) : "0"}$</p>
-                    </div>
-                    <div style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "flex-start"
-                    }}>
-                        <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</p>
-                        <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</p>
-                    </div>
-                </>
+        <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
+            <p className='text-3xl p-0 font-bold'>{multipoolInfo?.symbol || ""}</p>
+            <div>
+                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</p>
+                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo?.price?.toFixed(4) : "0"}$</p>
+            </div>
+            <div>
+                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</p>
+                <p style={{
+                    fontSize: "16px",
+                    margin: "0px", padding: "0px",
+                    color: getColor(multipoolInfo),
+                }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</p>
+            </div>
+            <div>
+                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</p>
+                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.high24h.toFixed(4) : "0"}$</p>
+            </div>
+            <div>
+                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</p>
+                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</p>
             </div>
         </div>
     );
