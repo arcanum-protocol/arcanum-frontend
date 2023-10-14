@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect } from "react";
+import { ChangeEvent, useEffect } from "react";
 import { useTradeContext } from "../contexts/TradeContext";
 import { SendTransactionParams } from "./trade-pane";
 import { Address } from "wagmi";
@@ -159,18 +159,7 @@ export function QuantityInput({
     return (
         <div className={className} 
         style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
-            <input
-                style={{
-                    width: "100%",
-                    boxSizing: "content-box",
-                    overflow: "hidden",
-                    fontFamily: "Neue Machina",
-                    border: "none",
-                    outline: "none",
-                    fontSize: "24px",
-                    background: "none",
-                    color: "#fff",
-                }}
+            <input className="w-full text-3xl h-10 rounded-lg p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                 value={inputQuantityScope}
                 placeholder="0"
                 onChange={handleInputChange}

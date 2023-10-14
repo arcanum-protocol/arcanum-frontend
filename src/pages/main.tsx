@@ -107,6 +107,8 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
 
     const massiveMintRouter = getMassiveMintRouter();
 
+    setSelectedTab(selectedTab);
+    
     return (
         <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
             <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>

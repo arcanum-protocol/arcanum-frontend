@@ -71,6 +71,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         const value = toDollarValue(token);
 =======
         const divisor = new BigNumber(10).pow(token.decimals);
@@ -78,6 +79,9 @@ function TokenSelector({ action }: TokenSelectorProps) {
         const price = new BigNumber(token.price).div(divisor);
         const value = balance.div(divisor).multipliedBy(price);
 >>>>>>> f847ec7 (fix prices)
+=======
+        const value = toDollarValue(token);
+>>>>>>> 0367ffb (finish trade pane)
 
         return "$" + value.toFixed(5).toString();
     }
@@ -116,6 +120,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
     function setToken(token: ExternalAsset | MultipoolAsset) {
         if (action === "set-token-in") {
             setTokenIn(token);
+<<<<<<< HEAD
             setSelectedTab(selectedSCTab);
         } else {
             setTokenOut(token);
@@ -130,6 +135,22 @@ function TokenSelector({ action }: TokenSelectorProps) {
             <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
                 <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10" 
                     onClick={() => setSelectedTab(selectedSCTab)}>
+=======
+            setTab(selectedSCTab);
+        } else {
+            setTokenOut(token);
+            setTab(selectedSCTab);
+        }
+    }
+
+    const data = useTokenSearch(tokens, search);
+
+    return (
+        <>
+            <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
+                <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10" 
+                    onClick={() => setTab(selectedSCTab)}>
+>>>>>>> 0367ffb (finish trade pane)
                     <ChevronLeftIcon className="pt-2 h-8 w-8" />
                 </a>
                 <div className="font-mono font-bold">Select a token</div>
@@ -148,10 +169,18 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                 <div key={index} className={
                                     `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer px-3 ` +
                                     (data.map((token) => token.address).includes(token.address) ? "" : "hidden")
+<<<<<<< HEAD
                                 } onClick={() => setToken(token)}>
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={token.logo || undefined} alt="Logo" />
+=======
+                                } onClick={() => setToken(token)}
+                                >
+                                    <div className="flex flex-row justify-between items-center gap-2">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={token.logo} alt="Logo" />
+>>>>>>> 0367ffb (finish trade pane)
                                             <AvatarFallback>{"?"}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col text-start">
@@ -165,7 +194,11 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                             </div>
                                         </div>
                                     </div>
+<<<<<<< HEAD
                                     <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
+=======
+                                    <p className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</p>
+>>>>>>> 0367ffb (finish trade pane)
                                 </div>
                             )
                         })

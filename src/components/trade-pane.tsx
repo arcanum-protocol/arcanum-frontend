@@ -44,6 +44,9 @@ export function TradePaneInner({
     const sendDisabled = action === "burn";
     const receiveDisabled = action === "mint";
 
+    const sendDisabled = action === "burn";
+    const receiveDisabled = action === "mint";
+
     return (
         <div className="flex flex-col justify-center mt-[1rem]">
             <div className="flex flex-col gap-4 items-center">
