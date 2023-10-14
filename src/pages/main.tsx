@@ -1,19 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useMultipoolData } from "../lib/multipool";
-import { SolidAsset } from '../types/solidAsset';
 import { useSearchParams } from 'react-router-dom';
 import { Faucet } from '../components/faucet-modal';
 import TVChartContainer from '../components/tv-chart';
-import type { MultipoolAsset } from '../types/multipoolAsset';
+import type { MultipoolAsset, SolidAsset } from '../types/multipoolAsset';
 import { IndexAssetsBreakdown } from '../components/index-breakdown';
 import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
 import { TradeProvider } from '../contexts/TradeContext';
 import { TradePaneInner } from '../components/trade-pane';
-import { Address } from 'viem';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MultiPoolContext, MultiPoolProvider } from '@/contexts/MultiPoolContext';
+import { MultiPoolProvider, useMultiPoolContext } from '@/contexts/MultiPoolContext';
 import { useArbitrumTokens } from '@/hooks/externalTokens';
 import { TokenSelector } from '@/components/token-selector';
+import { set } from 'lodash';
 
 export function Cpt() {
     return (<MainInner
@@ -44,6 +43,7 @@ interface MainInnerProps {
 
 export function MainInner({ multipool_id }: MainInnerProps) {
     const { data, error, isLoading } = useMultipoolData(multipool_id);
+    const { ExternalAssets } = useArbitrumTokens();
 
     if (isLoading) {
         return (
@@ -66,18 +66,20 @@ export function MainInner({ multipool_id }: MainInnerProps) {
     const multipoolAsset = data!.multipool;
 
     return (
-        <div className='flex flex-row w-full mt-10 gap-2 align-start'>
+        <div className='flex flex-row w-full mt-0.5 gap-2 align-start'>
             <div className='flex flex-col items-center w-full gap-2'>
                 <Head multipool={multipoolAsset} />
                 {multipoolAsset && <TVChartContainer symbol={multipool_id} />}
                 <Faucet assets={fetchedAssets} />
                 <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
             </div >
-            <MintBurnTabs className="max-h-fit"
-                routerAddress={routerAddress}
-                fetchedAssets={fetchedAssets}
-                multipoolAsset={multipoolAsset}
-            />
+            <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} >
+                <MintBurnTabs className="max-h-fit"
+                    routerAddress={routerAddress}
+                    fetchedAssets={fetchedAssets}
+                    multipoolAsset={multipoolAsset}
+                />
+            </MultiPoolProvider>
         </div >
     );
 }
@@ -90,81 +92,61 @@ interface MintBurnTabsProps {
 }
 
 export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress, className }: MintBurnTabsProps) {
-    const [value, setValue] = useState<"mint" | "burn" | "swap" | "add" | "set-token-in" | "set-token-out" | undefined>("mint");
-    const { externalTokens, isLoading, error } = useArbitrumTokens();
+    const {
+        selectedTab,
+        setSelectedTab,
+    } = useMultiPoolContext();
 
-    if (isLoading) {
-        return <div />;
-    }
-
+    setSelectedTab(selectedTab);
+    
     return (
         <div className={className}>
-            <MultiPoolProvider externalTokens={externalTokens} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} selectToken={setValue} >
-                <Tabs className="w-[400px] bg-[#09090b] rounded-xl border" value={value} onValueChange={(value: string | undefined) => setValue(value)}>
-                    <TabsList className="w-[400px]">
-                        <TabsTrigger value="mint">
-                            Mint
-                        </TabsTrigger>
-                        <TabsTrigger value="burn">
-                            Burn
-                        </TabsTrigger>
-                        <TabsTrigger value="swap">
-                            Swap
-                        </TabsTrigger>
-                        <TabsTrigger value="add">
-                            Add Liqudity
-                        </TabsTrigger>
+            <Tabs className="grid-cols-3 w-[400px] bg-[#09090b] rounded-xl border" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="mint">Mint</TabsTrigger>
+                    <TabsTrigger value="burn">Burn</TabsTrigger>
+                    <TabsTrigger value="swap">Swap</TabsTrigger>
 
-                        <TabsTrigger value="set-token-in" className="hidden" />
-                        <TabsTrigger value="set-token-out" className="hidden" />
+                    <TabsTrigger value="set-token-in" className="hidden" />
+                    <TabsTrigger value="set-token-out" className="hidden" />
 
-                    </TabsList>
-                    <TabsContent value="mint">
-                        <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
-                            <TradePaneInner
-                                assetsIn={fetchedAssets}
-                                assetsOut={multipoolAsset!}
-                                networkId={multipoolAsset?.chainId as number}
-                                action="mint" />
-                        </TradeProvider>
-                    </TabsContent>
-                    <TabsContent value="burn">
-                        <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
-                            <TradePaneInner
-                                assetsIn={multipoolAsset!}
-                                assetsOut={fetchedAssets}
-                                networkId={multipoolAsset?.chainId as number}
-                                action="burn" />
-                        </TradeProvider>
-                    </TabsContent>
-                    <TabsContent value="swap">
-                        <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
-                            <TradePaneInner
-                                assetsIn={fetchedAssets}
-                                assetsOut={fetchedAssets}
-                                networkId={multipoolAsset?.chainId as number}
-                                action="swap" />
-                        </TradeProvider>
-                    </TabsContent>
-                    <TabsContent value="add-liqudity">
-                        <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
-                            <TradePaneInner
-                                assetsIn={fetchedAssets}
-                                assetsOut={fetchedAssets}
-                                networkId={multipoolAsset?.chainId as number}
-                                action="add" />
-                        </TradeProvider>
-                    </TabsContent>
+                </TabsList>
+                <TabsContent value="mint">
+                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
+                        <TradePaneInner
+                            assetsIn={fetchedAssets}
+                            assetsOut={multipoolAsset!}
+                            networkId={multipoolAsset?.chainId as number}
+                            action="mint" />
+                    </TradeProvider>
+                </TabsContent>
+                <TabsContent value="burn">
+                    <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
+                        <TradePaneInner
+                            assetsIn={multipoolAsset!}
+                            assetsOut={fetchedAssets}
+                            networkId={multipoolAsset?.chainId as number}
+                            action="burn" />
+                    </TradeProvider>
+                </TabsContent>
+                <TabsContent value="swap">
+                    <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
+                        <TradePaneInner
+                            assetsIn={fetchedAssets}
+                            assetsOut={fetchedAssets}
+                            networkId={multipoolAsset?.chainId as number}
+                            action="swap" />
+                    </TradeProvider>
+                </TabsContent>
 
-                    <TabsContent value="set-token-in">
-                        <TokenSelector/>
-                    </TabsContent>
+                <TabsContent value="set-token-in">
+                    <TokenSelector action="set-token-in" />
+                </TabsContent>
 
-                    <TabsContent value="set-token-out">
-                        <TokenSelector/>
-                    </TabsContent>
-                </Tabs >
-            </MultiPoolProvider>
+                <TabsContent value="set-token-out">
+                    <TokenSelector action="set-token-out" />
+                </TabsContent>
+            </Tabs >
         </div>
     )
 }
@@ -221,7 +203,7 @@ export function Head({ multipool }) {
                     alignItems: "flex-start"
                 }}>
                     <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</p>
-                    <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.price.toFixed(4) : "0"}$</p>
+                    <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo?.price?.toFixed(4) : "0"}$</p>
                 </div>
                 <>
                     <div style={{
