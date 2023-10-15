@@ -2,7 +2,7 @@ import axios from 'axios';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
 import { useQuery } from '@tanstack/react-query';
 import type { MultipoolAsset } from '../types/multipoolAsset';
-import { SolidAsset } from '../types/solidAsset';
+import { SolidAsset } from '../types/multipoolAsset';
 import SCHEME from '../scheme.yaml';
 import multipoolABI from '../abi/ETF';
 import { useContractReads } from 'wagmi';

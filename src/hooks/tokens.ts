@@ -1,15 +1,11 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
-import { useContractRead, useToken, useNetwork, useAccount, Address, useQuery } from 'wagmi'
+import { useContractRead, useToken, useAccount, Address, useQuery } from 'wagmi'
 import { EstimatedValues } from '../types/estimatedValues';
 import { EstimationTransactionBody } from '../types/estimationTransactionBody';
 import { SendTransactionParams } from '../types/sendTransactionParams';
 import { TradeLogicAdapter } from '../components/trade-pane';
-import { useMedia } from 'react-use';
-import { useDebounce } from 'use-debounce';
-import * as React from 'react';
 import { publicClient } from '../config';
-import { useEffect, useState } from 'react';
 import { Gas } from '@/types/gas';
 
 export type TokenWithAddress = {
@@ -37,7 +33,7 @@ interface TokenWithAddressParams {
     tokenAddress: string | undefined,
     userAddress: Address,
     allowanceTo: Address,
-    chainId: number
+    chainId?: number
 }
 
 export function useTokenWithAddress({
@@ -111,18 +107,65 @@ export function useTokenWithAddress({
     }
 }
 
-export function useEstimate(
-    adapter: TradeLogicAdapter,
-    params: SendTransactionParams,
+export function useEstimateTransactionCost(
+    sendTransactionParams: EstimationTransactionBody,
     chainId: number,
 ): {
-    data: EstimatedValues | undefined,
-    transactionCost: Gas | undefined,
+    data: Gas | undefined,
     isLoading: boolean,
     isError: boolean,
     error: string | undefined,
 } {
     const { address } = useAccount();
+    const { data: result, isError, isLoading, error } = useQuery(['gasPrice'], async () => {
+        const gasPriceRaw = await publicClient({ chainId: chainId }).getGasPrice();
+        const gasPrice = Number(gasPriceRaw) / Math.pow(10, 15);
+        const gas = await publicClient({ chainId: chainId }).estimateContractGas({
+            account: address,
+            abi: sendTransactionParams?.abi,
+            address: sendTransactionParams?.address as Address,
+            args: sendTransactionParams?.args,
+            functionName: sendTransactionParams?.functionName,
+        });
+
+        const cost = gasPrice * Number(gas);
+        return {
+            gas: Number(gas),
+            gasPrice: gasPrice,
+            cost: cost,
+        } as Gas;
+    }, {
+        enabled: sendTransactionParams != undefined && sendTransactionParams.enabled,
+        refetchInterval: false,
+        refetchIntervalInBackground: false,
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
+        retry: false,
+        staleTime: 0,
+    });
+
+    return {
+        data: result,
+        isError: isError,
+        isLoading: isLoading,
+        error: error,
+    };
+}
+
+export function useEstimate(
+    adapter: TradeLogicAdapter,
+    params: SendTransactionParams,
+    chainId: number,
+): {
+    data: {
+        estimationResult: EstimatedValues | undefined,
+        transactionCost: Gas | undefined
+    },
+    isLoading: boolean,
+    isError: boolean,
+    error: string | undefined,
+} {
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
 
     let errorText: string | undefined = "";
@@ -133,7 +176,6 @@ export function useEstimate(
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
         enabled: txnBodyParts != undefined && txnBodyParts.enabled,
-        watch: true,
         chainId: chainId,
         onError: (e) => {
             if (e.message?.includes("MULTIPOOL: DO")) {
@@ -150,30 +192,13 @@ export function useEstimate(
         },
     });
 
-    const { data: gasPrice } = useQuery(['gasPrice'], async () => {
-        const gasPriceRaw = await publicClient({ chainId: chainId }).getGasPrice();
-        const gasPrice = Number(gasPriceRaw) / Math.pow(10, 15);
-        const gas = await publicClient({ chainId: chainId }).estimateContractGas({
-            account: address,
-            abi: adapter.parseEstimationResult(txnData, params)?.txn.abi,
-            address: adapter.parseEstimationResult(txnData, params)?.txn.address as Address,
-            args: adapter.parseEstimationResult(txnData, params)?.txn.args,
-            functionName: adapter.parseEstimationResult(txnData, params)?.txn.functionName,
-        });
-
-        const cost = gasPrice * Number(gas);
-        return {
-            gas: Number(gas),
-            gasPrice: gasPrice,
-            cost: cost,
-        } as Gas;
-    });
-
-    console.log("gasPrice", adapter.parseEstimationResult(txnData, params));
+    const { data: transactionCost } = useEstimateTransactionCost(txnBodyParts as EstimationTransactionBody, chainId);
 
     return {
-        data: adapter.parseEstimationResult(txnData, params),
-        transactionCost: gasPrice,
+        data: {
+            estimationResult: adapter.parseEstimationResult(txnData, params),
+            transactionCost: transactionCost
+        },
         isError: isError,
         isLoading: isLoading,
         error: errorText,

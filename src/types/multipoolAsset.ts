@@ -19,7 +19,7 @@ interface SolidAssetSpecific {
     low24h: Number;
     high24h: Number;
     change24h: Number;
-    chainId: Number;
+    chainId: number;
 }
 
 type SolidAsset = BaseAsset & SolidAssetSpecific;

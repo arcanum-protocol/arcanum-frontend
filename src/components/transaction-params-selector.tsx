@@ -1,5 +1,5 @@
 import { FixedNumber } from "ethers";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { SendTransactionParams } from "./trade-pane";
 
 import 'react-loading-skeleton/dist/skeleton.css'
@@ -8,15 +8,9 @@ import { Tooltip } from './tooltip';
 
 interface TransactionParamsSelectorProps {
     txnParams: SendTransactionParams | undefined;
-    txnCost: {
-        gas: number;
-        gasPrice: number;
-        cost: number;
-    } | undefined;
-    slippageSetter: (slippage: number) => void;
 }
 
-export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }: TransactionParamsSelectorProps) {
+export function TransactionParamsSelector({ txnParams }: TransactionParamsSelectorProps) {
     const { estimatedValues, transactionCost } = useTradeContext();
 
     const [priceToggled, togglePrice] = useState(true);

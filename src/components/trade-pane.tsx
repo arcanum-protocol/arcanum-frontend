@@ -1,45 +1,41 @@
-import _ from "lodash";
+import _, { set, slice } from "lodash";
 import { Button } from "./ui/button";
-import { QuantityInput } from './quantity-input';
-import { useTokenWithAddress } from '../hooks/tokens';
+import { useEstimate, useTokenWithAddress } from '../hooks/tokens';
 import { toHumanReadable } from '../lib/format-number';
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useTradeContext } from "../contexts/TradeContext";
-import type { MultipoolAsset, SolidAsset } from "../types/multipoolAsset";
 import { InteractionWithApprovalButton } from './approval-button';
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
 import type { TradeLogicAdapter } from '../types/tradeLogicAdapter';
 import { TransactionParamsSelector } from './transaction-params-selector';
 import type { SendTransactionParams } from '../types/sendTransactionParams';
-
+import { ChangeEvent } from "react";
+import { BigNumber } from "bignumber.js";
+import { Quantities } from "@/types/quantities";
+import { Address } from "viem";
 
 interface TradePaneProps {
-    assetsIn: MultipoolAsset[] | SolidAsset;
-    assetsOut: MultipoolAsset[] | SolidAsset;
     action: "mint" | "burn" | "swap";
-    networkId: number;
 }
 
 export function TradePaneInner({
-    action,
-    networkId
+    action
 }: TradePaneProps) {
     const {
         tokenIn,
         tokenOut,
+        multipool
     } = useMultiPoolContext();
 
     const {
         userAddress,
-        setSlippage,
         routerAddress,
-        transactionCost,
         sendTransctionParams
     } = useTradeContext();
 
-    const { data: inputToken } = useTokenWithAddress({ tokenAddress: tokenIn?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: networkId });
-    const { data: outputToken } = useTokenWithAddress({ tokenAddress: tokenOut?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: networkId });
+    const { data: inputToken } = useTokenWithAddress({ tokenAddress: tokenIn?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
+    const { data: outputToken } = useTokenWithAddress({ tokenAddress: tokenOut?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
 
     const sendDisabled = action === "burn";
     const receiveDisabled = action === "mint";
@@ -50,22 +46,20 @@ export function TradePaneInner({
                 text={"Send"}
                 decimals={inputToken?.decimals!}
                 balance={inputToken?.balance.formatted || "0"}
-                chainId={networkId}
                 isDisabled={sendDisabled}
             />
             <TokenQuantityInput
                 text={"Receive"}
                 decimals={outputToken?.decimals!}
                 balance={outputToken?.balance.formatted || "0"}
-                chainId={networkId}
                 isDisabled={receiveDisabled}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
-                <TransactionParamsSelector txnCost={transactionCost} txnParams={sendTransctionParams} />
+                <TransactionParamsSelector txnParams={sendTransctionParams} />
                 <InteractionWithApprovalButton
                     approveMax={true}
                     token={inputToken}
-                    networkId={networkId}
+                    networkId={multipool?.chainId}
                 />
             </div>
         </div>
@@ -76,7 +70,6 @@ interface TokenQuantityInputProps {
     text: "Send" | "Receive";
     decimals: number;
     balance: string;
-    chainId: number;
     isDisabled?: boolean;
 }
 
@@ -84,24 +77,92 @@ export function TokenQuantityInput({
     text,
     decimals,
     balance,
-    chainId,
     isDisabled
 }: TokenQuantityInputProps) {
-    const { estimatedValues } = useTradeContext();
-    const { tokenIn, tokenOut, setSelectedTab } = useMultiPoolContext();
+    const {
+        multipool,
+        tokenIn,
+        tokenOut,
+        setSelectedTab,
+    } = useMultiPoolContext();
 
-    let tokenSymbol: string | undefined = undefined;
-    let logoImage: string | undefined = undefined;
-    let estimatedValuesText: string | undefined = undefined;
+    const {
+        routerAddress,
+        slippage,
+        userAddress,
+        tradeLogicAdapter,
+        inputHumanReadable,
+        outputHumanReadable,
+        inputQuantity,
+        outputQuantity,
+        mainInput,
+        setMainInput,
+        setInputQuantity,
+        setOutputQuantity,
+        setEstimatedValues,
+    } = useTradeContext();
 
-    if (text === "Send") {
-        tokenSymbol = tokenIn?.symbol || undefined;
-        logoImage = tokenIn?.logo || undefined;
-        estimatedValuesText = estimatedValues?.estimatedAmountIn?.usd || "0";
-    } else {
-        tokenSymbol = tokenOut?.symbol || undefined;
-        logoImage = tokenOut?.logo || undefined;
-        estimatedValuesText = estimatedValues?.estimatedAmountOut?.usd || "0";
+    const tokenInData = useTokenWithAddress({
+        tokenAddress: tokenIn?.address,
+        userAddress: userAddress,
+        allowanceTo: routerAddress,
+        chainId: multipool?.chainId,
+    });
+
+    const tokenOutData = useTokenWithAddress({
+        tokenAddress: tokenOut?.address as Address,
+        userAddress: userAddress,
+        allowanceTo: routerAddress,
+        chainId: multipool?.chainId,
+    });
+
+    const adapter = tradeLogicAdapter;
+    
+    // check for NaN
+    const inputQuantityNotNAN = inputQuantity?.isNaN() ? new BigNumber(0) : inputQuantity;
+    const outputQuantityNotNAN = outputQuantity?.isNaN() ? new BigNumber(0) : outputQuantity;
+    
+    const inputQuantityBigInt = inputQuantityNotNAN != undefined ? BigInt(inputQuantityNotNAN.toString()) : BigInt(0);
+    const outputQuantityBigInt = outputQuantityNotNAN != undefined ? BigInt(outputQuantityNotNAN.toString()) : BigInt(0);
+
+    const transactionParams: SendTransactionParams = {
+        to: userAddress,
+        deadline: BigInt(0),
+        slippage: slippage,
+        quantities: {
+            in: mainInput === "in" ? inputQuantityBigInt : undefined,
+            out: mainInput === "in" ? undefined : outputQuantityBigInt,
+        } as Quantities,
+        tokenIn: tokenInData?.data!,
+        tokenOut: tokenOutData?.data!,
+        priceIn: tokenIn?.price || 0,
+        priceOut: tokenOut?.price || 0,
+        routerAddress: routerAddress,
+        multipoolAddress: multipool?.address!,
+    }
+
+    const { data } = useEstimate(
+        adapter,
+        transactionParams,
+        multipool?.chainId!,
+    );
+
+    console.log("data", inputQuantity?.toString(), outputQuantity?.toString());
+    
+    setEstimatedValues(data.estimationResult);
+
+    function getEstimatedValuesText() {
+        if (text === "Send") {
+            return {
+                tokenSymbol: tokenIn?.symbol || undefined,
+                logoImage: tokenIn?.logo || undefined,
+            }
+        } else {
+            return {
+                tokenSymbol: tokenOut?.symbol || undefined,
+                logoImage: tokenOut?.logo || undefined,
+            }
+        }
     }
 
     function onClick() {
@@ -112,21 +173,46 @@ export function TokenQuantityInput({
         }
     }
 
+    function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
+        const value = e.target.value || "";
+
+        if (text === "Send") {
+            setMainInput("in");
+
+            const valueNumber = new BigNumber(value)
+                .multipliedBy(new BigNumber("10").pow(new BigNumber(decimals)));
+
+            setInputQuantity(valueNumber);
+            setOutputQuantity(undefined);
+        } else {
+            setMainInput("out");
+
+            const valueNumber = new BigNumber(value)
+                .multipliedBy(new BigNumber("10").pow(new BigNumber(decimals)));
+
+            setOutputQuantity(valueNumber);
+            setInputQuantity(undefined);
+        }
+    };
+
     return (
         <div className="flex flex-col justify-between items-start rounded-2xl border h-full mx-[20px] my-[1px] p-3">
             <p className="text-base m-0">{text} </p>
             <div className="flex flex-row flex-start items-start justify-between w-full">
-                <QuantityInput className="flex-auto w-3/4"
-                    decimals={decimals}
-                    quantityInputName={text}
-                    chainId={chainId}
-                />
+                <div className={''}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
+                    <input className="w-full text-3xl h-10 rounded-lg p-2 focus:outline-none focus:border-blue-500 bg-transparent"
+                        value={text === "Send" ? inputHumanReadable : outputHumanReadable}
+                        placeholder="0"
+                        onChange={handleInputChange}
+                    />
+                </div>
                 <Button className="grow max-w-min rounded-2xl pl-0.5 pr-0.5 justify-between" variant="secondary" onClick={() => onClick()}>
                     <Avatar className="h-8 w-8">
-                        <AvatarImage src={logoImage} alt="Logo" />
-                        <AvatarFallback>{tokenSymbol}</AvatarFallback>
+                        <AvatarImage src={getEstimatedValuesText().logoImage} alt="Logo" />
+                        <AvatarFallback>{getEstimatedValuesText().tokenSymbol}</AvatarFallback>
                     </Avatar>
-                    <p className="px-0.5 text-white opacity-100">{tokenSymbol}</p>
+                    <p className="px-0.5 text-white opacity-100">{getEstimatedValuesText().tokenSymbol}</p>
                     {
                         !isDisabled ?
                             <ChevronDownIcon className="w-5 h-5 text-gray-400" /> :
@@ -136,7 +222,7 @@ export function TokenQuantityInput({
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
                 <p className="m-0 text-xs text-gray-500">
-                    {estimatedValuesText + "$"}
+                    {getEstimatedValuesText() + "$"}
                 </p>
                 <p className="m-0 text-gray-500 text-xs">
                     Balance: {toHumanReadable(balance)}

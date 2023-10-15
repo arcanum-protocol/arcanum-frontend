@@ -73,12 +73,8 @@ export function MainInner({ multipool_id }: MainInnerProps) {
                 <Faucet assets={fetchedAssets} />
                 <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
             </div >
-            <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} >
-                <MintBurnTabs className="max-h-fit"
-                    routerAddress={routerAddress}
-                    fetchedAssets={fetchedAssets}
-                    multipoolAsset={multipoolAsset}
-                />
+            <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
+                <MintBurnTabs className="max-h-fit" />
             </MultiPoolProvider>
         </div >
     );
@@ -86,14 +82,13 @@ export function MainInner({ multipool_id }: MainInnerProps) {
 
 interface MintBurnTabsProps {
     className?: string;
-    fetchedAssets: MultipoolAsset[];
-    multipoolAsset: SolidAsset | undefined;
-    routerAddress: string;
 }
 
-export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress, className }: MintBurnTabsProps) {
+export function MintBurnTabs({ className }: MintBurnTabsProps) {
     const {
+        multipool,
         selectedTab,
+        router,
         setSelectedTab,
     } = useMultiPoolContext();
 
@@ -110,29 +105,20 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress, cla
 
                 </TabsList>
                 <TabsContent value="mint">
-                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
+                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipool?.address} routerAddress={router}>
                         <TradePaneInner
-                            assetsIn={fetchedAssets}
-                            assetsOut={multipoolAsset!}
-                            networkId={multipoolAsset?.chainId as number}
                             action="mint" />
                     </TradeProvider>
                 </TabsContent>
                 <TabsContent value="burn">
-                    <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
+                    <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipool?.address} routerAddress={router}>
                         <TradePaneInner
-                            assetsIn={multipoolAsset!}
-                            assetsOut={fetchedAssets}
-                            networkId={multipoolAsset?.chainId as number}
                             action="burn" />
                     </TradeProvider>
                 </TabsContent>
                 <TabsContent value="swap">
-                    <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipoolAsset?.address} routerAddress={routerAddress}>
+                    <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipool?.address} routerAddress={router}>
                         <TradePaneInner
-                            assetsIn={fetchedAssets}
-                            assetsOut={fetchedAssets}
-                            networkId={multipoolAsset?.chainId as number}
                             action="swap" />
                     </TradeProvider>
                 </TabsContent>

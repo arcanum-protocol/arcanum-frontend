@@ -46,4 +46,4 @@ type EstimatedValues = {
     }
 }
 
-export { EstimatedValues }
+export { type EstimatedValues }

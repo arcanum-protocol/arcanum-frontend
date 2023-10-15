@@ -2,8 +2,10 @@ import { Address } from 'viem';
 import { useAccount } from 'wagmi';
 import { EstimatedValues } from '../types/estimatedValues';
 import { TradeLogicAdapter } from '../types/tradeLogicAdapter';
-import React, { useState, useContext, createContext} from 'react';
+import React, { useState, useContext, createContext } from 'react';
 import { SendTransactionParams } from '../types/sendTransactionParams';
+import { Gas } from '@/types/gas';
+import BigNumber from 'bignumber.js';
 
 export interface TradeContextValue {
     routerAddress: Address;
@@ -13,16 +15,16 @@ export interface TradeContextValue {
     setAdress: (value: Address) => void;
 
     inputHumanReadable: string | undefined;
-    setInputHumanReadable: (value: string) => void;
-
     outputHumanReadable: string | undefined;
-    setOutputHumanReadable: (value: string) => void;
 
-    inputQuantity: string | undefined;
-    setInputQuantity: (quantity: string | undefined) => void;
+    inputDollarValue: string | undefined;
+    outputDollarValue: string | undefined;
 
-    outputQuantity: string | undefined;
-    setOutputQuantity: (quantity: string | undefined) => void;
+    inputQuantity: BigNumber | undefined;
+    setInputQuantity: (quantity: BigNumber | undefined) => void;
+
+    outputQuantity: BigNumber | undefined;
+    setOutputQuantity: (quantity: BigNumber | undefined) => void;
 
     slippage: number;
     setSlippage: (value: number) => void;
@@ -33,7 +35,6 @@ export interface TradeContextValue {
     mainInput: "in" | "out";
     setMainInput: (value: "in" | "out") => void;
 
-    estimatedValues: EstimatedValues | undefined;
     setEstimatedValues: (value: EstimatedValues | undefined) => void;
 
     sendTransctionParams: SendTransactionParams | undefined;
@@ -41,15 +42,6 @@ export interface TradeContextValue {
 
     estimationErrorMessage: string | undefined;
     setEstimationErrorMessage: (value: string | undefined) => void;
-
-    usdValues: {
-        in: string | undefined;
-        out: string | undefined;
-    };
-    setUsdValues: (value: {
-        in: string | undefined;
-        out: string | undefined;
-    }) => void;
 
     tradeLogicAdapter: TradeLogicAdapter;
 
@@ -73,37 +65,55 @@ export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLo
 
     const user = useAccount();
     const [userAddress, setAddress] = useState<Address>(user.address as Address);
-    
-    const [inputQuantity, setInputQuantity] = useState<string | undefined>(undefined);
-    const [outputQuantity, setOutputQuantity] = useState<string | undefined>(undefined);
 
-    const [mainInput, setMainInput] = useState<"in" | "out">("in");
+    const [inputQuantity, setInputQuantity] = useState<BigNumber | undefined>(undefined);
+    const [outputQuantity, setOutputQuantity] = useState<BigNumber | undefined>(undefined);
 
     const [inputHumanReadable, setInputHumanReadable] = useState<string | undefined>();
     const [outputHumanReadable, setOutputHumanReadable] = useState<string | undefined>();
 
-    const [slippage, setSlippage] = useState<number>(0.1);
+    const [inputDollarValue, setInputDollarValue] = useState<string | undefined>();
+    const [outputDollarValue, setOutputDollarValue] = useState<string | undefined>();
 
+    const [mainInput, setMainInput] = useState<"in" | "out">("in");
+
+    const [slippage, setSlippage] = useState<number>(0.1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const [estimatedValues, setEstimatedValues] = useState<EstimatedValues | undefined>(undefined);
-    const [sendTransctionParams, setSendTransctionParams] = useState<SendTransactionParams | undefined>(undefined);
+    function setEstimatedValues(value: EstimatedValues | undefined) {
+        if (value == undefined) {
+            setInputQuantity(undefined);
+            setOutputQuantity(undefined);
 
-    const [usdValues, setUsdValues] = useState<{
-        in: string | undefined;
-        out: string | undefined;
-    }>({
-        in: undefined,
-        out: undefined,
-    });
+            setInputHumanReadable('');
+            setOutputHumanReadable('');
+            return;
+        }
+
+        if (mainInput === "in") {
+            if (outputQuantity != undefined) {
+                return;
+            }
+            setOutputQuantity(new BigNumber(value.estimatedAmountOut?.row.toString() || "0"));
+            setOutputHumanReadable(value.estimatedAmountOut?.formatted);
+            setInputDollarValue(value.estimatedAmountIn?.usd);
+            setOutputDollarValue(value.estimatedAmountOut?.usd);
+        } else {
+            if (value.estimatedAmountOut?.row.toString() == outputQuantity?.toString()) {
+                return;
+            }
+            setInputQuantity(new BigNumber(value.estimatedAmountIn?.row.toString() || "0"));
+            setInputHumanReadable(value.estimatedAmountOut?.formatted);
+            setInputDollarValue(value.estimatedAmountOut?.usd);
+            setOutputDollarValue(value.estimatedAmountIn?.usd);
+        }
+    }
+
+    const [sendTransctionParams, setSendTransctionParams] = useState<SendTransactionParams | undefined>(undefined);
 
     const [estimationErrorMessage, setEstimationErrorMessage] = useState<string | undefined>(undefined);
 
-    const [transactionCost, setTransactionCost] = useState<{
-        gas: number;
-        gasPrice: number;
-        cost: number;
-    } | undefined>(undefined);
+    const [transactionCost, setTransactionCost] = useState<Gas | undefined>(undefined);
 
     function setMainInputHandler(value: "in" | "out") {
         setMainInput(value);
@@ -125,10 +135,10 @@ export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLo
         setTransactionCost,
 
         inputHumanReadable,
-        setInputHumanReadable,
-
         outputHumanReadable,
-        setOutputHumanReadable,
+
+        inputDollarValue,
+        outputDollarValue,
 
         inputQuantity,
         setInputQuantity,
@@ -136,7 +146,6 @@ export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLo
         outputQuantity,
         setOutputQuantity,
 
-        estimatedValues,
         setEstimatedValues,
 
         sendTransctionParams,
@@ -144,9 +153,6 @@ export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLo
 
         estimationErrorMessage,
         setEstimationErrorMessage,
-
-        usdValues,
-        setUsdValues,
 
         mainInput,
         setMainInput: setMainInputHandler,

@@ -22,6 +22,8 @@ export interface MultiPoolContextProps {
 
     selectedTab: "mint" | "burn" | "swap" | "set-token-in" | "set-token-out" | undefined;
     setSelectedTab: React.Dispatch<React.SetStateAction<any>>;
+
+    router: string | undefined;
 }
 
 export const MultiPoolContext = createContext<MultiPoolContextProps>({
@@ -44,10 +46,12 @@ export const MultiPoolContext = createContext<MultiPoolContextProps>({
     setSelectedSCTab: () => { },
 
     selectedTab: "mint",
-    setSelectedTab: () => { }
+    setSelectedTab: () => { },
+
+    router: "",
 });
 
-const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, ExternalAssets: ExternalAsset[] | undefined, multipoolAsset: MultipoolAsset[] | undefined, multiPool: SolidAsset | undefined }> = ({ children, ExternalAssets, multipoolAsset, multiPool }) => {
+const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, ExternalAssets: ExternalAsset[] | undefined, multipoolAsset: MultipoolAsset[] | undefined, multiPool: SolidAsset | undefined, router: string | undefined }> = ({ children, ExternalAssets, multipoolAsset, multiPool, router }) => {
     const [externalAssets, setExternalAssets] = useState<ExternalAsset[] | undefined>(ExternalAssets);
     const [assets, setAssets] = useState<MultipoolAsset[] | undefined>(multipoolAsset);
     const [multipool, setMultipool] = useState<SolidAsset | undefined>(multiPool);
@@ -125,7 +129,8 @@ const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, Ex
             selectedSCTab,
             setSelectedSCTab,
             selectedTab,
-            setSelectedTab: onValueChange
+            setSelectedTab: onValueChange,
+            router
         }}>
             {children}
         </MultiPoolContext.Provider>
