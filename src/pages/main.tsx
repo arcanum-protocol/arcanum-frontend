@@ -170,6 +170,9 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0684c35 (sync)
     if (multipoolInfo == undefined) {
         // skeleton
         return (
@@ -205,6 +208,7 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
         );
     }
 
+<<<<<<< HEAD
     return (
         <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
             <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
@@ -228,29 +232,32 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
                     <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
                 </div>
 =======
+=======
+>>>>>>> 0684c35 (sync)
     return (
         <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
             <p className='text-3xl p-0 font-bold'>{multipoolInfo?.symbol || ""}</p>
             <div>
-                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</p>
-                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo?.price?.toFixed(4) : "0"}$</p>
+                <p className='text-xs'>Price</p>
+                <p className='text-base'>{multipoolInfo?.price?.toFixed(4)}$</p>
             </div>
             <div>
-                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</p>
-                <p style={{
-                    fontSize: "16px",
-                    margin: "0px", padding: "0px",
-                    color: getColor(multipoolInfo),
-                }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</p>
+                <p className='text-xs'>24h change</p>
+                <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
             </div>
             <div>
-                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</p>
-                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.high24h.toFixed(4) : "0"}$</p>
+                <p className='text-xs'>24h hight</p>
+                <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
             </div>
             <div>
+<<<<<<< HEAD
                 <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</p>
                 <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</p>
 >>>>>>> a9e0f04 (fix head)
+=======
+                <p className='text-xs'>24h low</p>
+                <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
+>>>>>>> 0684c35 (sync)
             </div>
         </div>
     );

@@ -7,7 +7,7 @@ import {
 } from "connectkit";
 import { Outlet } from "react-router-dom";
 
-import { config, moralisConfig } from './config';
+import { config } from './config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getSVG } from "./lib/svg-adapter";
 import { ThemeProvider } from "./contexts/ThemeProvider";

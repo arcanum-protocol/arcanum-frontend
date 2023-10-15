@@ -121,6 +121,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
         if (action === "set-token-in") {
             setTokenIn(token);
 <<<<<<< HEAD
+<<<<<<< HEAD
             setSelectedTab(selectedSCTab);
         } else {
             setTokenOut(token);
@@ -137,20 +138,27 @@ function TokenSelector({ action }: TokenSelectorProps) {
                     onClick={() => setSelectedTab(selectedSCTab)}>
 =======
             setTab(selectedSCTab);
+=======
+            setSelectedTab(selectedSCTab);
+>>>>>>> 0684c35 (sync)
         } else {
             setTokenOut(token);
-            setTab(selectedSCTab);
+            setSelectedTab(selectedSCTab);
         }
     }
 
-    const data = useTokenSearch(tokens, search);
+    const data = useTokenSearch(tokenList, search);
 
     return (
         <>
             <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
                 <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10" 
+<<<<<<< HEAD
                     onClick={() => setTab(selectedSCTab)}>
 >>>>>>> 0367ffb (finish trade pane)
+=======
+                    onClick={() => setSelectedTab(selectedSCTab)}>
+>>>>>>> 0684c35 (sync)
                     <ChevronLeftIcon className="pt-2 h-8 w-8" />
                 </a>
                 <div className="font-mono font-bold">Select a token</div>
@@ -195,10 +203,14 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                         </div>
                                     </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
                                     <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
 =======
                                     <p className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</p>
 >>>>>>> 0367ffb (finish trade pane)
+=======
+                                    <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
+>>>>>>> 0684c35 (sync)
                                 </div>
                             )
                         })

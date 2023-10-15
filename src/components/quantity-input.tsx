@@ -5,6 +5,7 @@ import { Address } from "wagmi";
 import { useEstimate, useTokenWithAddress } from "../hooks/tokens";
 import { Quantities } from "../types/quantities";
 import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
+import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
 
 interface QuantityInputProps {
     className?: string;
@@ -19,9 +20,12 @@ export function QuantityInput({
     quantityInputName,
     chainId,
 }: QuantityInputProps) {
+    const {
+        tokenIn,
+        tokenOut,
+    } = useMultiPoolContext();
+
     const { tradeLogicAdapter,
-        inputAsset,
-        outputAsset,
         userAddress,
         routerAddress,
         slippage,
@@ -43,14 +47,14 @@ export function QuantityInput({
         setSendTransctionParams } = useTradeContext();
 
     const inTokenData = useTokenWithAddress({
-        tokenAddress: inputAsset?.address as Address,
+        tokenAddress: tokenIn?.address as Address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
         chainId: chainId,
     });
 
     const outTokenData = useTokenWithAddress({
-        tokenAddress: outputAsset?.address as Address,
+        tokenAddress: tokenOut?.address as Address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
         chainId: chainId,
@@ -66,11 +70,13 @@ export function QuantityInput({
         } as Quantities,
         tokenIn: inTokenData.data!,
         tokenOut: outTokenData.data!,
-        priceIn: Number(inputAsset?.price?.toString() || 0),
-        priceOut: Number(outputAsset?.price?.toString() || 0),
+        priceIn: Number(tokenIn?.price?.toString() || 0),
+        priceOut: Number(tokenOut?.price?.toString() || 0),
         routerAddress: routerAddress,
         multipoolAddress: multipoolAddress,
     };
+
+    console.log("sendTransactionParams", sendTransactionParams);
 
     const {
         data: estimationResults,
@@ -79,12 +85,6 @@ export function QuantityInput({
         isError: estimationIsError,
         error: estimationErrorMessageScope,
     } = useEstimate(tradeLogicAdapter, sendTransactionParams, chainId);
-
-    if (estimationIsError) {
-        setEstimationErrorMessage(estimationErrorMessageScope);
-    } else {
-        setEstimationErrorMessage(undefined);
-    }
 
     let inputQuantityScope: string = "";
     // const esimates: EstimatedValues | undefined = estimationResults;
@@ -98,19 +98,6 @@ export function QuantityInput({
     } else if (mainInput === "out" && quantityInputName === "Receive") {
         inputQuantityScope = outputHumanReadable || "";
     }
-
-    useEffect(() => {
-        if (estimationResults) {
-            setEstimatedValues(estimationResults);
-            console.log("transactionCostScope", transactionCostScope);
-            setTransactionCost(transactionCostScope);
-            setSendTransctionParams(sendTransactionParams);
-            setUsdValues({
-                in: estimationResults.estimatedAmountIn?.usd.toString() || "",
-                out: estimationResults.estimatedAmountOut?.usd.toString() || "",
-            });
-        }
-    }, [estimationResults]);
 
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
         if (e.target.value == undefined || e.target.value === "") {
