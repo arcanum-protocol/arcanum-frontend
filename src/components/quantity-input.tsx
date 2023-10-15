@@ -20,6 +20,7 @@ export function QuantityInput({
     quantityInputName,
     chainId,
 }: QuantityInputProps) {
+
     const {
         tokenIn,
         tokenOut,
@@ -35,16 +36,13 @@ export function QuantityInput({
         inputQuantity,
         outputQuantity,
         multipoolAddress,
-        setUsdValues,
+        setEstimatedValues,
+        setTransactionCost,
         setInputHumanReadable,
         setOutputHumanReadable,
         setOutputQuantity,
         setInputQuantity,
-        setMainInput,
-        setEstimationErrorMessage,
-        setEstimatedValues,
-        setTransactionCost,
-        setSendTransctionParams } = useTradeContext();
+        setMainInput } = useTradeContext();
 
     const inTokenData = useTokenWithAddress({
         tokenAddress: tokenIn?.address as Address,
@@ -76,23 +74,25 @@ export function QuantityInput({
         multipoolAddress: multipoolAddress,
     };
 
-    console.log("sendTransactionParams", sendTransactionParams);
-
     const {
-        data: estimationResults,
-        transactionCost: transactionCostScope,
+        data: {
+            estimationResult: estimationResult,
+            transactionCost: transactionCost,
+        },
         isLoading: estimationIsLoading,
         isError: estimationIsError,
         error: estimationErrorMessageScope,
     } = useEstimate(tradeLogicAdapter, sendTransactionParams, chainId);
 
+    setEstimatedValues(estimationResult);
+    setTransactionCost(transactionCost);
+
     let inputQuantityScope: string = "";
-    // const esimates: EstimatedValues | undefined = estimationResults;
 
     if (mainInput === "in" && quantityInputName === "Receive" && inputHumanReadable != "") {
-        inputQuantityScope = estimationResults?.estimatedAmountOut?.formatted.toString() || "";
+        inputQuantityScope = estimationResult?.estimatedAmountOut?.formatted.toString() || "";
     } else if (mainInput === "out" && quantityInputName === "Send" && outputHumanReadable != "") {
-        inputQuantityScope = estimationResults?.estimatedAmountIn?.formatted.toString() || "";
+        inputQuantityScope = estimationResult?.estimatedAmountIn?.formatted.toString() || "";
     } else if (mainInput === "in" && quantityInputName === "Send") {
         inputQuantityScope = inputHumanReadable || "";
     } else if (mainInput === "out" && quantityInputName === "Receive") {
@@ -103,11 +103,6 @@ export function QuantityInput({
         if (e.target.value == undefined || e.target.value === "") {
             setInputHumanReadable("");
             setOutputHumanReadable("");
-            setUsdValues({ in: undefined, out: undefined });
-            setEstimatedValues(undefined);
-            setTransactionCost({ gas: 0, gasPrice: 0, cost: 0 });
-            setSendTransctionParams(undefined);
-            setEstimationErrorMessage(undefined);
 
             return;
         }
@@ -144,8 +139,8 @@ export function QuantityInput({
     };
 
     return (
-        <div className={className} 
-        style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
+        <div className={className}
+            style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
             <input className="w-full text-3xl h-10 rounded-lg p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                 value={inputQuantityScope}
                 placeholder="0"
