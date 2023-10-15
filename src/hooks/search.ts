@@ -1,6 +1,6 @@
-import { ExternalAsset } from "@/types/multipoolAsset";
+import { ExternalAsset, MultipoolAsset } from "@/types/multipoolAsset";
 
-function useTokenSearch(tokens: ExternalAsset[] | undefined, search: string): ExternalAsset[] {
+function useTokenSearch(tokens: (ExternalAsset | MultipoolAsset)[] | undefined, search: string): (ExternalAsset | MultipoolAsset)[] {
   if (!tokens) return [];
   if (!search) return tokens;
 

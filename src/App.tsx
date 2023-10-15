@@ -6,10 +6,9 @@ import {
     ConnectKitProvider,
 } from "connectkit";
 import { Link, Outlet } from "react-router-dom";
-import Modal from 'react-modal';
-Modal.setAppElement('#root');
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { config, moralisConfig } from './config';
+import { config } from './config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getSVG } from "./lib/svg-adapter";
 import { ThemeProvider } from "./contexts/ThemeProvider";
@@ -52,32 +51,27 @@ function Navbar() {
     }
 
     return (
-        <div className="w-full flex flex-row justify-between items-center">
-            <div className="flex items-center justify-center w-12 h-12">
-                <img src={getSVG("logo")} />
-            </div>
+        <div className="w-full flex flex-row justify-between items-center mb-2">
+            <Avatar className="h-10 w-10">
+                <AvatarImage src={getSVG("logo")} alt="Logo" />
+                <AvatarFallback>{"?"}</AvatarFallback>
+            </Avatar>
             <NavigationMenu>
                 <NavigationMenuList>
                     <NavigationMenuItem>
-                        <Link to="/swap">
-                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                Swap
-                            </NavigationMenuLink>
-                        </Link>
+                        <NavigationMenuLink href="/swap" className={navigationMenuTriggerStyle()}>
+                            Swap
+                        </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                        <Link to="/arbi">
-                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                ARBI
-                            </NavigationMenuLink>
-                        </Link>
+                        <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
+                            ARBI
+                        </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                        <Link to="https://docs.arcanum.to">
-                            <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                                Documentation
-                            </NavigationMenuLink>
-                        </Link>
+                        <NavigationMenuLink href='https://docs.arcanum.to' className={navigationMenuTriggerStyle()}>
+                            Documentation
+                        </NavigationMenuLink>
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>

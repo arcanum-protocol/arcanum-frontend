@@ -27,7 +27,7 @@ function TokenSelector({ className, action }: TokenSelectorProps) {
         externalAssets,
         assets,
         selectedSCTab,
-        setTab,
+        setSelectedTab,
         tokenIn,
         tokenOut,
         setTokenIn,
@@ -39,7 +39,6 @@ function TokenSelector({ className, action }: TokenSelectorProps) {
     const { address } = useAccount();
     const { ExternalAssets: tokens, isLoading } = useExternalAssets(address, externalAssets);
     const { assets: tokenList } = useMultiPoolTokens(tokens, assets);
-
 
     function toHumanReadable(number: number | undefined, decimals: number) {
         if (!number) {
@@ -109,20 +108,20 @@ function TokenSelector({ className, action }: TokenSelectorProps) {
     function setToken(token: ExternalAsset | MultipoolAsset) {
         if (action === "set-token-in") {
             setTokenIn(token);
-            setTab(selectedSCTab);
+            setSelectedTab(selectedSCTab);
         } else {
             setTokenOut(token);
-            setTab(selectedSCTab);
+            setSelectedTab(selectedSCTab);
         }
     }
 
-    const data = useTokenSearch(tokens, search);
+    const data = useTokenSearch(tokenList, search);
 
     return (
         <>
             <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
                 <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10" 
-                    onClick={() => setTab(selectedSCTab)}>
+                    onClick={() => setSelectedTab(selectedSCTab)}>
                     <ChevronLeftIcon className="pt-2 h-8 w-8" />
                 </a>
                 <div className="font-mono font-bold">Select a token</div>
@@ -159,7 +158,7 @@ function TokenSelector({ className, action }: TokenSelectorProps) {
                                             </div>
                                         </div>
                                     </div>
-                                    <p className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</p>
+                                    <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
                                 </div>
                             )
                         })

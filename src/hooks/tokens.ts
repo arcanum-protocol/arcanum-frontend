@@ -1,6 +1,6 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
-import { useContractRead, useToken, useNetwork, useAccount, Address } from 'wagmi'
+import { useContractRead, useToken, useNetwork, useAccount, Address, useQuery } from 'wagmi'
 import { EstimatedValues } from '../types/estimatedValues';
 import { EstimationTransactionBody } from '../types/estimationTransactionBody';
 import { SendTransactionParams } from '../types/sendTransactionParams';
@@ -9,7 +9,8 @@ import { useMedia } from 'react-use';
 import { useDebounce } from 'use-debounce';
 import * as React from 'react';
 import { publicClient } from '../config';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Gas } from '@/types/gas';
 
 export type TokenWithAddress = {
     tokenAddress: string,
@@ -116,22 +117,17 @@ export function useEstimate(
     chainId: number,
 ): {
     data: EstimatedValues | undefined,
-    transactionCost: {
-        gas: number,
-        gasPrice: number,
-        cost: number,
-    } | undefined,
+    transactionCost: Gas | undefined,
     isLoading: boolean,
     isError: boolean,
     error: string | undefined,
 } {
     const { address } = useAccount();
-
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
 
-    let [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+    let errorText: string | undefined = "";
 
-    const { data: txnData, isError, error, isLoading } = useContractRead({
+    const { data: txnData, isError, isLoading } = useContractRead({
         address: txnBodyParts?.address as Address,
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
@@ -140,73 +136,44 @@ export function useEstimate(
         watch: true,
         chainId: chainId,
         onError: (e) => {
-            setErrorMessage(e.message);
+            if (e.message?.includes("MULTIPOOL: DO")) {
+                errorText = "Deviation overflow";
+            } else if (e.message?.includes("MULTIPOOL: QE")) {
+                errorText = "Insufficient liquidity";
+            } else if (e.message?.includes("MULTIPOOL: IQ")) {
+                errorText = "Insufficient quantity";
+            } else if (e.message?.includes("MULTIPOOL: ZS")) {
+                errorText = "Zero share";
+            } else if (e.message == undefined) {
+                errorText = undefined;
+            }
         },
     });
 
-    const [cost, setCost] = React.useState<
-        {
-            gas: number,
-            gasPrice: number,
-            cost: number,
-        } | undefined
-    >();
+    const { data: gasPrice } = useQuery(['gasPrice'], async () => {
+        const gasPriceRaw = await publicClient({ chainId: chainId }).getGasPrice();
+        const gasPrice = Number(gasPriceRaw) / Math.pow(10, 15);
+        const gas = await publicClient({ chainId: chainId }).estimateContractGas({
+            account: address,
+            abi: adapter.parseEstimationResult(txnData, params)?.txn.abi,
+            address: adapter.parseEstimationResult(txnData, params)?.txn.address as Address,
+            args: adapter.parseEstimationResult(txnData, params)?.txn.args,
+            functionName: adapter.parseEstimationResult(txnData, params)?.txn.functionName,
+        });
 
-    const [returnData, setReturnData] = React.useState<EstimatedValues | undefined>();
-    const [debouncedReturnData] = useDebounce(returnData, 1000);
+        const cost = gasPrice * Number(gas);
+        return {
+            gas: Number(gas),
+            gasPrice: gasPrice,
+            cost: cost,
+        } as Gas;
+    });
 
-    React.useEffect(() => {
-        function inner() {
-            if (!isLoading && !isError) {
-                setReturnData(adapter.parseEstimationResult(txnData, params));
-            }
-        }
-
-        inner();
-    }, [txnData]);
-
-    React.useEffect(() => {
-        async function inner() {
-            let gasPrice: any = await publicClient({ chainId: chainId }).getGasPrice();
-            gasPrice = Number(gasPrice) / Math.pow(10, 15);
-            try {
-                const gas = await publicClient({ chainId: chainId }).estimateContractGas({
-                    account: address,
-                    abi: debouncedReturnData.txn.abi,
-                    address: debouncedReturnData.txn.address as Address,
-                    args: debouncedReturnData.txn.args,
-                    functionName: debouncedReturnData.txn.functionName,
-                });
-                setCost({
-                    gas: Number(gas),
-                    gasPrice: Number(gasPrice),
-                    cost: Number(gas) * Number(gasPrice),
-                });
-            } catch (e) {
-                setCost(undefined);
-            }
-        }
-
-        inner();
-    }, [debouncedReturnData]);
-
-    let errorText: string | undefined = undefined;
-
-    if (errorMessage?.includes("MULTIPOOL: DO")) {
-        errorText = "Deviation overflow";
-    } else if (errorMessage?.includes("MULTIPOOL: QE")) {
-        errorText = "Insufficient liquidity";
-    } else if (errorMessage?.includes("MULTIPOOL: IQ")) {
-        errorText = "Insufficient quantity";
-    } else if (errorMessage?.includes("MULTIPOOL: ZS")) {
-        errorText = "Zero share";
-    } else if (errorMessage == undefined) {
-        errorText = undefined;
-    }
+    console.log("gasPrice", adapter.parseEstimationResult(txnData, params));
 
     return {
-        data: returnData,
-        transactionCost: cost,
+        data: adapter.parseEstimationResult(txnData, params),
+        transactionCost: gasPrice,
         isError: isError,
         isLoading: isLoading,
         error: errorText,

@@ -22,8 +22,6 @@ export interface MultiPoolContextProps {
 
     selectedTab: "mint" | "burn" | "swap" | "set-token-in" | "set-token-out" | undefined;
     setSelectedTab: React.Dispatch<React.SetStateAction<any>>;
-
-    setTab: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const MultiPoolContext = createContext<MultiPoolContextProps>({
@@ -46,9 +44,7 @@ export const MultiPoolContext = createContext<MultiPoolContextProps>({
     setSelectedSCTab: () => { },
 
     selectedTab: "mint",
-    setSelectedTab: () => { },
-
-    setTab: () => { }
+    setSelectedTab: () => { }
 });
 
 const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, ExternalAssets: ExternalAsset[] | undefined, multipoolAsset: MultipoolAsset[] | undefined, multiPool: SolidAsset | undefined }> = ({ children, ExternalAssets, multipoolAsset, multiPool }) => {
@@ -56,7 +52,7 @@ const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, Ex
     const [assets, setAssets] = useState<MultipoolAsset[] | undefined>(multipoolAsset);
     const [multipool, setMultipool] = useState<SolidAsset | undefined>(multiPool);
     const [tokenIn, setTokenIn] = useState<ExternalAsset | SolidAsset | MultipoolAsset | undefined>(multipoolAsset?.[0]);
-    const [tokenOut, setTokenOut] = useState<ExternalAsset | SolidAsset | MultipoolAsset | undefined>();
+    const [tokenOut, setTokenOut] = useState<ExternalAsset | SolidAsset | MultipoolAsset | undefined>(multipool);
 
     // for string selected tab, si we will know which tab to select wheb user clicks on "back" chevron inside token selector
     const [selectedSCTab, setSelectedSCTab] = useState<"mint" | "burn" | "swap">("mint");
@@ -80,19 +76,17 @@ const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, Ex
     }
 
     function onValueChange(value: string | undefined) {
-        console.log("value", value);
-        
         const newValue = parseTabsChange(value);
-
+        
         setSelectedTab(newValue);
-
+        
         if (tokenIn?.address === tokenOut?.address) {
             setTokenOut(externalAssets?.filter((asset) => asset.address !== tokenIn?.address)?.[0]);
         }
-
+        
         if (newValue === "mint" || newValue === "burn" || newValue === "swap") {
             setSelectedSCTab(newValue);
-
+            
             if (newValue === "mint") {
                 if (tokenIn === multipool) {
                     setTokenIn(externalAssets?.[0]);
@@ -107,10 +101,10 @@ const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, Ex
             }
             if (newValue === "swap") {
                 if (tokenIn === multipool) {
-                    setTokenIn(externalAssets?.[0]);
+                    setTokenIn(externalAssets?.filter((asset) => asset.address !== tokenOut?.address)?.[0]);
                 }
                 if (tokenOut === multipool) {
-                    setTokenOut(externalAssets?.[1]);
+                    setTokenOut(externalAssets?.filter((asset) => asset.address !== tokenIn?.address)?.[0]);
                 }
             }
         }
@@ -131,8 +125,7 @@ const MultiPoolProvider: React.FunctionComponent<{ children: React.ReactNode, Ex
             selectedSCTab,
             setSelectedSCTab,
             selectedTab,
-            setSelectedTab: onValueChange,
-            setTab: onValueChange,
+            setSelectedTab: onValueChange
         }}>
             {children}
         </MultiPoolContext.Provider>

@@ -1,3 +1,3 @@
 type Quantities = { in: BigInt | undefined, out: BigInt | undefined };
 
-export { Quantities }
+export { type Quantities }

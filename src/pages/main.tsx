@@ -12,7 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MultiPoolProvider, useMultiPoolContext } from '@/contexts/MultiPoolContext';
 import { useArbitrumTokens } from '@/hooks/externalTokens';
 import { TokenSelector } from '@/components/token-selector';
-import { set } from 'lodash';
+import { Skeleton } from "@/components/ui/skeleton"
+
 
 export function Cpt() {
     return (<MainInner
@@ -45,14 +46,6 @@ export function MainInner({ multipool_id }: MainInnerProps) {
     const { data, error, isLoading } = useMultipoolData(multipool_id);
     const { ExternalAssets } = useArbitrumTokens();
 
-    if (isLoading) {
-        return (
-            <div>
-                {"Loading..."}
-            </div>
-        );
-    }
-
     if (error) {
         return (
             <div>
@@ -61,9 +54,16 @@ export function MainInner({ multipool_id }: MainInnerProps) {
         );
     }
 
-    const routerAddress = data!.multipool.routerAddress;
-    const fetchedAssets = data!.assets;
-    const multipoolAsset = data!.multipool;
+    const routerAddress = data?.multipool?.routerAddress;
+    const fetchedAssets = data?.assets;
+    const multipoolAsset = data?.multipool;
+
+    if (isLoading || !fetchedAssets || !multipoolAsset) {
+        return (
+            <div className='flex flex-row w-full mt-0.5 gap-2 align-start'>
+            </div >
+        );
+    }
 
     return (
         <div className='flex flex-row w-full mt-0.5 gap-2 align-start'>
@@ -96,8 +96,6 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress, cla
         selectedTab,
         setSelectedTab,
     } = useMultiPoolContext();
-
-    setSelectedTab(selectedTab);
 
     return (
         <div className={className}>
@@ -153,45 +151,74 @@ export function MintBurnTabs({ fetchedAssets, multipoolAsset, routerAddress, cla
 
 export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
     const multipoolInfo: SolidAsset | undefined = multipool;
-    const RED = "#fa3c58";
-    const GREEN = "#0ecc83";
 
     function getColor(asset: SolidAsset | undefined): string {
         if (asset == undefined) {
-            return "var(--bl)";
+            return "hidden";
         }
 
         if (Number(asset.change24h) > 0) {
-            return GREEN;
+            return "text-green-600";
         } else if (Number(asset.change24h) < 0) {
-            return RED;
+            return 'text-red-700';
         } else {
-            return "var(--bl)";
+            return '0';
         }
+    }
+
+    if (multipoolInfo == undefined) {
+        // skeleton
+        return (
+            <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
+                <div className='text-3xl p-0 font-bold'>
+                    <Skeleton className='w-20 h-8' />
+                </div>
+                <div>
+                    <p className='text-xs'>Price</p>
+                    <div className='text-base'>
+                        <Skeleton className='w-20 h-8' />
+                    </div>
+                </div>
+                <div>
+                    <p className='text-xs'>24h change</p>
+                    <div className={'text-base ' + getColor(multipoolInfo)}>
+                        <Skeleton className='w-20 h-8' />
+                    </div>
+                </div>
+                <div>
+                    <p className='text-xs'>24h hight</p>
+                    <div className='text-base'>
+                        <Skeleton className='w-20 h-8' />
+                    </div>
+                </div>
+                <div>
+                    <p className='text-xs'>24h low</p>
+                    <div className='text-base'>
+                        <Skeleton className='w-20 h-8' />
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
             <p className='text-3xl p-0 font-bold'>{multipoolInfo?.symbol || ""}</p>
             <div>
-                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>Price</p>
-                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo?.price?.toFixed(4) : "0"}$</p>
+                <p className='text-xs'>Price</p>
+                <p className='text-base'>{multipoolInfo?.price?.toFixed(4)}$</p>
             </div>
             <div>
-                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h change</p>
-                <p style={{
-                    fontSize: "16px",
-                    margin: "0px", padding: "0px",
-                    color: getColor(multipoolInfo),
-                }}>{multipoolInfo ? multipoolInfo.change24h.toFixed(4) : "0"}%</p>
+                <p className='text-xs'>24h change</p>
+                <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
             </div>
             <div>
-                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h hight</p>
-                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.high24h.toFixed(4) : "0"}$</p>
+                <p className='text-xs'>24h hight</p>
+                <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
             </div>
             <div>
-                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</p>
-                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</p>
+                <p className='text-xs'>24h low</p>
+                <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
             </div>
         </div>
     );

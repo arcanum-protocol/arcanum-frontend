@@ -53,27 +53,26 @@ function SineWaveText({ text, color, asSpan, href, className, rightIcon }: SineW
     }, [color]);
 
     if (asSpan) {
+        if (href) {
+            <span onClick={() => window.open(href, '_blank')}>
+                {
+                    text.split('').map((letter, index) => (
+                        <span className={"font-mono text-xs opacity-50 text-blue-500 min-w-[3px] " + className} ref={el => letterRefs.current[index] = el} key={index}>
+                            {letter}
+                        </span>
+                    ))
+                }
+                {rightIcon}
+            </span>
+        }
         return (
             <>
-                {href ? (
-                    <a href={href}>
-                        {text.split('').map((letter, index) => (
-                            <span className={"font-mono text-xs opacity-50 text-blue-500 min-w-[3px] " + className} ref={el => letterRefs.current[index] = el} key={index}>
-                                {letter}
-                            </span>
-                        ))}
-                        {rightIcon} 
-                    </a>
-                ) : (
-                    <>
-                        {text.split('').map((letter, index) => (
-                            <span className={"font-mono text-xs opacity-50 text-blue-500 min-w-[3px] " + className} ref={el => letterRefs.current[index] = el} key={index}>
-                                {letter}
-                            </span>
-                        ))}
-                        {rightIcon} 
-                    </>
-                )}
+                {text.split('').map((letter, index) => (
+                    <span className={"font-mono text-xs opacity-50 text-blue-500 min-w-[3px] " + className} ref={el => letterRefs.current[index] = el} key={index}>
+                        {letter}
+                    </span>
+                ))}
+                {rightIcon}
             </>
         );
     }
@@ -87,7 +86,7 @@ function SineWaveText({ text, color, asSpan, href, className, rightIcon }: SineW
                             {letter}
                         </span>
                     ))}
-                    {rightIcon} 
+                    {rightIcon}
                 </a>
             ) : (
                 <>
@@ -96,7 +95,7 @@ function SineWaveText({ text, color, asSpan, href, className, rightIcon }: SineW
                             {letter}
                         </span>
                     ))}
-                    {rightIcon} 
+                    {rightIcon}
                 </>
             )}
         </div>

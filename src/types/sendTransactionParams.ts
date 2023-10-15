@@ -1,5 +1,5 @@
-import { Quantities } from "../components/trade-pane";
 import { TokenWithAddress } from "../hooks/tokens";
+import { Quantities } from "./quantities";
 
 type SendTransactionParams = {
     to: string,

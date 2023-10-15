@@ -61,7 +61,7 @@ export function TradePaneInner({
                 isDisabled={receiveDisabled}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
-                <TransactionParamsSelector txnCost={transactionCost} txnParams={sendTransctionParams} slippageSetter={() => setSlippage} />
+                <TransactionParamsSelector txnCost={transactionCost} txnParams={sendTransctionParams} />
                 <InteractionWithApprovalButton
                     approveMax={true}
                     token={inputToken}

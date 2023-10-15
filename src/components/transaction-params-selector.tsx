@@ -28,7 +28,7 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
             display: "flex",
             flexDirection: "column"
         }}>
-            <SlippageSelector slippageSetter={slippageSetter} />
+            <SlippageSelector />
             <div
                 style={{
                     display: "flex",
@@ -182,48 +182,44 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
     );
 }
 
-export function SlippageSelector({ slippageSetter }) {
-    const [slippage, setSlippage] = useState<number>(1);
-
-    useEffect(() => { slippage && slippageSetter(slippage) }, [slippage]);
+export function SlippageSelector() {
+    const { slippage, setSlippage } = useTradeContext();
 
     // 0,1,2,3 - presets, 4 - custom
-    const [selectedSlippageType, setType] = useState<number>(2);
     const slippagePresets = [0.1, 0.5, 1, 3];
+    
     return (
         <div className='flex w-full mb-0'>
             <div className='flex flex-col w-full gap-[10px] w-full'>
-                <div className='flex m-auto border border-[##292524] rounded-2xl min-w-full'>
+                <div className='flex m-auto border border-[##292524] rounded-2xl min-w-full pr-1'>
                     <div className='flex rounded-lg justify-between h-4 items-center min-w-full'>
-                        {slippagePresets.map((slippage: number, index: number) => {
+                        {slippagePresets.map((slippagePreseted: number, index: number) => {
                             return (
                                 <div
                                     key={index}
-                                    onClick={e => { setType(index); setSlippage(slippage) }}
+                                    onClick={() => setSlippage(slippagePreseted)}
                                     className={
                                         `flex-initial w-1/6 rounded-xl cursor-pointer justify-between text-lg transition ease-in-out delay-50 transition-all -my-1 -ml-[1px]
-                                        ${index == selectedSlippageType ? "bg-[#292524]" : "bg-transparent"}`
+                                        ${slippagePresets.indexOf(slippage) == index ? "bg-[#292524]" : "bg-transparent"}`
                                     }>
-                                    <p className='text-xs font-thin min-h-full hover:border rounded-2xl'>{slippage}%</p>
+                                    <p className='text-xs font-thin min-h-full hover:border rounded-2xl'>{slippagePreseted}%</p>
                                 </div>
                             );
                         })}
                         <div className={
                             `inline-flex inline-flex flex-row w-2/6 hover:border rounded-2xl -mx-[0.5px] border border-transparent
-                            ${selectedSlippageType == 4 ? "bg-[#292524]" : "bg-transparent"}`
+                            ${slippagePresets.indexOf(slippage) === 4 ? "bg-[#292524]" : "bg-transparent"}`
                         }>
                             <input
                                 className={
                                     `flex-initial overflow-hidden text-xs font-thin slate-600 bg-transparent outline-none text-end mr-2`
                                 }
-                                value={selectedSlippageType == 4 ? slippage : undefined}
+                                value={slippagePresets.indexOf(slippage) ? slippage : undefined}
                                 placeholder="Custom"
                                 onChange={e => {
-                                    setType(4);
                                     try {
                                         if (e.target.value == "") {
                                             setSlippage(slippagePresets[0]);
-                                            setType(2);
                                         }
                                         let val = FixedNumber.fromString(e.target.value);
                                         let num = Number(val.toString());

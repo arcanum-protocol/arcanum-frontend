@@ -145,8 +145,14 @@ function useMultiPoolTokens(externalAssets: ExternalAsset[] | undefined, multipo
     
     const assets: (ExternalAsset | MultipoolAsset)[] = [...externalAssets];
     multipoolTokens.forEach((token) => {
-        const index = assets.findIndex((asset) => asset.address === token.address);
-        if (index === -1) return;
+        const index = assets.findIndex((asset) => asset.address.toLocaleLowerCase() === token.address.toLocaleLowerCase());
+        if (index === -1) {
+            assets.push({
+                ...token,
+                type: "multipool",
+            });
+            return
+        }
         const asset: MultipoolAsset = {
             ...assets[index],
             ...token,
