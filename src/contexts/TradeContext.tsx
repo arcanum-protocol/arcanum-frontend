@@ -162,6 +162,22 @@ export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLo
         return outputQuantity.dividedBy(decimals).toFixed(12).toString();
     }
 
+    function getInputHumanized() {
+        if (inputQuantity == undefined) {
+            return "";
+        }
+        const decimals = new BigNumber(10).pow(new BigNumber(tokenIn?.decimals || 18)); 
+        return inputQuantity.dividedBy(decimals).toFixed(12).toString();
+    }
+
+    function getOutputHumanized() {
+        if (outputQuantity == undefined) {
+            return "";
+        }
+        const decimals = new BigNumber(10).pow(new BigNumber(tokenOut?.decimals || 18)); 
+        return outputQuantity.dividedBy(decimals).toFixed(12).toString();
+    }
+
     const [sendTransctionParams, setSendTransctionParams] = useState<SendTransactionParams | undefined>(undefined);
     const [estimationErrorMessage, setEstimationErrorMessage] = useState<string | undefined>(undefined);
     const [transactionCost, setTransactionCost] = useState<Gas | undefined>(undefined);
