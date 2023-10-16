@@ -170,27 +170,26 @@ export function useEstimate(
 
     let errorText: string | undefined = "";
 
-    const { data: txnData, isError, isLoading } = useContractRead({
+    const { data: txnData, isError, error, isLoading } = useContractRead({
         address: txnBodyParts?.address as Address,
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
         enabled: txnBodyParts != undefined && txnBodyParts.enabled,
         chainId: chainId,
-        onError: (e) => {
-            if (e.message?.includes("MULTIPOOL: DO")) {
-                errorText = "Deviation overflow";
-            } else if (e.message?.includes("MULTIPOOL: QE")) {
-                errorText = "Insufficient liquidity";
-            } else if (e.message?.includes("MULTIPOOL: IQ")) {
-                errorText = "Insufficient quantity";
-            } else if (e.message?.includes("MULTIPOOL: ZS")) {
-                errorText = "Zero share";
-            } else if (e.message == undefined) {
-                errorText = undefined;
-            }
-        },
     });
+
+    if (error?.message?.includes("MULTIPOOL: DO")) {
+        errorText = "Deviation overflow";
+    } else if (error?.message?.includes("MULTIPOOL: QE")) {
+        errorText = "Insufficient liquidity";
+    } else if (error?.message?.includes("MULTIPOOL: IQ")) {
+        errorText = "Insufficient quantity";
+    } else if (error?.message?.includes("MULTIPOOL: ZS")) {
+        errorText = "Zero share";
+    } else if (error?.message == undefined) {
+        errorText = undefined;
+    }
 
     const { data: transactionCost } = useEstimateTransactionCost(txnBodyParts as EstimationTransactionBody, chainId);
 

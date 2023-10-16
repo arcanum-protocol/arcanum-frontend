@@ -44,13 +44,11 @@ export function TradePaneInner({
         <div className="flex flex-col justify-center w-[400px] mt-[20px]">
             <TokenQuantityInput
                 text={"Send"}
-                decimals={inputToken?.decimals!}
                 balance={inputToken?.balance.formatted || "0"}
                 isDisabled={sendDisabled}
             />
             <TokenQuantityInput
                 text={"Receive"}
-                decimals={outputToken?.decimals!}
                 balance={outputToken?.balance.formatted || "0"}
                 isDisabled={receiveDisabled}
             />
@@ -59,7 +57,6 @@ export function TradePaneInner({
                 <InteractionWithApprovalButton
                     approveMax={true}
                     token={inputToken}
-                    networkId={multipool?.chainId}
                 />
             </div>
         </div>
@@ -68,14 +65,12 @@ export function TradePaneInner({
 
 interface TokenQuantityInputProps {
     text: "Send" | "Receive";
-    decimals: number;
     balance: string;
     isDisabled?: boolean;
 }
 
 export function TokenQuantityInput({
     text,
-    decimals,
     balance,
     isDisabled
 }: TokenQuantityInputProps) {
@@ -91,15 +86,19 @@ export function TokenQuantityInput({
         slippage,
         userAddress,
         tradeLogicAdapter,
-        inputHumanReadable,
-        outputHumanReadable,
         inputQuantity,
         outputQuantity,
         mainInput,
+        inputDollarValue,
+        outputDollarValue,
         setMainInput,
         setInputQuantity,
         setOutputQuantity,
         setEstimatedValues,
+        getInputHumanized,
+        getOutputHumanized,
+        setTransactionCost,
+        setEstimationErrorMessage
     } = useTradeContext();
 
     const tokenInData = useTokenWithAddress({
@@ -141,15 +140,15 @@ export function TokenQuantityInput({
         multipoolAddress: multipool?.address!,
     }
 
-    const { data } = useEstimate(
+    const { data, error } = useEstimate(
         adapter,
         transactionParams,
         multipool?.chainId!,
     );
 
-    console.log("data", inputQuantity?.toString(), outputQuantity?.toString());
-    
     setEstimatedValues(data.estimationResult);
+    setTransactionCost(data.transactionCost);
+    setEstimationErrorMessage(error);
 
     function getEstimatedValuesText() {
         if (text === "Send") {
@@ -174,21 +173,30 @@ export function TokenQuantityInput({
     }
 
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
-        const value = e.target.value || "";
+        const regex = new RegExp("^[0-9]*[.,]?[0-9]*$");
+        if (!regex.test(e.target.value)) {
+            // prevent non-numeric input
+            e.target.value = e.target.value.slice(0, -1);
+            return;
+        }
+
+        const value = e.target.value.replace(",", ".");
+        const decimals = new BigNumber((text === "Send" ? tokenIn?.decimals : tokenOut?.decimals) || 18);
 
         if (text === "Send") {
             setMainInput("in");
 
             const valueNumber = new BigNumber(value)
-                .multipliedBy(new BigNumber("10").pow(new BigNumber(decimals)));
+                .multipliedBy(new BigNumber("10").pow(decimals));
 
+            console.log("setting input quantity", valueNumber.toString());
             setInputQuantity(valueNumber);
             setOutputQuantity(undefined);
         } else {
             setMainInput("out");
 
             const valueNumber = new BigNumber(value)
-                .multipliedBy(new BigNumber("10").pow(new BigNumber(decimals)));
+                .multipliedBy(new BigNumber("10").pow(decimals));
 
             setOutputQuantity(valueNumber);
             setInputQuantity(undefined);
@@ -202,7 +210,13 @@ export function TokenQuantityInput({
                 <div className={''}
                     style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
                     <input className="w-full text-3xl h-10 rounded-lg p-2 focus:outline-none focus:border-blue-500 bg-transparent"
-                        value={text === "Send" ? inputHumanReadable : outputHumanReadable}
+                        value={
+                            text === "Send" ? (
+                                mainInput === "in" ? undefined : getInputHumanized()
+                            ) : (
+                                mainInput === "out" ? undefined : getOutputHumanized()
+                            )
+                        }
                         placeholder="0"
                         onChange={handleInputChange}
                     />
@@ -222,7 +236,7 @@ export function TokenQuantityInput({
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
                 <p className="m-0 text-xs text-gray-500">
-                    {getEstimatedValuesText() + "$"}
+                    {(text === "Send" ? inputDollarValue: outputDollarValue) + "$"}
                 </p>
                 <p className="m-0 text-gray-500 text-xs">
                     Balance: {toHumanReadable(balance)}

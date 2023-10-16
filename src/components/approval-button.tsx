@@ -6,6 +6,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAccount, useNetwork } from 'wagmi'
 import { TokenWithAddress } from '../hooks/tokens';
 import { useTradeContext } from '../contexts/TradeContext';
+import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -16,10 +17,12 @@ export interface InteractionWithApprovalButtonProps {
 
 export function InteractionWithApprovalButton({
     approveMax,
-    token,
-    networkId
+    token
 }: InteractionWithApprovalButtonProps) {
+    const { multipool } = useMultiPoolContext();
     const { estimationErrorMessage, estimatedValues } = useTradeContext();
+
+    const networkId = multipool?.chainId as number;
     const interactionBalance = BigInt(String(estimatedValues?.estimatedAmountIn?.row ? estimatedValues?.estimatedAmountIn?.row : 0));
     const interactionTxnBody = estimatedValues?.txn;
     
@@ -44,7 +47,7 @@ export function InteractionWithApprovalButton({
         functionName: 'approve',
         args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
         enabled: allowance >= interactionBalance,
-        chainId: networkId,
+        chainId: multipool?.chainId,
     });
     
     const { data: mayBeApprovalHash, write: sendBalanceApproval } = useContractWrite(approvalConfig)
@@ -74,7 +77,7 @@ export function InteractionWithApprovalButton({
     };
 
     
-    const { chain, chains } = useNetwork()
+    const { chain, chains } = useNetwork();
     const { setOpen: openWalletModal } = useModal();
 
     if (!isConnected) {
