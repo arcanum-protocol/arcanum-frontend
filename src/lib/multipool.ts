@@ -154,9 +154,9 @@ export function useMultipoolData(
             coingeckoId: asset.coingecko_id,
             defilamaId: asset.defilama_id,
             revenue: null,
-            mcap: FixedNumber.from(asset?.gecko?.usd_market_cap.toString() || 0),
-            volume24h: FixedNumber.from(asset?.gecko?.usd_24h_vol.toString() || 0),
-            priceChange24h: FixedNumber.from(asset?.gecko?.usd_24h_change.toString() || 0),
+            mcap: FixedNumber.from(asset?.gecko?.usd_market_cap.toFixed(18) || 0),
+            volume24h: FixedNumber.from(asset?.gecko?.usd_24h_vol.toFixed(18) || 0),
+            priceChange24h: FixedNumber.from(asset?.gecko?.usd_24h_change.toFixed(18) || 0),
             deviationPercent: currentShare.subUnsafe(idealShare),
             ticker: asset.symbol,
         };
