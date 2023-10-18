@@ -1,4 +1,4 @@
-import { FixedNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "bignumber.js";
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
 import { Tooltip } from './tooltip';
@@ -8,6 +8,20 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
 
     for (let i = 0; i < fetchedAssets?.length * 6; i++) {
         randomindexes.push(Number((Math.random() * 10000).toFixed(0)));
+    }
+
+    function toHumanReadableMcap(number: BigNumber) {
+        // const decimals = new BigNumber(10).pow(18);
+
+        // const value = number.div(decimals);
+        return toHumanReadable(number, 2);
+    }
+
+    function tohumanReadableQuantity(number: BigNumber) {
+        const decimals = new BigNumber(10).pow(18);
+
+        const value = number.div(decimals);
+        return toHumanReadable(value, 2);
     }
 
     const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
@@ -27,13 +41,13 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
                 {Number(asset.currentShare.toString()).toFixed(2)}%
             </div>
             <div key={randomindexes[3 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
-                {Number(asset.price.toString()).toFixed(2)}$
+                {asset.price?.toFixed(2).toString()}$
             </div>
             <div key={randomindexes[4 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
-                {toHumanReadable(FixedNumber.fromValue(asset.quantity).divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(18))))}
+                {tohumanReadableQuantity(asset.quantity)}
             </div>
             <div key={randomindexes[5 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
-                {toHumanReadable(asset.mcap.toString())}$
+                {toHumanReadableMcap(asset.mcap)}$
             </div>
         </>
     );

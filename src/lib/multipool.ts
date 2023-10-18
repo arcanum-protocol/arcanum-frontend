@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BigNumber, FixedNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'bignumber.js';
 import { useQuery } from '@tanstack/react-query';
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { SolidAsset } from '../types/multipoolAsset';
@@ -7,10 +7,10 @@ import SCHEME from '../scheme.yaml';
 import multipoolABI from '../abi/ETF';
 import { useContractReads } from 'wagmi';
 import { useContractRead } from 'wagmi';
-import { parseEther } from 'viem';
+import { Address, parseEther } from 'viem';
 
 export function useMultipoolData(
-    multipool_id: String,
+    multipool_id: string,
 ): {
     data: {
         assets: MultipoolAsset[],
@@ -103,7 +103,7 @@ export function useMultipoolData(
         name: mp.name,
         chainId: Number(mp.chain_id),
         symbol: mp.name,
-        totalSupply: BigNumber.from(totalSupply || '0'),
+        totalSupply: new BigNumber(totalSupply as any || '0'),
         low24h: Number(mpPriceData?.low_24h || '0'),
         high24h: Number(mpPriceData?.high_24h || '0'),
         change24h: Number(mpPriceData?.change_24h || '0'),
@@ -127,10 +127,10 @@ export function useMultipoolData(
             name: asset.symbol,
             symbol: asset.symbol,
             address: asset.address,
-            currentShare: FixedNumber.from(currentShare.toString()),
-            idealShare: FixedNumber.from(idealShare.toString()),
-            price: FixedNumber.from(asset?.gecko?.usd.toString() || 0),
-            quantity: BigNumber.from(asset?.onchain?.quantity || 0),
+            currentShare: new BigNumber(currentShare.toString()),
+            idealShare: new BigNumber(idealShare.toString()),
+            price: new BigNumber(asset?.gecko?.usd.toString() || 0),
+            quantity: new BigNumber(asset?.onchain?.quantity || 0),
             logo: asset.logo,
             multipoolAddress: mp.address,
             assetId: asset.symbol,
@@ -140,10 +140,10 @@ export function useMultipoolData(
             coingeckoId: asset.coingecko_id,
             defilamaId: asset.defilama_id,
             revenue: null,
-            mcap: FixedNumber.from(asset?.gecko?.usd_market_cap.toString() || 0),
-            volume24h: FixedNumber.from(asset?.gecko?.usd_24h_vol.toString() || 0),
-            priceChange24h: FixedNumber.from(asset?.gecko?.usd_24h_change.toString() || 0),
-            deviationPercent: FixedNumber.from(currentShare.toString()).subUnsafe(FixedNumber.from(idealShare.toString())),
+            mcap: new BigNumber(asset?.gecko?.usd_market_cap.toString() || 0),
+            volume24h: new BigNumber(asset?.gecko?.usd_24h_vol.toString() || 0),
+            priceChange24h: new BigNumber(asset?.gecko?.usd_24h_change.toString() || 0),
+            deviationPercent: new BigNumber(currentShare.toString()).minus(new BigNumber(idealShare.toString())),
             ticker: asset.symbol,
         };
     });
@@ -153,9 +153,75 @@ export function useMultipoolData(
     return {
         data: {
             assets: processedAssets,
-            multipool: multipool,
+            multipool: multipool as unknown as SolidAsset,
         },
         isLoading: ctxIsLoading || assetsIsLoading,
         error: undefined,
     }
+}
+
+export function useMultipoolPrice(multipoolId: string): {
+    data: {
+        price: BigNumber,
+        tokens: {
+            address: Address,
+            multipoolBalance: BigNumber,
+            price: BigNumber
+        }[],
+        totalSupply: BigNumber
+    } | undefined
+} {
+    const multipoolScheme = SCHEME[multipoolId];
+
+    const assets = multipoolScheme.assets;
+    const tokens = [];
+
+    for (const asset of assets) {
+        const data = useContractRead({
+            address: multipoolScheme.address,
+            abi: multipoolABI,
+            functionName: 'assets',
+            args: [asset.address],
+            chainId: multipoolScheme.chain_id,
+        });
+
+        tokens.push({
+            address: asset.address,
+            multipoolBalance: data?.data[0] || 0,
+            price: data?.data[1] || 0,
+        });
+    }
+
+    const { data: totalSupplyRaw } = useContractRead({
+        address: multipoolScheme.address,
+        abi: multipoolABI,
+        functionName: 'totalSupply',
+        chainId: multipoolScheme.chain_id,
+    });
+
+    const { data: usdCapRaw } = useContractRead({
+        address: multipoolScheme.address,
+        abi: multipoolABI,
+        functionName: 'usdCap',
+        chainId: multipoolScheme.chain_id,
+    });
+
+    const totalSupply = new BigNumber(totalSupplyRaw as any);
+    const usdCap = new BigNumber(usdCapRaw as any);
+
+    console.log({
+        data: {
+            price: usdCap.div(totalSupply),
+            tokens: tokens as any,
+            totalSupply,
+        },
+    });
+
+    return {
+        data: {
+            price: usdCap.div(totalSupply),
+            tokens: tokens as any,
+            totalSupply,
+        },
+    };
 }

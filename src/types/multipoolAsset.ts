@@ -1,4 +1,4 @@
-import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "bignumber.js";
 
 interface BaseAsset {
     name: string;
@@ -27,21 +27,21 @@ type SolidAsset = BaseAsset & SolidAssetSpecific;
 interface MultipoolAssetSpecific {
     multipoolAddress: string;
     assetId: string;
-    idealShare: FixedNumber;
-    currentShare: FixedNumber;
+    idealShare: BigNumber;
+    currentShare: BigNumber;
     quantity: BigNumber;
-    chainPrice: FixedNumber;
+    chainPrice: BigNumber;
     id: string;
     ticker: string;
     coingeckoId: string;
     defilamaId: string | null;
     revenue: string | null;
-    mcap: FixedNumber;
-    volume24h: FixedNumber;
-    priceChange24h: FixedNumber;
-    deviationPercent: FixedNumber;
+    mcap: BigNumber;
+    volume24h: BigNumber;
+    priceChange24h: BigNumber;
+    deviationPercent: BigNumber;
 }
 
 type MultipoolAsset = BaseAsset & MultipoolAssetSpecific;
 
-export { type MultipoolAsset, type ExternalAsset, type SolidAsset };
+export { type BaseAsset, type MultipoolAsset, type ExternalAsset, type SolidAsset };

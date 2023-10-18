@@ -13,6 +13,9 @@
       "DOM",
       "DOM.Iterable"
     ],
+    "types": [
+      "@modyfi/vite-plugin-yaml/modules"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     /* Bundler mode */

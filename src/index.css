@@ -45,56 +45,10 @@ button:disabled {
   color: #393939;
 }
 
-.approvalBalanceButton {
-  width: 100%;
-  color: #fff;
-  border-radius: 16px;
-  background-color: #0047FE;
-  border: 1px solid #363636;
-
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-}
-
-.approvalBalanceButton:hover {
-  border: 1px solid #fff;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset;
-}
-
-.approvalBalanceButton:disabled {
-  border: 1px solid #393939;
-  background-color: #393939;
-}
-
-.approvalBalanceButton[disabled]:hover {
-  border: 1px solid #393939;
-  box-shadow: none;
-  background-color: #393939;
-}
-
-.approvalBalanceButton:disabled {
-  color: var(--wh);
-}
-
-.approvalBalanceButton:focus,
-.approvalBalanceButton:focus-visible {
-  border: none;
-  outline: none;
-}
-
 .pane {
   --mask: url("/pane.svg") 0 0 / 100% 100% no-repeat;
   -webkit-mask: var(--mask);
   mask: var(--mask);
-}
-
-@keyframes sineWave {
-  0% { transform: translateY(0); }
-  25% { transform: translateY(10px); }
-  50% { transform: translateY(0); }
-  75% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
 }
 
 .multipool-token-balance {

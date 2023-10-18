@@ -2,9 +2,7 @@ import { configureChains } from '@wagmi/core'
 import { publicProvider } from '@wagmi/core/providers/public'
 import { createConfig } from "wagmi";
 import { createAlchemyWeb3 } from "@alch/alchemy-web3";
-import {
-    getDefaultConfig,
-} from "connectkit";
+import { getDefaultConfig } from "connectkit";
 
 export const arbitrumMainnet = {
     id: 42161,
@@ -86,20 +84,6 @@ export const opBnb = {
     },
 };
 
-
-import { createStorage } from 'wagmi'
-import { MoralisConfig } from '@moralisweb3/react';
-
-export const noopStorage: BaseStorage = {
-    getItem: (_key) => '',
-    setItem: (_key, _value) => null,
-    removeItem: (_key) => null,
-}
-
-const storage = createStorage({
-    storage: noopStorage,
-})
-
 export const chains = [arbitrumSepolia, arbitrumMainnet, polygonMumbai, opBnb];
 export const { publicClient } = configureChains(chains, [publicProvider()])
 
@@ -108,13 +92,8 @@ export const config = createConfig({
         publicClient,
         alchemyId: "K7c6nsX9dY6D4OhdtkKc2f05yEcFdtqU",
         walletConnectProjectId: "1d63d7e43fd1d5ea177bdb4a8939ade4",
-
         chains: chains,
-
-        // Required
         appName: "ARCANUM",
-
-        // Optional
         appDescription:
             "Decentralized asset management protocol that allows to create complicated asset management portfolio and manage them in a DeFi manner.",
         appUrl: "https://arcanum.to",
@@ -122,9 +101,7 @@ export const config = createConfig({
     }),
 })
 
-export const alchemiClient = createAlchemyWeb3(
-    `https://arb-mainnet.g.alchemy.com/v2/MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_`
-);
+export const alchemiClient = createAlchemyWeb3(`https://arb-mainnet.g.alchemy.com/v2/MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_`);
 
 export const alchemiUrl = "https://arb-mainnet.g.alchemy.com/v2/MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_";
 

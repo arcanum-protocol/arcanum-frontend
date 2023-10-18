@@ -7,6 +7,7 @@ import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAc
 import { TokenWithAddress } from '../hooks/tokens';
 import { useTradeContext } from '../contexts/TradeContext';
 import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
+import { Button } from "./ui/button";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -28,11 +29,11 @@ export function InteractionWithApprovalButton({
     
     if (estimationErrorMessage) {
         return (
-            <div>
-                <button className='approvalBalanceButton' style={{ width: "100%" }} disabled={true}>
-                    <p style={{ margin: "10px" }}>{estimationErrorMessage}</p>
-                </button>
-            </div >
+            <>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-red-500 hover:bg-transparent">
+                    <p className="m-4">{estimationErrorMessage}</p>
+                </Button>
+            </>
         );
     }
 
@@ -42,7 +43,7 @@ export function InteractionWithApprovalButton({
     // hooks 
     // send approval
     const { config: approvalConfig } = usePrepareContractWrite({
-        address: token?.tokenAddress as Address,
+        address: token?.address as Address,
         abi: multipoolABI,
         functionName: 'approve',
         args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
@@ -64,12 +65,6 @@ export function InteractionWithApprovalButton({
         hash: mayBeHash?.hash,
     })
 
-    let defaultStyle = () => {
-        return {
-            width: "100%",
-        }
-    };
-
     let switchNetworkCb = () => {
         switchNetwork({
             chainId: networkId,
@@ -83,41 +78,41 @@ export function InteractionWithApprovalButton({
     if (!isConnected) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={() => openWalletModal(true)}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => openWalletModal(true)}>
                     <p style={{ margin: "10px" }}>Connect Wallet</p>
-                </button>
+                </Button>
             </div >
         );
     } else if (Array.isArray(chains) && networkId != chain?.id) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={switchNetworkCb}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={switchNetworkCb}>
                     <p style={{ margin: "10px" }}>Switch to {chains.find(c => c.id == networkId)?.name}</p>
-                </button>
+                </Button>
             </div >
         );
     } else if (approvalTxnIsLoading || txnIsLoading) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-gray-500 hover:bg-transparent">
                     <p style={{ margin: "10px" }}>{"Loading..."}</p>
-                </button>
+                </Button>
             </div >
         );
     } else if (token == undefined || interactionTxnBody == undefined) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent hover:animate-float" disabled={true}>
                     <p style={{ margin: "10px" }}>{"Mint"}</p>
-                </button>
+                </Button>
             </div >
         );
-    } else if (token.balance.row < interactionBalance || interactionBalance == BigInt(0)) {
+    } else if (token?.balance! < interactionBalance || interactionBalance == BigInt(0)) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-red-500 hover:bg-transparent hover:animate-float">
                     <p style={{ margin: "10px" }}>{"Insufficient Balance"}</p>
-                </button>
+                </Button>
             </div >
         );
     } else {
@@ -125,17 +120,17 @@ export function InteractionWithApprovalButton({
         if (approveRequired) {
             return (
                 <div>
-                    <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={sendBalanceApproval}>
+                    <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent hover:animate-float" disabled={false} onClick={sendBalanceApproval}>
                         <p style={{ margin: "10px" }}>{"Approve"}</p>
-                    </button>
+                    </Button>
                 </div >
             );
         } else {
             return (
                 <div>
-                    <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={sendTxn}>
+                    <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent hover:animate-float" disabled={false} onClick={sendTxn}>
                         <p style={{ margin: "10px" }}>{"Mint"}</p>
-                    </button>
+                    </Button>
                 </div >
             );
         }

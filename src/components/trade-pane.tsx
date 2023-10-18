@@ -116,21 +116,14 @@ export function TokenQuantityInput({
     });
 
     const adapter = tradeLogicAdapter;
-    
-    // check for NaN
-    const inputQuantityNotNAN = inputQuantity?.isNaN() ? new BigNumber(0) : inputQuantity;
-    const outputQuantityNotNAN = outputQuantity?.isNaN() ? new BigNumber(0) : outputQuantity;
-    
-    const inputQuantityBigInt = inputQuantityNotNAN != undefined ? BigInt(inputQuantityNotNAN.toString()) : BigInt(0);
-    const outputQuantityBigInt = outputQuantityNotNAN != undefined ? BigInt(outputQuantityNotNAN.toString()) : BigInt(0);
 
     const transactionParams: SendTransactionParams = {
         to: userAddress,
         deadline: BigInt(0),
         slippage: slippage,
         quantities: {
-            in: mainInput === "in" ? inputQuantityBigInt : undefined,
-            out: mainInput === "in" ? undefined : outputQuantityBigInt,
+            in: mainInput === "in" ? inputQuantity : undefined,
+            out: mainInput === "in" ? undefined : outputQuantity,
         } as Quantities,
         tokenIn: tokenInData?.data!,
         tokenOut: tokenOutData?.data!,
