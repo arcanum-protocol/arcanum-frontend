@@ -185,8 +185,11 @@ export function useMultipoolPrice(multipoolId: string,
         const tokenBalance = new BigNumber((data as unknown as any)[0]);
         const tokenPrice = new BigNumber((data as unknown as any)[1]);
 
+<<<<<<< HEAD
         if (tokenBalance.isZero()) continue;
 
+=======
+>>>>>>> 4c40c2d (sync)
         tokens.push({
             address: asset.address,
             multipoolBalance: tokenBalance,

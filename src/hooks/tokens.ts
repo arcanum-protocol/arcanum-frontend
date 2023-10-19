@@ -1,6 +1,6 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber } from 'bignumber.js';
-import { useContractRead, useToken, useAccount, Address, useQuery } from 'wagmi'
+import { useContractRead, useToken, useAccount, Address, useQuery, usePrepareContractWrite } from 'wagmi'
 import { EstimatedValues } from '../types/estimatedValues';
 import { EstimationTransactionBody } from '../types/estimationTransactionBody';
 import { SendTransactionParams } from '../types/sendTransactionParams';
@@ -10,12 +10,19 @@ import { Gas } from '@/types/gas';
 import { useMultipoolData, useMultipoolPrice } from '@/lib/multipool';
 import axios from 'axios';
 import { BuildedTransaction, KyberswapResponse } from '@/types/kyberswap';
+<<<<<<< HEAD
 import { BaseAsset } from '@/types/multipoolAsset';
 import MassiveMintRouter from '@/abi/MassiveMintRouter';
 import { useTradeContext } from '@/contexts/TradeContext';
 import { useMultiPoolContext } from '@/contexts/MultiPoolContext';
 import { useEffect, useState } from 'react';
 import ERC20 from '@/abi/ERC20';
+=======
+import { BaseAsset, ExternalAsset } from '@/types/multipoolAsset';
+import sheme from '@/scheme.yaml';
+import MassiveMintRouter from '@/abi/MassiveMintRouter';
+import { error } from 'console';
+>>>>>>> 4c40c2d (sync)
 
 type TokenWithAddressSpecific = {
     interactionAddress: string | undefined,
@@ -99,9 +106,15 @@ export function useTokenWithAddress({
         address: address,
         interactionAddress: allowanceTo,
         userAddress: userAddress,
+<<<<<<< HEAD
         decimals: decimals.toNumber(),
         name: tokenData?.name || "ARCANUM ETF",
         symbol: tokenData?.symbol || "AETF",
+=======
+        decimals: tokenData?.decimals,
+        name: tokenData?.name,
+        symbol: tokenData?.symbol,
+>>>>>>> 4c40c2d (sync)
         balance: userBalance.toNumber(),
         balanceFormated: userBalance.dividedBy(denominator).toString(),
         approval: {
@@ -155,7 +168,11 @@ export function useEstimateTransactionCost(
             cost: cost.toString(),
         } as Gas;
     }, {
+<<<<<<< HEAD
         enabled: !address && enabled,
+=======
+        enabled: !address,
+>>>>>>> 4c40c2d (sync)
     });
 
     useEffect(() => {
@@ -191,6 +208,7 @@ export function useEstimateMassiveMintTransactions(
     isError: boolean,
     error: string | undefined,
 } {
+<<<<<<< HEAD
     const enabled = params?.enabled == undefined ? true : params?.enabled;
 
     const { data: arbi } = useMultipoolData("arbi", { enabled: enabled });
@@ -348,6 +366,67 @@ export function useEstimateMassiveMintTransactions(
             assetInUsd: kyberswapResponse?.assetInUsd,
             estimatedNetworkFee: error ? approvalGas : gas,
         },
+=======
+    const { data: arbi } = useMultipoolData("arbi");
+    const { assets } = arbi!;
+
+    console.log("assets", assets);
+    console.log("amountInDivided", amount?.toString());
+
+    // Считаем сумму выхода для каждого токена
+    const { data: kyberswapResponse, isError: kyberswapResponseIsError, isLoading: kyberswapResponseIsLoading, error: kyberswapResponseError } = useQuery(['kyberswap'], async () => {
+        // Соотношение между токенами в пуле
+        const tokenRatio = assets.map(asset => {
+            const ratio = new BigNumber(asset.currentShare.toString()).dividedBy(new BigNumber(100));
+            return {
+                address: asset.address,
+                ratio: ratio,
+            }
+        });
+
+        const amountInDivided = tokenRatio.map(token => {
+            return {
+                address: token.address,
+                amount: amount?.multipliedBy(token.ratio) || new BigNumber(0),
+            }
+        });
+
+        // if (amountInDivided.some(token => token.amount.isEqualTo(0))) return [];
+
+        const routes = amountInDivided.map(async (_, i) => {
+            const amountInInteger = amountInDivided[i].amount.integerValue();
+
+            const tokenOut = amountInDivided[i].address;
+
+            const response = await axios.get(
+                `https://aggregator-api.kyberswap.com/arbitrum/api/v1/routes?tokenIn=${token}&tokenOut=${tokenOut}&amountIn=${amountInInteger}&saveGas=true&gasInclude=true`,
+            );
+
+            return response.data as KyberswapResponse;
+        });
+
+        const trxs = routes.map(async (routePromise) => {
+            const route = await routePromise;
+            const transaction = await axios.post(`https://aggregator-api.kyberswap.com/arbitrum/api/v1/route/build`, {
+                "routeSummary": route.data.routeSummary,
+                "sender": sender,
+                "recipient": router,
+            });
+
+            return transaction.data as BuildedTransaction;
+        });
+
+        return await Promise.all(trxs);
+    }, {
+        enabled: token != undefined && amount != undefined && sender != undefined && router != undefined && amount?.isGreaterThan(0),
+        refetchInterval: 1000,
+    });
+
+    console.log("kyberswapResponse", kyberswapResponse, kyberswapResponseIsLoading, kyberswapResponseError);
+
+    return {
+        data: kyberswapResponse,
+>>>>>>> 4c40c2d (sync)
         isError: kyberswapResponseIsError,
         isLoading: kyberswapResponseIsLoading,
         error: kyberswapResponseError as string,
@@ -364,6 +443,7 @@ export function useEstimateMassiveMint(
     }
 ): {
     data: {
+<<<<<<< HEAD
         estimatedAmountIn: {
             row: BigNumber
             formatted: string
@@ -376,6 +456,11 @@ export function useEstimateMassiveMint(
         },
         estimatedTransactionCost: Gas,
         massiveMintTransaction: EstimatedValues
+=======
+        estimatedOutShares: BigNumber,
+        estimatedTransactionCost: Gas,
+        massiveMintTransaction: any
+>>>>>>> 4c40c2d (sync)
     } | undefined,
     isLoading: boolean,
     isError: boolean,
@@ -394,6 +479,7 @@ export function useEstimateMassiveMint(
 
     let response: BigNumber = new BigNumber(0);
 
+<<<<<<< HEAD
     kyberswapResponse?.buildedTransactions?.map((item) => {
         response = response.plus(new BigNumber(item.data.amountOutUsd));
     });
@@ -454,6 +540,34 @@ export function useEstimateMassiveMint(
                 }
             },
             estimatedTransactionCost: kyberswapResponse.estimatedNetworkFee!,
+=======
+    for (let i = 0; i < kyberswapResponse.length; i++) {
+        if (kyberswapResponse[i].data.amountOutUsd == undefined) continue;
+        response = response.plus(new BigNumber(kyberswapResponse[i].data.amountOutUsd));
+    }
+
+    // get multipool price 
+    const { data: arbi } = useMultipoolPrice("arbi");
+    const multipollSharesAmount = response.dividedBy(arbi?.price || 0);
+
+    // const { data } = usePrepareContractWrite({
+    //     address: sheme["arbi"].massive_mint_address,
+    //     abi: MassiveMintRouter,
+    //     functionName: 'massiveMint',
+    //     args: [token, amount, sender],
+    //     chainId: 421611,
+    // });
+
+    return {
+        data: {
+            estimatedOutShares: multipollSharesAmount,
+            estimatedTransactionCost: {
+                gas: "0",
+                gasPrice: "0",
+                cost: "0",
+            } as unknown as Gas,
+            massiveMintTransaction: undefined,
+>>>>>>> 4c40c2d (sync)
         },
         isError: MassiveMintIsError,
         isLoading: MassiveMintIsLoading,
@@ -480,6 +594,7 @@ export function useEstimate(
 
     const { address } = useAccount();
 
+<<<<<<< HEAD
     const { data, isLoading: massiveMintIsLoading } = useEstimateMassiveMint(
         params.tokenIn?.address as Address,
         params.quantities.in,
@@ -487,6 +602,11 @@ export function useEstimate(
         chainId, {
         enabled: enabled && isNotMultipoolToken,
     });
+=======
+    console.log("params.quantities.in", params.quantities.in?.toString());
+    const { data } = useEstimateMassiveMint(params.tokenIn.address as Address, params.quantities.in, address, params.routerAddress as Address);
+    console.log("outShares", data?.estimatedOutShares.toString());
+>>>>>>> 4c40c2d (sync)
 
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
 
