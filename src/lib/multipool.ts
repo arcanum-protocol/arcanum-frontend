@@ -177,7 +177,7 @@ export function useMultipoolPrice(multipoolId: string): {
     const tokens = [];
 
     for (const asset of assets) {
-        const data = useContractRead({
+        const { data } = useContractRead({
             address: multipoolScheme.address,
             abi: multipoolABI,
             functionName: 'assets',
@@ -185,10 +185,15 @@ export function useMultipoolPrice(multipoolId: string): {
             chainId: multipoolScheme.chain_id,
         });
 
+        if (!data) continue;
+
+        const tokenBalance = new BigNumber((data as unknown as any)[0]);
+        const tokenPrice = new BigNumber((data as unknown as any)[1]);
+
         tokens.push({
             address: asset.address,
-            multipoolBalance: data?.data[0] || 0,
-            price: data?.data[1] || 0,
+            multipoolBalance: tokenBalance,
+            price: tokenPrice,
         });
     }
 
@@ -208,14 +213,6 @@ export function useMultipoolPrice(multipoolId: string): {
 
     const totalSupply = new BigNumber(totalSupplyRaw as any);
     const usdCap = new BigNumber(usdCapRaw as any);
-
-    console.log({
-        data: {
-            price: usdCap.div(totalSupply),
-            tokens: tokens as any,
-            totalSupply,
-        },
-    });
 
     return {
         data: {
