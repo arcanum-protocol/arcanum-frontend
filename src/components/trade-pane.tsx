@@ -13,6 +13,7 @@ import { ChangeEvent } from "react";
 import { BigNumber } from "bignumber.js";
 import { Quantities } from "@/types/quantities";
 import { Address } from "viem";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
 interface TradePaneProps {
     action: "mint" | "burn" | "swap";
@@ -202,6 +203,23 @@ export function TokenQuantityInput({
         }
     };
 
+    console.log("data", data.masiveMintResult);
+
+    const { data: data2 } = usePrepareContractWrite(
+        data.masiveMintResult
+    );
+
+    const { write } = useContractWrite(
+        data.masiveMintResult
+    );
+        
+
+    function tey() {
+        console.log("tey");
+
+        write();
+    }
+
     return (
         <div className="flex flex-col justify-between items-start rounded-2xl border h-full mx-[20px] my-[1px] p-3">
             <p className="text-base m-0">{text} </p>
@@ -231,6 +249,9 @@ export function TokenQuantityInput({
                             <ChevronDownIcon className="w-5 h-5 text-gray-400" /> :
                             <div className="w-2"></div>
                     }
+                </Button>
+                <Button onClick={() => tey()}>
+                    test
                 </Button>
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">

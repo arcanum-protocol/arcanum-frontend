@@ -148,7 +148,12 @@ export function useMultipoolData(
     }
 }
 
-export function useMultipoolPrice(multipoolId: string): {
+export function useMultipoolPrice(multipoolId: string,
+    params: {
+        enabled: boolean,
+    } = {
+        enabled: true,
+    }): {
     data: {
         price: BigNumber,
         tokens: {
@@ -171,12 +176,15 @@ export function useMultipoolPrice(multipoolId: string): {
             functionName: 'assets',
             args: [asset.address],
             chainId: multipoolScheme.chain_id,
+            enabled: params.enabled,
         });
 
         if (!data) continue;
 
         const tokenBalance = new BigNumber((data as unknown as any)[0]);
         const tokenPrice = new BigNumber((data as unknown as any)[1]);
+
+        if (tokenBalance.isZero()) continue;
 
         tokens.push({
             address: asset.address,
@@ -190,6 +198,7 @@ export function useMultipoolPrice(multipoolId: string): {
         abi: multipoolABI,
         functionName: 'totalSupply',
         chainId: multipoolScheme.chain_id,
+        enabled: params.enabled,
     });
 
     const { data: usdCapRaw } = useContractRead({
@@ -197,6 +206,7 @@ export function useMultipoolPrice(multipoolId: string): {
         abi: multipoolABI,
         functionName: 'usdCap',
         chainId: multipoolScheme.chain_id,
+        enabled: params.enabled,
     });
 
     const totalSupply = new BigNumber(totalSupplyRaw as any);
@@ -204,7 +214,8 @@ export function useMultipoolPrice(multipoolId: string): {
 
     return {
         data: {
-            price: usdCap.div(totalSupply),
+            // price: usdCap.div(totalSupply),
+            price: new BigNumber(0),
             tokens: tokens as any,
             totalSupply,
         },

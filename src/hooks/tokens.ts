@@ -1,6 +1,6 @@
 import multipoolABI from '../abi/ETF';
 import { BigNumber } from 'bignumber.js';
-import { useContractRead, useToken, useAccount, Address, useQuery, usePrepareContractWrite } from 'wagmi'
+import { useContractRead, useToken, useAccount, Address, useQuery, usePrepareContractWrite, useContractWrite } from 'wagmi'
 import { EstimatedValues } from '../types/estimatedValues';
 import { EstimationTransactionBody } from '../types/estimationTransactionBody';
 import { SendTransactionParams } from '../types/sendTransactionParams';
@@ -120,7 +120,7 @@ export function useEstimateTransactionCost(
     const { data: result, isError, isLoading, error } = useQuery(['gasPrice'], async () => {
         const gasPriceRaw = await publicClient({ chainId: chainId }).getGasPrice();
         const gasPrice = Number(gasPriceRaw) / Math.pow(10, 15);
-        
+
         const gas = await publicClient({ chainId: chainId }).estimateContractGas({
             account: address!,
             abi: sendTransactionParams?.abi,
@@ -169,10 +169,13 @@ export function useEstimateMassiveMintTransactions(
     const { data: arbi } = useMultipoolData("arbi", { enabled: enabled });
     const { assets } = arbi!;
 
+    const filteredAssets = assets.filter(asset => asset.currentShare.isGreaterThan(0));
+
     // Считаем сумму выхода для каждого токена
     const { data: kyberswapResponse, isError: kyberswapResponseIsError, isLoading: kyberswapResponseIsLoading, error: kyberswapResponseError } = useQuery(['kyberswap'], async () => {
         // Соотношение между токенами в пуле
-        const tokenRatio = assets.map(asset => {
+
+        const tokenRatio = filteredAssets.map(asset => {
             const ratio = new BigNumber(asset.currentShare.toString()).dividedBy(new BigNumber(100));
             return {
                 address: asset.address,
@@ -204,7 +207,7 @@ export function useEstimateMassiveMintTransactions(
             const transaction = await axios.post(`https://aggregator-api.kyberswap.com/arbitrum/api/v1/route/build`, {
                 "routeSummary": route.data.routeSummary,
                 "sender": sender,
-                "recipient": router,
+                "recipient": arbi?.multipool.address,
             });
 
             return transaction.data as BuildedTransaction;
@@ -251,7 +254,7 @@ export function useEstimateMassiveMint(
     const enabled = params?.enabled == undefined ? true : params?.enabled;
 
     const { data: kyberswapResponse, isLoading: MassiveMintIsLoading, isError: MassiveMintIsError, error: MassiveMintError } = useEstimateMassiveMintTransactions(token, amount, sender, router, { enabled: enabled });
-    
+
     let response: BigNumber = new BigNumber(0);
 
     kyberswapResponse?.buildedTransactions?.map((item) => {
@@ -274,42 +277,30 @@ export function useEstimateMassiveMint(
         return item.data.routeSummary.tokenOut;
     });
 
-    const massiveMintTransactions = usePrepareContractWrite({
-        address: getMassiveMintRouter(),
-        abi: MassiveMintRouter,
-        functionName: 'massiveMint',
-        args: [
-            getMultipoolAddress("arbi"),
-            token,
-            amount?.integerValue(),
-            multipollSharesAmount.multipliedBy(new BigNumber(10).pow(18)).integerValue(),
-            swaps,
-            tokens,
-            "0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"
-        ],
-        // chainId: 421611,
-        enabled: enabled,
-    });
-
-    console.log("massiveMintTransactions", massiveMintTransactions, params?.enabled, [
-        getMultipoolAddress("arbi"),
-        token,
-        amount?.integerValue().toString(),
-        multipollSharesAmount,
-        swaps,
-        tokens,
-        "0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"
-    ]);
-
     return {
         data: {
             estimatedOutShares: multipollSharesAmount,
+            massiveMintTransaction: {
+                address: getMassiveMintRouter(),
+                abi: MassiveMintRouter,
+                functionName: 'massiveMint',
+                args: [
+                    getMultipoolAddress("arbi"),
+                    token,
+                    amount?.integerValue(),
+                    new BigNumber(0).integerValue(),
+                    swaps,
+                    tokens,
+                    "0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"
+                ],
+                // chainId: 421611,
+                enabled: enabled,
+            },
             estimatedTransactionCost: {
                 gas: "0",
                 gasPrice: "0",
                 cost: "0",
             } as unknown as Gas,
-            massiveMintTransaction: undefined,
         },
         isError: MassiveMintIsError,
         isLoading: MassiveMintIsLoading,
@@ -327,6 +318,7 @@ export function useEstimate(
 ): {
     data: {
         estimationResult: EstimatedValues | undefined,
+        masiveMintResult: any | undefined,
         transactionCost: Gas | undefined
     },
     isLoading: boolean,
@@ -337,7 +329,7 @@ export function useEstimate(
 
     const { address } = useAccount();
 
-    const { data } = useEstimateMassiveMint(params.tokenIn?.address as Address, params.quantities.in, address, params.routerAddress as Address, { 
+    const { data } = useEstimateMassiveMint(params.tokenIn?.address as Address, params.quantities.in, address, params.routerAddress as Address, {
         enabled: enabled && params.tokenIn?.type === "external" && params.quantities.in != undefined && params.quantities.in.isGreaterThan(0),
     });
 
@@ -368,11 +360,10 @@ export function useEstimate(
 
     const { data: transactionCost } = useEstimateTransactionCost(txnBodyParts as EstimationTransactionBody, chainId, { enabled: enabled });
 
-    // console.log("transactionCost", txnData);
-
     return {
         data: {
             estimationResult: adapter.parseEstimationResult(txnData, params),
+            masiveMintResult: data?.massiveMintTransaction,
             transactionCost: transactionCost
         },
         isError: isError,
