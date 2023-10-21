@@ -1,13 +1,14 @@
+import BigNumber from "bignumber.js";
 import { TokenWithAddress } from "../hooks/tokens";
 import { Quantities } from "./quantities";
 
 type SendTransactionParams = {
     to: string,
-    deadline: bigint,
+    deadline: BigNumber,
     slippage: number,
     quantities: Quantities,
-    tokenIn: TokenWithAddress,
-    tokenOut: TokenWithAddress,
+    tokenIn: TokenWithAddress | undefined,
+    tokenOut: TokenWithAddress | undefined,
     priceIn: number,
     priceOut: number,
     routerAddress: string,

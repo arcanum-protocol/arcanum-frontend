@@ -1,4 +1,3 @@
-import _, { set, slice } from "lodash";
 import { Button } from "./ui/button";
 import { useEstimate, useTokenWithAddress } from '../hooks/tokens';
 import { toHumanReadable } from '../lib/format-number';
@@ -34,8 +33,8 @@ export function TradePaneInner({
         sendTransctionParams
     } = useTradeContext();
 
-    const { data: inputToken } = useTokenWithAddress({ tokenAddress: tokenIn?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
-    const { data: outputToken } = useTokenWithAddress({ tokenAddress: tokenOut?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
+    const { data: inputToken } = useTokenWithAddress({ address: tokenIn?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
+    const { data: outputToken } = useTokenWithAddress({ address: tokenOut?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
 
     const sendDisabled = action === "burn";
     const receiveDisabled = action === "mint";
@@ -44,12 +43,12 @@ export function TradePaneInner({
         <div className="flex flex-col justify-center w-[400px] mt-[20px]">
             <TokenQuantityInput
                 text={"Send"}
-                balance={inputToken?.balance.formatted || "0"}
+                balance={inputToken?.balance?.toString() || "0"}
                 isDisabled={sendDisabled}
             />
             <TokenQuantityInput
                 text={"Receive"}
-                balance={outputToken?.balance.formatted || "0"}
+                balance={outputToken?.balance?.toString() || "0"}
                 isDisabled={receiveDisabled}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
@@ -57,6 +56,7 @@ export function TradePaneInner({
                 <InteractionWithApprovalButton
                     approveMax={true}
                     token={inputToken}
+                    networkId={multipool?.chainId!}
                 />
             </div>
         </div>
@@ -101,15 +101,17 @@ export function TokenQuantityInput({
         setEstimationErrorMessage
     } = useTradeContext();
 
-    const tokenInData = useTokenWithAddress({
-        tokenAddress: tokenIn?.address,
+    // console.log("tokenIn", tokenIn, "tokenOut", tokenOut);
+
+    const {data: tokenInData } = useTokenWithAddress({
+        address: tokenIn?.address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
         chainId: multipool?.chainId,
     });
 
-    const tokenOutData = useTokenWithAddress({
-        tokenAddress: tokenOut?.address as Address,
+    const {data: tokenOutData } = useTokenWithAddress({
+        address: tokenOut?.address as Address,
         userAddress: userAddress,
         allowanceTo: routerAddress,
         chainId: multipool?.chainId,
@@ -119,24 +121,28 @@ export function TokenQuantityInput({
 
     const transactionParams: SendTransactionParams = {
         to: userAddress,
-        deadline: BigInt(0),
+        deadline: new BigNumber(0),
         slippage: slippage,
         quantities: {
             in: mainInput === "in" ? inputQuantity : undefined,
             out: mainInput === "in" ? undefined : outputQuantity,
         } as Quantities,
-        tokenIn: tokenInData?.data!,
-        tokenOut: tokenOutData?.data!,
+        tokenIn: tokenInData,
+        tokenOut: tokenOutData,
         priceIn: tokenIn?.price || 0,
         priceOut: tokenOut?.price || 0,
         routerAddress: routerAddress,
         multipoolAddress: multipool?.address!,
     }
 
+    const thisInput = text === "Send" ? 'in' : 'out';
+    
     const { data, error } = useEstimate(
         adapter,
         transactionParams,
-        multipool?.chainId!,
+        multipool?.chainId!, {
+            enabled: thisInput === mainInput && transactionParams.quantities.in !== undefined && transactionParams.quantities.in.isGreaterThan(0),
+        }
     );
 
     setEstimatedValues(data.estimationResult);
@@ -229,7 +235,7 @@ export function TokenQuantityInput({
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
                 <p className="m-0 text-xs text-gray-500">
-                    {(text === "Send" ? inputDollarValue: outputDollarValue) + "$"}
+                    {(text === "Send" ? inputDollarValue : outputDollarValue) + "$"}
                 </p>
                 <p className="m-0 text-gray-500 text-xs">
                     Balance: {toHumanReadable(balance)}

@@ -46,13 +46,14 @@ export function MainInner({ multipool_id }: MainInnerProps) {
     const { data, error, isLoading } = useMultipoolData(multipool_id);
     const { ExternalAssets } = useArbitrumTokens();
 
-    if (error) {
-        return (
-            <div>
-                {"Error"}
-            </div>
-        );
-    }
+    // if (error) {
+    //     console.log("error", error)
+    //     return (
+    //         <div>
+    //             {"Error"}
+    //         </div>
+    //     );
+    // }
 
     const routerAddress = data?.multipool?.routerAddress;
     const fetchedAssets = data?.assets;

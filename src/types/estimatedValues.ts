@@ -1,23 +1,24 @@
+import BigNumber from "bignumber.js"
 import { Address } from "viem"
 
 type EstimatedValues = {
     estimatedCashbackIn: {
-        row: BigInt,
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
     estimatedCashbackOut: {
-        row: BigInt,
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
     estimatedAmountOut: {
-        row: BigInt,
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
     estimatedAmountIn: {
-        row: BigInt,
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
@@ -26,12 +27,12 @@ type EstimatedValues = {
         usd: string,
     } | undefined,
     minimalAmountOut: {
-        row: BigInt,
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
     maximumAmountIn: {
-        row: BigInt,
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,

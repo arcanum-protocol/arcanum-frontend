@@ -8,6 +8,7 @@ import { TokenWithAddress } from '../hooks/tokens';
 import { useTradeContext } from '../contexts/TradeContext';
 import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
 import { Button } from "./ui/button";
+import BigNumber from "bignumber.js";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -24,8 +25,10 @@ export function InteractionWithApprovalButton({
     const { estimationErrorMessage, estimatedValues } = useTradeContext();
 
     const networkId = multipool?.chainId as number;
-    const interactionBalance = BigInt(String(estimatedValues?.estimatedAmountIn?.row ? estimatedValues?.estimatedAmountIn?.row : 0));
+    const interactionBalance = estimatedValues?.estimatedAmountIn?.row || new BigNumber(0);
+
     const interactionTxnBody = estimatedValues?.txn;
+    const balance = new BigNumber(token?.balance || 0);
     
     if (estimationErrorMessage) {
         return (
@@ -37,16 +40,14 @@ export function InteractionWithApprovalButton({
         );
     }
 
-    const allowance: bigint = token?.approval?.row || BigInt(0);
+    const allowance = token?.approval?.row || new BigNumber(0); 
     const { isConnected } = useAccount();
 
-    // hooks 
-    // send approval
     const { config: approvalConfig } = usePrepareContractWrite({
         address: token?.address as Address,
         abi: multipoolABI,
         functionName: 'approve',
-        args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
+        args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance.minus(allowance)],
         enabled: allowance >= interactionBalance,
         chainId: multipool?.chainId,
     });
@@ -58,8 +59,8 @@ export function InteractionWithApprovalButton({
     })
 
     // send interaction
-    const { config, error } = usePrepareContractWrite(interactionTxnBody);
-    const { data: mayBeHash, error: writeMultipoolError, write: sendTxn } = useContractWrite(config);
+    const { config } = usePrepareContractWrite(interactionTxnBody);
+    const { data: mayBeHash, write: sendTxn } = useContractWrite(config);
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,
@@ -107,7 +108,7 @@ export function InteractionWithApprovalButton({
                 </Button>
             </div >
         );
-    } else if (token?.balance! < interactionBalance || interactionBalance == BigInt(0)) {
+    } else if (balance.isLessThan(interactionBalance) || interactionBalance == new BigNumber(0)) {
         return (
             <div>
                 <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-red-500 hover:bg-transparent hover:animate-float">
@@ -116,7 +117,7 @@ export function InteractionWithApprovalButton({
             </div >
         );
     } else {
-        const approveRequired = allowance < interactionBalance || allowance == BigInt(0);
+        const approveRequired = allowance < interactionBalance || allowance == new BigNumber(0);
         if (approveRequired) {
             return (
                 <div>

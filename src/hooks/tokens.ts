@@ -7,13 +7,11 @@ import { SendTransactionParams } from '../types/sendTransactionParams';
 import { TradeLogicAdapter } from '../components/trade-pane';
 import { publicClient } from '../config';
 import { Gas } from '@/types/gas';
-import { useMultipoolData, useMultipoolPrice } from '@/lib/multipool';
+import { getMassiveMintRouter, getMultipoolAddress, useMultipoolData, useMultipoolPrice } from '@/lib/multipool';
 import axios from 'axios';
 import { BuildedTransaction, KyberswapResponse } from '@/types/kyberswap';
-import { BaseAsset, ExternalAsset } from '@/types/multipoolAsset';
-import sheme from '@/scheme.yaml';
+import { BaseAsset } from '@/types/multipoolAsset';
 import MassiveMintRouter from '@/abi/MassiveMintRouter';
-import { error } from 'console';
 
 type TokenWithAddressSpecific = {
     interactionAddress: string | undefined,
@@ -28,48 +26,50 @@ type TokenWithAddressSpecific = {
 export interface TokenWithAddress extends BaseAsset, TokenWithAddressSpecific { }
 
 interface TokenWithAddressParams {
-    tokenAddress: string,
+    address: string | undefined,
     userAddress: Address,
     allowanceTo: Address,
     chainId?: number
 }
 
 export function useTokenWithAddress({
-    tokenAddress,
+    address,
     userAddress,
     allowanceTo,
     chainId
 }: TokenWithAddressParams): {
     data: TokenWithAddress | undefined,
     isLoading: boolean,
-    isError: boolean
+    isError: boolean,
+    error: string | undefined,
 } {
-    const { data: tokenData, isError: isTokenError, isLoading: isTokenLoading } = useToken({
-        address: tokenAddress as Address,
+    const { data: tokenData, isError: isTokenError, isLoading: isTokenLoading, error: tokenError } = useToken({
+        address: address as Address,
         chainId: chainId,
-    })
+        enabled: address != undefined,
+    });
 
-    const { data: tokenBalance, isError: isBalanceError, isLoading: isBalanceLoading } = useContractRead({
-        address: tokenAddress as Address,
+    const { data: tokenBalance, isError: isBalanceError, isLoading: isBalanceLoading, error: balanceError } = useContractRead({
+        address: address as Address,
         abi: multipoolABI,
         functionName: 'balanceOf',
         args: [userAddress],
-        enabled: tokenAddress != undefined && userAddress != undefined,
+        enabled: address != undefined && userAddress != undefined,
         watch: true,
         chainId: chainId,
     });
 
-    const { data: approvedTokenBalance, isError: isAllowanceError, isLoading: isAllowanceLoading } = useContractRead({
-        address: tokenAddress as Address,
+    const { data: approvedTokenBalance, isError: isAllowanceError, isLoading: isAllowanceLoading, error: approveError } = useContractRead({
+        address: address as Address,
         abi: multipoolABI,
         functionName: 'allowance',
         args: [userAddress, allowanceTo],
-        enabled: tokenAddress != undefined && allowanceTo != undefined && userAddress != undefined,
+        enabled: address != undefined && allowanceTo != undefined && userAddress != undefined,
         watch: true,
         chainId: chainId,
     });
 
-    let data: TokenWithAddress | undefined;
+    let data: TokenWithAddress;
 
     const decimals = new BigNumber(tokenData?.decimals || "0");
     const denominator = new BigNumber(10).pow(decimals || "0");
@@ -78,12 +78,12 @@ export function useTokenWithAddress({
     const approvedBalance = new BigNumber(approvedTokenBalance as string);
 
     data = {
-        address: tokenAddress,
+        address: address,
         interactionAddress: allowanceTo,
         userAddress: userAddress,
-        decimals: tokenData?.decimals,
-        name: tokenData?.name,
-        symbol: tokenData?.symbol,
+        decimals: decimals.toNumber(),
+        name: tokenData?.name || "ARCANUM ETF",
+        symbol: tokenData?.symbol || "AETF",
         balance: userBalance.toNumber(),
         balanceFormated: userBalance.dividedBy(denominator).toString(),
         approval: {
@@ -95,28 +95,34 @@ export function useTokenWithAddress({
     };
 
     return {
-        data: data,
+        data: address ? data : undefined,
         isLoading: isTokenLoading || isAllowanceLoading || isBalanceLoading,
         isError: isTokenError || isBalanceError || isAllowanceError,
+        error: tokenError?.message || balanceError?.message || approveError?.message,
     }
 }
 
 export function useEstimateTransactionCost(
     sendTransactionParams: EstimationTransactionBody,
     chainId: number,
+    params?: {
+        enabled?: boolean,
+    }
 ): {
     data: Gas | undefined,
     isLoading: boolean,
     isError: boolean,
     error: string | undefined,
 } {
+    const enabled = params?.enabled || true;
     const { address } = useAccount();
 
     const { data: result, isError, isLoading, error } = useQuery(['gasPrice'], async () => {
         const gasPriceRaw = await publicClient({ chainId: chainId }).getGasPrice();
         const gasPrice = Number(gasPriceRaw) / Math.pow(10, 15);
+        
         const gas = await publicClient({ chainId: chainId }).estimateContractGas({
-            account: address,
+            account: address!,
             abi: sendTransactionParams?.abi,
             address: sendTransactionParams?.address as Address,
             args: sendTransactionParams?.args,
@@ -130,7 +136,7 @@ export function useEstimateTransactionCost(
             cost: cost,
         } as Gas;
     }, {
-        enabled: !address,
+        enabled: !address && enabled,
     });
 
     return {
@@ -142,21 +148,26 @@ export function useEstimateTransactionCost(
 }
 
 export function useEstimateMassiveMintTransactions(
-    token: Address,
+    token: Address | undefined,
     amount: BigNumber | undefined,
     sender: Address | undefined,
     router: Address,
+    params?: {
+        enabled?: boolean,
+    }
 ): {
-    data: BuildedTransaction[] | undefined,
+    data: {
+        buildedTransactions: BuildedTransaction[] | undefined
+        swapRoutes: KyberswapResponse[] | undefined
+    },
     isLoading: boolean,
     isError: boolean,
     error: string | undefined,
 } {
-    const { data: arbi } = useMultipoolData("arbi");
-    const { assets } = arbi!;
+    const enabled = params?.enabled == undefined ? true : params?.enabled;
 
-    console.log("assets", assets);
-    console.log("amountInDivided", amount?.toString());
+    const { data: arbi } = useMultipoolData("arbi", { enabled: enabled });
+    const { assets } = arbi!;
 
     // Считаем сумму выхода для каждого токена
     const { data: kyberswapResponse, isError: kyberswapResponseIsError, isLoading: kyberswapResponseIsLoading, error: kyberswapResponseError } = useQuery(['kyberswap'], async () => {
@@ -176,9 +187,7 @@ export function useEstimateMassiveMintTransactions(
             }
         });
 
-        // if (amountInDivided.some(token => token.amount.isEqualTo(0))) return [];
-
-        const routes = amountInDivided.map(async (_, i) => {
+        const routes = await Promise.all(amountInDivided.map(async (_, i) => {
             const amountInInteger = amountInDivided[i].amount.integerValue();
 
             const tokenOut = amountInDivided[i].address;
@@ -188,10 +197,10 @@ export function useEstimateMassiveMintTransactions(
             );
 
             return response.data as KyberswapResponse;
-        });
+        }));
 
-        const trxs = routes.map(async (routePromise) => {
-            const route = await routePromise;
+        const trxs = await Promise.all(routes.map(async (routePromise) => {
+            const route = routePromise;
             const transaction = await axios.post(`https://aggregator-api.kyberswap.com/arbitrum/api/v1/route/build`, {
                 "routeSummary": route.data.routeSummary,
                 "sender": sender,
@@ -199,36 +208,36 @@ export function useEstimateMassiveMintTransactions(
             });
 
             return transaction.data as BuildedTransaction;
-        });
+        }));
 
-        return await Promise.all(trxs);
+        return {
+            buildedTransactions: trxs,
+            swapRoutes: routes,
+        };
     }, {
-        enabled: token != undefined && amount != undefined && sender != undefined && router != undefined && amount?.isGreaterThan(0),
-        refetchInterval: 1000,
+        enabled: !!amount && amount?.isGreaterThan(0) && enabled && !!token,
+        refetchInterval: 30000,
     });
 
-    console.log("kyberswapResponse", kyberswapResponse, kyberswapResponseIsLoading, kyberswapResponseError);
-
     return {
-        data: kyberswapResponse,
+        data: {
+            buildedTransactions: kyberswapResponse?.buildedTransactions,
+            swapRoutes: kyberswapResponse?.swapRoutes,
+        },
         isError: kyberswapResponseIsError,
         isLoading: kyberswapResponseIsLoading,
         error: kyberswapResponseError as string,
     };
 }
 
-// export function useMassiveMint(): {
-//     data: BuildedTransaction[] | undefined,
-//     isLoading: boolean,
-//     isError: boolean,
-//     error: string | undefined,
-// } {}
-
 export function useEstimateMassiveMint(
-    token: Address,
+    token: Address | undefined,
     amount: BigNumber | undefined,
     sender: Address | undefined,
     router: Address,
+    params?: {
+        enabled?: boolean,
+    }
 ): {
     data: {
         estimatedOutShares: BigNumber,
@@ -239,27 +248,58 @@ export function useEstimateMassiveMint(
     isError: boolean,
     error: string | undefined,
 } {
-    const { data: kyberswapResponse, isLoading: MassiveMintIsLoading, isError: MassiveMintIsError, error: MassiveMintError } = useEstimateMassiveMintTransactions(token, amount, sender, router);
-    if (kyberswapResponse == undefined) return { data: undefined, isError: MassiveMintIsError, isLoading: MassiveMintIsLoading, error: MassiveMintError };
+    const enabled = params?.enabled == undefined ? true : params?.enabled;
 
+    const { data: kyberswapResponse, isLoading: MassiveMintIsLoading, isError: MassiveMintIsError, error: MassiveMintError } = useEstimateMassiveMintTransactions(token, amount, sender, router, { enabled: enabled });
+    
     let response: BigNumber = new BigNumber(0);
 
-    for (let i = 0; i < kyberswapResponse.length; i++) {
-        if (kyberswapResponse[i].data.amountOutUsd == undefined) continue;
-        response = response.plus(new BigNumber(kyberswapResponse[i].data.amountOutUsd));
-    }
+    kyberswapResponse?.buildedTransactions?.map((item) => {
+        response = response.plus(new BigNumber(item.data.amountOutUsd));
+    });
 
     // get multipool price 
     const { data: arbi } = useMultipoolPrice("arbi");
     const multipollSharesAmount = response.dividedBy(arbi?.price || 0);
 
-    // const { data } = usePrepareContractWrite({
-    //     address: sheme["arbi"].massive_mint_address,
-    //     abi: MassiveMintRouter,
-    //     functionName: 'massiveMint',
-    //     args: [token, amount, sender],
-    //     chainId: 421611,
-    // });
+    const swaps = kyberswapResponse?.buildedTransactions?.map((item) => {
+        return ({
+            "targetData": item.data.data,
+            "target": item.data.routerAddress,
+            "ethValue": 0
+        });
+    });
+
+    const tokens = kyberswapResponse?.swapRoutes?.map((item) => {
+        return item.data.routeSummary.tokenOut;
+    });
+
+    const massiveMintTransactions = usePrepareContractWrite({
+        address: getMassiveMintRouter(),
+        abi: MassiveMintRouter,
+        functionName: 'massiveMint',
+        args: [
+            getMultipoolAddress("arbi"),
+            token,
+            amount?.integerValue(),
+            multipollSharesAmount.multipliedBy(new BigNumber(10).pow(18)).integerValue(),
+            swaps,
+            tokens,
+            "0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"
+        ],
+        // chainId: 421611,
+        enabled: enabled,
+    });
+
+    console.log("massiveMintTransactions", massiveMintTransactions, params?.enabled, [
+        getMultipoolAddress("arbi"),
+        token,
+        amount?.integerValue().toString(),
+        multipollSharesAmount,
+        swaps,
+        tokens,
+        "0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"
+    ]);
 
     return {
         data: {
@@ -281,6 +321,9 @@ export function useEstimate(
     adapter: TradeLogicAdapter,
     params: SendTransactionParams,
     chainId: number,
+    _params: {
+        enabled: boolean,
+    }
 ): {
     data: {
         estimationResult: EstimatedValues | undefined,
@@ -290,19 +333,13 @@ export function useEstimate(
     isError: boolean,
     error: string | undefined,
 } {
-    const token: ExternalAsset = {
-        address: "0xaf88d065e77c8cc2239327c5edb3a432268e5831" as Address,
-        decimals: 6,
-        name: "Ethereum",
-        symbol: "ETH",
-        type: "external",
-        logo: "https://assets.coingecko.com/coins/images/279/small/ethereum.png?1595348880",
-    };
+    const enabled = _params?.enabled || true;
+
     const { address } = useAccount();
 
-    console.log("params.quantities.in", params.quantities.in?.toString());
-    const { data } = useEstimateMassiveMint(params.tokenIn.address as Address, params.quantities.in, address, params.routerAddress as Address);
-    console.log("outShares", data?.estimatedOutShares.toString());
+    const { data } = useEstimateMassiveMint(params.tokenIn?.address as Address, params.quantities.in, address, params.routerAddress as Address, { 
+        enabled: enabled && params.tokenIn?.type === "external" && params.quantities.in != undefined && params.quantities.in.isGreaterThan(0),
+    });
 
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
 
@@ -313,8 +350,8 @@ export function useEstimate(
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
-        enabled: txnBodyParts != undefined && txnBodyParts.enabled,
         chainId: chainId,
+        enabled: enabled,
     });
 
     if (error?.message?.includes("MULTIPOOL: DO")) {
@@ -329,7 +366,9 @@ export function useEstimate(
         errorText = undefined;
     }
 
-    const { data: transactionCost } = useEstimateTransactionCost(txnBodyParts as EstimationTransactionBody, chainId);
+    const { data: transactionCost } = useEstimateTransactionCost(txnBodyParts as EstimationTransactionBody, chainId, { enabled: enabled });
+
+    // console.log("transactionCost", txnData);
 
     return {
         data: {
@@ -341,5 +380,3 @@ export function useEstimate(
         error: errorText,
     };
 }
-
-

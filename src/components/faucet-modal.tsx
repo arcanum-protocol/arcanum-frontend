@@ -46,7 +46,7 @@ export function Faucet({ assets }) {
             address: tokenAddress as Address,
             abi: erc20Abi,
             functionName: 'mint',
-            args: [address, BigInt(rowAmountToMint)],
+            args: [address, rowAmountToMint],
         })
     }
 

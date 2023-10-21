@@ -11,6 +11,11 @@ import { Address, parseEther } from 'viem';
 
 export function useMultipoolData(
     multipool_id: string,
+    params: {
+        enabled: boolean,
+    } = {
+        enabled: true,
+    }
 ): {
     data: {
         assets: MultipoolAsset[],
@@ -19,46 +24,45 @@ export function useMultipoolData(
     isLoading: boolean,
     error: any,
 } {
-
     const mp = SCHEME[multipool_id];
 
-    const { data: context, isError: ctxIsError, isLoading: ctxIsLoading } = useContractRead({
+    const { data: _context, isLoading: ctxIsLoading, error: contextError } = useContractRead({
         address: mp.address,
         abi: multipoolABI,
         functionName: 'getContext',
         args: [0],
-        enabled: true,
+        enabled: params.enabled,
         chainId: mp.chain_id,
-        watch: true,
+        watch: params.enabled,
     });
+    const context = _context as any;
 
-    const { data: totalSupply, isError: tsIsError, isLoading: tsIsLoading } = useContractRead({
+    const { data: totalSupply, isLoading: tsIsLoading, error: supplyError } = useContractRead({
         address: mp.address,
         abi: multipoolABI,
         functionName: 'totalSupply',
         args: [],
-        enabled: true,
+        enabled: params.enabled,
         chainId: mp.chain_id,
         watch: true,
     });
 
     let assets: any = [];
 
-    const { data: onchainData, isError: assetsIsError, isLoading: assetsIsLoading } = useContractReads({
-        contracts: mp.assets.map(asset => {
-            // console.log(asset.address);
+    const { data: onchainData, isLoading: assetsIsLoading, error: assetError } = useContractReads({
+        contracts: mp.assets.map((asset: any) => {
             return {
                 address: mp.address,
                 abi: multipoolABI,
                 functionName: 'getAsset',
                 args: [asset.address],
                 chainId: mp.chain_id,
-                enabled: true,
+                enabled: params.enabled,
             }
         }),
-        watch: true,
+        watch: params.enabled,
     });
-    // console.log(onchainData);
+
     if (onchainData)
         for (let i = 0; i < mp.assets.length; i++) {
             let asset = mp.assets[i];
@@ -68,34 +72,24 @@ export function useMultipoolData(
 
     const { data: geckoData, isLoading: geckoIsLoading } = useQuery(['assets'], async () => {
         const response = await axios.get(
-            `https://api.coingecko.com/api/v3/simple/price?ids=${assets.map(a => a.coingecko_id).join(",")
+            `https://api.coingecko.com/api/v3/simple/price?ids=${assets.map((a: any) => a.coingecko_id).join(",")
             }&vs_currencies=usd&include_market_cap=true&include_24hr_vol=true&include_24hr_change=true`,
         );
         return response.data;
     }, {
-        refetchInterval: 10000,
-        staleTime: 100000,
-        cacheTime: 100000,
+        refetchInterval: 20000,
+        enabled: params.enabled,
     });
 
-    const { data: mpPriceData, isLoading: mpPriceIsLoading } = useQuery(['priceInfo'], async () => {
+    const { data: mpPriceData } = useQuery(['priceInfo'], async () => {
         const response = await axios.get(
             `https://api.arcanum.to/api/stats?multipool_id=${multipool_id}`,
         );
-        // console.log("DATA", response);
         return response.data;
     }, {
-        refetchInterval: 10000,
-        staleTime: 100000,
-        cacheTime: 100000,
+        refetchInterval: 20000,
+        enabled: params.enabled,
     });
-
-    if (ctxIsLoading || assetsIsLoading || tsIsLoading || geckoIsLoading)
-        return {
-            data: undefined,
-            isLoading: ctxIsLoading || assetsIsLoading || tsIsLoading || geckoIsLoading,
-            error: undefined,
-        };
 
     const multipool = {
         address: mp.address,
@@ -111,18 +105,14 @@ export function useMultipoolData(
         logo: '/logo.svg',
     };
 
-    // console.log(geckoData);
     if (geckoData)
         for (let i = 0; i < assets.length; i++) {
-            // console.log(assets[i].coingecko_id, geckoData[assets[i].coingecko_id]);
             assets[i].gecko = geckoData[assets[i].coingecko_id];
         }
 
-    const processedAssets = assets.map(asset => {
+    const processedAssets = assets.map((asset: any) => {
         const currentShare = asset.onchain == undefined ? 0 : Number(asset.onchain.price * asset.onchain.quantity / context.usdCap) * 100 / Number(parseEther('1'));
-        // console.log(context);
         const idealShare = asset.onchain == undefined ? 0 : Number(asset.onchain.share * parseEther('1') / context.totalTargetShares) * 100 / Number(parseEther('1'));
-        // console.log(idealShare);
         return {
             name: asset.symbol,
             symbol: asset.symbol,
@@ -148,15 +138,13 @@ export function useMultipoolData(
         };
     });
 
-
-
     return {
         data: {
             assets: processedAssets,
             multipool: multipool as unknown as SolidAsset,
         },
-        isLoading: ctxIsLoading || assetsIsLoading,
-        error: undefined,
+        isLoading: ctxIsLoading || assetsIsLoading || tsIsLoading || geckoIsLoading,
+        error: contextError || supplyError || assetError,
     }
 }
 
@@ -221,4 +209,12 @@ export function useMultipoolPrice(multipoolId: string): {
             totalSupply,
         },
     };
+}
+
+export function getMassiveMintRouter() {
+    return SCHEME['arbi'].massive_mint_address;
+}
+
+export function getMultipoolAddress(multipoolId: string) {
+    return SCHEME[multipoolId].address;
 }

@@ -2,8 +2,9 @@ import { BigNumber } from "bignumber.js";
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
 import { Tooltip } from './tooltip';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 
-export function IndexAssetsBreakdown({ fetchedAssets }) {
+export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: MultipoolAsset[] }) {
     let randomindexes: number[] = [];
 
     for (let i = 0; i < fetchedAssets?.length * 6; i++) {
@@ -53,83 +54,31 @@ export function IndexAssetsBreakdown({ fetchedAssets }) {
     );
 
     return (
-        <div style={{
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "var(--bc)",
-            justifyContent: "center",
-            borderRadius: "10px",
-            width: "100%",
-        }}>
-            <h1 style={{ display: "flex", marginTop: "15px", alignSelf: "center", fontSize: "20px", marginLeft: "15px" }}>Asset breakdown</h1>
-            <div style={{
-                margin: "5px 10px",
-                display: "grid",
-                overflowX: "auto",
-                minWidth: "250px",
-                borderRadius: "20px",
-                border: "1px solid #393939",
-                gap: "1px",
-                gridGap: "1px",
-                marginBottom: "20px",
-                gridTemplateRows: "1fr",
-                backgroundColor: "#393939"
-            }}>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", paddingLeft: "10px", gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
-                    Name
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Target share
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            The share of the corresponding asset in the pool in its equilibrium state.
-                        </p>
-                    </Tooltip>
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "3", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Current share
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            The share of the corresponding asset in the pool in its current state.
-                        </p>
-                    </Tooltip>
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Price
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Current price of the asset.
-                        </p>
-                    </Tooltip>
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Quantity
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Current amount of assets in the pool (at the current share).
-                        </p>
-                    </Tooltip>
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Market cap
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Current market cap of the token.
-                        </p>
-                    </Tooltip>
-                </div>
-                {assets}
-            </div>
-        </div >
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="text-left">Asset</TableHead>
+                    <TableHead className="text-center">Target</TableHead>
+                    <TableHead className="text-center">Current</TableHead>
+                    <TableHead className="text-center">Price</TableHead>
+                    <TableHead className="text-center">Quantity</TableHead>
+                    <TableHead className="text-center">Market Cap</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {
+                    fetchedAssets.map((fetchedAsset) => 
+                        <TableRow key={fetchedAsset.address}>
+                            <TableCell className="text-left">{fetchedAsset.symbol}</TableCell>
+                            <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>
+                            <TableCell>{fetchedAsset.currentShare.toFixed(2)}%</TableCell>
+                            <TableCell>{(fetchedAsset.price || 0).toFixed(2)}$</TableCell>
+                            <TableCell>{tohumanReadableQuantity(fetchedAsset.quantity)}</TableCell>
+                            <TableCell>{toHumanReadableMcap(fetchedAsset.mcap)}$</TableCell>
+                        </TableRow>
+                    )
+                }
+            </TableBody>
+        </Table>
     );
 }
