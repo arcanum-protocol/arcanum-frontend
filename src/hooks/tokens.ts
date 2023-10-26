@@ -27,7 +27,6 @@ import { error } from 'console';
 =======
 import { BaseAsset } from '@/types/multipoolAsset';
 import MassiveMintRouter from '@/abi/MassiveMintRouter';
->>>>>>> 098ebb9 (sync)
 
 type TokenWithAddressSpecific = {
     interactionAddress: string | undefined,
@@ -524,15 +523,11 @@ export function useEstimateMassiveMint(
         estimatedOutShares: BigNumber,
         estimatedTransactionCost: Gas,
         massiveMintTransaction: any
->>>>>>> 4c40c2d (sync)
     } | undefined,
     isLoading: boolean,
     isError: boolean,
     error: string | undefined,
 } {
-<<<<<<< HEAD
-    const { massiveMintRouter, multipoolAddress } = useTradeContext();
-    const { address } = useAccount();
     const enabled = params?.enabled == undefined ? true : params?.enabled;
 
     const { data: kyberswapResponse, isLoading: MassiveMintIsLoading, isError: MassiveMintIsError, error: MassiveMintError } = useEstimateMassiveMintTransactions(
@@ -642,20 +637,21 @@ export function useEstimateMassiveMint(
         data: {
             estimatedOutShares: multipollSharesAmount,
             massiveMintTransaction: {
-                address: getMassiveMintRouter(),
-                abi: MassiveMintRouter,
-                functionName: 'massiveMint',
-                args: [
-                    getMultipoolAddress("arbi"),
-                    token,
-                    amount?.integerValue(),
-                    new BigNumber(0).integerValue(),
-                    swaps,
-                    tokens,
-                    "0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"
-                ],
-                // chainId: 421611,
-                enabled: enabled,
+                txn: {
+                    address: massiveMintRouter as Address,
+                    abi: MassiveMintRouter,
+                    functionName: 'massiveMint',
+                    args: [
+                        multipoolAddress,
+                        token,
+                        amount?.integerValue(),
+                        new BigNumber(0).integerValue(),
+                        swaps,
+                        tokens,
+                        address
+                    ],
+                    enabled: enabled,
+                }
             },
             estimatedTransactionCost: {
                 gas: "0",
@@ -688,7 +684,6 @@ export function useEstimate(
 ): {
     data: {
         estimationResult: EstimatedValues | undefined,
-        masiveMintResult: any | undefined,
         transactionCost: Gas | undefined
     },
     isLoading: boolean,
@@ -736,39 +731,20 @@ export function useEstimate(
         enabled: enabled && !isNotMultipoolToken
 =======
         enabled: enabled,
->>>>>>> 098ebb9 (sync)
     });
 
-    const { data: classicTransactionCost } = useEstimateTransactionCost(
-        txnBodyParts as EstimationTransactionBody,
-        chainId,
-        enabled && !isNotMultipoolToken
-    );
-
-    const transactionCost = data?.estimatedTransactionCost || classicTransactionCost;
-
-    const classicMintOut = adapter.parseEstimationResult(classicMint, params)?.estimatedAmountOut?.row || BigNumber(0);
-    const massiveMintOut = data?.estimatedOutShares || { row: BigNumber(0), formatted: "0", usd: "0" };
-
-    const maximumAmountIn = {
-        row: params.quantities.in || BigNumber(0),
-        formatted: (params?.quantities.in?.dividedBy(new BigNumber(10).pow(new BigNumber(params.tokenIn?.decimals || BigNumber(0)))) || new BigNumber(0)).toString(),
-        usd: Number(data?.estimatedAmountIn.usd).toFixed(4) || "0",
+    if (error?.message?.includes("MULTIPOOL: DO")) {
+        errorText = "Deviation overflow";
+    } else if (error?.message?.includes("MULTIPOOL: QE")) {
+        errorText = "Insufficient liquidity";
+    } else if (error?.message?.includes("MULTIPOOL: IQ")) {
+        errorText = "Insufficient quantity";
+    } else if (error?.message?.includes("MULTIPOOL: ZS")) {
+        errorText = "Zero share";
+    } else if (error?.message == undefined) {
+        errorText = undefined;
     }
 
-<<<<<<< HEAD
-    if (!enabled) {
-        return {
-            data: {
-                estimationResult: undefined,
-                transactionCost: undefined
-            },
-            isError: isError,
-            isLoading: isLoading,
-            error: error?.message,
-        }
-    }
-=======
     const { data: transactionCost } = useEstimateTransactionCost(txnBodyParts as EstimationTransactionBody, chainId, { enabled: enabled });
 
 <<<<<<< HEAD
@@ -809,7 +785,6 @@ export function useEstimate(
     return {
         data: {
             estimationResult: adapter.parseEstimationResult(txnData, params),
-            masiveMintResult: data?.massiveMintTransaction,
             transactionCost: transactionCost
         },
         isError: isError,
