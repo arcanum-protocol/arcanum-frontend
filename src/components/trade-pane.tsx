@@ -46,11 +46,13 @@ export function TradePaneInner({
                 text={"Send"}
                 balance={inputToken?.balance?.toString() || "0"}
                 isDisabled={sendDisabled}
+                action={action}
             />
             <TokenQuantityInput
                 text={"Receive"}
                 balance={outputToken?.balance?.toString() || "0"}
                 isDisabled={receiveDisabled}
+                action={action}
             />
             <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
                 <TransactionParamsSelector txnParams={sendTransctionParams} />
@@ -68,12 +70,14 @@ interface TokenQuantityInputProps {
     text: "Send" | "Receive";
     balance: string;
     isDisabled?: boolean;
+    action: "mint" | "burn" | "swap";
 }
 
 export function TokenQuantityInput({
     text,
     balance,
-    isDisabled
+    isDisabled,
+    action
 }: TokenQuantityInputProps) {
     const {
         multipool,
@@ -137,12 +141,13 @@ export function TokenQuantityInput({
     }
 
     const thisInput = text === "Send" ? 'in' : 'out';
+    const shouldCallMassiveMint = action === "mint";
     
     const { data, error } = useEstimate(
         adapter,
         transactionParams,
         multipool?.chainId!, {
-            enabled: thisInput === mainInput && transactionParams.quantities.in !== undefined && transactionParams.quantities.in.isGreaterThan(0),
+            enabled: thisInput === mainInput && transactionParams.quantities.in !== undefined && transactionParams.quantities.in.isGreaterThan(0) && shouldCallMassiveMint,
         }
     );
 
@@ -203,23 +208,6 @@ export function TokenQuantityInput({
         }
     };
 
-    console.log("data", data.masiveMintResult);
-
-    const { data: data2 } = usePrepareContractWrite(
-        data.masiveMintResult
-    );
-
-    const { write } = useContractWrite(
-        data.masiveMintResult
-    );
-        
-
-    function tey() {
-        console.log("tey");
-
-        write();
-    }
-
     return (
         <div className="flex flex-col justify-between items-start rounded-2xl border h-full mx-[20px] my-[1px] p-3">
             <p className="text-base m-0">{text} </p>
@@ -249,9 +237,6 @@ export function TokenQuantityInput({
                             <ChevronDownIcon className="w-5 h-5 text-gray-400" /> :
                             <div className="w-2"></div>
                     }
-                </Button>
-                <Button onClick={() => tey()}>
-                    test
                 </Button>
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">

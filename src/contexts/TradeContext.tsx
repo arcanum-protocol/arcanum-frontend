@@ -7,6 +7,7 @@ import { TradeLogicAdapter } from '../types/tradeLogicAdapter';
 import React, { useState, useContext, createContext } from 'react';
 import { SendTransactionParams } from '../types/sendTransactionParams';
 import { useMultiPoolContext } from './MultiPoolContext';
+import MassiveMintRouter from '@/abi/MassiveMintRouter';
 
 export interface TradeContextValue {
     routerAddress: Address;
@@ -54,11 +55,13 @@ export interface TradeContextValue {
         gasPrice: number;
         cost: number;
     } | undefined) => void;
+
+    massiveMintRouter?: string;
 }
 
 const TradeContext = createContext<TradeContextValue | null>(null);
 
-export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLogicAdapter, multipoolAddress: string | undefined, routerAddress: string | undefined, children: React.ReactNode }> = ({ tradeLogicAdapter, multipoolAddress, routerAddress, children }) => {
+export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLogicAdapter, multipoolAddress: string | undefined, routerAddress: string | undefined, MassiveMintRouter? : string, children: React.ReactNode }> = ({ MassiveMintRouter, tradeLogicAdapter, multipoolAddress, routerAddress, children }) => {
     const { tokenIn, tokenOut } = useMultiPoolContext();
     
     const _multipoolAddress = multipoolAddress as Address;
@@ -172,6 +175,8 @@ export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLo
 
         tradeLogicAdapter,
         multipoolAddress: _multipoolAddress,
+
+        massiveMintRouter: MassiveMintRouter,
     };
 
     return (

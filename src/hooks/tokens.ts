@@ -12,6 +12,7 @@ import axios from 'axios';
 import { BuildedTransaction, KyberswapResponse } from '@/types/kyberswap';
 import { BaseAsset } from '@/types/multipoolAsset';
 import MassiveMintRouter from '@/abi/MassiveMintRouter';
+import { useTradeContext } from '@/contexts/TradeContext';
 
 type TokenWithAddressSpecific = {
     interactionAddress: string | undefined,
@@ -245,12 +246,14 @@ export function useEstimateMassiveMint(
     data: {
         estimatedOutShares: BigNumber,
         estimatedTransactionCost: Gas,
-        massiveMintTransaction: any
+        massiveMintTransaction: EstimatedValues
     } | undefined,
     isLoading: boolean,
     isError: boolean,
     error: string | undefined,
 } {
+    const { massiveMintRouter, multipoolAddress } = useTradeContext();
+    const { address } = useAccount();
     const enabled = params?.enabled == undefined ? true : params?.enabled;
 
     const { data: kyberswapResponse, isLoading: MassiveMintIsLoading, isError: MassiveMintIsError, error: MassiveMintError } = useEstimateMassiveMintTransactions(token, amount, sender, router, { enabled: enabled });
@@ -281,20 +284,21 @@ export function useEstimateMassiveMint(
         data: {
             estimatedOutShares: multipollSharesAmount,
             massiveMintTransaction: {
-                address: getMassiveMintRouter(),
-                abi: MassiveMintRouter,
-                functionName: 'massiveMint',
-                args: [
-                    getMultipoolAddress("arbi"),
-                    token,
-                    amount?.integerValue(),
-                    new BigNumber(0).integerValue(),
-                    swaps,
-                    tokens,
-                    "0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"
-                ],
-                // chainId: 421611,
-                enabled: enabled,
+                txn: {
+                    address: massiveMintRouter as Address,
+                    abi: MassiveMintRouter,
+                    functionName: 'massiveMint',
+                    args: [
+                        multipoolAddress,
+                        token,
+                        amount?.integerValue(),
+                        new BigNumber(0).integerValue(),
+                        swaps,
+                        tokens,
+                        address
+                    ],
+                    enabled: enabled,
+                }
             },
             estimatedTransactionCost: {
                 gas: "0",
@@ -318,7 +322,6 @@ export function useEstimate(
 ): {
     data: {
         estimationResult: EstimatedValues | undefined,
-        masiveMintResult: any | undefined,
         transactionCost: Gas | undefined
     },
     isLoading: boolean,
@@ -358,12 +361,42 @@ export function useEstimate(
         errorText = undefined;
     }
 
-    const { data: transactionCost } = useEstimateTransactionCost(txnBodyParts as EstimationTransactionBody, chainId, { enabled: enabled });
+    const { data: transactionCost } = useEstimateTransactionCost(
+        txnBodyParts as EstimationTransactionBody, 
+        chainId, 
+        { enabled: enabled 
+    });
+
+
+    if (data?.estimatedOutShares !== undefined && txnData !== undefined) {
+        const classicMintOut = adapter.parseEstimationResult(txnData, params)?.estimatedAmountOut?.row || BigNumber(0);
+        const massiveMintOut = data?.estimatedOutShares || BigNumber(0);
+        if (massiveMintOut < classicMintOut) {
+            return {
+                data: {
+                    estimationResult: adapter.parseEstimationResult(txnData, params),
+                    transactionCost: transactionCost
+                },
+                isError: isError,
+                isLoading: isLoading,
+                error: errorText,
+            }
+        } else {
+            return {
+                data: {
+                    estimationResult: data.massiveMintTransaction,
+                    transactionCost: data.estimatedTransactionCost
+                },
+                isError: isError,
+                isLoading: isLoading,
+                error: errorText,
+            }
+        }
+    }
 
     return {
         data: {
             estimationResult: adapter.parseEstimationResult(txnData, params),
-            masiveMintResult: data?.massiveMintTransaction,
             transactionCost: transactionCost
         },
         isError: isError,
