@@ -183,6 +183,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={token.logo || undefined} alt="Logo" />
+<<<<<<< HEAD
 =======
                                 } onClick={() => setToken(token)}
                                 >
@@ -193,6 +194,8 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={token.logo} alt="Logo" />
 >>>>>>> 0367ffb (finish trade pane)
+=======
+>>>>>>> d95b5ef (Fix undefined logo and address comparison in)
                                             <AvatarFallback>{"?"}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col text-start">
