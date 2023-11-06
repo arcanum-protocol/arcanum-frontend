@@ -59,11 +59,6 @@ function Navbar() {
             <NavigationMenu>
                 <NavigationMenuList>
                     <NavigationMenuItem>
-                        <NavigationMenuLink href="/swap" className={navigationMenuTriggerStyle()}>
-                            Swap
-                        </NavigationMenuLink>
-                    </NavigationMenuItem>
-                    <NavigationMenuItem>
                         <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
                             ARBI
                         </NavigationMenuLink>
