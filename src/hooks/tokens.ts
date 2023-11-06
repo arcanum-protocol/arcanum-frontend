@@ -276,7 +276,7 @@ export function useEstimateMassiveMintTransactions(
     }, [token, amount, sender]);
 
     const { data: gas } = useQuery(['gasPrice'], async () => {
-        const tokens = kyberswapResponse?.swapRoutes.map(route => route.data.routeSummary.tokenOut);
+        const tokens = kyberswapResponse?.swapRoutes?.map(route => route.data.routeSummary.tokenOut);
 
         const gasPriceRaw = await publicClient({ chainId: chainId }).getGasPrice();
         const gasPrice = new BigNumber(gasPriceRaw.toString()).dividedBy(new BigNumber(10).pow(15));
@@ -290,7 +290,7 @@ export function useEstimateMassiveMintTransactions(
                 token,
                 amount?.integerValue().toString(),
                 new BigNumber(0).integerValue().toString(),
-                kyberswapResponse?.buildedTransactions.map(trx => {
+                kyberswapResponse?.buildedTransactions?.map(trx => {
                     return ({
                         "targetData": trx.data.data,
                         "target": trx.data.routerAddress,

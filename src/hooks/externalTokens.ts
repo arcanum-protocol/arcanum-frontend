@@ -3,7 +3,6 @@ import { ExternalAsset, MultipoolAsset } from '@/types/multipoolAsset';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Address } from 'viem';
-import { flare } from 'viem/chains';
 
 function useArbitrumTokens(): {
     ExternalAssets: ExternalAsset[] | undefined;
@@ -155,7 +154,7 @@ function useMultiPoolTokens(externalAssets: ExternalAsset[] | undefined, multipo
     
     const assets: (ExternalAsset | MultipoolAsset)[] = [...externalAssets];
     multipoolTokens.forEach((token) => {
-        const index = assets.findIndex((asset) => asset.address.toLocaleLowerCase() === token.address.toLocaleLowerCase());
+        const index = assets.findIndex((asset) => asset?.address?.toLocaleLowerCase() === token?.address?.toLocaleLowerCase());
         if (index === -1) {
             assets.push({
                 ...token,

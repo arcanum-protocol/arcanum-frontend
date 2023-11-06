@@ -144,7 +144,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                 } onClick={() => setToken(token)}>
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
-                                            <AvatarImage src={token.logo} alt="Logo" />
+                                            <AvatarImage src={token.logo || undefined} alt="Logo" />
                                             <AvatarFallback>{"?"}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col text-start">
