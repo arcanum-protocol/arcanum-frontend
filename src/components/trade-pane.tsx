@@ -188,8 +188,14 @@ export function TokenQuantityInput({
         multipool?.chainId!,
         thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint,
     );
+<<<<<<< HEAD
 
     if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
+=======
+    
+    if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
+        console.log("useEstimate called", data);
+>>>>>>> efb0649 (Refactor useEstimate function and)
         setEstimatedValues(data.estimationResult);
         setTransactionCost(data.transactionCost);
         setEstimationErrorMessage(error);
