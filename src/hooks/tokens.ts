@@ -162,12 +162,16 @@ export function useEstimateTransactionCost(
     sendTransactionParams: EstimationTransactionBody,
     chainId: number,
 <<<<<<< HEAD
+<<<<<<< HEAD
     _enabled?: boolean,
 =======
     params?: {
         enabled?: boolean,
     }
 >>>>>>> 098ebb9 (sync)
+=======
+    _enabled?: boolean,
+>>>>>>> 6695ae8 (Refactor useEstimate function to improve code)
 ): {
     data: Gas | undefined,
     isLoading: boolean,
@@ -175,11 +179,17 @@ export function useEstimateTransactionCost(
     error: string | undefined,
 } {
 <<<<<<< HEAD
+<<<<<<< HEAD
     const enabled = _enabled != undefined ? _enabled : true;
 
 =======
     const enabled = params?.enabled || true;
 >>>>>>> 098ebb9 (sync)
+=======
+    const enabled = _enabled != undefined ? _enabled : true;
+
+    console.log("useEstimateTransactionCost enabled", enabled)
+>>>>>>> 6695ae8 (Refactor useEstimate function to improve code)
     const { address } = useAccount();
 
     const { data: result, isError, isLoading, error, refetch } = useQuery(['gasPrice'], async () => {
@@ -227,11 +237,17 @@ export function useEstimateTransactionCost(
     });
 
     useEffect(() => {
+        console.log("enabled", enabled)
+        
         if (sendTransactionParams?.args == undefined) return;
+<<<<<<< HEAD
 <<<<<<< HEAD
         if (!enabled) return;
 =======
 >>>>>>> 844e78f (standart types)
+=======
+        if (!enabled) return;
+>>>>>>> 6695ae8 (Refactor useEstimate function to improve code)
         refetch();
     }, [sendTransactionParams]);
 
@@ -868,17 +884,22 @@ export function useEstimate(
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     const { data: classicMint, error, isError, isLoading } = useContractRead({
 =======
     const [errorText, setErrorText] = useState<string | undefined>(undefined);
 
     const { data: classicMint, isError, isLoading } = useContractRead({
 >>>>>>> 844e78f (standart types)
+=======
+    const { data: classicMint, error, isError, isLoading } = useContractRead({
+>>>>>>> 6695ae8 (Refactor useEstimate function to improve code)
         address: txnBodyParts?.address as Address,
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
         chainId: chainId,
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         enabled: enabled && !isNotMultipoolToken
@@ -898,13 +919,15 @@ export function useEstimate(
             }
         }
 >>>>>>> 844e78f (standart types)
+=======
+        enabled: enabled && !isNotMultipoolToken
+>>>>>>> 6695ae8 (Refactor useEstimate function to improve code)
     });
 
     const { data: classicTransactionCost } = useEstimateTransactionCost(
         txnBodyParts as EstimationTransactionBody,
-        chainId, {
-        enabled: enabled && isNotMultipoolToken
-    }
+        chainId, 
+        enabled && !isNotMultipoolToken
     );
 
     const transactionCost = data?.estimatedTransactionCost || classicTransactionCost;
@@ -975,7 +998,7 @@ export function useEstimate(
             },
             isError: isError,
             isLoading: isLoading,
-            error: errorText,
+            error: error?.message,
         }
     }
 
@@ -987,7 +1010,7 @@ export function useEstimate(
             },
             isError: isError,
             isLoading: isLoading,
-            error: errorText,
+            error: error?.message,
         }
     } else {
         return {
@@ -1006,7 +1029,7 @@ export function useEstimate(
             },
             isError: isError,
             isLoading: isLoading || massiveMintIsLoading,
-            error: errorText,
+            error: error?.message,
         }
     }
 >>>>>>> 844e78f (standart types)
