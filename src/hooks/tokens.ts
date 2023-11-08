@@ -15,6 +15,7 @@ import MassiveMintRouter from '@/abi/MassiveMintRouter';
 import { useTradeContext } from '@/contexts/TradeContext';
 import { useMultiPoolContext } from '@/contexts/MultiPoolContext';
 import { useEffect, useState } from 'react';
+import ERC20 from '@/abi/ERC20';
 
 type TokenWithAddressSpecific = {
     interactionAddress: string | undefined,
@@ -131,7 +132,6 @@ export function useEstimateTransactionCost(
 } {
     const enabled = _enabled != undefined ? _enabled : true;
 
-    console.log("useEstimateTransactionCost enabled", enabled)
     const { address } = useAccount();
 
     const { data: result, isError, isLoading, error, refetch } = useQuery(['gasPrice'], async () => {
@@ -159,8 +159,6 @@ export function useEstimateTransactionCost(
     });
 
     useEffect(() => {
-        console.log("enabled", enabled)
-        
         if (sendTransactionParams?.args == undefined) return;
         if (!enabled) return;
         refetch();
@@ -267,18 +265,16 @@ export function useEstimateMassiveMintTransactions(
 
     useEffect(() => {
         if (!amount?.isGreaterThan(new BigNumber(0))) {
-            console.log("return amount");
             return;
         }
         if (isMultipoolToken) {
-            console.log("return isMultipoolToken");
             return;
         }
 
         refetch();
     }, [token, amount, sender]);
 
-    const { data: gas } = useQuery(['gasPrice'], async () => {
+    const { data: gas, error } = useQuery(['gasPrice'], async () => {
         const tokens = kyberswapResponse?.swapRoutes?.map(route => route.data.routeSummary.tokenOut);
 
         const gasPriceRaw = await publicClient({ chainId: chainId }).getGasPrice();
@@ -317,6 +313,27 @@ export function useEstimateMassiveMintTransactions(
         enabled: !!amount && amount?.isGreaterThan(0) && enabled && !!token
     });
 
+    const { data: approvalGas } = useQuery(['approvalGasPrice'], async () => {
+        const gasPriceRaw = await publicClient({ chainId: chainId }).getGasPrice();
+        const gasPrice = new BigNumber(gasPriceRaw.toString()).dividedBy(new BigNumber(10).pow(15));
+
+        const gas = await publicClient({ chainId: chainId }).estimateContractGas({
+            address: token as Address,
+            abi: ERC20,
+            functionName: 'approve',
+            args: [massiveMintRouter, amount?.integerValue().toString()],
+            account: sender as Address,
+        });
+
+        const cost = gasPrice.multipliedBy(new BigNumber(gas.toString()));
+
+        return {
+            gas: gas.toString(),
+            gasPrice: gasPrice.toString(),
+            cost: cost.toString(),
+        } as Gas;
+    });
+
     useEffect(() => {
         if (amount === undefined) {
             return;
@@ -324,12 +341,14 @@ export function useEstimateMassiveMintTransactions(
         refetch();
     }, [amount, token, sender]);
 
+    console.log("gas", error ? approvalGas : gas)
+
     return {
         data: {
             buildedTransactions: kyberswapResponse?.buildedTransactions,
             swapRoutes: kyberswapResponse?.swapRoutes,
             assetInUsd: kyberswapResponse?.assetInUsd,
-            estimatedNetworkFee: gas,
+            estimatedNetworkFee: error ? approvalGas : gas,
         },
         isError: kyberswapResponseIsError,
         isLoading: kyberswapResponseIsLoading,
@@ -369,9 +388,9 @@ export function useEstimateMassiveMint(
     const enabled = params?.enabled == undefined ? true : params?.enabled;
 
     const { data: kyberswapResponse, isLoading: MassiveMintIsLoading, isError: MassiveMintIsError, error: MassiveMintError } = useEstimateMassiveMintTransactions(
-        token, 
-        amount, 
-        sender, 
+        token,
+        amount,
+        sender,
         chainId,
         { enabled: enabled });
 
@@ -448,9 +467,7 @@ export function useEstimate(
     adapter: TradeLogicAdapter,
     params: SendTransactionParams,
     chainId: number,
-    _params: {
-        enabled: boolean,
-    }
+    _enabled?: boolean,
 ): {
     data: {
         estimationResult: EstimatedValues | undefined,
@@ -460,14 +477,14 @@ export function useEstimate(
     isError: boolean,
     error: string | undefined,
 } {
-    const enabled = _params?.enabled === undefined ? true : _params?.enabled;
+    const enabled = _enabled === undefined ? true : _enabled;
     const isNotMultipoolToken = params.tokenIn?.type !== "multipool";
 
     const { address } = useAccount();
 
     const { data, isLoading: massiveMintIsLoading } = useEstimateMassiveMint(
-        params.tokenIn?.address as Address, 
-        params.quantities.in, 
+        params.tokenIn?.address as Address,
+        params.quantities.in,
         address,
         chainId, {
         enabled: enabled && isNotMultipoolToken,
@@ -486,7 +503,7 @@ export function useEstimate(
 
     const { data: classicTransactionCost } = useEstimateTransactionCost(
         txnBodyParts as EstimationTransactionBody,
-        chainId, 
+        chainId,
         enabled && !isNotMultipoolToken
     );
 

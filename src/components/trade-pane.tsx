@@ -175,12 +175,12 @@ export function TokenQuantityInput({
     const { data, error } = useEstimate(
         adapter,
         transactionParams,
-        multipool?.chainId!, {
-        enabled: thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint,
-    });
+        multipool?.chainId!,
+        thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint,
+    );
     
     if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
-        console.log("useEstimate called");
+        console.log("useEstimate called", data);
         setEstimatedValues(data.estimationResult);
         setTransactionCost(data.transactionCost);
         setEstimationErrorMessage(error);
