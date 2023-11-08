@@ -122,16 +122,16 @@ export function useTokenWithAddress({
 export function useEstimateTransactionCost(
     sendTransactionParams: EstimationTransactionBody,
     chainId: number,
-    params?: {
-        enabled?: boolean,
-    }
+    _enabled?: boolean,
 ): {
     data: Gas | undefined,
     isLoading: boolean,
     isError: boolean,
     error: string | undefined,
 } {
-    const enabled = params?.enabled || true;
+    const enabled = _enabled != undefined ? _enabled : true;
+
+    console.log("useEstimateTransactionCost enabled", enabled)
     const { address } = useAccount();
 
     const { data: result, isError, isLoading, error, refetch } = useQuery(['gasPrice'], async () => {
@@ -159,7 +159,10 @@ export function useEstimateTransactionCost(
     });
 
     useEffect(() => {
+        console.log("enabled", enabled)
+        
         if (sendTransactionParams?.args == undefined) return;
+        if (!enabled) return;
         refetch();
     }, [sendTransactionParams]);
 
@@ -472,33 +475,19 @@ export function useEstimate(
 
     const txnBodyParts: EstimationTransactionBody | undefined = adapter.genEstimationTxnBody(params);
 
-    const [errorText, setErrorText] = useState<string | undefined>(undefined);
-
-    const { data: classicMint, isError, isLoading } = useContractRead({
+    const { data: classicMint, error, isError, isLoading } = useContractRead({
         address: txnBodyParts?.address as Address,
         abi: txnBodyParts?.abi,
         functionName: txnBodyParts?.functionName,
         args: txnBodyParts?.args,
         chainId: chainId,
-        enabled: enabled && !isNotMultipoolToken,
-        onError: (error) => {
-            if (error?.message?.includes("MULTIPOOL: DO")) {
-                setErrorText("Deviation overflow");
-            } else if (error?.message?.includes("MULTIPOOL: QE")) {
-                setErrorText("Insufficient liquidity");
-            } else if (error?.message?.includes("MULTIPOOL: IQ")) {
-                setErrorText("Insufficient quantity");
-            } else if (error?.message?.includes("MULTIPOOL: ZS")) {
-                setErrorText("Zero share");
-            }
-        }
+        enabled: enabled && !isNotMultipoolToken
     });
 
     const { data: classicTransactionCost } = useEstimateTransactionCost(
         txnBodyParts as EstimationTransactionBody,
-        chainId, {
-        enabled: enabled && isNotMultipoolToken
-    }
+        chainId, 
+        enabled && !isNotMultipoolToken
     );
 
     const transactionCost = data?.estimatedTransactionCost || classicTransactionCost;
@@ -520,7 +509,7 @@ export function useEstimate(
             },
             isError: isError,
             isLoading: isLoading,
-            error: errorText,
+            error: error?.message,
         }
     }
 
@@ -532,7 +521,7 @@ export function useEstimate(
             },
             isError: isError,
             isLoading: isLoading,
-            error: errorText,
+            error: error?.message,
         }
     } else {
         return {
@@ -551,7 +540,7 @@ export function useEstimate(
             },
             isError: isError,
             isLoading: isLoading || massiveMintIsLoading,
-            error: errorText,
+            error: error?.message,
         }
     }
 }
