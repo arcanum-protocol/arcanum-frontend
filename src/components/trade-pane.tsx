@@ -194,8 +194,11 @@ export function TokenQuantityInput({
 =======
     
     if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
+<<<<<<< HEAD
         console.log("useEstimate called", data);
 >>>>>>> efb0649 (Refactor useEstimate function and)
+=======
+>>>>>>> c66c3f3 (Fix input/output quantity calculation in)
         setEstimatedValues(data.estimationResult);
         setTransactionCost(data.transactionCost);
         setEstimationErrorMessage(error);
@@ -261,7 +264,11 @@ export function TokenQuantityInput({
             const valueNumber = new BigNumber(value)
                 .multipliedBy(new BigNumber("10").pow(decimals));
 
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> c66c3f3 (Fix input/output quantity calculation in)
             setInputQuantityDebounce(valueNumber);
             setOutputQuantity(undefined);
         } else {
@@ -323,4 +330,3 @@ export function TokenQuantityInput({
     );
 }
 
-export { TradeLogicAdapter, SendTransactionParams };
