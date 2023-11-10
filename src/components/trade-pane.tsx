@@ -5,7 +5,7 @@ import { useTradeContext } from "../contexts/TradeContext";
 import { InteractionWithApprovalButton } from './approval-button';
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
-import type { TradeLogicAdapter } from '../types/tradeLogicAdapter';
+import { useDebouncedCallback } from 'use-debounce';
 import { TransactionParamsSelector } from './transaction-params-selector';
 import type { SendTransactionParams } from '../types/sendTransactionParams';
 import { ChangeEvent, useEffect } from "react";
@@ -170,8 +170,6 @@ export function TokenQuantityInput({
     const anythingToCalculateOutCase = transactionParams.quantities.out !== undefined && transactionParams.quantities.out.isGreaterThan(0);
     const anythingToCalculate = anythingToCalculateInCase || anythingToCalculateOutCase;
 
-    // console.log("useEstimate", thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint);
-
     const { data, error } = useEstimate(
         adapter,
         transactionParams,
@@ -180,7 +178,6 @@ export function TokenQuantityInput({
     );
     
     if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
-        console.log("useEstimate called", data);
         setEstimatedValues(data.estimationResult);
         setTransactionCost(data.transactionCost);
         setEstimationErrorMessage(error);
@@ -208,9 +205,24 @@ export function TokenQuantityInput({
         }
     }
 
+    const setInputQuantityDebounce = useDebouncedCallback(
+        (value: BigNumber) => {
+            setInputQuantity(value);
+            setOutputQuantity(undefined);
+        },
+        500,
+    );
+
+    const setOutputQuantityDebounce = useDebouncedCallback(
+        (value: BigNumber) => {
+            setOutputQuantity(value);
+            setInputQuantity(undefined);
+        },
+        500,
+    );
+
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
         // prevent Receive input from being changed IF token in is type external
-
         if (text === "Receive" && tokenIn?.type === "external") {
             return;
         }
@@ -231,7 +243,8 @@ export function TokenQuantityInput({
             const valueNumber = new BigNumber(value)
                 .multipliedBy(new BigNumber("10").pow(decimals));
 
-            setInputQuantity(valueNumber);
+            
+            setInputQuantityDebounce(valueNumber);
             setOutputQuantity(undefined);
         } else {
             setMainInput("out");
@@ -239,7 +252,7 @@ export function TokenQuantityInput({
             const valueNumber = new BigNumber(value)
                 .multipliedBy(new BigNumber("10").pow(decimals));
 
-            setOutputQuantity(valueNumber);
+            setOutputQuantityDebounce(valueNumber);
             setInputQuantity(undefined);
         }
     };
@@ -292,4 +305,3 @@ export function TokenQuantityInput({
     );
 }
 
-export { TradeLogicAdapter, SendTransactionParams };

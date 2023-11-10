@@ -228,7 +228,7 @@ export function useEstimateMassiveMintTransactions(
         });
 
         const routes = await Promise.all(amountInDivided.map(async (_, i) => {
-            const amountInInteger = amountInDivided[i].amount.integerValue();
+            const amountInInteger = amountInDivided[i].amount.integerValue().toFixed(0);
 
             const tokenOut = amountInDivided[i].address;
 
@@ -340,8 +340,6 @@ export function useEstimateMassiveMintTransactions(
         }
         refetch();
     }, [amount, token, sender]);
-
-    console.log("gas", error ? approvalGas : gas)
 
     return {
         data: {
