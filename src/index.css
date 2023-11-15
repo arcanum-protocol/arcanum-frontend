@@ -66,3 +66,10 @@ button:disabled {
 .TVChartContainer {
   mask-image: radial-gradient(circle 0 at top left, transparent 0, transparent 15px, black 16px);
 }
+<<<<<<< HEAD
+=======
+
+body {
+  background-color: #0d0b0d;
+}
+>>>>>>> 731d6af (Add styling changes and update components)

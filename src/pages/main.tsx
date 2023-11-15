@@ -13,8 +13,11 @@ import { useArbitrumTokens } from '@/hooks/externalTokens';
 import { TokenSelector } from '@/components/token-selector';
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSVG } from "@/lib/svg-adapter";
+<<<<<<< HEAD
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
+=======
+>>>>>>> 731d6af (Add styling changes and update components)
 
 
 export function Cpt() {
@@ -68,6 +71,7 @@ export function MainInner({ multipool_id }: MainInnerProps) {
     }
 
     return (
+<<<<<<< HEAD
         <>
             <div className='flex flex-col min-w-full mt-0.5 gap-2 items-center xl:flex-row xl:items-stretch'>
                 <div className='flex flex-col items-center w-full gap-2'>
@@ -88,6 +92,14 @@ export function MainInner({ multipool_id }: MainInnerProps) {
                 <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
                     <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
                 </MultiPoolProvider>
+=======
+        <div className='flex flex-row min-w-full mt-0.5 gap-2 align-start'>
+            <div className='flex flex-col items-center w-full gap-2'>
+                <Head multipool={multipoolAsset} />
+                {multipoolAsset && <TVChartContainer symbol={multipool_id} />}
+                <Faucet assets={fetchedAssets} />
+                <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
+>>>>>>> 731d6af (Add styling changes and update components)
             </div >
         </>
     );
@@ -235,12 +247,15 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
 =======
 >>>>>>> 0684c35 (sync)
     return (
-        <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
-            <p className='text-3xl p-0 font-bold'>{multipoolInfo?.symbol || ""}</p>
-            <div>
-                <p className='text-xs'>Price</p>
-                <p className='text-base'>{multipoolInfo?.price?.toFixed(4)}$</p>
+        <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616]'>
+            <div className="flex flex-row items-center gap-2 px-8">
+                <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
+                <div className="text-left">
+                    <p className='text-[#7E7E7E] text-3xl p-0 text-sm'>{multipoolInfo?.symbol || ""}</p>
+                    <p className='text-base'>${multipoolInfo?.price?.toFixed(4)}</p>
+                </div>
             </div>
+<<<<<<< HEAD
             <div>
                 <p className='text-xs'>24h change</p>
                 <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
@@ -258,6 +273,21 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
                 <p className='text-xs'>24h low</p>
                 <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
 >>>>>>> 0684c35 (sync)
+=======
+            <div className="flex flex-row gap-1">
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                    <p className='text-sm'>24h change</p>
+                    <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
+                </div>
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                    <p className='text-sm'>24h high</p>
+                    <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
+                </div>
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                    <p className='text-sm'>24h low</p>
+                    <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
+                </div>
+>>>>>>> 731d6af (Add styling changes and update components)
             </div>
         </div>
     );

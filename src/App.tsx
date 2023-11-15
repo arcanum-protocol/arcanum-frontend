@@ -29,7 +29,11 @@ function App() {
             <WagmiConfig config={config}>
                 <ConnectKitProvider theme="midnight">
                     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+<<<<<<< HEAD
                         <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
+=======
+                        <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto px-4 shrink-0 bg-[#0d0b0d] text-white">
+>>>>>>> 731d6af (Add styling changes and update components)
                             <Navbar />
                             <Outlet />
                         </main>
@@ -53,6 +57,7 @@ function Navbar() {
 
     return (
         <div className="flex flex-row min-w-full justify-between items-center mb-[1.5rem]">
+<<<<<<< HEAD
             <div className="z-50 block lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -87,6 +92,12 @@ function Navbar() {
                 <img src={getSVG("logo")} alt="Logo" />
             </div>
             <NavigationMenu className={"hidden lg:block"}>
+=======
+            <div className="w-[200px]">
+                <img src={getSVG("logo")} alt="Logo" />
+            </div>
+            <NavigationMenu>
+>>>>>>> 731d6af (Add styling changes and update components)
                 <NavigationMenuList>
                     <NavigationMenuItem>
                         <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>

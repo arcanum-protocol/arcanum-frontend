@@ -147,7 +147,11 @@ const TVChartContainer = ({ symbol, datafeedUrl = 'https://api.arcanum.to/api/tv
 
     return (
         <div
+<<<<<<< HEAD
             style={{ borderRadius: "1rem" }}
+=======
+            style={{ borderRadius: "10px" }}
+>>>>>>> 731d6af (Add styling changes and update components)
             ref={chartContainerRef}
             className={`TVChartContainer w-full h-[30rem]`}
         />

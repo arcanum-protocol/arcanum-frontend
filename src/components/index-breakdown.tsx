@@ -11,6 +11,11 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
         randomindexes.push(Number((Math.random() * 10000).toFixed(0)));
     }
 
+<<<<<<< HEAD
+=======
+    console.log("fetchedAssets", fetchedAssets);
+
+>>>>>>> 731d6af (Add styling changes and update components)
     function toHumanReadableMcap(number: BigNumber) {
         return toHumanReadable(number, 2);
     }
