@@ -3,6 +3,7 @@ import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
 import { Tooltip } from './tooltip';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: MultipoolAsset[] }) {
     let randomindexes: number[] = [];
@@ -11,10 +12,9 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
         randomindexes.push(Number((Math.random() * 10000).toFixed(0)));
     }
 
-    function toHumanReadableMcap(number: BigNumber) {
-        // const decimals = new BigNumber(10).pow(18);
+    console.log("fetchedAssets", fetchedAssets);
 
-        // const value = number.div(decimals);
+    function toHumanReadableMcap(number: BigNumber) {
         return toHumanReadable(number, 2);
     }
 
@@ -24,34 +24,6 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
         const value = number.div(decimals);
         return toHumanReadable(value, 2);
     }
-
-    const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
-        <>
-            <div key={randomindexes[0 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
-                <div style={{
-                    borderRadius: "50%", width: "25px", height: "25px", overflow: "clip", marginRight: "10px",
-                }}>
-                    <img style={{ width: "25px", height: "25px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
-                </div>
-                {<>{asset.name} ({asset.symbol})</>}
-            </div>
-            <div key={randomindexes[1 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
-                {Number(asset.idealShare.toString()).toFixed(2)}%
-            </div>
-            <div key={randomindexes[2 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "3", display: "flex", justifyContent: "flex-end" }}>
-                {Number(asset.currentShare.toString()).toFixed(2)}%
-            </div>
-            <div key={randomindexes[3 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
-                {asset.price?.toFixed(2).toString()}$
-            </div>
-            <div key={randomindexes[4 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
-                {tohumanReadableQuantity(asset.quantity)}
-            </div>
-            <div key={randomindexes[5 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
-                {toHumanReadableMcap(asset.mcap)}$
-            </div>
-        </>
-    );
 
     return (
         <Table>
@@ -69,7 +41,15 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
                 {
                     fetchedAssets.map((fetchedAsset) => 
                         <TableRow key={fetchedAsset.address}>
-                            <TableCell className="text-left">{fetchedAsset.symbol}</TableCell>
+                            <TableCell className="text-left">
+                                <div className="flex flex-row items-center gap-2">
+                                <Avatar className="w-5 h-5"> 
+                                    <AvatarImage src={fetchedAsset.logo == null ? undefined : fetchedAsset.logo} /> 
+                                    <AvatarFallback>{fetchedAsset.symbol}</AvatarFallback>
+                                </Avatar>
+                                {fetchedAsset.symbol}
+                                </div>
+                            </TableCell>
                             <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>
                             <TableCell>{fetchedAsset.currentShare.toFixed(2)}%</TableCell>
                             <TableCell>{(fetchedAsset.price || 0).toFixed(2)}$</TableCell>

@@ -12,6 +12,7 @@ import { MultiPoolProvider, useMultiPoolContext } from '@/contexts/MultiPoolCont
 import { useArbitrumTokens } from '@/hooks/externalTokens';
 import { TokenSelector } from '@/components/token-selector';
 import { Skeleton } from "@/components/ui/skeleton"
+import { getSVG } from "@/lib/svg-adapter";
 
 
 export function Cpt() {
@@ -65,7 +66,7 @@ export function MainInner({ multipool_id }: MainInnerProps) {
     }
 
     return (
-        <div className='flex flex-row w-full mt-0.5 gap-2 align-start'>
+        <div className='flex flex-row min-w-full mt-0.5 gap-2 align-start'>
             <div className='flex flex-col items-center w-full gap-2'>
                 <Head multipool={multipoolAsset} />
                 {multipoolAsset && <TVChartContainer symbol={multipool_id} />}
@@ -189,23 +190,27 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
     }
 
     return (
-        <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
-            <p className='text-3xl p-0 font-bold'>{multipoolInfo?.symbol || ""}</p>
-            <div>
-                <p className='text-xs'>Price</p>
-                <p className='text-base'>{multipoolInfo?.price?.toFixed(4)}$</p>
+        <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616]'>
+            <div className="flex flex-row items-center gap-2 px-8">
+                <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
+                <div className="text-left">
+                    <p className='text-[#7E7E7E] text-3xl p-0 text-sm'>{multipoolInfo?.symbol || ""}</p>
+                    <p className='text-base'>${multipoolInfo?.price?.toFixed(4)}</p>
+                </div>
             </div>
-            <div>
-                <p className='text-xs'>24h change</p>
-                <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
-            </div>
-            <div>
-                <p className='text-xs'>24h hight</p>
-                <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
-            </div>
-            <div>
-                <p className='text-xs'>24h low</p>
-                <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
+            <div className="flex flex-row gap-1">
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                    <p className='text-sm'>24h change</p>
+                    <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
+                </div>
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                    <p className='text-sm'>24h high</p>
+                    <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
+                </div>
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                    <p className='text-sm'>24h low</p>
+                    <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
+                </div>
             </div>
         </div>
     );

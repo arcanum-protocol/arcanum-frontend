@@ -6,7 +6,6 @@ import {
     ConnectKitProvider,
 } from "connectkit";
 import { Outlet } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { config } from './config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -29,10 +28,10 @@ function App() {
             <WagmiConfig config={config}>
                 <ConnectKitProvider theme="midnight">
                     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                        <main>
+                        <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto px-4 shrink-0 bg-[#0d0b0d] text-white">
                             <Navbar />
                             <Outlet />
-                        </main >
+                        </main>
                     </ThemeProvider>
                 </ConnectKitProvider>
             </WagmiConfig>
@@ -51,16 +50,15 @@ function Navbar() {
     }
 
     return (
-        <div className="w-full flex flex-row justify-between items-center mb-2">
-            <Avatar className="h-10 w-10">
-                <AvatarImage src={getSVG("logo")} alt="Logo" />
-                <AvatarFallback>{"?"}</AvatarFallback>
-            </Avatar>
+        <div className="flex flex-row min-w-full justify-between items-center mb-[1.5rem]">
+            <div className="w-[200px]">
+                <img src={getSVG("logo")} alt="Logo" />
+            </div>
             <NavigationMenu>
                 <NavigationMenuList>
                     <NavigationMenuItem>
                         <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
-                            ARBI
+                            Arbitrum Index
                         </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
@@ -70,7 +68,7 @@ function Navbar() {
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
-            <div className="flex flex-row justify-center items-center gap-3">
+            <div className="flex flex-row justify-center items-center gap-3 w-[225px]">
                 {getChainIcon()}
                 <ConnectKitButton />
             </div>

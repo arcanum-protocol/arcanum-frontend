@@ -54,3 +54,11 @@ button:disabled {
 .multipool-token-balance {
   animation: sineWave 5s infinite linear;
 }
+
+.TVChartContainer {
+  mask-image: radial-gradient(circle 0 at top left, transparent 0, transparent 15px, black 16px);
+}
+
+body {
+  background-color: #0d0b0d;
+}
