@@ -74,7 +74,7 @@ export function MainInner({ multipool_id }: MainInnerProps) {
                 <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
             </div >
             <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
-                <MintBurnTabs className="max-h-fit" />
+                <MintBurnTabs className="h-fit min-w-[22.75rem]" />
             </MultiPoolProvider>
         </div >
     );
@@ -95,8 +95,8 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
     const massiveMintRouter = getMassiveMintRouter();
 
     return (
-        <div className={className}>
-            <Tabs className="grid-cols-3 w-[400px] bg-[#09090b] rounded-xl border" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
+        <div className={`${className} p-4 bg-[#161616] rounded-2xl`}>
+            <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="mint">Mint</TabsTrigger>
                     <TabsTrigger value="burn">Burn</TabsTrigger>

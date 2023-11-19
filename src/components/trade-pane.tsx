@@ -45,20 +45,29 @@ export function TradePaneInner({
     const receiveDisabled = action === "mint";
 
     return (
-        <div className="flex flex-col justify-center w-[400px] mt-[20px]">
-            <TokenQuantityInput
-                text={"Send"}
-                balance={inputToken?.balance?.toString() || "0"}
-                isDisabled={sendDisabled}
-                action={action}
-            />
-            <TokenQuantityInput
-                text={"Receive"}
-                balance={outputToken?.balance?.toString() || "0"}
-                isDisabled={receiveDisabled}
-                action={action}
-            />
-            <div style={{ display: "flex", flexDirection: "column", margin: "20px", marginTop: "10px", rowGap: "30px" }}>
+        <div className="flex flex-col justify-center w-[20.75rem] mt-[1rem]">
+            <div className="flex flex-col gap-4 items-center">
+                <TokenQuantityInput
+                    text={"Send"}
+                    balance={inputToken?.balance?.toString() || "0"}
+                    isDisabled={sendDisabled}
+                    action={action}
+                />
+
+                <div className="my-[-2rem] z-10 bg-[#161616] border border-[#2b2b2b] p-2 rounded-lg">
+                    <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                    </svg>
+                </div>
+
+                <TokenQuantityInput
+                    text={"Receive"}
+                    balance={outputToken?.balance?.toString() || "0"}
+                    isDisabled={receiveDisabled}
+                    action={action}
+                />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", marginTop: "10px", rowGap: "30px" }}>
                 <TransactionParamsSelector txnParams={sendTransctionParams} />
                 <InteractionWithApprovalButton
                     approveMax={true}
@@ -176,7 +185,7 @@ export function TokenQuantityInput({
         multipool?.chainId!,
         thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint,
     );
-    
+
     if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
         setEstimatedValues(data.estimationResult);
         setTransactionCost(data.transactionCost);
@@ -243,7 +252,7 @@ export function TokenQuantityInput({
             const valueNumber = new BigNumber(value)
                 .multipliedBy(new BigNumber("10").pow(decimals));
 
-            
+
             setInputQuantityDebounce(valueNumber);
             setOutputQuantity(undefined);
         } else {
@@ -258,8 +267,8 @@ export function TokenQuantityInput({
     };
 
     return (
-        <div className="flex flex-col justify-between items-start rounded-2xl border h-full mx-[20px] my-[1px] p-3">
-            <p className="text-base m-0">{text} </p>
+        <div className="flex flex-col justify-between items-start rounded-2xl h-full p-3 bg-[#1b1b1b]">
+            <p className="leading-4 m-0 uppercase text-xs font-light">{text} </p>
             <div className="flex flex-row flex-start items-start justify-between w-full">
                 <div className={''}
                     style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
@@ -290,7 +299,7 @@ export function TokenQuantityInput({
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
                 <p className="m-0 text-xs text-gray-500">
-                    {(text === "Send" ? inputDollarValue : outputDollarValue) + "$"}
+                    = {(text === "Send" ? inputDollarValue : outputDollarValue) + "$"}
                 </p>
                 <p className="m-0 text-gray-500 text-xs">
                     Balance: {

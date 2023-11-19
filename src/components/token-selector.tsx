@@ -119,7 +119,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
     const data = useTokenSearch(tokenList, search);
 
     return (
-        <>
+        <div className="w-full">
             <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
                 <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10" 
                     onClick={() => setSelectedTab(selectedSCTab)}>
@@ -164,7 +164,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
                         })
                 }
             </ScrollArea>
-        </>
+        </div>
     )
 }
 

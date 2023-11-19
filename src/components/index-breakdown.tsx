@@ -1,7 +1,6 @@
 import { BigNumber } from "bignumber.js";
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
-import { Tooltip } from './tooltip';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -11,8 +10,6 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
     for (let i = 0; i < fetchedAssets?.length * 6; i++) {
         randomindexes.push(Number((Math.random() * 10000).toFixed(0)));
     }
-
-    console.log("fetchedAssets", fetchedAssets);
 
     function toHumanReadableMcap(number: BigNumber) {
         return toHumanReadable(number, 2);
