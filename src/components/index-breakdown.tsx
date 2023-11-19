@@ -12,10 +12,13 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     console.log("fetchedAssets", fetchedAssets);
 
 >>>>>>> 731d6af (Add styling changes and update components)
+=======
+>>>>>>> cb1b31e (Refactor UI styles for consistency)
     function toHumanReadableMcap(number: BigNumber) {
         return toHumanReadable(number, 2);
     }

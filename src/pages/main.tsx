@@ -101,7 +101,14 @@ export function MainInner({ multipool_id }: MainInnerProps) {
                 <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
 >>>>>>> 731d6af (Add styling changes and update components)
             </div >
+<<<<<<< HEAD
         </>
+=======
+            <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
+                <MintBurnTabs className="h-fit min-w-[22.75rem]" />
+            </MultiPoolProvider>
+        </div >
+>>>>>>> cb1b31e (Refactor UI styles for consistency)
     );
 }
 
@@ -122,7 +129,11 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
     setSelectedTab(selectedTab);
 
     return (
+<<<<<<< HEAD
         <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
+=======
+        <div className={`${className} p-4 bg-[#161616] rounded-2xl`}>
+>>>>>>> cb1b31e (Refactor UI styles for consistency)
             <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="mint">Mint</TabsTrigger>

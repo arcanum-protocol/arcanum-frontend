@@ -48,7 +48,11 @@ export function TradePaneInner({
     const receiveDisabled = action === "mint";
 
     return (
+<<<<<<< HEAD
         <div className="flex flex-col justify-center mt-[1rem]">
+=======
+        <div className="flex flex-col justify-center w-[20.75rem] mt-[1rem]">
+>>>>>>> cb1b31e (Refactor UI styles for consistency)
             <div className="flex flex-col gap-4 items-center">
                 <TokenQuantityInput
                     text={"Send"}
@@ -189,10 +193,14 @@ export function TokenQuantityInput({
         thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint,
     );
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
 =======
     
+=======
+
+>>>>>>> cb1b31e (Refactor UI styles for consistency)
     if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
 <<<<<<< HEAD
         console.log("useEstimate called", data);
@@ -265,10 +273,14 @@ export function TokenQuantityInput({
                 .multipliedBy(new BigNumber("10").pow(decimals));
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
             
 >>>>>>> c66c3f3 (Fix input/output quantity calculation in)
+=======
+
+>>>>>>> cb1b31e (Refactor UI styles for consistency)
             setInputQuantityDebounce(valueNumber);
             setOutputQuantity(undefined);
         } else {
