@@ -45,7 +45,7 @@ export function TradePaneInner({
     const receiveDisabled = action === "mint";
 
     return (
-        <div className="flex flex-col justify-center w-[20.75rem] mt-[1rem]">
+        <div className="flex flex-col justify-center mt-[1rem]">
             <div className="flex flex-col gap-4 items-center">
                 <TokenQuantityInput
                     text={"Send"}

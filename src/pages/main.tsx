@@ -13,6 +13,8 @@ import { useArbitrumTokens } from '@/hooks/externalTokens';
 import { TokenSelector } from '@/components/token-selector';
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSVG } from "@/lib/svg-adapter";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
 
 
 export function Cpt() {
@@ -66,17 +68,28 @@ export function MainInner({ multipool_id }: MainInnerProps) {
     }
 
     return (
-        <div className='flex flex-row min-w-full mt-0.5 gap-2 align-start'>
-            <div className='flex flex-col items-center w-full gap-2'>
-                <Head multipool={multipoolAsset} />
-                {multipoolAsset && <TVChartContainer symbol={multipool_id} />}
-                <Faucet assets={fetchedAssets} />
-                <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
+        <>
+            <div className='flex flex-col min-w-full mt-0.5 gap-2 items-center xl:flex-row xl:items-stretch'>
+                <div className='flex flex-col items-center w-full gap-2'>
+                    <Alert>
+                        <AlertTitle className="text-red-300 text-xl">Warning</AlertTitle>
+                        <AlertDescription className="whitespace-break-spaces">
+                            Arcanum right now is under heavy development. Most of the features are under reconstruction.
+                            <br />
+                            Go to our <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36" className="w-4"><path fill="#fff" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" /></svg>
+                            <a href="https://discord.gg/v4Qc472u3X" className="ml-1 text-blue-500">Discord</a> to get notified when we release new features.
+                        </AlertDescription>
+                    </Alert>
+                    <Head multipool={multipoolAsset} />
+                    {multipoolAsset && <TVChartContainer symbol={multipool_id} />}
+                    <Faucet assets={fetchedAssets} />
+                    <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
+                </div >
+                <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
+                    <MintBurnTabs className="h-fit max-w-[21.4375rem]" />
+                </MultiPoolProvider>
             </div >
-            <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
-                <MintBurnTabs className="h-fit min-w-[22.75rem]" />
-            </MultiPoolProvider>
-        </div >
+        </>
     );
 }
 
@@ -95,7 +108,7 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
     const massiveMintRouter = getMassiveMintRouter();
 
     return (
-        <div className={`${className} p-4 bg-[#161616] rounded-2xl`}>
+        <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
             <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="mint">Mint</TabsTrigger>
@@ -190,24 +203,24 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
     }
 
     return (
-        <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616]'>
-            <div className="flex flex-row items-center gap-2 px-8">
-                <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
-                <div className="text-left">
-                    <p className='text-[#7E7E7E] text-3xl p-0 text-sm'>{multipoolInfo?.symbol || ""}</p>
-                    <p className='text-base'>${multipoolInfo?.price?.toFixed(4)}</p>
+        <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
+            <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
+                <div className="flex flex-row text-left gap-2">
+                    <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
+                    <p className='text-[#7E7E7E] p-0 text-2xl'>{multipoolInfo?.symbol || ""}</p>
                 </div>
+                <p className='text-xl'>${multipoolInfo?.price?.toFixed(4)}</p>
             </div>
-            <div className="flex flex-row gap-1">
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+            <div className="hidden gap-1 flex-row xl:flex">
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h change</p>
                     <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
                 </div>
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h high</p>
                     <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
                 </div>
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h low</p>
                     <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
                 </div>

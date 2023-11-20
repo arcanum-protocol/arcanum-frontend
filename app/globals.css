@@ -1,6 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  background: url(/backgound.svg) repeat center center fixed;
+}
  
 @layer base {
   :root {

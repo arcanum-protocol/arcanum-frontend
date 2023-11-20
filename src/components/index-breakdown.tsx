@@ -23,7 +23,7 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
     }
 
     return (
-        <Table>
+        <Table className="hidden sm:table bg-[#161616]">
             <TableHeader>
                 <TableRow>
                     <TableHead className="text-left">Asset</TableHead>

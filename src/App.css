@@ -6,6 +6,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  max-width: 100%;
 }
 
 .logo {
@@ -14,21 +16,24 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
 .flex-1 {
-    flex: 1
+  flex: 1
 }
 
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -59,19 +64,19 @@
 
 .tooltip-main {
   cursor: help;
-  position:relative;
+  position: relative;
 }
 
-.tooltip-main:hover .tooltip-hint{
+.tooltip-main:hover .tooltip-hint {
   display: block;
 }
 
-.tooltip-hint:hover{
+.tooltip-hint:hover {
   display: block;
 }
 
 .tooltip-hint {
-  position:absolute;
+  position: absolute;
   display: none;
   text-align: left;
   width: 300px;

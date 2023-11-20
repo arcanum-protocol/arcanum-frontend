@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="920" height="100">
+
+    <style>
+        svg {
+            opacity: 0.2;
+            fill: transparent;
+        }
+        text {
+            font-size: 68px;
+            font-family: monospace;
+            paint-order: stroke;
+            stroke: #ffffff;
+            stroke-width: 1px;
+            stroke-linecap: butt;
+            stroke-linejoin: miter;
+            font-weight: 900;
+        }
+    </style>
+
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">UNDER HEAVY DEVELOPMENT</text>
+</svg>

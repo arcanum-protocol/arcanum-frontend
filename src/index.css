@@ -34,6 +34,14 @@ body {
   place-items: center;
   min-width: 250px;
   min-height: 100vh;
+  z-index: 100;
+}
+
+#root {
+  display: flex;
+  background: #0d0b0d url(/backgound.svg) repeat;
+  z-index: 100;
+  min-height: 100vh;
 }
 
 h1 {
@@ -57,8 +65,4 @@ button:disabled {
 
 .TVChartContainer {
   mask-image: radial-gradient(circle 0 at top left, transparent 0, transparent 15px, black 16px);
-}
-
-body {
-  background-color: #0d0b0d;
 }
