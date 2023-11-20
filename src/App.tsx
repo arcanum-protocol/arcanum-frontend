@@ -5,16 +5,21 @@ import {
     ConnectKitButton,
     ConnectKitProvider,
 } from "connectkit";
-import * as React from 'react';
-import { Link, Outlet } from "react-router-dom";
-import Modal from 'react-modal';
-Modal.setAppElement('#root');
-import { useMobileMedia } from "./hooks/tokens";
+import { Outlet } from "react-router-dom";
 
-import { chains, config } from './config';
+import { config } from './config';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { getSVG } from "./lib/svg-adapter";
-import { useRef, useState } from "react";
+import { ThemeProvider } from "./contexts/ThemeProvider";
+import {
+    NavigationMenu,
+    NavigationMenuItem,
+    NavigationMenuLink,
+    NavigationMenuList,
+    navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import "../app/globals.css";
+import { useState } from "react";
 
 const client = new QueryClient();
 
@@ -23,10 +28,12 @@ function App() {
         <QueryClientProvider client={client}>
             <WagmiConfig config={config}>
                 <ConnectKitProvider theme="midnight">
-                    <main>
-                        <Navbar />
-                        <Outlet />
-                    </main >
+                    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                        <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
+                            <Navbar />
+                            <Outlet />
+                        </main>
+                    </ThemeProvider>
                 </ConnectKitProvider>
             </WagmiConfig>
         </QueryClientProvider>
@@ -35,158 +42,70 @@ function App() {
 
 function Navbar() {
     const { chain } = useNetwork();
-    const [hovered, setHovered] = useState(location.pathname);
-    const isMobile = useMobileMedia();
-    const [mobileReferencesActive, setMobileReferences] = useState(false);
-
-    const modal = useRef(null);
-
-    const links = [
-        { title: "Swap", route: "/swap" },
-        { title: "Arbitrum index", route: "/arbi" },
-        { title: "Docs", route: "https://docs.arcanum.to" },
-    ];
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     function getChainIcon() {
         if (!chain) {
             return <div />;
         }
-        return <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={25} />;
+        return <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={35} />;
     }
 
-    const references =
-        <div style={{ display: "flex", fontSize: "20px", gap: "40px", flex: "1", alignItems: "center", justifyContent: "center" }}>
-            {
-                links.map(({ title, route }, index) => {
-                    let item = <div
-                        key={index}
-                        style={{
-                            display: "flex",
-                            borderRadius: "10px",
-                            backgroundColor: hovered == route ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0)",
-                            color: "var(--wh)",
-                        }}
-                        onMouseOver={() => { setHovered(route) }}
-                        onMouseOut={() => { setHovered(location.pathname) }}
-                    >
-                        <span style={{ margin: "1px 10px" }}>{title}</span>
-                    </div>;
-                    return (
-                        route.startsWith('/') ?
-                            <Link
-                                key={index}
-                                to={route}
-                            >
-                                {item}
-                            </Link> :
-                            <a href={route}
-                                key={index}
-                            >
-                                {item}
-                            </a>
-                    );
-                })
-            }
-        </div >;
+    return (
+        <div className="flex flex-row min-w-full justify-between items-center mb-[1.5rem]">
+            <div className="z-50 block lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </div>
+            {/** Mobile menu, leaves from left to right for 70% of the screen */}
+            <div className={`fixed top-0 left-0 w-full h-full bg-[#0d0b0d]/50 backdrop-blur p-4 z-40 transform transition-transform duration-300 ${isMenuOpen ? "-translate-x-1/4" : "-translate-x-full"}`}>
+                <div className="flex text-left flex-col items-end h-full pl-24">
+                    <img src={getSVG("logo")} alt="Logo" className="w-10" />
 
-    const mobileMenuModal = <div
-        ref={modal}
-        style={{
-            position: "fixed",
-            overflowX: "auto",
-            backgroundColor: "var(--bc)",
-            top: "0",
-            left: "0",
-            height: "100vh",
-            zIndex: "1",
-            display: "flex",
-            gap: "10px",
-            justifyItems: "flex-start",
-            flexDirection: "column",
-            width: "300px",
-            transition: "max-width .5s",
-            maxWidth: mobileReferencesActive ? "300px" : "0px",
-        }}>
-        <div style={{ marginLeft: "10px", marginTop: "10px", display: "flex", alignItems: "center" }}>
-            <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", justifyContent: "flex-start" }}>
-                <img src={getSVG("logo")} />
-            </div>
-            <div style={{
-                display: "flex",
-                width: "30px",
-                height: "30px",
-                flex: "1",
-                justifyContent: "flex-end",
-                marginRight: "10px",
-            }}
-                onClick={() => setMobileReferences(false)}
-            >
-                <img src={getSVG("closeIcon")} />
-            </div>
-        </div>
-        <div style={{
-            marginLeft: "10px",
-            marginTop: "10px", flexDirection: "column",
-            gap: "20px",
-            display: "flex", alignItems: "flex-start"
-        }}>
-            {
-                links.map(({ title, route }, index) => {
-                    let item = <div
-                        key={index}
-                        style={{
-                            display: "flex",
-                            borderRadius: "10px",
-                            color: "var(--wh)",
-                        }}
-                    >
-                        <span>{title}</span>
-                    </div>;
-                    return (
-                        route.startsWith('/') ?
-                            <Link key={index} to={route}
-                                state={{ reloaded: route }}
-                            >
-                                {item}
-                            </Link> :
-                            <a key={index}
-                                href={route}>
-                                {item}
-                            </a>
-                    );
-                })
-            }
-        </div>
-    </div >;
+                    <div className="w-full text-left text-base py-2" onClick={() => {
+                        setIsMenuOpen(false);
 
-    return (<nav>
-        <div style={{
-            display: "flex", alignItems: "center", width: "100%",
-            overflow: "auto"
-        }}>
-            {mobileMenuModal}
-            {
-                isMobile ? <div
-                    onClick={e => setMobileReferences(true)}
-                    style={{ display: "flex", marginRight: "10px" }}>
-                    <img src={getSVG("navMenuIcon")} />
-                </div >
-                    :
-                    <div />
-            }
-            { }
-            <div style={{ display: "flex", width: "40px", height: "40px", flex: "1", alignContent: "center", justifyContent: "flex-start" }}>
-                <img src={getSVG("logo")} />
-            </div>
-            {!isMobile ? references : <div />}
-            <div style={{ display: "flex", flex: "1", justifyContent: "flex-end", alignItems: "center", gap: "5px" }}>
-                <div style={{ marginRight: "10px" }}>
-                    {getChainIcon()}
+                        setTimeout(() => {
+                            window.location.href = "/arbi";
+                        }, 300);
+                    }}>
+                        ARBI
+                    </div>
+                    <div className="w-full text-left text-base py-2" onClick={() => {
+                        setIsMenuOpen(false);
+
+                        setTimeout(() => {
+                            window.location.href = "https://docs.arcanum.to/overview/about";
+                        }, 300);
+                    }}>
+                        DOCS
+                    </div>
                 </div>
+            </div>
+            <div className="hidden lg:block w-[200px]">
+                <img src={getSVG("logo")} alt="Logo" />
+            </div>
+            <NavigationMenu className={"hidden lg:block"}>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
+                            Arbitrum Index
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href='https://docs.arcanum.to' className={navigationMenuTriggerStyle()}>
+                            Documentation
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+            <div className="flex flex-row justify-center items-center gap-3 w-[225px]">
+                {getChainIcon()}
                 <ConnectKitButton />
             </div>
         </div>
-    </nav >);
+    );
 }
 
 export { App };

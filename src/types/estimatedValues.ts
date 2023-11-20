@@ -1,42 +1,43 @@
+import BigNumber from "bignumber.js"
 import { Address } from "viem"
 
 type EstimatedValues = {
-    estimatedCashbackIn: {
-        row: BigInt,
+    estimatedCashbackIn?: {
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
-    estimatedCashbackOut: {
-        row: BigInt,
+    estimatedCashbackOut?: {
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
-    estimatedAmountOut: {
-        row: BigInt,
+    estimatedAmountOut?: {
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
-    estimatedAmountIn: {
-        row: BigInt,
+    estimatedAmountIn?: {
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
-    fee: {
+    fee?: {
         percent: string
         usd: string,
     } | undefined,
-    minimalAmountOut: {
-        row: BigInt,
+    minimalAmountOut?: {
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
-    maximumAmountIn: {
-        row: BigInt,
+    maximumAmountIn?: {
+        row: BigNumber,
         formatted: string,
         usd: string,
     } | undefined,
-    isIn: boolean,
-    isOut: boolean,
+    isIn?: boolean,
+    isOut?: boolean,
     txn: {
         address: Address,
         abi: any,
@@ -46,4 +47,4 @@ type EstimatedValues = {
     }
 }
 
-export { EstimatedValues }
+export { type EstimatedValues }

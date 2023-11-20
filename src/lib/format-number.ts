@@ -1,5 +1,3 @@
-import { BigNumber } from "@ethersproject/bignumber";
-
 export function toHumanReadable(number: any, decPlaces: number = 2): string {
     // 2 decimal places => 100, 3 => 1000, etc
 

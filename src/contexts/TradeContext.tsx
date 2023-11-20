@@ -1,11 +1,12 @@
-import React, { useState, useContext, createContext, useEffect } from 'react';
-import type { SolidAsset } from '../types/solidAsset';
-import { MultipoolAsset } from '../types/multipoolAsset';
 import { Address } from 'viem';
-import { TradeLogicAdapter } from '../types/tradeLogicAdapter';
+import { Gas } from '@/types/gas';
 import { useAccount } from 'wagmi';
-import { SendTransactionParams } from '../types/sendTransactionParams';
+import BigNumber from 'bignumber.js';
 import { EstimatedValues } from '../types/estimatedValues';
+import { TradeLogicAdapter } from '../types/tradeLogicAdapter';
+import React, { useState, useContext, createContext } from 'react';
+import { SendTransactionParams } from '../types/sendTransactionParams';
+import { useMultiPoolContext } from './MultiPoolContext';
 
 export interface TradeContextValue {
     routerAddress: Address;
@@ -14,38 +15,23 @@ export interface TradeContextValue {
     userAddress: Address;
     setAdress: (value: Address) => void;
 
-    assets: MultipoolAsset[];
-    setAssets: (assets: MultipoolAsset[]) => void;
+    inputDollarValue: string | undefined;
+    outputDollarValue: string | undefined;
 
-    inputHumanReadable: string | undefined;
-    setInputHumanReadable: (value: string) => void;
+    inputQuantity: BigNumber | undefined;
+    setInputQuantity: (quantity: BigNumber | undefined) => void;
 
-    outputHumanReadable: string | undefined;
-    setOutputHumanReadable: (value: string) => void;
-
-    inputQuantity: string | undefined;
-    setInputQuantity: (quantity: string | undefined) => void;
-
-    outputQuantity: string | undefined;
-    setOutputQuantity: (quantity: string | undefined) => void;
-
-    inputAsset: MultipoolAsset | SolidAsset | undefined;
-    setInputAsset: (asset: MultipoolAsset | SolidAsset) => void;
-
-    outputAsset: MultipoolAsset | SolidAsset | undefined;
-    setOutputAsset: (asset: MultipoolAsset | SolidAsset) => void;
+    outputQuantity: BigNumber | undefined;
+    setOutputQuantity: (quantity: BigNumber | undefined) => void;
 
     slippage: number;
     setSlippage: (value: number) => void;
-
-    isLoading: boolean;
-    setIsLoading: (value: boolean) => void;
 
     mainInput: "in" | "out";
     setMainInput: (value: "in" | "out") => void;
 
     estimatedValues: EstimatedValues | undefined;
-    setEstimatedValues: (value: EstimatedValues | undefined) => void;
+    setEstimatedValues: (value: EstimatedValues) => void;
 
     sendTransctionParams: SendTransactionParams | undefined;
     setSendTransctionParams: (value: SendTransactionParams | undefined) => void;
@@ -53,69 +39,144 @@ export interface TradeContextValue {
     estimationErrorMessage: string | undefined;
     setEstimationErrorMessage: (value: string | undefined) => void;
 
-    usdValues: {
-        in: string | undefined;
-        out: string | undefined;
-    };
-    setUsdValues: (value: {
-        in: string | undefined;
-        out: string | undefined;
-    }) => void;
+    getInputHumanized: () => string;
+    getOutputHumanized: () => string;
+
+    clearValues: () => void;
 
     tradeLogicAdapter: TradeLogicAdapter;
 
     transactionCost: {
-        gas: number;
-        gasPrice: number;
-        cost: number;
+        gas: string;
+        gasPrice: string;
+        cost: string;
     } | undefined;
     setTransactionCost: (value: {
-        gas: number;
-        gasPrice: number;
-        cost: number;
+        gas: string;
+        gasPrice: string;
+        cost: string;
     } | undefined) => void;
+
+    massiveMintRouter?: string;
 }
 
 const TradeContext = createContext<TradeContextValue | null>(null);
 
-export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: MultipoolAsset | SolidAsset, contextOutputAddress?: MultipoolAsset | SolidAsset, tradeLogicAdapter: TradeLogicAdapter, multipoolAddress: Address, routerAddress: Address, fetchedAssets: MultipoolAsset[], children: React.ReactNode }> = ({ contextInputAsset, contextOutputAddress, tradeLogicAdapter, multipoolAddress, routerAddress, fetchedAssets, children }) => {
+export const TradeProvider: React.FunctionComponent<{ tradeLogicAdapter: TradeLogicAdapter, multipoolAddress: string | undefined, routerAddress: string | undefined, MassiveMintRouter? : string, children: React.ReactNode }> = ({ MassiveMintRouter, tradeLogicAdapter, multipoolAddress, routerAddress, children }) => {
+    const { tokenIn, tokenOut } = useMultiPoolContext();
+    
+    const _multipoolAddress = multipoolAddress as Address;
+    const _routerAddress = routerAddress as Address;
+
     const user = useAccount();
     const [userAddress, setAddress] = useState<Address>(user.address as Address);
-    const [assets, setAssets] = useState<MultipoolAsset[]>([]);
 
-    const [inputAsset, setInputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(contextInputAsset || fetchedAssets[0]);
-    const [outputAsset, setOutputAsset] = useState<MultipoolAsset | SolidAsset | undefined>(contextOutputAddress || fetchedAssets[1]);
-    
-    const [inputQuantity, setInputQuantity] = useState<string | undefined>(undefined);
-    const [outputQuantity, setOutputQuantity] = useState<string | undefined>(undefined);
+    const [inputQuantity, setInputQuantity] = useState<BigNumber | undefined>(undefined);
+    const [outputQuantity, setOutputQuantity] = useState<BigNumber | undefined>(undefined);
+
+    const [inputDollarValue, setInputDollarValuePrivate] = useState<string>("0");
+    const [outputDollarValue, setOutputDollarValuePrivate] = useState<string>("0");
+
+    function setInputDollarValue(value: string) {
+        if (inputDollarValue === value) {
+            return;
+        }
+        
+        setInputDollarValuePrivate(value);
+    }
+
+    function setOutputDollarValue(value: string) {
+        if (outputDollarValue === value) {
+            return;
+        }
+        setOutputDollarValuePrivate(value);
+    }
 
     const [mainInput, setMainInput] = useState<"in" | "out">("in");
+    const [slippage, setSlippage] = useState<number>(0.1);
 
-    const [inputHumanReadable, setInputHumanReadable] = useState<string | undefined>();
-    const [outputHumanReadable, setOutputHumanReadable] = useState<string | undefined>();
+    const [estimatedValues, setEstimatedValuesPrivate] = useState<EstimatedValues | undefined>(undefined);
 
-    const [slippage, setSlippage] = useState<number>(0.5);
+    function parseDollarValue(value: string | undefined): string {
+        if (!value) {
+            return "0";
+        }
+        return parseFloat(value).toFixed(4).toString();
+    }
 
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    function setEstimatedValues(value: EstimatedValues) {
+        if (mainInput === "in") {
+            const outResult = new BigNumber(value?.estimatedAmountOut?.row.toString() || "0");
 
-    const [estimatedValues, setEstimatedValues] = useState<EstimatedValues | undefined>(undefined);
+            // check if any outResult or outputQuantity is undefined
+            if (!outResult) {
+                return;
+            }
+
+            if (outputQuantity?.isEqualTo(outResult)) {
+                return;
+            }
+            
+            setOutputQuantity(outResult);
+        } else {
+            const inResult = new BigNumber(value?.estimatedAmountIn?.row.toString() || "0");
+
+            // check if any inResult or inputQuantity is undefined
+            if (!inResult) {
+                return;
+            }
+
+            if (inputQuantity?.isEqualTo(inResult)) {
+                return;
+            }
+            
+            setInputQuantity(inResult);
+        }
+
+        setEstimatedValuesPrivate(value);
+        setInputDollarValue(parseDollarValue(value?.estimatedAmountIn?.usd));
+        setOutputDollarValue(parseDollarValue(value?.estimatedAmountOut?.usd));
+    }
+
+    function clearValues() {
+        setInputQuantity(undefined);
+        setOutputQuantity(undefined);
+        setEstimatedValuesPrivate(undefined);
+        setInputDollarValuePrivate("0");
+        setOutputDollarValuePrivate("0");
+    }
+
+    function getInputHumanized() {
+        if (inputQuantity == undefined) {
+            return "";
+        }
+        const decimals = new BigNumber(10).pow(new BigNumber(tokenIn?.decimals || 18)); 
+        return inputQuantity.dividedBy(decimals).toFixed(12).toString();
+    }
+
+    function getOutputHumanized() {
+        if (outputQuantity == undefined) {
+            return "";
+        }
+        const decimals = new BigNumber(10).pow(new BigNumber(tokenOut?.decimals || 18)); 
+        return outputQuantity.dividedBy(decimals).toFixed(12).toString();
+    }
+
     const [sendTransctionParams, setSendTransctionParams] = useState<SendTransactionParams | undefined>(undefined);
-
-    const [usdValues, setUsdValues] = useState<{
-        in: string | undefined;
-        out: string | undefined;
-    }>({
-        in: undefined,
-        out: undefined,
-    });
-
     const [estimationErrorMessage, setEstimationErrorMessage] = useState<string | undefined>(undefined);
+    const [transactionCost, setTransactionCost] = useState<Gas | undefined>(undefined);
 
-    const [transactionCost, setTransactionCost] = useState<{
-        gas: number;
-        gasPrice: number;
-        cost: number;
-    } | undefined>(undefined);
+    function setTransactionCostHandler(_value: Gas | undefined) {
+        if (!_value) {
+            return;
+        }
+
+        if (transactionCost?.cost === _value.cost) {
+            return;
+        }
+
+        setTransactionCost(_value);
+    };
 
     function setMainInputHandler(value: "in" | "out") {
         setMainInput(value);
@@ -125,31 +186,16 @@ export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: Multip
         userAddress,
         setAdress: setAddress,
 
-        routerAddress,
-
-        assets,
-        setAssets,
-
-        inputAsset,
-        setInputAsset,
-
-        outputAsset,
-        setOutputAsset,
+        routerAddress: _routerAddress,
 
         slippage,
         setSlippage,
 
-        isLoading,
-        setIsLoading,
-
         transactionCost,
-        setTransactionCost,
+        setTransactionCost: setTransactionCostHandler,
 
-        inputHumanReadable,
-        setInputHumanReadable,
-
-        outputHumanReadable,
-        setOutputHumanReadable,
+        inputDollarValue,
+        outputDollarValue,
 
         inputQuantity,
         setInputQuantity,
@@ -158,6 +204,10 @@ export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: Multip
         setOutputQuantity,
 
         estimatedValues,
+
+        getInputHumanized,
+        getOutputHumanized,
+
         setEstimatedValues,
 
         sendTransctionParams,
@@ -166,14 +216,15 @@ export const TradeProvider: React.FunctionComponent<{ contextInputAsset?: Multip
         estimationErrorMessage,
         setEstimationErrorMessage,
 
-        usdValues,
-        setUsdValues,
-
         mainInput,
         setMainInput: setMainInputHandler,
 
+        clearValues,
+
         tradeLogicAdapter,
-        multipoolAddress
+        multipoolAddress: _multipoolAddress,
+
+        massiveMintRouter: MassiveMintRouter,
     };
 
     return (

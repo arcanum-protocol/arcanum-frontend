@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { MaxUint256 } from "ethers";
 import { useModal } from 'connectkit';
 import multipoolABI from '../abi/ETF';
@@ -7,56 +6,50 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { usePrepareContractWrite, useContractWrite, useWaitForTransaction, useAccount, useNetwork } from 'wagmi'
 import { TokenWithAddress } from '../hooks/tokens';
 import { useTradeContext } from '../contexts/TradeContext';
+import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
+import { Button } from "./ui/button";
+import BigNumber from "bignumber.js";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
-    tokenData: {
-        data: TokenWithAddress | undefined;
-        isLoading: boolean;
-        isError: boolean;
-        isUnset: boolean;
-    },
+    token: TokenWithAddress | undefined,
     networkId: number,
     errorMessage?: string
 }
 
 export function InteractionWithApprovalButton({
     approveMax,
-    tokenData,
-    networkId
+    token
 }: InteractionWithApprovalButtonProps) {
+    const { multipool } = useMultiPoolContext();
     const { estimationErrorMessage, estimatedValues } = useTradeContext();
-    const interactionBalance = BigInt(String(estimatedValues?.estimatedAmountIn?.row ? estimatedValues?.estimatedAmountIn?.row : 0));
+
+    const networkId = multipool?.chainId as number;
+    const interactionBalance = estimatedValues?.estimatedAmountIn?.row || new BigNumber(0);
+
     const interactionTxnBody = estimatedValues?.txn;
+    const balance = new BigNumber(token?.balance || 0);
     
     if (estimationErrorMessage) {
         return (
-            <div>
-                <button className='approvalBalanceButton' style={{ width: "100%" }} disabled={true}>
-                    <p style={{ margin: "10px" }}>{estimationErrorMessage}</p>
-                </button>
-            </div >
+            <>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-red-500 hover:bg-transparent">
+                    <p className="m-4">{estimationErrorMessage}</p>
+                </Button>
+            </>
         );
     }
 
-    const {
-        data: token,
-        isLoading: isTokenDataLoading,
-        isUnset: isTokenDataUnset,
-    } = tokenData;
-
-    const allowance: bigint = token?.approval?.row || BigInt(0);
+    const allowance = token?.approval?.row || new BigNumber(0); 
     const { isConnected } = useAccount();
 
-    // hooks 
-    // send approval
     const { config: approvalConfig } = usePrepareContractWrite({
-        address: token?.tokenAddress as Address,
+        address: token?.address as Address,
         abi: multipoolABI,
         functionName: 'approve',
-        args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance - allowance],
-        enabled: !isTokenDataLoading && !isTokenDataUnset && allowance >= interactionBalance,
-        chainId: networkId,
+        args: [token?.interactionAddress, approveMax ? MaxUint256 : interactionBalance.minus(allowance)],
+        enabled: allowance >= interactionBalance,
+        chainId: multipool?.chainId,
     });
     
     const { data: mayBeApprovalHash, write: sendBalanceApproval } = useContractWrite(approvalConfig)
@@ -66,18 +59,12 @@ export function InteractionWithApprovalButton({
     })
 
     // send interaction
-    const { config, error } = usePrepareContractWrite(interactionTxnBody);
-    const { data: mayBeHash, error: writeMultipoolError, write: sendTxn } = useContractWrite(config);
+    const { config } = usePrepareContractWrite(interactionTxnBody);
+    const { data: mayBeHash, write: sendTxn } = useContractWrite(config);
 
     const { isLoading: txnIsLoading } = useWaitForTransaction({
         hash: mayBeHash?.hash,
     })
-
-    let defaultStyle = () => {
-        return {
-            width: "100%",
-        }
-    };
 
     let switchNetworkCb = () => {
         switchNetwork({
@@ -86,65 +73,65 @@ export function InteractionWithApprovalButton({
     };
 
     
-    const { chain, chains } = useNetwork()
+    const { chain, chains } = useNetwork();
     const { setOpen: openWalletModal } = useModal();
 
     if (!isConnected) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={() => openWalletModal(true)}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => openWalletModal(true)}>
                     <p style={{ margin: "10px" }}>Connect Wallet</p>
-                </button>
+                </Button>
             </div >
         );
     } else if (Array.isArray(chains) && networkId != chain?.id) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={switchNetworkCb}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={switchNetworkCb}>
                     <p style={{ margin: "10px" }}>Switch to {chains.find(c => c.id == networkId)?.name}</p>
-                </button>
+                </Button>
             </div >
         );
-    } else if (isTokenDataLoading || approvalTxnIsLoading || txnIsLoading) {
+    } else if (approvalTxnIsLoading || txnIsLoading) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-gray-500 hover:bg-transparent">
                     <p style={{ margin: "10px" }}>{"Loading..."}</p>
-                </button>
+                </Button>
             </div >
         );
     } else if (token == undefined || interactionTxnBody == undefined) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent hover:animate-float" disabled={true}>
                     <p style={{ margin: "10px" }}>{"Mint"}</p>
-                </button>
+                </Button>
             </div >
         );
-    } else if (token.balance.row < interactionBalance || interactionBalance == BigInt(0)) {
+    } else if (balance.isLessThan(interactionBalance) || interactionBalance == new BigNumber(0)) {
         return (
             <div>
-                <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={true}>
+                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-red-500 hover:bg-transparent hover:animate-float">
                     <p style={{ margin: "10px" }}>{"Insufficient Balance"}</p>
-                </button>
+                </Button>
             </div >
         );
     } else {
-        const approveRequired = allowance < interactionBalance || allowance == BigInt(0);
+        const approveRequired = allowance < interactionBalance || allowance == new BigNumber(0);
         if (approveRequired) {
             return (
                 <div>
-                    <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={sendBalanceApproval}>
+                    <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent hover:animate-float" disabled={false} onClick={sendBalanceApproval}>
                         <p style={{ margin: "10px" }}>{"Approve"}</p>
-                    </button>
+                    </Button>
                 </div >
             );
         } else {
             return (
                 <div>
-                    <button className='approvalBalanceButton' style={{ ...defaultStyle() }} disabled={false} onClick={sendTxn}>
+                    <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent hover:animate-float" disabled={false} onClick={sendTxn}>
                         <p style={{ margin: "10px" }}>{"Mint"}</p>
-                    </button>
+                    </Button>
                 </div >
             );
         }

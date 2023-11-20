@@ -46,7 +46,7 @@ export function Faucet({ assets }) {
             address: tokenAddress as Address,
             abi: erc20Abi,
             functionName: 'mint',
-            args: [address, BigInt(rowAmountToMint)],
+            args: [address, rowAmountToMint],
         })
     }
 
@@ -66,8 +66,8 @@ export function Faucet({ assets }) {
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     {assets ? assets.map((asset: MultipoolAsset) => {
                         return (
-                            <div key={asset.assetAddress}>
-                                <button onClick={() => mint(asset.assetAddress)}>{asset.name}
+                            <div key={asset.address}>
+                                <button onClick={() => mint(asset.address)}>{asset.name}
                                 </button>
                             </div>
                         );

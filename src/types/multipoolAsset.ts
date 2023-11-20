@@ -1,27 +1,47 @@
-import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "bignumber.js";
 
-interface MultipoolAsset {
-    assetAddress: string,
-    multipoolAddress: string,
-    assetId: string,
-    idealShare: FixedNumber,
-    currentShare: FixedNumber,
-    quantity: BigNumber,
-    chainPrice: FixedNumber,
-    id: string,
-    name: string,
-    symbol: string,
-    decimals: number,
-    ticker: string,
-    coingeckoId: string,
-    defilamaId: string | null,
-    price: Number,
-    revenue: string | null,
-    mcap: FixedNumber,
-    volume24h: FixedNumber,
-    logo: string | null,
-    priceChange24h: FixedNumber,
-    deviationPercent: FixedNumber,
+interface BaseAsset {
+    name: string;
+    symbol: string;
+    decimals: number;
+    logo: string | null;
+    address: string | undefined;
+    price?: number;
+    balance?: number;
+    type: "solid" | "multipool" | "external";
 }
 
-export { MultipoolAsset };
+interface ExternalAsset extends BaseAsset {}
+
+interface SolidAssetSpecific {
+    routerAddress: string;
+    totalSupply: BigNumber;
+    low24h: Number;
+    high24h: Number;
+    change24h: Number;
+    chainId: number;
+}
+
+type SolidAsset = BaseAsset & SolidAssetSpecific;
+
+interface MultipoolAssetSpecific {
+    multipoolAddress: string;
+    assetId: string;
+    idealShare: BigNumber;
+    currentShare: BigNumber;
+    quantity: BigNumber;
+    chainPrice: BigNumber;
+    id: string;
+    ticker: string;
+    coingeckoId: string;
+    defilamaId: string | null;
+    revenue: string | null;
+    mcap: BigNumber;
+    volume24h: BigNumber;
+    priceChange24h: BigNumber;
+    deviationPercent: BigNumber;
+}
+
+type MultipoolAsset = BaseAsset & MultipoolAssetSpecific;
+
+export { type BaseAsset, type MultipoolAsset, type ExternalAsset, type SolidAsset };

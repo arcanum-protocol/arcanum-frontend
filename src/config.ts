@@ -1,6 +1,7 @@
 import { configureChains } from '@wagmi/core'
 import { publicProvider } from '@wagmi/core/providers/public'
 import { createConfig } from "wagmi";
+import { createAlchemyWeb3 } from "@alch/alchemy-web3";
 import {
     getDefaultConfig,
 } from "connectkit";
@@ -85,19 +86,6 @@ export const opBnb = {
     },
 };
 
-
-import { createStorage } from 'wagmi'
-
-export const noopStorage: BaseStorage = {
-    getItem: (_key) => '',
-    setItem: (_key, _value) => null,
-    removeItem: (_key) => null,
-}
-
-const storage = createStorage({
-    storage: noopStorage,
-})
-
 export const chains = [arbitrumSepolia, arbitrumMainnet, polygonMumbai, opBnb];
 export const { publicClient } = configureChains(chains, [publicProvider()])
 
@@ -120,3 +108,10 @@ export const config = createConfig({
     }),
 })
 
+export const alchemiClient = createAlchemyWeb3(
+    `https://arb-mainnet.g.alchemy.com/v2/MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_`
+);
+
+export const alchemiUrl = "https://arb-mainnet.g.alchemy.com/v2/MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_";
+
+export const moralisKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjgwZjMxYzlmLTA5MTgtNDMyZC05OTAxLThmZjc3NzkyNGM4MyIsIm9yZ0lkIjoiMzYwNDkwIiwidXNlcklkIjoiMzcwNDg3IiwidHlwZUlkIjoiZDgzNDIyNDctZjFjMC00YjZkLWFjNTUtNmY0MWQ3M2E1NjJiIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE2OTY5MDMyNTEsImV4cCI6NDg1MjY2MzI1MX0.gnF_rOCqtfg96quvHLkZD2G71hO5HE1uUBXXYllZH7c";

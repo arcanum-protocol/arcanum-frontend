@@ -1,28 +1,20 @@
-import * as React from 'react';
 import { FixedNumber } from "ethers";
-import { useState, useEffect } from "react";
-import { SendTransactionParams } from "./trade-pane";
 
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useTradeContext } from '../contexts/TradeContext';
-import { Tooltip } from './tooltip';
-import { useMobileMedia } from '../hooks/tokens';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
+import { SendTransactionParams } from "@/types/sendTransactionParams";
+import { Button } from "./ui/button";
+import { Separator } from "@radix-ui/react-separator";
+
 
 interface TransactionParamsSelectorProps {
     txnParams: SendTransactionParams | undefined;
-    txnCost: {
-        gas: number;
-        gasPrice: number;
-        cost: number;
-    } | undefined;
-    slippageSetter: (slippage: number) => void;
 }
 
-export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }: TransactionParamsSelectorProps) {
+export function TransactionParamsSelector({ txnParams }: TransactionParamsSelectorProps) {
     const { estimatedValues, transactionCost } = useTradeContext();
-    console.log(transactionCost);
-
-    const [priceToggled, togglePrice] = useState(true);
 
     const p: SendTransactionParams | undefined = txnParams;
 
@@ -30,8 +22,8 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
         <div style={{
             display: "flex",
             flexDirection: "column"
-        }}>
-            <SlippageSelector slippageSetter={slippageSetter} />
+        }} className="text-xs">
+            <SlippageSelector />
             <div
                 style={{
                     display: "flex",
@@ -42,82 +34,59 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                 {
                     estimatedValues?.minimalAmountOut != undefined ?
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            <Tooltip>
-                                <p style={{ margin: "0", textDecoration: "underline" }}>
-                                    Minimal receive
-                                </p>
-                                <p style={{ margin: "5px" }}>
-                                    The minimum amount of tokens you'll receive in case of the maximal slippage.
-                                </p>
-                            </Tooltip>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <div className="flex flex-row items-center gap-1 text-xs">
+                                            Minimal receive
+                                            <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                        <p>The minimum amount of tokens you'll receive in case of the maximal slippage.</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                             <p style={{ margin: "0" }}>
                                 {estimatedValues?.minimalAmountOut.formatted}({estimatedValues?.minimalAmountOut.usd}$)
                             </p>
                         </div>
                         : (
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                <Tooltip>
-                                    <p style={{ margin: "0", textDecoration: "underline" }}>
-                                        Maximum send
-                                    </p>
-                                    <p style={{ margin: "5px" }}>
-                                        The maximum amount of tokens you'll pay in the case of the maximal slippage.
-                                    </p>
-                                </Tooltip>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                                                Maximum send
+                                                <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                            </div>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                            <p>The maximum amount of tokens you'll pay in the case of the maximal slippage.</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                                 <p style={{ margin: "0" }}>
-                                    {estimatedValues?.maximumAmountIn?.formatted || 0}({estimatedValues?.maximumAmountIn?.usd || 0}$)
+                                    {estimatedValues?.maximumAmountIn?.formatted || 0} ({estimatedValues?.maximumAmountIn?.usd || 0}$)
                                 </p>
                             </div>
 
                         )
                 }
-                <div
-                    onClick={() => togglePrice(!priceToggled)}
-                    style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Price
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Current price of the input token estimated in the output token.
-                        </p>
-                    </Tooltip>
-                    <p
-                        className={p ? "price-pane" : undefined}
-                        style={{ margin: "0" }}
-                    >
-                        {
-                            p ?
-                                priceToggled
-                                    ?
-                                    <>
-                                        1 {p?.tokenIn?.symbol
-                                        }={(Number(estimatedValues?.estimatedAmountOut?.formatted || "0")
-                                            / Number(estimatedValues?.estimatedAmountIn?.formatted || "1")).toFixed(4)}
-                                        {" "}
-                                        {p?.tokenOut?.symbol}
-                                    </>
-                                    :
-                                    <>
-                                        1 {p?.tokenOut?.symbol}={(Number(estimatedValues?.estimatedAmountIn?.formatted || "0")
-                                            / Number(estimatedValues?.estimatedAmountOut?.formatted || "1")).toFixed(4)}
-                                        {" "}
-                                        {p?.tokenIn?.symbol}
-                                    </>
-                                :
-                                <>{"-"}</>
-                        }
-                    </p>
-                </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Cashback
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            The amount of tokens in the corresponding asset you'll get for your pool balancing swaps (good actions). Cashback equal 0 means that your action was not directed towards balance.
-                        </p>
-                    </Tooltip>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                                    Cashback
+                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono text-xs">
+                                <p>The amount of tokens in the corresponding asset you'll get for your pool balancing swaps (good actions). Cashback equal 0 means that your action was not directed towards balance.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                     {p ?
                         <Tooltip>
                             <p
@@ -157,131 +126,110 @@ export function TransactionParamsSelector({ txnParams, txnCost, slippageSetter }
                     }
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Fee
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Platform fee is a summ of base fee and deviation fee.<br />
-                            Base fee - the platform's commission, for swaps is equal 0.01%. It is zero for minting and burning. <br />
-                            Deviation fee is added when you increase the current deviation of the token.
-                        </p>
-                    </Tooltip>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                                    Fee
+                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                <p>Platform fee is a summ of base fee and deviation fee.<br />
+                                    Base fee - the platform's commission, for swaps is equal 0.01%. It is zero for minting and burning. <br />
+                                    Deviation fee is added when you increase the current deviation of the token.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                     <p style={{ margin: "0" }}>{estimatedValues?.fee?.usd || 0}$ ({estimatedValues?.fee?.percent || 0}%)</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Transaction cost
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Cost of the transaction on the blockchain.
-                        </p>
-                    </Tooltip>
-                    <p style={{ margin: "0" }}>{transactionCost?.cost?.toFixed(4) || "0"}$</p>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                                    Transaction cost
+                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                <p>Cost of the transaction on the blockchain.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    <p style={{ margin: "0" }}>{Number(transactionCost?.cost || "0").toFixed(4)}$</p>
                 </div>
             </div >
         </div >
     );
 }
 
-export function SlippageSelector({ slippageSetter }) {
-    const [slippage, setSlippage] = useState<number>(1);
-    const isMobile = useMobileMedia();
-    if (isMobile) {
-        return;
-    }
-
-    useEffect(() => { slippage && slippageSetter(slippage) }, [slippage]);
+export function SlippageSelector() {
+    const { slippage, setSlippage } = useTradeContext();
 
     // 0,1,2,3 - presets, 4 - custom
-    const [selectedSlippageType, setType] = useState<number>(2);
-    const slippagePresets = [0.1, 0.5, 1, 3];
+    const slippagePresets = [0.5, 1, 3];
+
     return (
-        <div style={{
-            display: "flex", width: "100%",
-            marginBottom: "0px"
-        }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
-                <div style={{
-                    display: "flex",
-                    border: "1px solid #363636",
-                    padding: "5px",
-                    margin: "auto",
-                    borderRadius: "16px",
-                }}>
-                    <div style={{
-                        display: "flex",
-                    }}>
-                        <div style={{
-                            display: "flex",
-                            borderRadius: "10px",
-                            justifyContent: "center",
-                        }}>
-                            {slippagePresets.map((slippage: number, index: number) => {
-                                return (
-                                    <div
-                                        key={index}
-                                        onClick={e => { setType(index); setSlippage(slippage) }}
-                                        style={{
-                                            borderRadius: "12px",
-                                            color: index != selectedSlippageType ? undefined : "var(--bl)",
-                                            backgroundColor: index == selectedSlippageType ? "var(--wh)" : undefined,
-                                            cursor: "pointer",
-                                            justifySelf: "center",
-                                            fontSize: "18px",
-                                        }}>
-                                        <p style={{ margin: "0 15px" }}>{slippage}%</p>
-                                    </div>
-                                );
-                            })}
-                            <input
-                                style={{
-                                    display: "flex",
-                                    width: "100%",
-                                    overflow: "hidden",
-                                    border: "none",
-                                    outline: "none",
-                                    fontSize: "18px",
-                                    boxSizing: "border-box",
-                                    background: "none",
-                                    color: "var(--wh)",
-                                }}
-                                value={selectedSlippageType == 4 ? slippage : undefined}
-                                placeholder="Custom"
-                                onChange={e => {
-                                    setType(4);
-                                    try {
-                                        if (e.target.value == "") {
-                                            setSlippage(slippagePresets[2]);
-                                            setType(2);
-                                        }
-                                        let val = FixedNumber.fromString(e.target.value);
-                                        let num = Number(val.toString());
-                                        if (num < 100) {
-                                            setSlippage(num);
-                                        }
-                                    } catch { }
-                                }}
-                            />
-                        </div>
+        <div className='flex w-full mt-2'>
+            <div className='flex flex-col items-start w-full gap-[10px]'>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="flex flex-row items-center gap-1 text-xs w-full justify-between">
+                                <div className="flex flex-row gap-1 items-center">
+                                    Slippage tolerance
+                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                                </div>
+                                <p style={{ margin: "0" }}>{slippage}%</p>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                            <p>The parameter that shows how much funds is allowed to be spend according to fast price change.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <div className='flex rounded-lg w-1/4 h-8 items-center min-w-full gap-1'>
+                    {slippagePresets.map((slippagePreseted: number, index: number) => {
+                        return (
+                            <Button
+                                key={index}
+                                onClick={() => setSlippage(slippagePreseted)}
+                                className={
+                                    `flex-initial text-center rounded-lg cursor-pointer ease-out delay-100 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B]
+                                        hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
+                                }>
+                                {slippagePreseted + '%'}
+                            </Button>
+                        );
+                    })}
+                    <div className={
+                        `flex flex-row text-center rounded-lg cursor-pointer ease-out delay-100 h-9 gap-2 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B] items-center
+                            hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
+                    }>
+                        <input
+                            className={
+                                `flex-initial overflow-hidden text-xs font-thin slate-600 bg-transparent outline-none text-end h-full`
+                            }
+                            value={slippagePresets.indexOf(slippage) ? slippage : undefined}
+                            placeholder="Custom"
+                            onChange={e => {
+                                try {
+                                    if (e.target.value == "") {
+                                        setSlippage(slippagePresets[0]);
+                                    }
+                                    let val = FixedNumber.fromString(e.target.value);
+                                    let num = Number(val.toString());
+                                    if (num < 100) {
+                                        setSlippage(num);
+                                    }
+                                } catch { }
+                            }}
+                        />
+                        <div className='text-xs font-thin pr-2'>%</div>
                     </div>
                 </div>
-                <div style={{ display: "flex", width: "100%", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex" }}>
-                        <Tooltip>
-                            <p style={{ margin: "0", textDecoration: "underline" }}>
-                                Slippage tolerance
-                            </p>
-                            <p style={{ margin: "5px" }}>
-                                The parameter that shows how much funds is allowed to be spend according to fast price change.
-                            </p>
-                        </Tooltip>
-                    </div>
-                    <div style={{ display: "flex" }}>
-                        <p style={{ margin: "0" }}>{slippage}%</p>
-                    </div>
-                </div>
+                <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] my-[1rem]" />
             </div>
         </div >
     );

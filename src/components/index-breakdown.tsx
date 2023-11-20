@@ -1,124 +1,61 @@
-import * as React from 'react';
-import { FixedNumber } from "@ethersproject/bignumber";
+import { BigNumber } from "bignumber.js";
 import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
-import { useMobileMedia } from "../hooks/tokens";
-import { Tooltip } from './tooltip';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-export function IndexAssetsBreakdown({ fetchedAssets }) {
-    const isMobile = useMobileMedia();
+export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: MultipoolAsset[] }) {
     let randomindexes: number[] = [];
 
     for (let i = 0; i < fetchedAssets?.length * 6; i++) {
         randomindexes.push(Number((Math.random() * 10000).toFixed(0)));
     }
 
-    const assets = fetchedAssets?.map((asset: MultipoolAsset, index: number) =>
-        <>
-            <div key={randomindexes[0 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
-                <div style={{
-                    borderRadius: "50%", width: "25px", height: "25px", overflow: "clip", marginRight: "10px",
-                }}>
-                    <img style={{ width: "25px", height: "25px" }} src={asset.logo || "https://arcanum.to/logo.png"} />
-                </div>
-                {!isMobile ? <>{asset.name} ({asset.symbol})</> : <>{asset.symbol}</>}
-            </div>
-            <div key={randomindexes[1 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
-                {Number(asset.idealShare.toString()).toFixed(2)}%
-            </div>
-            <div key={randomindexes[2 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "3", display: "flex", justifyContent: "flex-end" }}>
-                {Number(asset.currentShare.toString()).toFixed(2)}%
-            </div>
-            <div key={randomindexes[3 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
-                {Number(asset.price.toString()).toFixed(2)}$
-            </div>
-            <div key={randomindexes[4 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
-                {toHumanReadable(FixedNumber.fromValue(asset.quantity).divUnsafe(FixedNumber.from(BigInt(10) ** BigInt(18))))}
-            </div>
-            <div key={randomindexes[5 + index]} style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: index + 2, gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
-                {toHumanReadable(asset.mcap.toString())}$
-            </div>
-        </>
-    );
+    function toHumanReadableMcap(number: BigNumber) {
+        return toHumanReadable(number, 2);
+    }
+
+    function tohumanReadableQuantity(number: BigNumber) {
+        const decimals = new BigNumber(10).pow(18);
+
+        const value = number.div(decimals);
+        return toHumanReadable(value, 2);
+    }
 
     return (
-        <div style={{
-            display: "flex",
-            flexDirection: "column",
-            backgroundColor: "var(--bc)",
-            justifyContent: "center",
-            borderRadius: "10px",
-            width: "100%",
-        }}>
-            <h1 style={{ display: "flex", marginTop: "15px", alignSelf: isMobile ? "center" : "flex-start", fontSize: "20px", marginLeft: !isMobile ? "15px" : undefined }}>Asset breakdown</h1>
-            <div style={{
-                margin: "5px 10px",
-                display: "grid",
-                overflowX: "auto",
-                minWidth: "250px",
-                borderRadius: "20px",
-                border: "1px solid #393939",
-                gap: "1px",
-                gridGap: "1px",
-                marginBottom: "20px",
-                gridTemplateRows: "1fr",
-                backgroundColor: "#393939"
-            }}>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", paddingLeft: "10px", gridRow: "1", gridColumn: "1", display: "flex", justifyContent: "flex-start" }}>
-                    Name
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "2", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Target share
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            The share of the corresponding asset in the pool in its equilibrium state.
-                        </p>
-                    </Tooltip>
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "3", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Current share
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            The share of the corresponding asset in the pool in its current state.
-                        </p>
-                    </Tooltip>
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "4", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Price
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Current price of the asset.
-                        </p>
-                    </Tooltip>
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "5", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Quantity
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Current amount of assets in the pool (at the current share).
-                        </p>
-                    </Tooltip>
-                </div>
-                <div style={{ backgroundColor: "var(--bc)", padding: "5px", gridRow: "1", gridColumn: "6", display: "flex", justifyContent: "flex-end" }}>
-                    <Tooltip>
-                        <p style={{ margin: "0", textDecoration: "underline" }}>
-                            Market cap
-                        </p>
-                        <p style={{ margin: "5px" }}>
-                            Current market cap of the token.
-                        </p>
-                    </Tooltip>
-                </div>
-                {assets}
-            </div>
-        </div >
+        <Table className="hidden sm:table bg-[#161616]">
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="text-left">Asset</TableHead>
+                    <TableHead className="text-center">Target</TableHead>
+                    <TableHead className="text-center">Current</TableHead>
+                    <TableHead className="text-center">Price</TableHead>
+                    <TableHead className="text-center">Quantity</TableHead>
+                    <TableHead className="text-center">Market Cap</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {
+                    fetchedAssets.map((fetchedAsset) => 
+                        <TableRow key={fetchedAsset.address}>
+                            <TableCell className="text-left">
+                                <div className="flex flex-row items-center gap-2">
+                                <Avatar className="w-5 h-5"> 
+                                    <AvatarImage src={fetchedAsset.logo == null ? undefined : fetchedAsset.logo} /> 
+                                    <AvatarFallback>{fetchedAsset.symbol}</AvatarFallback>
+                                </Avatar>
+                                {fetchedAsset.symbol}
+                                </div>
+                            </TableCell>
+                            <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>
+                            <TableCell>{fetchedAsset.currentShare.toFixed(2)}%</TableCell>
+                            <TableCell>{(fetchedAsset.price || 0).toFixed(2)}$</TableCell>
+                            <TableCell>{tohumanReadableQuantity(fetchedAsset.quantity)}</TableCell>
+                            <TableCell>{toHumanReadableMcap(fetchedAsset.mcap)}$</TableCell>
+                        </TableRow>
+                    )
+                }
+            </TableBody>
+        </Table>
     );
 }

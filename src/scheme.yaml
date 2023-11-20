@@ -1,9 +1,11 @@
 "arbi": 
     "address": "0xB1947d7596840D0a14D30cCA91be69ddC24ab75d"
     "router_address": "0x4D3DA540Ae876e2A339722aC8eF2af0d253c26E1"
+    "massive_mint_address": "0xb21E1e95E0fBAC00Ae2Ba4515AfDF51f6bccAA3f"
     "rpc_url": "https://arbitrum.llamarpc.com"
     "name": "ARBI"
     "chain_id": 42161
+    "logo": "https://assets.coingecko.com/coins/images/32042/large/Frame_2881_%281%29.png?1696530839"
     "assets": 
         - "symbol": "GMX"
           "decimals": 18
@@ -41,11 +43,12 @@
           "address": "0x4e352cf164e64adcbad318c3a1e222e9eba4ce42"
           "price_origin": "gecko"
 "arbi-testnet": 
-    "address": "0xeAf85CD923C0006988D0e07682Ad19E1f7D32Ee7"
+    "address": "0x27b5be75d5362ececa15a61adaf4adf86a4abbf3"
     "router_address": "0xad79b9d522367294d228379d7c040b952bd3b462"
     "rpc_url": "https://sepolia-rollup.arbitrum.io/rpc"
     "name": "ARBI"
     "chain_id": 421614
+    "logo": "https://assets.coingecko.com/coins/images/32042/large/Frame_2881_%281%29.png?1696530839"
     "assets": 
         - "symbol": "GMX"
           "decimals": 18
@@ -83,7 +86,7 @@
           "address": "0xa6d918bee60067228ceb1ef8cdf2438ec33be6c9"
           "price_origin": "gecko"
 "bali-testnet": 
-    "address": "0x36e8d65bdd7f60d091c1400b91c542ba10a6dc44"
+    "address": "0x7b1d82E701cb8537B4C47173F395E2A9A63Af8da"
     "router_address": "0x241630cf68AB007AfA8E503554249f0746c8DC66"
     "rpc_url": "https://opbnb-testnet-rpc.bnbchain.org"
     "name": "BALI"
@@ -121,3 +124,4 @@
           "coingecko_id": "apollox-2"
           "address": "0x6CB1434FB22817198E294017c595043287b50cC5"
           "price_origin": "gecko"
+          
