@@ -86,7 +86,7 @@ export function MainInner({ multipool_id }: MainInnerProps) {
                     <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
                 </div >
                 <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
-                    <MintBurnTabs className="h-fit max-w-[21.4375rem]" />
+                    <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
                 </MultiPoolProvider>
             </div >
         </>
