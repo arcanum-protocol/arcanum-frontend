@@ -159,6 +159,7 @@ dependencies:
     version: 4.17.21
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   lucide-react:
     specifier: ^0.292.0
     version: 0.292.0(react@18.2.0)
@@ -169,6 +170,11 @@ dependencies:
 >>>>>>> e62c004 (token selector)
 =======
 >>>>>>> 0367ffb (finish trade pane)
+=======
+  lucide-react:
+    specifier: ^0.292.0
+    version: 0.292.0(react@18.2.0)
+>>>>>>> 78cdfa2 (Add background image and update dependencies)
   react:
     specifier: ^18.2.0
     version: 18.2.0

@@ -49,10 +49,14 @@ export function TradePaneInner({
 
     return (
 <<<<<<< HEAD
+<<<<<<< HEAD
         <div className="flex flex-col justify-center mt-[1rem]">
 =======
         <div className="flex flex-col justify-center w-[20.75rem] mt-[1rem]">
 >>>>>>> cb1b31e (Refactor UI styles for consistency)
+=======
+        <div className="flex flex-col justify-center mt-[1rem]">
+>>>>>>> 78cdfa2 (Add background image and update dependencies)
             <div className="flex flex-col gap-4 items-center">
                 <TokenQuantityInput
                     text={"Send"}

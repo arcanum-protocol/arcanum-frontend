@@ -14,10 +14,15 @@ import { TokenSelector } from '@/components/token-selector';
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSVG } from "@/lib/svg-adapter";
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 =======
 >>>>>>> 731d6af (Add styling changes and update components)
+=======
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
+>>>>>>> 78cdfa2 (Add background image and update dependencies)
 
 
 export function Cpt() {
@@ -72,6 +77,9 @@ export function MainInner({ multipool_id }: MainInnerProps) {
 
     return (
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 78cdfa2 (Add background image and update dependencies)
         <>
             <div className='flex flex-col min-w-full mt-0.5 gap-2 items-center xl:flex-row xl:items-stretch'>
                 <div className='flex flex-col items-center w-full gap-2'>
@@ -90,6 +98,7 @@ export function MainInner({ multipool_id }: MainInnerProps) {
                     <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
                 </div >
                 <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
+<<<<<<< HEAD
                     <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
                 </MultiPoolProvider>
 =======
@@ -109,6 +118,12 @@ export function MainInner({ multipool_id }: MainInnerProps) {
             </MultiPoolProvider>
         </div >
 >>>>>>> cb1b31e (Refactor UI styles for consistency)
+=======
+                    <MintBurnTabs className="h-fit max-w-[21.4375rem]" />
+                </MultiPoolProvider>
+            </div >
+        </>
+>>>>>>> 78cdfa2 (Add background image and update dependencies)
     );
 }
 
@@ -130,10 +145,14 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
 
     return (
 <<<<<<< HEAD
+<<<<<<< HEAD
         <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
 =======
         <div className={`${className} p-4 bg-[#161616] rounded-2xl`}>
 >>>>>>> cb1b31e (Refactor UI styles for consistency)
+=======
+        <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
+>>>>>>> 78cdfa2 (Add background image and update dependencies)
             <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="mint">Mint</TabsTrigger>
@@ -258,14 +277,15 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
 =======
 >>>>>>> 0684c35 (sync)
     return (
-        <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616]'>
-            <div className="flex flex-row items-center gap-2 px-8">
-                <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
-                <div className="text-left">
-                    <p className='text-[#7E7E7E] text-3xl p-0 text-sm'>{multipoolInfo?.symbol || ""}</p>
-                    <p className='text-base'>${multipoolInfo?.price?.toFixed(4)}</p>
+        <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
+            <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
+                <div className="flex flex-row text-left gap-2">
+                    <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
+                    <p className='text-[#7E7E7E] p-0 text-2xl'>{multipoolInfo?.symbol || ""}</p>
                 </div>
+                <p className='text-xl'>${multipoolInfo?.price?.toFixed(4)}</p>
             </div>
+<<<<<<< HEAD
 <<<<<<< HEAD
             <div>
                 <p className='text-xs'>24h change</p>
@@ -287,14 +307,18 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
 =======
             <div className="flex flex-row gap-1">
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+=======
+            <div className="hidden gap-1 flex-row xl:flex">
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+>>>>>>> 78cdfa2 (Add background image and update dependencies)
                     <p className='text-sm'>24h change</p>
                     <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
                 </div>
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h high</p>
                     <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
                 </div>
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
+                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h low</p>
                     <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
                 </div>
