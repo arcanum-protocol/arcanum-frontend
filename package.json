@@ -36,6 +36,8 @@
     "heroicons": "^2.0.18",
     "lodash": "^4.17.21",
     "lucide-react": "^0.292.0",
+    "mobx": "^6.11.0",
+    "mobx-react-lite": "^4.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-loading-skeleton": "^3.3.1",

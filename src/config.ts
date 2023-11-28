@@ -46,26 +46,6 @@ export const polygonMumbai = {
     },
 };
 
-export const arbitrumSepolia = {
-    id: 421614,
-    name: 'Arbitrum Sepolia',
-    network: 'Arbitrum Sepolia',
-    testnet: true,
-    nativeCurrency: {
-        decimals: 18,
-        name: 'ETH',
-        symbol: 'ETH',
-    },
-    rpcUrls: {
-        public: { http: ['https://sepolia-rollup.arbitrum.io/rpc'] },
-        default: { http: ['https://sepolia-rollup.arbitrum.io/rpc'] },
-    },
-    blockExplorers: {
-        etherscan: { name: 'ArbiScan', url: 'https://sepolia-explorer.arbitrum.io' },
-        default: { name: 'ArbiScan', url: 'https://sepolia-explorer.arbitrum.io' },
-    },
-};
-
 export const opBnb = {
     id: 5611,
     name: 'OpBNB Testnet',
@@ -86,7 +66,23 @@ export const opBnb = {
     },
 };
 
-export const chains = [arbitrumSepolia, arbitrumMainnet, polygonMumbai, opBnb];
+export const anvil = {
+    id: 31337,
+    name: 'Anvil',
+    network: 'Anvil',
+    testnet: true,
+    nativeCurrency: {
+        decimals: 18,
+        name: 'ETH',
+        symbol: 'ETH',
+    },
+    rpcUrls: {
+        public: { http: ['http://81.163.22.190:8545/'] },
+        default: { http: ['http://81.163.22.190:8545/'] },
+    },
+};
+
+export const chains = [anvil];
 export const { publicClient } = configureChains(chains, [publicProvider()])
 
 export const config = createConfig({

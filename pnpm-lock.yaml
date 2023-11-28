@@ -163,6 +163,7 @@ dependencies:
   lucide-react:
     specifier: ^0.292.0
     version: 0.292.0(react@18.2.0)
+<<<<<<< HEAD
 =======
   moralis-v1:
     specifier: ^1.13.0
@@ -175,6 +176,14 @@ dependencies:
     specifier: ^0.292.0
     version: 0.292.0(react@18.2.0)
 >>>>>>> 78cdfa2 (Add background image and update dependencies)
+=======
+  mobx:
+    specifier: ^6.11.0
+    version: 6.11.0
+  mobx-react-lite:
+    specifier: ^4.0.5
+    version: 4.0.5(mobx@6.11.0)(react-dom@18.2.0)(react@18.2.0)
+>>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies)
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -7985,6 +7994,29 @@ packages:
     resolution: {integrity: sha512-+NsyUUAZDmo6YVHzL/stxSu3t9YS1iljliy3BSDrXJ/dkn1KYdmtZODGGjLcc9XLgVVpH4KshHB8XmZgMhaBXg==}
     engines: {node: '>=10'}
     hasBin: true
+    dev: false
+
+  /mobx-react-lite@4.0.5(mobx@6.11.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-StfB2wxE8imKj1f6T8WWPf4lVMx3cYH9Iy60bbKXEs21+HQ4tvvfIBZfSmMXgQAefi8xYEwQIz4GN9s0d2h7dg==}
+    peerDependencies:
+      mobx: ^6.9.0
+      react: ^16.8.0 || ^17 || ^18
+      react-dom: '*'
+      react-native: '*'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+      react-native:
+        optional: true
+    dependencies:
+      mobx: 6.11.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      use-sync-external-store: 1.2.0(react@18.2.0)
+    dev: false
+
+  /mobx@6.11.0:
+    resolution: {integrity: sha512-qngYCmr0WJiFRSAtYe82DB7SbzvbhehkJjONs8ydynUwoazzUQHZdAlaJqUfks5j4HarhWsZrMRhV7HtSO9HOQ==}
     dev: false
 
   /mock-fs@4.14.0:

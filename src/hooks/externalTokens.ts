@@ -10,7 +10,7 @@ function useArbitrumTokens(): {
     error: any;
 } {
     const { data, isLoading, error } = useQuery(['ExternalAssets'], async () => {
-        const response = await axios.get('https://tokens.1inch.io/v1.2/42161');
+        const response = await axios.get('https://tokens.1inch.io/v1.2/31337');
         const data = response.data;
 
         const tokens = Object.values(data);
@@ -195,11 +195,11 @@ function useTokenPrices(tokens: ExternalAsset[] | undefined): {
         };
 
         const ethPriceResponse = await axios(configEthPriceRequest);
-        const ethPrice = Number(ethPriceResponse.data["42161"]["USD"]);
+        const ethPrice = Number(ethPriceResponse.data["31337"]["USD"]);
 
         const config = {
             method: 'get',
-            url: `https://token-prices.1inch.io/v1.1/42161`
+            url: `https://token-prices.1inch.io/v1.1/31337`
         };
 
         const responce = await axios(config);

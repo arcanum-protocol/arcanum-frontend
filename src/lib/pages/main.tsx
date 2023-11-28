@@ -1,21 +1,18 @@
-import { getMassiveMintRouter, useMultipoolData } from "../lib/multipool";
+import { getMassiveMintRouter } from "../multipool";
 import { useSearchParams } from 'react-router-dom';
-import { Faucet } from '../components/faucet-modal';
-import TVChartContainer from '../components/tv-chart';
-import type { SolidAsset } from '../types/multipoolAsset';
-import { IndexAssetsBreakdown } from '../components/index-breakdown';
-import { mintAdapter, burnAdapter, swapAdapter } from '../lib/trade-adapters';
-import { TradeProvider } from '../contexts/TradeContext';
-import { TradePaneInner } from '../components/trade-pane';
+import { IndexAssetsBreakdown } from '../../components/index-breakdown';
+import { mintAdapter, burnAdapter, swapAdapter } from '../trade-adapters';
+import { TradeProvider } from '../../contexts/TradeContext';
+import { TradePaneInner } from '../../components/trade-pane';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MultiPoolProvider, useMultiPoolContext } from '@/contexts/MultiPoolContext';
-import { useArbitrumTokens } from '@/hooks/externalTokens';
+import { useMultiPoolContext } from '@/contexts/MultiPoolContext';
 import { TokenSelector } from '@/components/token-selector';
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSVG } from "@/lib/svg-adapter";
 <<<<<<< HEAD
 <<<<<<< HEAD
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+<<<<<<< HEAD:src/pages/main.tsx
 import { Terminal } from "lucide-react";
 =======
 >>>>>>> 731d6af (Add styling changes and update components)
@@ -24,57 +21,36 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
 >>>>>>> 78cdfa2 (Add background image and update dependencies)
 
+=======
+// import { tokenStore } from "@/store/TokenStore";
+import { observer } from "mobx-react-lite";
+import { multipool } from "@/store/MultipoolStore";
+import { toJS } from "mobx";
+import TVChartContainer from "@/components/tv-chart";
+>>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies):src/lib/pages/main.tsx
 
 export function Cpt() {
-    return (<MainInner
-        multipool_id='arbi-testnet'
-    />)
+    return (<MainInner />)
 }
 
-export function Arbi() {
-    return (<MainInner
-        multipool_id='arbi'
-    />)
-}
+export const Arbi = observer(() => {
+    return (
+        <>
+            <MainInner />
+        </>
+    )
+});
 
 export function Bali() {
-    return (<MainInner
-        multipool_id='bali-testnet'
-    />)
+    return (<MainInner />)
 }
 
 export function Custom() {
     const [searchParams, setSearchParams] = useSearchParams();
-    return (<MainInner multipool_id={searchParams.get("id")!} />)
+    return (<MainInner />)
 }
 
-interface MainInnerProps {
-    multipool_id: string;
-}
-
-export function MainInner({ multipool_id }: MainInnerProps) {
-    const { data, error, isLoading } = useMultipoolData(multipool_id);
-    const { ExternalAssets } = useArbitrumTokens();
-
-    if (error) {
-        return (
-            <div>
-                {"Error"}
-            </div>
-        );
-    }
-
-    const routerAddress = data?.multipool?.routerAddress;
-    const fetchedAssets = data?.assets;
-    const multipoolAsset = data?.multipool;
-
-    if (isLoading || !fetchedAssets || !multipoolAsset) {
-        return (
-            <div className='flex flex-row w-full mt-0.5 gap-2 align-start'>
-            </div >
-        );
-    }
-
+export const MainInner = () => {
     return (
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -92,11 +68,11 @@ export function MainInner({ multipool_id }: MainInnerProps) {
                             <a href="https://discord.gg/v4Qc472u3X" className="ml-1 text-blue-500">Discord</a> to get notified when we release new features.
                         </AlertDescription>
                     </Alert>
-                    <Head multipool={multipoolAsset} />
-                    {multipoolAsset && <TVChartContainer symbol={multipool_id} />}
-                    <Faucet assets={fetchedAssets} />
-                    <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
+                    <Head />
+                    <TVChartContainer />
+                    <IndexAssetsBreakdown />
                 </div >
+<<<<<<< HEAD:src/pages/main.tsx
                 <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
 <<<<<<< HEAD
                     <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
@@ -121,11 +97,16 @@ export function MainInner({ multipool_id }: MainInnerProps) {
 =======
                     <MintBurnTabs className="h-fit max-w-[21.4375rem]" />
                 </MultiPoolProvider>
+=======
+                {/* <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
+                    <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
+                </MultiPoolProvider> */}
+>>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies):src/lib/pages/main.tsx
             </div >
         </>
 >>>>>>> 78cdfa2 (Add background image and update dependencies)
     );
-}
+};
 
 interface MintBurnTabsProps {
     className?: string;
@@ -194,28 +175,32 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
     )
 }
 
-export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
-    const multipoolInfo: SolidAsset | undefined = multipool;
+export const Head = observer(() => {
+    const { priceChange } = multipool;
 
-    function getColor(asset: SolidAsset | undefined): string {
-        if (asset == undefined) {
+    function getColor(change: number | undefined): string {
+        if (change == undefined) {
             return "hidden";
         }
 
-        if (Number(asset.change24h) > 0) {
+        if (Number(change) > 0) {
             return "text-green-600";
-        } else if (Number(asset.change24h) < 0) {
+        } else if (Number(change) < 0) {
             return 'text-red-700';
         } else {
             return '0';
         }
     }
 
+<<<<<<< HEAD:src/pages/main.tsx
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> 0684c35 (sync)
     if (multipoolInfo == undefined) {
+=======
+    if (priceChange.multipool_id == undefined) {
+>>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies):src/lib/pages/main.tsx
         // skeleton
         return (
             <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
@@ -230,7 +215,7 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
                 </div>
                 <div>
                     <p className='text-xs'>24h change</p>
-                    <div className={'text-base ' + getColor(multipoolInfo)}>
+                    <div className={'text-base ' + getColor(priceChange.change_24h)}>
                         <Skeleton className='w-20 h-8' />
                     </div>
                 </div>
@@ -250,28 +235,33 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
         );
     }
 
+<<<<<<< HEAD:src/pages/main.tsx
 <<<<<<< HEAD
+=======
+    const _priceChange = toJS(priceChange);
+
+>>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies):src/lib/pages/main.tsx
     return (
         <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
             <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
                 <div className="flex flex-row text-left gap-2">
                     <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
-                    <p className='text-[#7E7E7E] p-0 text-2xl'>{multipoolInfo?.symbol || ""}</p>
+                    <p className='text-[#7E7E7E] p-0 text-2xl'>{_priceChange?.multipool_id || ""}</p>
                 </div>
-                <p className='text-xl'>${multipoolInfo?.price?.toFixed(4)}</p>
+                <p className='text-xl'>${_priceChange?.current_price.toFixed(4)}</p>
             </div>
             <div className="hidden gap-1 flex-row xl:flex">
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h change</p>
-                    <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
+                    <p className={'text-base ' + getColor(_priceChange.change_24h)}>{_priceChange?.change_24h.toFixed(4)}%</p>
                 </div>
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h high</p>
-                    <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
+                    <p className='text-base'>{_priceChange?.high_24h.toFixed(4)}$</p>
                 </div>
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h low</p>
-                    <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
+                    <p className='text-base'>{_priceChange?.low_24h.toFixed(4)}$</p>
                 </div>
 =======
 =======
@@ -326,4 +316,4 @@ export function Head({ multipool }: { multipool: SolidAsset | undefined }) {
             </div>
         </div>
     );
-}
+});

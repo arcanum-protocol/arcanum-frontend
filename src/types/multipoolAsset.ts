@@ -6,7 +6,7 @@ interface BaseAsset {
     decimals: number;
     logo: string | null;
     address: string | undefined;
-    price?: number;
+    price?: BigNumber;
     balance?: number;
     type: "solid" | "multipool" | "external";
 }
@@ -26,20 +26,14 @@ type SolidAsset = BaseAsset & SolidAssetSpecific;
 
 interface MultipoolAssetSpecific {
     multipoolAddress: string;
-    assetId: string;
     idealShare: BigNumber;
-    currentShare: BigNumber;
     quantity: BigNumber;
     chainPrice: BigNumber;
-    id: string;
-    ticker: string;
     coingeckoId: string;
-    defilamaId: string | null;
-    revenue: string | null;
-    mcap: BigNumber;
-    volume24h: BigNumber;
-    priceChange24h: BigNumber;
-    deviationPercent: BigNumber;
+    collectedCashbacks: BigNumber;
+    deviationPercent?: BigNumber;
+    priceChange24h?: BigNumber;
+    volume24h?: BigNumber;
 }
 
 type MultipoolAsset = BaseAsset & MultipoolAssetSpecific;

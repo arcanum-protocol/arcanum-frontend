@@ -1,5 +1,5 @@
 import { Button } from "./ui/button";
-import { useEstimate, useTokenWithAddress } from '../hooks/tokens';
+import { useTokenWithAddress } from '../hooks/tokens';
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useTradeContext } from "../contexts/TradeContext";
 import { InteractionWithApprovalButton } from './approval-button';
@@ -141,6 +141,7 @@ export function TokenQuantityInput({
         setEstimationErrorMessage
     } = useTradeContext();
 
+
     const { data: tokenInData } = useTokenWithAddress({
         address: tokenIn?.address,
         userAddress: userAddress,
@@ -190,6 +191,7 @@ export function TokenQuantityInput({
     const anythingToCalculateOutCase = transactionParams.quantities.out !== undefined && transactionParams.quantities.out.isGreaterThan(0);
     const anythingToCalculate = anythingToCalculateInCase || anythingToCalculateOutCase;
 
+<<<<<<< HEAD
     const { data, error } = useEstimate(
         adapter,
         transactionParams,
@@ -215,6 +217,20 @@ export function TokenQuantityInput({
         setTransactionCost(data.transactionCost);
         setEstimationErrorMessage(error);
     }
+=======
+    // const { data, error } = useEstimate(
+    //     adapter,
+    //     transactionParams,
+    //     multipool?.chainId!,
+    //     thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint,
+    // );
+
+    // if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
+    //     setEstimatedValues(data.estimationResult);
+    //     setTransactionCost(data.transactionCost);
+    //     setEstimationErrorMessage(error);
+    // }
+>>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies)
 
     function getEstimatedValuesText() {
         if (text === "Send") {

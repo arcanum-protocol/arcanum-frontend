@@ -1,23 +1,23 @@
 "arbi": 
-    "address": "0xB1947d7596840D0a14D30cCA91be69ddC24ab75d"
+    "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
     "router_address": "0x4D3DA540Ae876e2A339722aC8eF2af0d253c26E1"
     "massive_mint_address": "0xb21E1e95E0fBAC00Ae2Ba4515AfDF51f6bccAA3f"
     "rpc_url": "https://arbitrum.llamarpc.com"
     "name": "ARBI"
-    "chain_id": 42161
+    "chain_id": 31337
     "logo": "https://assets.coingecko.com/coins/images/32042/large/Frame_2881_%281%29.png?1696530839"
     "assets": 
         - "symbol": "GMX"
           "decimals": 18
           "logo": "https://assets.coingecko.com/coins/images/18323/large/arbit.png?1631532468"
-          "address": "0xfc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a"
+          "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
           "defillama_id": "gmx"
           "coingecko_id": "gmx"
           "price_origin": "redstone"
         - "symbol": "CRV"
           "decimals": 18
           "logo": "https://assets.coingecko.com/coins/images/12124/large/Curve.png?1597369484"
-          "address": "0x11cdb42b0eb46d95f990bedd4695a6e3fa034978"
+          "address": "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
           "defillama_id": "curve-finance"
           "coingecko_id": "curve-dao-token"
           "price_origin": "redstone"
@@ -26,28 +26,28 @@
           "defillama_id": "gains-network"
           "coingecko_id": "gains-network"
           "logo": "https://assets.coingecko.com/coins/images/19737/large/logo.png?1635909203"
-          "address": "0x18c11fd286c5ec11c3b683caa813b77f5163a122"
+          "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
           "price_origin": "gecko"
         - "symbol": "LVL"
           "decimals": 18
           "logo": "https://assets.coingecko.com/coins/images/28628/large/Token.png?1672717607"
           "defillama_id": "level-finance"
           "coingecko_id": "level"
-          "address": "0xb64e280e9d1b5dbec4accedb2257a87b400db149"
+          "address": "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
           "price_origin": "gecko"
         - "symbol": "MCB"
           "decimals": 18
           "logo": "https://assets.coingecko.com/coins/images/11796/large/mux.jpg?1660125796"
           "defillama_id": "mux-protocol"
           "coingecko_id": "mcdex"
-          "address": "0x4e352cf164e64adcbad318c3a1e222e9eba4ce42"
+          "address": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c"
           "price_origin": "gecko"
 "arbi-testnet": 
     "address": "0x27b5be75d5362ececa15a61adaf4adf86a4abbf3"
     "router_address": "0xad79b9d522367294d228379d7c040b952bd3b462"
     "rpc_url": "https://sepolia-rollup.arbitrum.io/rpc"
     "name": "ARBI"
-    "chain_id": 421614
+    "chain_id": 313374
     "logo": "https://assets.coingecko.com/coins/images/32042/large/Frame_2881_%281%29.png?1696530839"
     "assets": 
         - "symbol": "GMX"

@@ -1,16 +1,20 @@
 import { BigNumber } from "bignumber.js";
-import type { MultipoolAsset } from '../types/multipoolAsset';
 import { toHumanReadable } from "../lib/format-number";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { observer } from "mobx-react-lite";
+import { multipool } from "@/store/MultipoolStore";
+import { Skeleton } from "./ui/skeleton";
 
-export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: MultipoolAsset[] }) {
-    let randomindexes: number[] = [];
+export const IndexAssetsBreakdown = observer(() => {
+    const { assets, currentShares } = multipool;
 
-    for (let i = 0; i < fetchedAssets?.length * 6; i++) {
-        randomindexes.push(Number((Math.random() * 10000).toFixed(0)));
-    }
+    function toHumanReadablePrice(number: BigNumber | undefined) {
+        if (number == null) {
+            return "0";
+        }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -21,6 +25,10 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
 >>>>>>> cb1b31e (Refactor UI styles for consistency)
     function toHumanReadableMcap(number: BigNumber) {
         return toHumanReadable(number, 2);
+=======
+        const decimals = new BigNumber(10).pow(18);
+        return number.dividedBy(decimals).toFixed(2);
+>>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies)
     }
 
     function tohumanReadableQuantity(number: BigNumber) {
@@ -28,6 +36,13 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
 
         const value = number.div(decimals);
         return toHumanReadable(value, 2);
+    }
+
+    if (assets.length === 0) {
+        return (
+            <Skeleton className="relative w-full overflow-auto rounded-2xl border h-96">
+            </Skeleton>
+        );
     }
 
     return (
@@ -39,12 +54,11 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
                     <TableHead className="text-center">Current</TableHead>
                     <TableHead className="text-center">Price</TableHead>
                     <TableHead className="text-center">Quantity</TableHead>
-                    <TableHead className="text-center">Market Cap</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
                 {
-                    fetchedAssets.map((fetchedAsset) => 
+                    assets.map((fetchedAsset) => 
                         <TableRow key={fetchedAsset.address}>
                             <TableCell className="text-left">
                                 <div className="flex flex-row items-center gap-2">
@@ -56,14 +70,13 @@ export function IndexAssetsBreakdown({ fetchedAssets }: { fetchedAssets: Multipo
                                 </div>
                             </TableCell>
                             <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>
-                            <TableCell>{fetchedAsset.currentShare.toFixed(2)}%</TableCell>
-                            <TableCell>{(fetchedAsset.price || 0).toFixed(2)}$</TableCell>
+                            <TableCell>{currentShares.get(fetchedAsset.address!)!.toFixed(2)}%</TableCell>
+                            <TableCell>{toHumanReadablePrice(fetchedAsset.price)}$</TableCell>
                             <TableCell>{tohumanReadableQuantity(fetchedAsset.quantity)}</TableCell>
-                            <TableCell>{toHumanReadableMcap(fetchedAsset.mcap)}$</TableCell>
                         </TableRow>
                     )
                 }
             </TableBody>
         </Table>
     );
-}
+});

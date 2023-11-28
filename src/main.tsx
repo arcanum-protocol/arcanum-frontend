@@ -3,7 +3,7 @@ import { App } from "./App";
 import "./index.css";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Arbi, Custom, Bali, Cpt } from "./pages/main";
+import { Arbi, Custom, Bali, Cpt } from "./lib/pages/main";
 
 const router = createBrowserRouter([
     {
