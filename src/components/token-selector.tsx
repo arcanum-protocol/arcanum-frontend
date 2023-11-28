@@ -70,18 +70,10 @@ function TokenSelector({ action }: TokenSelectorProps) {
             return "";
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         const value = toDollarValue(token);
-=======
         const divisor = new BigNumber(10).pow(token.decimals);
         const balance = new BigNumber(token.balance);
         const price = new BigNumber(token.price).div(divisor);
-        const value = balance.div(divisor).multipliedBy(price);
->>>>>>> f847ec7 (fix prices)
-=======
-        const value = toDollarValue(token);
->>>>>>> 0367ffb (finish trade pane)
 
         return "$" + value.toFixed(5).toString();
     }
@@ -120,28 +112,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
     function setToken(token: ExternalAsset | MultipoolAsset) {
         if (action === "set-token-in") {
             setTokenIn(token);
-<<<<<<< HEAD
-<<<<<<< HEAD
             setSelectedTab(selectedSCTab);
-        } else {
-            setTokenOut(token);
-            setSelectedTab(selectedSCTab);
-        }
-    }
-
-    const data = useTokenSearch(tokenList, search);
-
-    return (
-        <div className="w-full">
-<<<<<<< HEAD
-            <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
-                <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10" 
-                    onClick={() => setSelectedTab(selectedSCTab)}>
-=======
-            setTab(selectedSCTab);
-=======
-            setSelectedTab(selectedSCTab);
->>>>>>> 0684c35 (sync)
         } else {
             setTokenOut(token);
             setSelectedTab(selectedSCTab);
@@ -152,16 +123,10 @@ function TokenSelector({ action }: TokenSelectorProps) {
 
     return (
         <>
-=======
->>>>>>> cb1b31e (Refactor UI styles for consistency)
             <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
-                <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10" 
-<<<<<<< HEAD
+                <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10">
                     onClick={() => setTab(selectedSCTab)}>
->>>>>>> 0367ffb (finish trade pane)
-=======
                     onClick={() => setSelectedTab(selectedSCTab)}>
->>>>>>> 0684c35 (sync)
                     <ChevronLeftIcon className="pt-2 h-8 w-8" />
                 </a>
                 <div className="font-mono font-bold">Select a token</div>
@@ -180,25 +145,13 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                 <div key={index} className={
                                     `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer px-3 ` +
                                     (data.map((token) => token.address).includes(token.address) ? "" : "hidden")
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 } onClick={() => setToken(token)}>
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={token.logo || undefined} alt="Logo" />
-<<<<<<< HEAD
-=======
-                                } onClick={() => setToken(token)}
-                                >
-=======
-                                } onClick={() => setToken(token)}>
->>>>>>> 844e78f (standart types)
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={token.logo} alt="Logo" />
->>>>>>> 0367ffb (finish trade pane)
-=======
->>>>>>> d95b5ef (Fix undefined logo and address comparison in)
                                             <AvatarFallback>{"?"}</AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col text-start">
@@ -212,15 +165,9 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                             </div>
                                         </div>
                                     </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
                                     <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
-=======
                                     <p className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</p>
->>>>>>> 0367ffb (finish trade pane)
-=======
                                     <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
->>>>>>> 0684c35 (sync)
                                 </div>
                             )
                         })
