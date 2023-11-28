@@ -14,21 +14,8 @@ export const IndexAssetsBreakdown = observer(() => {
             return "0";
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    console.log("fetchedAssets", fetchedAssets);
-
->>>>>>> 731d6af (Add styling changes and update components)
-=======
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-    function toHumanReadableMcap(number: BigNumber) {
-        return toHumanReadable(number, 2);
-=======
         const decimals = new BigNumber(10).pow(18);
         return number.dividedBy(decimals).toFixed(2);
->>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies)
     }
 
     function tohumanReadableQuantity(number: BigNumber) {
@@ -58,15 +45,15 @@ export const IndexAssetsBreakdown = observer(() => {
             </TableHeader>
             <TableBody>
                 {
-                    assets.map((fetchedAsset) => 
+                    assets.map((fetchedAsset) =>
                         <TableRow key={fetchedAsset.address}>
                             <TableCell className="text-left">
                                 <div className="flex flex-row items-center gap-2">
-                                <Avatar className="w-5 h-5"> 
-                                    <AvatarImage src={fetchedAsset.logo == null ? undefined : fetchedAsset.logo} /> 
-                                    <AvatarFallback>{fetchedAsset.symbol}</AvatarFallback>
-                                </Avatar>
-                                {fetchedAsset.symbol}
+                                    <Avatar className="w-5 h-5">
+                                        <AvatarImage src={fetchedAsset.logo == null ? undefined : fetchedAsset.logo} />
+                                        <AvatarFallback>{fetchedAsset.symbol}</AvatarFallback>
+                                    </Avatar>
+                                    {fetchedAsset.symbol}
                                 </div>
                             </TableCell>
                             <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>

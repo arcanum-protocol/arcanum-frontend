@@ -6,16 +6,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-<<<<<<< HEAD
-<<<<<<< HEAD
 
   max-width: 100%;
-=======
->>>>>>> 731d6af (Add styling changes and update components)
-=======
-
-  max-width: 100%;
->>>>>>> 78cdfa2 (Add background image and update dependencies)
 }
 
 .logo {

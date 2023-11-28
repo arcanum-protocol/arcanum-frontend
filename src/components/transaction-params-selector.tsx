@@ -56,15 +56,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-<<<<<<< HEAD
-<<<<<<< HEAD
                                             <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
-=======
-                                            <div className="flex flex-row items-center gap-1 text-xs">
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
-                                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
->>>>>>> 78cdfa2 (Add background image and update dependencies)
                                                 Maximum send
                                                 <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                                             </div>
@@ -85,15 +77,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
-=======
-                                <div className="flex flex-row items-center gap-1 text-xs">
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
-                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
->>>>>>> 78cdfa2 (Add background image and update dependencies)
                                     Cashback
                                     <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                                 </div>
@@ -145,15 +129,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
-=======
-                                <div className="flex flex-row items-center gap-1 text-xs">
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
-                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
->>>>>>> 78cdfa2 (Add background image and update dependencies)
                                     Fee
                                     <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                                 </div>
@@ -171,15 +147,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-<<<<<<< HEAD
-<<<<<<< HEAD
                                 <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
-=======
-                                <div className="flex flex-row items-center gap-1 text-xs">
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
-                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
->>>>>>> 78cdfa2 (Add background image and update dependencies)
                                     Transaction cost
                                     <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                                 </div>
@@ -221,28 +189,13 @@ export function SlippageSelector() {
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
-<<<<<<< HEAD
-<<<<<<< HEAD
                 <div className='flex rounded-lg w-1/4 h-8 items-center min-w-full gap-1'>
-=======
-                <div className='flex rounded-lg h-8 items-center min-w-full gap-1'>
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
-                <div className='flex rounded-lg w-1/4 h-8 items-center min-w-full gap-1'>
->>>>>>> 78cdfa2 (Add background image and update dependencies)
                     {slippagePresets.map((slippagePreseted: number, index: number) => {
                         return (
                             <Button
                                 key={index}
                                 onClick={() => setSlippage(slippagePreseted)}
                                 className={
-<<<<<<< HEAD
-<<<<<<< HEAD
-                                    `flex-initial text-center rounded-lg cursor-pointer ease-out delay-100 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B]
-=======
-                                    `flex-initial w-20 text-center rounded-lg cursor-pointer ease-out delay-100 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B]
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
                                     `flex-initial text-center rounded-lg cursor-pointer ease-out delay-100 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B]
 >>>>>>> 78cdfa2 (Add background image and update dependencies)
                                         hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
@@ -252,13 +205,6 @@ export function SlippageSelector() {
                         );
                     })}
                     <div className={
-<<<<<<< HEAD
-<<<<<<< HEAD
-                        `flex flex-row text-center rounded-lg cursor-pointer ease-out delay-100 h-9 gap-2 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B] items-center
-=======
-                        `flex flex-row w-20 text-center rounded-lg cursor-pointer ease-out delay-100 h-9 gap-2 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B] items-center
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
                         `flex flex-row text-center rounded-lg cursor-pointer ease-out delay-100 h-9 gap-2 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B] items-center
 >>>>>>> 78cdfa2 (Add background image and update dependencies)
                             hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`

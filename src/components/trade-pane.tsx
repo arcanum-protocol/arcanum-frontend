@@ -1,5 +1,4 @@
 import { Button } from "./ui/button";
-import { useTokenWithAddress } from '../hooks/tokens';
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useTradeContext } from "../contexts/TradeContext";
 import { InteractionWithApprovalButton } from './approval-button';
@@ -38,25 +37,18 @@ export function TradePaneInner({
         clearValues();
     }, [tokenIn, tokenOut]);
 
-    const { data: inputToken } = useTokenWithAddress({ address: tokenIn?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
-    const { data: outputToken } = useTokenWithAddress({ address: tokenOut?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
-
-    const sendDisabled = action === "burn";
-    const receiveDisabled = action === "mint";
+    // const { data: inputToken } = useTokenWithAddress({ address: tokenIn?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
+    // const { data: outputToken } = useTokenWithAddress({ address: tokenOut?.address, userAddress: userAddress, allowanceTo: routerAddress, chainId: multipool?.chainId });
 
     const sendDisabled = action === "burn";
     const receiveDisabled = action === "mint";
 
     return (
-<<<<<<< HEAD
-<<<<<<< HEAD
-        <div className="flex flex-col justify-center mt-[1rem]">
-=======
+        <div></div>
+    );
+
+    return (
         <div className="flex flex-col justify-center w-[20.75rem] mt-[1rem]">
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
-        <div className="flex flex-col justify-center mt-[1rem]">
->>>>>>> 78cdfa2 (Add background image and update dependencies)
             <div className="flex flex-col gap-4 items-center">
                 <TokenQuantityInput
                     text={"Send"}
@@ -160,11 +152,11 @@ export function TokenQuantityInput({
 
     // inkect price into the token if it's solidAsset
     if (tokenIn?.type === "solid") {
-        tokenIn.price = arbiData?.price.toNumber();
+        tokenIn.price = arbiData?.price;
     }
 
     if (tokenOut?.type === "solid") {
-        tokenOut.price = arbiData?.price.toNumber();
+        tokenOut.price = arbiData?.price;
     }
 
     const adapter = tradeLogicAdapter;
@@ -179,8 +171,8 @@ export function TokenQuantityInput({
         } as Quantities,
         tokenIn: tokenInData,
         tokenOut: tokenOutData,
-        priceIn: tokenIn?.price || 0,
-        priceOut: tokenOut?.price || 0,
+        priceIn: tokenIn?.price?.toNumber() || 0,
+        priceOut: tokenOut?.price?.toNumber() || 0,
         routerAddress: routerAddress,
         multipoolAddress: multipool?.address!,
     }
@@ -191,33 +183,6 @@ export function TokenQuantityInput({
     const anythingToCalculateOutCase = transactionParams.quantities.out !== undefined && transactionParams.quantities.out.isGreaterThan(0);
     const anythingToCalculate = anythingToCalculateInCase || anythingToCalculateOutCase;
 
-<<<<<<< HEAD
-    const { data, error } = useEstimate(
-        adapter,
-        transactionParams,
-        multipool?.chainId!,
-        thisInput === mainInput && anythingToCalculate && shouldCallMassiveMint,
-    );
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-    if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
-=======
-    
-=======
-
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-    if (data.estimationResult !== undefined && data.transactionCost !== undefined) {
-<<<<<<< HEAD
-        console.log("useEstimate called", data);
->>>>>>> efb0649 (Refactor useEstimate function and)
-=======
->>>>>>> c66c3f3 (Fix input/output quantity calculation in)
-        setEstimatedValues(data.estimationResult);
-        setTransactionCost(data.transactionCost);
-        setEstimationErrorMessage(error);
-    }
-=======
     // const { data, error } = useEstimate(
     //     adapter,
     //     transactionParams,
@@ -230,7 +195,6 @@ export function TokenQuantityInput({
     //     setTransactionCost(data.transactionCost);
     //     setEstimationErrorMessage(error);
     // }
->>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies)
 
     function getEstimatedValuesText() {
         if (text === "Send") {
@@ -292,15 +256,6 @@ export function TokenQuantityInput({
             const valueNumber = new BigNumber(value)
                 .multipliedBy(new BigNumber("10").pow(decimals));
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> c66c3f3 (Fix input/output quantity calculation in)
-=======
-
->>>>>>> cb1b31e (Refactor UI styles for consistency)
             setInputQuantityDebounce(valueNumber);
             setOutputQuantity(undefined);
         } else {

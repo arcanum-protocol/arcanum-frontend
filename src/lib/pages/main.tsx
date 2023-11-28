@@ -6,32 +6,13 @@ import { TradeProvider } from '../../contexts/TradeContext';
 import { TradePaneInner } from '../../components/trade-pane';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useMultiPoolContext } from '@/contexts/MultiPoolContext';
-import { TokenSelector } from '@/components/token-selector';
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSVG } from "@/lib/svg-adapter";
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-<<<<<<< HEAD:src/pages/main.tsx
-import { Terminal } from "lucide-react";
-=======
->>>>>>> 731d6af (Add styling changes and update components)
-=======
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
->>>>>>> 78cdfa2 (Add background image and update dependencies)
-
-=======
-// import { tokenStore } from "@/store/TokenStore";
 import { observer } from "mobx-react-lite";
 import { multipool } from "@/store/MultipoolStore";
 import { toJS } from "mobx";
 import TVChartContainer from "@/components/tv-chart";
->>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies):src/lib/pages/main.tsx
-
-export function Cpt() {
-    return (<MainInner />)
-}
 
 export const Arbi = observer(() => {
     return (
@@ -41,10 +22,6 @@ export const Arbi = observer(() => {
     )
 });
 
-export function Bali() {
-    return (<MainInner />)
-}
-
 export function Custom() {
     const [searchParams, setSearchParams] = useSearchParams();
     return (<MainInner />)
@@ -52,10 +29,6 @@ export function Custom() {
 
 export const MainInner = () => {
     return (
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 78cdfa2 (Add background image and update dependencies)
         <>
             <div className='flex flex-col min-w-full mt-0.5 gap-2 items-center xl:flex-row xl:items-stretch'>
                 <div className='flex flex-col items-center w-full gap-2'>
@@ -72,39 +45,11 @@ export const MainInner = () => {
                     <TVChartContainer />
                     <IndexAssetsBreakdown />
                 </div >
-<<<<<<< HEAD:src/pages/main.tsx
-                <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
-<<<<<<< HEAD
-                    <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
-                </MultiPoolProvider>
-=======
-        <div className='flex flex-row min-w-full mt-0.5 gap-2 align-start'>
-            <div className='flex flex-col items-center w-full gap-2'>
-                <Head multipool={multipoolAsset} />
-                {multipoolAsset && <TVChartContainer symbol={multipool_id} />}
-                <Faucet assets={fetchedAssets} />
-                <IndexAssetsBreakdown fetchedAssets={fetchedAssets} />
->>>>>>> 731d6af (Add styling changes and update components)
-            </div >
-<<<<<<< HEAD
-        </>
-=======
-            <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
-                <MintBurnTabs className="h-fit min-w-[22.75rem]" />
-            </MultiPoolProvider>
-        </div >
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
-                    <MintBurnTabs className="h-fit max-w-[21.4375rem]" />
-                </MultiPoolProvider>
-=======
                 {/* <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
                     <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
                 </MultiPoolProvider> */}
->>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies):src/lib/pages/main.tsx
             </div >
         </>
->>>>>>> 78cdfa2 (Add background image and update dependencies)
     );
 };
 
@@ -125,15 +70,7 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
     setSelectedTab(selectedTab);
 
     return (
-<<<<<<< HEAD
-<<<<<<< HEAD
         <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
-=======
-        <div className={`${className} p-4 bg-[#161616] rounded-2xl`}>
->>>>>>> cb1b31e (Refactor UI styles for consistency)
-=======
-        <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
->>>>>>> 78cdfa2 (Add background image and update dependencies)
             <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="mint">Mint</TabsTrigger>
@@ -191,16 +128,7 @@ export const Head = observer(() => {
             return '0';
         }
     }
-
-<<<<<<< HEAD:src/pages/main.tsx
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 0684c35 (sync)
-    if (multipoolInfo == undefined) {
-=======
     if (priceChange.multipool_id == undefined) {
->>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies):src/lib/pages/main.tsx
         // skeleton
         return (
             <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
@@ -235,12 +163,8 @@ export const Head = observer(() => {
         );
     }
 
-<<<<<<< HEAD:src/pages/main.tsx
-<<<<<<< HEAD
-=======
     const _priceChange = toJS(priceChange);
 
->>>>>>> ff857d5 (Add mobx and mobx-react-lite dependencies):src/lib/pages/main.tsx
     return (
         <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
             <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
@@ -263,56 +187,6 @@ export const Head = observer(() => {
                     <p className='text-sm'>24h low</p>
                     <p className='text-base'>{_priceChange?.low_24h.toFixed(4)}$</p>
                 </div>
-=======
-=======
->>>>>>> 0684c35 (sync)
-    return (
-        <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
-            <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
-                <div className="flex flex-row text-left gap-2">
-                    <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
-                    <p className='text-[#7E7E7E] p-0 text-2xl'>{multipoolInfo?.symbol || ""}</p>
-                </div>
-                <p className='text-xl'>${multipoolInfo?.price?.toFixed(4)}</p>
-            </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
-            <div>
-                <p className='text-xs'>24h change</p>
-                <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
-            </div>
-            <div>
-                <p className='text-xs'>24h hight</p>
-                <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
-            </div>
-            <div>
-<<<<<<< HEAD
-                <p style={{ fontSize: "14px", margin: "0px", padding: "0px" }}>24h low</p>
-                <p style={{ fontSize: "16px", margin: "0px", padding: "0px" }}>{multipoolInfo ? multipoolInfo.low24h.toFixed(4) : "0"}$</p>
->>>>>>> a9e0f04 (fix head)
-=======
-                <p className='text-xs'>24h low</p>
-                <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
->>>>>>> 0684c35 (sync)
-=======
-            <div className="flex flex-row gap-1">
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem]">
-=======
-            <div className="hidden gap-1 flex-row xl:flex">
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
->>>>>>> 78cdfa2 (Add background image and update dependencies)
-                    <p className='text-sm'>24h change</p>
-                    <p className={'text-base ' + getColor(multipoolInfo)}>{multipoolInfo?.change24h.toFixed(4)}%</p>
-                </div>
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                    <p className='text-sm'>24h high</p>
-                    <p className='text-base'>{multipoolInfo?.high24h.toFixed(4)}$</p>
-                </div>
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                    <p className='text-sm'>24h low</p>
-                    <p className='text-base'>{multipoolInfo?.low24h.toFixed(4)}$</p>
-                </div>
->>>>>>> 731d6af (Add styling changes and update components)
             </div>
         </div>
     );

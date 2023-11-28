@@ -186,16 +186,8 @@ export function useMultipoolPrice(multipoolId: string,
         const tokenBalance = new BigNumber((data as unknown as any)[0]);
         const tokenPrice = new BigNumber((data as unknown as any)[1]);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         if (tokenBalance.isZero()) continue;
 
-=======
->>>>>>> 4c40c2d (sync)
-=======
-        if (tokenBalance.isZero()) continue;
-
->>>>>>> 13c17a2 (sync)
         tokens.push({
             address: asset.address,
             multipoolBalance: tokenBalance,
@@ -226,18 +218,8 @@ export function useMultipoolPrice(multipoolId: string,
 
     return {
         data: {
-<<<<<<< HEAD
-<<<<<<< HEAD
             address: multipoolScheme.address,
             price: usdCap.div(totalSupply),
-=======
-            // price: usdCap.div(totalSupply),
-            price: new BigNumber(0),
->>>>>>> 13c17a2 (sync)
-=======
-            address: multipoolScheme.address,
-            price: usdCap.div(totalSupply),
->>>>>>> 844e78f (standart types)
             tokens: tokens as any,
             totalSupply,
         },
