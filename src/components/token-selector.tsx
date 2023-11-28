@@ -37,7 +37,7 @@ function TokenSelector({ action }: TokenSelectorProps) {
     const [search, setSearch] = useState("");
 
     const { address } = useAccount();
-    
+
     const { ExternalAssets: tokens, isLoading } = useExternalAssets(address, externalAssets, !(selectedSCTab != "mint"));
     const { assets: tokenList } = useMultiPoolTokens(tokens, assets);
 
@@ -71,9 +71,6 @@ function TokenSelector({ action }: TokenSelectorProps) {
         }
 
         const value = toDollarValue(token);
-        const divisor = new BigNumber(10).pow(token.decimals);
-        const balance = new BigNumber(token.balance);
-        const price = new BigNumber(token.price).div(divisor);
 
         return "$" + value.toFixed(5).toString();
     }
@@ -125,8 +122,6 @@ function TokenSelector({ action }: TokenSelectorProps) {
         <>
             <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
                 <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10">
-                    onClick={() => setTab(selectedSCTab)}>
-                    onClick={() => setSelectedTab(selectedSCTab)}>
                     <ChevronLeftIcon className="pt-2 h-8 w-8" />
                 </a>
                 <div className="font-mono font-bold">Select a token</div>
@@ -149,31 +144,30 @@ function TokenSelector({ action }: TokenSelectorProps) {
                                     <div className="flex flex-row justify-between items-center gap-2">
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={token.logo || undefined} alt="Logo" />
-                                    <div className="flex flex-row justify-between items-center gap-2">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={token.logo} alt="Logo" />
                                             <AvatarFallback>{"?"}</AvatarFallback>
                                         </Avatar>
-                                        <div className="flex flex-col text-start">
-                                            <p className="font-mono">{token.symbol}</p>
-                                            <div className="flex flex-row gap-1 items-center">
-                                                {
-                                                    isLoading ?
-                                                        <Skeleton className="h-3 w-12" /> :
-                                                        getBalanceDecaration(token)
-                                                }
+                                        <div className="flex flex-row justify-between items-center gap-2">
+                                            <div className="flex flex-col text-start">
+                                                <p className="font-mono">{token.symbol}</p>
+                                                <div className="flex flex-row gap-1 items-center">
+                                                    {
+                                                        isLoading ?
+                                                            <Skeleton className="h-3 w-12" /> :
+                                                            getBalanceDecaration(token)
+                                                    }
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
+                                        <p className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</p>
+                                        <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
                                     </div>
-                                    <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
-                                    <p className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</p>
-                                    <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
                                 </div>
-                            )
+                            );
                         })
                 }
             </ScrollArea>
-        </div>
+        </>
     )
 }
 

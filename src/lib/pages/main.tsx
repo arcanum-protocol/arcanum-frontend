@@ -13,6 +13,7 @@ import { observer } from "mobx-react-lite";
 import { multipool } from "@/store/MultipoolStore";
 import { toJS } from "mobx";
 import TVChartContainer from "@/components/tv-chart";
+import { TokenSelector } from "@/components/token-selector";
 
 export const Arbi = observer(() => {
     return (
@@ -45,9 +46,7 @@ export const MainInner = () => {
                     <TVChartContainer />
                     <IndexAssetsBreakdown />
                 </div >
-                {/* <MultiPoolProvider ExternalAssets={ExternalAssets} multipoolAsset={fetchedAssets} multiPool={multipoolAsset} router={routerAddress}>
-                    <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
-                </MultiPoolProvider> */}
+                <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
             </div >
         </>
     );
@@ -83,20 +82,17 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
                 </TabsList>
                 <TabsContent value="mint">
                     <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipool?.address} routerAddress={router} MassiveMintRouter={massiveMintRouter}>
-                        <TradePaneInner
-                            action="mint" />
+                        <TradePaneInner action="mint" />
                     </TradeProvider>
                 </TabsContent>
                 <TabsContent value="burn">
                     <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipool?.address} routerAddress={router}>
-                        <TradePaneInner
-                            action="burn" />
+                        <TradePaneInner action="burn" />
                     </TradeProvider>
                 </TabsContent>
                 <TabsContent value="swap">
                     <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipool?.address} routerAddress={router}>
-                        <TradePaneInner
-                            action="swap" />
+                        <TradePaneInner action="swap" />
                     </TradeProvider>
                 </TabsContent>
 
