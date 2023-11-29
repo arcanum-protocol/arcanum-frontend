@@ -5,17 +5,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { observer } from "mobx-react-lite";
 import { multipool } from "@/store/MultipoolStore";
 import { Skeleton } from "./ui/skeleton";
+import { MultipoolAsset } from "@/types/multipoolAsset";
 
 export const IndexAssetsBreakdown = observer(() => {
     const { assets, currentShares } = multipool;
 
-    function toHumanReadablePrice(number: BigNumber | undefined) {
+    const fetchedAssets = assets.filter((asset) => asset.type === "multipool") as MultipoolAsset[];
+
+    function toHumanReadablePrice(number: number | undefined) {
         if (number == null) {
             return "0";
         }
 
+        const _number = new BigNumber(number);
+
         const decimals = new BigNumber(10).pow(18);
-        return number.dividedBy(decimals).toFixed(2);
+        return _number.dividedBy(decimals).toFixed(2);
     }
 
     function tohumanReadableQuantity(number: BigNumber) {
@@ -45,7 +50,7 @@ export const IndexAssetsBreakdown = observer(() => {
             </TableHeader>
             <TableBody>
                 {
-                    assets.map((fetchedAsset) =>
+                    fetchedAssets.map((fetchedAsset) =>
                         <TableRow key={fetchedAsset.address}>
                             <TableCell className="text-left">
                                 <div className="flex flex-row items-center gap-2">

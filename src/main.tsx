@@ -3,7 +3,7 @@ import { App } from "./App";
 import "./index.css";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Arbi, Custom } from "./lib/pages/main";
+import { Arbi } from "./lib/pages/main";
 
 const router = createBrowserRouter([
     {
@@ -13,10 +13,6 @@ const router = createBrowserRouter([
             {
                 path: "/",
                 element: <Arbi />,
-            },
-            {
-                path: "/multipool",
-                element: <Custom />,
             },
             {
                 path: "/arbi",

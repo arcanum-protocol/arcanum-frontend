@@ -1,23 +1,15 @@
 import { FixedNumber } from "ethers";
-
-import 'react-loading-skeleton/dist/skeleton.css'
-import { useTradeContext } from '../contexts/TradeContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { SendTransactionParams } from "@/types/sendTransactionParams";
 import { Button } from "./ui/button";
 import { Separator } from "@radix-ui/react-separator";
+import { useState } from "react";
 
 
-interface TransactionParamsSelectorProps {
-    txnParams: SendTransactionParams | undefined;
-}
-
-export function TransactionParamsSelector({ txnParams }: TransactionParamsSelectorProps) {
-    const { estimatedValues, transactionCost } = useTradeContext();
-
-    const p: SendTransactionParams | undefined = txnParams;
-
+export function TransactionParamsSelector() {
+    const p = undefined as SendTransactionParams | undefined;
+    
     return (
         <div style={{
             display: "flex",
@@ -32,7 +24,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                     transition: "max-height .5s",
                 }}>
                 {
-                    estimatedValues?.minimalAmountOut != undefined ?
+                    undefined != undefined ?
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <TooltipProvider>
                                 <Tooltip>
@@ -47,8 +39,8 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                                     </TooltipContent>
                                 </Tooltip>
                             </TooltipProvider>
-                            <p style={{ margin: "0" }}>
-                                {estimatedValues?.minimalAmountOut.formatted}({estimatedValues?.minimalAmountOut.usd}$)
+                            <p className="m-0">
+                                {0} ({0}$)
                             </p>
                         </div>
                         : (
@@ -66,8 +58,8 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
-                                <p style={{ margin: "0" }}>
-                                    {estimatedValues?.maximumAmountIn?.formatted || 0} ({estimatedValues?.maximumAmountIn?.usd || 0}$)
+                                <p className="m-0">
+                                    {0} ({0}$)
                                 </p>
                             </div>
 
@@ -97,8 +89,8 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                                 {p ? <>
                                     {
                                         (
-                                            Number(estimatedValues?.estimatedCashbackIn?.usd || "0") +
-                                            Number(estimatedValues?.estimatedCashbackOut?.usd || "0")
+                                            Number("0") +
+                                            Number("0")
                                         ).toString()}$
                                 </> : <>{"-"} </>}
                             </p>
@@ -108,7 +100,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                                         {p?.tokenIn?.symbol}:
                                     </div>
                                     <div style={{ margin: "0" }}>
-                                        {Number(estimatedValues?.estimatedCashbackIn?.formatted) || "0"}({Number(estimatedValues?.estimatedCashbackIn?.usd) || "0"})$
+                                        {Number(0) || "0"}({Number(0) || "0"})$
                                     </div>
                                 </div>
                                 <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -116,7 +108,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                                         {p?.tokenOut?.symbol}:
                                     </div>
                                     <div style={{ margin: "0" }}>
-                                        {Number(estimatedValues?.estimatedCashbackOut?.formatted) || "0"}({Number(estimatedValues?.estimatedCashbackOut?.usd) || "0"})$
+                                        {Number(0) || "0"}({Number(0) || "0"})$
                                     </div>
                                 </div>
                             </div>
@@ -141,7 +133,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <p style={{ margin: "0" }}>{estimatedValues?.fee?.usd || 0}$ ({estimatedValues?.fee?.percent || 0}%)</p>
+                    <p style={{ margin: "0" }}>{0}$ ({0}%)</p>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <TooltipProvider>
@@ -157,7 +149,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <p style={{ margin: "0" }}>{Number(transactionCost?.cost || "0").toFixed(4)}$</p>
+                    <p style={{ margin: "0" }}>{Number("0").toFixed(4)}$</p>
                 </div>
             </div >
         </div >
@@ -165,7 +157,7 @@ export function TransactionParamsSelector({ txnParams }: TransactionParamsSelect
 }
 
 export function SlippageSelector() {
-    const { slippage, setSlippage } = useTradeContext();
+    const [slippage, setSlippage] = useState(0.5);
 
     // 0,1,2,3 - presets, 4 - custom
     const slippagePresets = [0.5, 1, 3];
@@ -197,7 +189,6 @@ export function SlippageSelector() {
                                 onClick={() => setSlippage(slippagePreseted)}
                                 className={
                                     `flex-initial text-center rounded-lg cursor-pointer ease-out delay-100 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B]
->>>>>>> 78cdfa2 (Add background image and update dependencies)
                                         hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
                                 }>
                                 {slippagePreseted + '%'}
@@ -206,7 +197,6 @@ export function SlippageSelector() {
                     })}
                     <div className={
                         `flex flex-row text-center rounded-lg cursor-pointer ease-out delay-100 h-9 gap-2 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B] items-center
->>>>>>> 78cdfa2 (Add background image and update dependencies)
                             hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
                     }>
                         <input

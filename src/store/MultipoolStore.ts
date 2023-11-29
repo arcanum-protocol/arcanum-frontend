@@ -1,11 +1,11 @@
-import { makeAutoObservable, runInAction } from 'mobx';
-import { publicClient } from '@/config';
+import { MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
+import { makeAutoObservable, runInAction, toJS } from 'mobx';
 import { Address, getContract } from 'viem';
-import SCHEME from '../scheme.yaml';
+import { publicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
 import { fromX32 } from '@/lib/utils';
 import BigNumber from 'bignumber.js';
-import { MultipoolAsset } from '@/types/multipoolAsset';
+import SCHEME from '../scheme.yaml';
 import axios from 'axios';
 
 export interface MultipoolFees {
@@ -46,17 +46,16 @@ class MultipoolStore {
         depegBaseFee: BigNumber(0),
         baseFee: BigNumber(0),
     };
-    priceChange: priceChange = {
-        multipool_id: "",
-        change_24h: 0,
-        low_24h: 0,
-        high_24h: 0,
-        current_price: 0
-    };
-    assets: MultipoolAsset[] = [];
+    assets: (MultipoolAsset | SolidAsset)[] = [];
 
     multipool_id: string;
     datafeedUrl = 'https://api.arcanum.to/api/tv';
+
+    inputAsset: MultipoolAsset | SolidAsset | undefined;
+    outputAsset: MultipoolAsset | SolidAsset | undefined;
+
+    inputQuantity: BigNumber | undefined;
+    outputQuantity: BigNumber | undefined;
 
     constructor(mp_id: string) {
         this.multipool_id = mp_id;
@@ -68,10 +67,24 @@ class MultipoolStore {
             publicClient: this.publicClient
         });
 
+        this.assets = [...this.assets, {
+            name: this.staticData.name,
+            symbol: this.staticData.name,
+            decimals: 18,
+            logo: this.staticData.logo,
+            address: this.staticData.address,
+            type: "solid",
+        } as SolidAsset];
+
         this.getFees();
         this.getAssets().then(() => {
             this.updatePrices();
             this.updateMultipoolPriceData();
+
+            runInAction(() => {
+                this.inputAsset = this.assets[0];
+                this.outputAsset = this.assets[1];
+            });
         });
 
         setInterval(() => {
@@ -79,7 +92,12 @@ class MultipoolStore {
             this.updateMultipoolPriceData();
         }, 30000);
 
+
         makeAutoObservable(this, {}, { autoBind: true });
+    }
+
+    get getRouter(): Address {
+        return this.staticData.router;
     }
 
     async getFees() {
@@ -102,7 +120,7 @@ class MultipoolStore {
         const tokens: Array<{
             symbol: string;
             decimals: number;
-            logo: string | null;
+            logo: string | undefined;
             address: string | undefined;
             coingecko_id: string;
         }> = this.staticData.assets.map((asset: any) => {
@@ -122,6 +140,9 @@ class MultipoolStore {
 
         for (const token of tokens) {
             const asset = await this.multipool.read.getAsset([token.address as Address]);
+
+            if (token.address?.toString() === this.multipool.address.toString()) continue;
+
             const chainPrice = await this.multipool.read.getPrice([token.address as Address]);
 
             const idealShare = new BigNumber(asset.share.toString()).div(totalTargetShares).times(100);
@@ -145,7 +166,7 @@ class MultipoolStore {
         }
 
         runInAction(() => {
-            this.assets = _assets;
+            this.assets = [..._assets, ...this.assets]
         });
     }
 
@@ -154,15 +175,18 @@ class MultipoolStore {
             return asset.address as string;
         });
 
-        const addressToPrice = new Map<string, BigNumber>();
+        const addressToPrice = new Map<string, number>();
 
         for (const address of addresses) {
+            if (address === this.multipool.address.toString()) continue;
+
             const price = await this.multipool.read.getPrice([address as Address]);
-            addressToPrice.set(address, new BigNumber(price.toString()));
+            addressToPrice.set(address, Number(price.toString()));
         }
 
         runInAction(() => {
             this.assets = this.assets.map((asset) => {
+                if (asset.address === this.multipool.address.toString()) return asset;
                 return {
                     ...asset,
                     price: addressToPrice.get(asset.address!)!
@@ -175,14 +199,17 @@ class MultipoolStore {
         const _response = await axios.get(`https://api.arcanum.to/api/stats?multipool_id=${this.staticData.name}`);
 
         const response = _response.data;
-
+        
         runInAction(() => {
-            this.priceChange = {
-                multipool_id: response.multipool_id,
-                change_24h: Number(response.change_24h),
-                low_24h: Number(response.low_24h),
-                high_24h: Number(response.high_24h),
-                current_price: Number(response.current_price)
+            const multipoolID = this.assets.findIndex((asset) => asset.type === "solid");
+            
+            this.assets[multipoolID] = {
+                ...this.assets[multipoolID],
+                low24h: Number(response.low_24h),
+                high24h: Number(response.high_24h),
+                change24h: Number(response.change_24h),
+                totalSupply: Number(response.total_supply),
+                price: Number(response.current_price),
             };
         });
     }
@@ -197,7 +224,7 @@ class MultipoolStore {
             value: BigInt("0") as bigint,
             signature: "0x0000000000000000000000000000000000000000" as Address
         };
-        
+
         const _selectedAssets = selectedAssets.map((asset) => {
             return {
                 addr: asset.addr,
@@ -212,20 +239,59 @@ class MultipoolStore {
                 isSlippageReversed
             ]
         ).then((res) => {
-            console.log("res", res);
+            // console.log("res", res);
         });
+    }
+
+    // setInputAssetQuantity(
+    //     quantity: string,
+    // ) {
+    //     const decimals 
+    // }
+
+    setInputAsset(
+        asset: MultipoolAsset | SolidAsset,
+    ) {
+        this.inputAsset = asset;
+    }
+
+    setOutputAsset(
+        asset: MultipoolAsset | SolidAsset,
+    ) {
+        this.outputAsset = asset;
+    }
+
+    setAction(
+        action: "mint" | "burn" | "swap",
+    ) {
+        if (action === "mint") {
+            this.inputAsset = this.assets[0];
+            this.outputAsset = this.assets[1];
+        }
+
+        if (action === "burn") {
+            this.inputAsset = this.assets[1];
+            this.outputAsset = this.assets[0];
+        }
+
+        if (action === "swap") {
+            this.inputAsset = this.assets[0];
+            this.outputAsset = this.assets[1];
+        }
     }
 
     get currentShares() {
         if (this.assets.length === 0) return new Map<string, BigNumber>();
+        const multipoolAssets = this.assets.filter((asset) => asset.type === "multipool") as MultipoolAsset[];
 
-        const totalDollarValue = this.assets.reduce((acc, asset) => {
-            return acc.plus(asset.price?.times(asset.quantity) ?? new BigNumber(0));
+        const totalDollarValue = multipoolAssets.reduce((acc, asset) => {
+            const assetPrice = new BigNumber(asset.price?.toString() ?? 0);
+            return acc.plus(assetPrice.times(asset.quantity) ?? new BigNumber(0));
         }, new BigNumber(0));
 
         const addressToShare = new Map<string, BigNumber>();
 
-        for (const asset of this.assets) {
+        for (const asset of multipoolAssets) {
             if (asset.price === undefined) {
                 addressToShare.set(asset.address!, new BigNumber(0));
                 continue;
@@ -235,7 +301,9 @@ class MultipoolStore {
                 continue;
             }
 
-            addressToShare.set(asset.address!, asset.price?.times(asset.quantity).div(totalDollarValue).times(100) ?? new BigNumber(0));
+            const assetPrice = new BigNumber(asset.price?.toString() ?? 0);
+
+            addressToShare.set(asset.address!, assetPrice.times(asset.quantity).div(totalDollarValue).times(100) ?? new BigNumber(0));
         }
 
         return addressToShare;

@@ -1,11 +1,6 @@
-import { getMassiveMintRouter } from "../multipool";
-import { useSearchParams } from 'react-router-dom';
 import { IndexAssetsBreakdown } from '../../components/index-breakdown';
-import { mintAdapter, burnAdapter, swapAdapter } from '../trade-adapters';
-import { TradeProvider } from '../../contexts/TradeContext';
 import { TradePaneInner } from '../../components/trade-pane';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useMultiPoolContext } from '@/contexts/MultiPoolContext';
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSVG } from "@/lib/svg-adapter";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -14,6 +9,8 @@ import { multipool } from "@/store/MultipoolStore";
 import { toJS } from "mobx";
 import TVChartContainer from "@/components/tv-chart";
 import { TokenSelector } from "@/components/token-selector";
+import { useState } from "react";
+import { SolidAsset } from '@/types/multipoolAsset';
 
 export const Arbi = observer(() => {
     return (
@@ -22,11 +19,6 @@ export const Arbi = observer(() => {
         </>
     )
 });
-
-export function Custom() {
-    const [searchParams, setSearchParams] = useSearchParams();
-    return (<MainInner />)
-}
 
 export const MainInner = () => {
     return (
@@ -46,31 +38,47 @@ export const MainInner = () => {
                     <TVChartContainer />
                     <IndexAssetsBreakdown />
                 </div >
-                <MintBurnTabs className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
+                <ActionForm className="h-fit w-[21.4375rem] min-w-[21.4375rem]" />
             </div >
         </>
     );
 };
 
-interface MintBurnTabsProps {
+interface ActionFormProps {
     className?: string;
 }
 
-export function MintBurnTabs({ className }: MintBurnTabsProps) {
-    const {
-        multipool,
-        selectedTab,
-        router,
-        setSelectedTab,
-    } = useMultiPoolContext();
+export const ActionForm = observer(({ className }: ActionFormProps) => {
+    const { getRouter } = multipool;
 
-    const massiveMintRouter = getMassiveMintRouter();
+    const [selectedTab, setSelectedTab] = useState<"mint" | "burn" | "swap" | "set-token-in" | "set-token-out">("mint");
+    const [selectedSCTab, setSelectedSCTab] = useState<"mint" | "burn" | "swap">("mint");
 
-    setSelectedTab(selectedTab);
+    function setSelectedTabWrapper(value: "mint" | "burn" | "swap" | "set-token-in" | "set-token-out" | "back" | string | undefined) {
+        if (value == undefined) {
+            return;
+        }
+
+        // check if string value can be converted mint | burn | swap | set-token-in | set-token-out
+        const values = ["mint", "burn", "swap", "set-token-in", "set-token-out", "back"];
+        if (!values.includes(value)) {
+            return;
+        }
+
+        if (value == "back") {
+            setSelectedTab(selectedSCTab);
+        }
+        
+        if (value == "mint" || value == "burn" || value == "swap") {
+            setSelectedSCTab(value);
+        }
+        
+        setSelectedTab(value as "mint" | "burn" | "swap" | "set-token-in" | "set-token-out");
+    }
 
     return (
         <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
-            <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTab(value)}>
+            <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTabWrapper(value)}>
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="mint">Mint</TabsTrigger>
                     <TabsTrigger value="burn">Burn</TabsTrigger>
@@ -81,37 +89,33 @@ export function MintBurnTabs({ className }: MintBurnTabsProps) {
 
                 </TabsList>
                 <TabsContent value="mint">
-                    <TradeProvider tradeLogicAdapter={mintAdapter} multipoolAddress={multipool?.address} routerAddress={router} MassiveMintRouter={massiveMintRouter}>
-                        <TradePaneInner action="mint" />
-                    </TradeProvider>
+                    <TradePaneInner action="mint" />
                 </TabsContent>
                 <TabsContent value="burn">
-                    <TradeProvider tradeLogicAdapter={burnAdapter} multipoolAddress={multipool?.address} routerAddress={router}>
-                        <TradePaneInner action="burn" />
-                    </TradeProvider>
+                    <TradePaneInner action="burn" />
                 </TabsContent>
                 <TabsContent value="swap">
-                    <TradeProvider tradeLogicAdapter={swapAdapter} multipoolAddress={multipool?.address} routerAddress={router}>
-                        <TradePaneInner action="swap" />
-                    </TradeProvider>
+                    <TradePaneInner action="swap" />
                 </TabsContent>
 
                 <TabsContent value="set-token-in">
-                    <TokenSelector action="set-token-in" />
+                    <TokenSelector action="set-token-in" setter={setSelectedTabWrapper} />
                 </TabsContent>
 
                 <TabsContent value="set-token-out">
-                    <TokenSelector action="set-token-out" />
+                    <TokenSelector action="set-token-out" setter={setSelectedTabWrapper} />
                 </TabsContent>
             </Tabs >
         </div>
     )
-}
+});
 
 export const Head = observer(() => {
-    const { priceChange } = multipool;
+    const { assets } = multipool;
 
-    function getColor(change: number | undefined): string {
+    const _multipool = assets.find((asset) => asset.type == "solid") as SolidAsset;
+
+    function getColor(change: string | undefined): string {
         if (change == undefined) {
             return "hidden";
         }
@@ -124,7 +128,8 @@ export const Head = observer(() => {
             return '0';
         }
     }
-    if (priceChange.multipool_id == undefined) {
+
+    if (_multipool == undefined) {
         // skeleton
         return (
             <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
@@ -139,7 +144,7 @@ export const Head = observer(() => {
                 </div>
                 <div>
                     <p className='text-xs'>24h change</p>
-                    <div className={'text-base ' + getColor(priceChange.change_24h)}>
+                    <div className={'text-base'}>
                         <Skeleton className='w-20 h-8' />
                     </div>
                 </div>
@@ -159,29 +164,32 @@ export const Head = observer(() => {
         );
     }
 
-    const _priceChange = toJS(priceChange);
+    const _change = _multipool?.change24h?.toFixed(4);
+    const _high = _multipool?.high24h?.toFixed(4);
+    const _low = _multipool?.low24h?.toFixed(4);
+    const price = _multipool?.price?.toFixed(4);
 
     return (
         <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
             <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
                 <div className="flex flex-row text-left gap-2">
                     <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
-                    <p className='text-[#7E7E7E] p-0 text-2xl'>{_priceChange?.multipool_id || ""}</p>
+                    <p className='text-[#7E7E7E] p-0 text-2xl'>{_multipool?.name.toLocaleUpperCase() || ""}</p>
                 </div>
-                <p className='text-xl'>${_priceChange?.current_price.toFixed(4)}</p>
+                <p className='text-xl'>${price}</p>
             </div>
             <div className="hidden gap-1 flex-row xl:flex">
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h change</p>
-                    <p className={'text-base ' + getColor(_priceChange.change_24h)}>{_priceChange?.change_24h.toFixed(4)}%</p>
+                    <p className={'text-base ' + getColor(_change)}>{_change}%</p>
                 </div>
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h high</p>
-                    <p className='text-base'>{_priceChange?.high_24h.toFixed(4)}$</p>
+                    <p className='text-base'>{_high}$</p>
                 </div>
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-sm'>24h low</p>
-                    <p className='text-base'>{_priceChange?.low_24h.toFixed(4)}$</p>
+                    <p className='text-base'>{_low}$</p>
                 </div>
             </div>
         </div>

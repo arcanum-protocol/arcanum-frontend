@@ -1,15 +1,10 @@
-import { useMultiPoolContext } from "@/contexts/MultiPoolContext";
 import { ScrollArea } from "./ui/scroll-area";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useAccount } from "wagmi";
 import { BigNumber } from "bignumber.js";
-import { Skeleton } from "@/components/ui/skeleton"
 import { SineWaveText } from "./ui/sine-wave-text";
-import { useTokenSearch } from "@/hooks/search";
 import { useState } from "react";
-import { useExternalAssets, useMultiPoolTokens } from "@/hooks/externalTokens";
 import { ExternalAsset, MultipoolAsset } from "@/types/multipoolAsset";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
@@ -19,27 +14,15 @@ import { ChevronLeftIcon } from "@radix-ui/react-icons";
 
 interface TokenSelectorProps {
     action: "set-token-in" | "set-token-out";
+    // setSelectedTabWrapper
+    setter: (value: "mint" | "burn" | "swap" | "set-token-in" | "set-token-out" | "back") => void;
     className?: string;
 }
 
-function TokenSelector({ action }: TokenSelectorProps) {
-    const {
-        externalAssets,
-        assets,
-        selectedSCTab,
-        setSelectedTab,
-        tokenIn,
-        tokenOut,
-        setTokenIn,
-        setTokenOut
-    } = useMultiPoolContext();
-
+function TokenSelector({ action, setter }: TokenSelectorProps) {
     const [search, setSearch] = useState("");
 
     const { address } = useAccount();
-
-    const { ExternalAssets: tokens, isLoading } = useExternalAssets(address, externalAssets, !(selectedSCTab != "mint"));
-    const { assets: tokenList } = useMultiPoolTokens(tokens, assets);
 
     function toHumanReadable(number: number | undefined, decimals: number) {
         if (!number) {
@@ -108,15 +91,12 @@ function TokenSelector({ action }: TokenSelectorProps) {
 
     function setToken(token: ExternalAsset | MultipoolAsset) {
         if (action === "set-token-in") {
-            setTokenIn(token);
-            setSelectedTab(selectedSCTab);
+            setter("back");
         } else {
-            setTokenOut(token);
-            setSelectedTab(selectedSCTab);
+            setter("back");
         }
     }
 
-    const data = useTokenSearch(tokenList, search);
 
     return (
         <>
@@ -132,39 +112,6 @@ function TokenSelector({ action }: TokenSelectorProps) {
             <Separator className="my-1" />
             <ScrollArea className="h-[478px] w-full py-2">
                 {
-                    tokenList
-                        ?.filter((token) => tokenIn?.address !== token.address && tokenOut?.address !== token.address)
-                        .sort((a, b) => toDollarValue(b).minus(toDollarValue(a)).toNumber())
-                        .map((token, index) => {
-                            return (
-                                <div key={index} className={
-                                    `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer px-3 ` +
-                                    (data.map((token) => token.address).includes(token.address) ? "" : "hidden")
-                                } onClick={() => setToken(token)}>
-                                    <div className="flex flex-row justify-between items-center gap-2">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={token.logo || undefined} alt="Logo" />
-                                            <AvatarFallback>{"?"}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex flex-row justify-between items-center gap-2">
-                                            <div className="flex flex-col text-start">
-                                                <p className="font-mono">{token.symbol}</p>
-                                                <div className="flex flex-row gap-1 items-center">
-                                                    {
-                                                        isLoading ?
-                                                            <Skeleton className="h-3 w-12" /> :
-                                                            getBalanceDecaration(token)
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
-                                        <p className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</p>
-                                        <div className="font-mono">{isLoading ? <Skeleton className="h-6 w-12" /> : toHumanDollarValue(token)}</div>
-                                    </div>
-                                </div>
-                            );
-                        })
                 }
             </ScrollArea>
         </>
