@@ -1,9 +1,11 @@
+import ETF from '@/abi/ETF';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { multipool, FeedType } from '@/store/MultipoolStore';
 import { observer } from 'mobx-react-lite'
 import { useState } from 'react';
 import { Address } from 'viem';
+import { useContractRead } from 'wagmi';
 
 
 export const AdminPannel = observer(() => {
@@ -13,7 +15,8 @@ export const AdminPannel = observer(() => {
         setCurveParams,
         setSharePriceTTL,
         toggleForcePushAuthority,
-        toggleTargetShareAuthority } = multipool;
+        toggleTargetShareAuthority, 
+        increaseCashback } = multipool;
 
     const [updatePriceState, setUpdatePriceState] = useState<{ address: Address, feedType: FeedType, bytes: string } | undefined>();
     const [withdrawFeesState, setWithdrawFeesState] = useState<{ to: Address } | undefined>();
@@ -21,6 +24,13 @@ export const AdminPannel = observer(() => {
     const [setSharePriceTTLState, setSetSharePriceTTLState] = useState<{ newSharePriceTTL: string } | undefined>();
     const [toggleForcePushAuthorityState, setToggleForcePushAuthorityState] = useState<{ newSharePriceTTL: string } | undefined>();
     const [toggleTargetShareAuthorityState, setToggleTargetShareAuthorityState] = useState<{ newSharePriceTTL: string } | undefined>();
+    const [increaseCashbackState, setIncreaseCashback] = useState<{ address: Address } | undefined>();
+
+    const { data: owner } = useContractRead({
+        address: multipool.multipool.address,
+        abi: ETF,
+        functionName: "owner"
+    });
 
     async function callWrapprer(func: any, ...args: any) {
         try {
@@ -39,6 +49,7 @@ export const AdminPannel = observer(() => {
     return (
         <div className="flex flex-col gap-4 items-center bg-[#161616] border border-[#292524] p-4 rounded-2xl">
             <div className="flex flex-col gap-4 items-center">
+                <p>{owner}</p>
                 <div className="flex flex-row gap-4 items-center">
                     {
                         ["address", "FeedType", "string"].map((type, index) => {
@@ -197,6 +208,26 @@ export const AdminPannel = observer(() => {
                         })
                     }
                     <Button onClick={() => callWrapprer(toggleTargetShareAuthority, toggleTargetShareAuthorityState?.newSharePriceTTL)}>toggle target share authority</Button>
+                </div>
+                <div className="flex flex-row gap-4 items-center">
+                    {
+                        ["address"].map((type, index) => {
+                            return (
+                                <div key={index} className="flex flex-col gap-2">
+                                    <div className="text-[#ffffff]">{type}</div>
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                        console.log(type, e.target.value)
+                                        if (type === "address") {
+                                            setIncreaseCashback({
+                                                address: e.target.value,
+                                            })
+                                        }
+                                    }} />
+                                </div>
+                            )
+                        })
+                    }
+                    <Button onClick={() => callWrapprer(increaseCashback, increaseCashbackState?.address)}>increase cashback</Button>
                 </div>
             </div>
         </div>

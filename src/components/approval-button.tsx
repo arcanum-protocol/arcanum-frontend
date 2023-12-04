@@ -27,7 +27,18 @@ export const InteractionWithApprovalButton = observer(() => {
 
     async function swap() {
         refetch();
-        const hash = await _swap(address!);
+        const _hash = await _swap(address!);
+        const hash = _hash as string;
+
+        console.log("hash", hash, hash.includes("ContractFunctionExecutionError"));
+
+        if (hash.includes("ContractFunctionExecutionError")) {
+            toast({
+                title: "Insufficient balance",
+                description: hash,
+            });
+            return;
+        }
 
         if (hash) {
             toast({
