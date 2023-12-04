@@ -9,7 +9,8 @@ import { MultipoolAsset } from "@/types/multipoolAsset";
 
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assets, currentShares, assetsIsLoading } = multipool;
+    const { assets, currentShares, assetsIsLoading, etherPrice } = multipool;
+    const etherPriceBN = new BigNumber(etherPrice[42161]);
 
     const fetchedAssets = assets.filter((asset) => asset.type === "multipool") as MultipoolAsset[];
 
@@ -40,8 +41,10 @@ export const IndexAssetsBreakdown = observer(() => {
             </TableHeader>
             <TableBody>
                 {
-                    fetchedAssets.map((fetchedAsset) =>
-                        <TableRow key={fetchedAsset.address}>
+                    fetchedAssets.map((fetchedAsset) => {
+                        const price = fetchedAsset.chainPrice.multipliedBy(etherPriceBN).toString();
+
+                        return (<TableRow key={fetchedAsset.address}>
                             <TableCell className="text-left">
                                 <div className="flex flex-row items-center gap-2">
                                     <Avatar className="w-5 h-5">
@@ -53,9 +56,10 @@ export const IndexAssetsBreakdown = observer(() => {
                             </TableCell>
                             <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>
                             <TableCell>{currentShares.get(fetchedAsset.address!)!.toFixed(2)}%</TableCell>
-                            <TableCell>{fetchedAsset.chainPrice.toString()}$</TableCell>
+                            <TableCell>{price}$</TableCell>
                             <TableCell>{tohumanReadableQuantity(fetchedAsset.quantity)}</TableCell>
-                        </TableRow>
+                        </TableRow>)
+                    }
                     )
                 }
             </TableBody>

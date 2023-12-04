@@ -709,8 +709,56 @@ class MultipoolStore {
         const etherPrices = _res.data;
 
         runInAction(() => {
-            this.etherPrice[42161] = etherPrices["42161"]
+            this.etherPrice[42161] = etherPrices["42161"].USD;
         });
+    }
+
+    get getInputPrice(): BigNumber {
+        const address = this.inputAsset?.address;
+
+        // check if address is multipool address
+        if (address === this.multipool.address.toString()) {
+            axios.get(`https://api.arcanum.to/api/stats?multipool_id=${this.staticData.name}`).then((res) => {
+                const response = res.data;
+
+                return new BigNumber(response.value).div(new BigNumber(10).pow(18));
+            });
+        }
+        const asset = this.assets.find((asset) => asset.address === address) as MultipoolAsset;
+        if (asset === undefined) return new BigNumber(0);
+
+        if (asset.chainPrice === undefined) {
+            if (asset.price === undefined) {
+                return new BigNumber(0);
+            }
+            return new BigNumber(asset.price.toString());
+        }
+
+        return new BigNumber(asset.chainPrice.toString());
+    }
+
+    get getOutputPrice(): BigNumber {
+        const address = this.outputAsset?.address;
+
+        // check if address is multipool address
+        if (address === this.multipool.address.toString()) {
+            axios.get(`https://api.arcanum.to/api/stats?multipool_id=${this.staticData.name}`).then((res) => {
+                const response = res.data;
+
+                return new BigNumber(response.value).div(new BigNumber(10).pow(18));
+            });
+        }
+        const asset = this.assets.find((asset) => asset.address === address) as MultipoolAsset;
+        if (asset === undefined) return new BigNumber(0);
+
+        if (asset.chainPrice === undefined) {
+            if (asset.price === undefined) {
+                return new BigNumber(0);
+            }
+            return new BigNumber(asset.price.toString());
+        }
+
+        return new BigNumber(asset.chainPrice.toString());
     }
 
     get hrInQuantity() {

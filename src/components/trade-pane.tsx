@@ -49,7 +49,7 @@ interface TokenQuantityInputProps {
 }
 
 export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) => {
-    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap } = multipool;
+    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap, etherPrice, getInputPrice, getOutputPrice, multipool: _multipool } = multipool;
     const { address } = useAccount();
 
     const quantity = text === "Send" ? multipool.hrInQuantity : multipool.hrOutQuantity;
@@ -120,6 +120,21 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         checkSwap();
     };
 
+    function getDollarValue(): string {
+        if (theAsset === undefined || quantity === undefined || etherPrice === undefined) {
+            return "0";
+        }
+
+        const price = text === "Send" ? getInputPrice : getOutputPrice;
+
+        if (theAsset.address === _multipool.address) {
+            const value = new BigNumber(quantity).multipliedBy(etherPrice[42161]);
+            return value.toFixed(2);
+        }
+        
+        const value = new BigNumber(quantity).multipliedBy(price).multipliedBy(etherPrice[42161]);
+        return value.toFixed(2);
+    }
 
     return (
         <div className="flex flex-col justify-between items-start rounded-2xl h-full p-3 bg-[#1b1b1b]">
@@ -155,7 +170,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
                 <p className="m-0 text-xs text-gray-500">
-                    = {(0) + "$"}
+                    = {getDollarValue() + "$"}
                 </p>
                 <p className="m-0 text-gray-500 text-xs whitespace-nowrap">
                     Balance: {
