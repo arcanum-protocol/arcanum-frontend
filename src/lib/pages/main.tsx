@@ -10,6 +10,15 @@ import TVChartContainer from "@/components/tv-chart";
 import { TokenSelector } from "@/components/token-selector";
 import { SolidAsset } from '@/types/multipoolAsset';
 import { Faucet } from '@/components/faucet-modal';
+import { AdminPannel } from './admin';
+
+export const Admin = observer(() => {
+    return (
+        <>
+            <AdminPannel />
+        </>
+    )
+});
 
 export const Arbi = observer(() => {
     return (

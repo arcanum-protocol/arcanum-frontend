@@ -3,7 +3,7 @@ import { App } from "./App";
 import "./index.css";
 
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Arbi } from "./lib/pages/main";
+import { Admin, Arbi } from "./lib/pages/main";
 
 const router = createBrowserRouter([
     {
@@ -17,6 +17,10 @@ const router = createBrowserRouter([
             {
                 path: "/arbi",
                 element: <Arbi />,
+            },
+            {
+                path: "/admin",
+                element: <Admin />,
             }
         ]
     },
