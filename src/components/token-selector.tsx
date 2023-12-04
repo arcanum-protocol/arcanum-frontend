@@ -1,7 +1,6 @@
 import { ScrollArea } from "./ui/scroll-area";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
-import { useAccount } from "wagmi";
 import { BigNumber } from "bignumber.js";
 import { SineWaveText } from "./ui/sine-wave-text";
 import { useState } from "react";
@@ -10,19 +9,22 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
-
+import { observer } from "mobx-react-lite";
+import { multipool } from "@/store/MultipoolStore";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface TokenSelectorProps {
     action: "set-token-in" | "set-token-out";
-    // setSelectedTabWrapper
-    setter: (value: "mint" | "burn" | "swap" | "set-token-in" | "set-token-out" | "back") => void;
     className?: string;
 }
 
-function TokenSelector({ action, setter }: TokenSelectorProps) {
+const TokenSelector = observer(({ action }: TokenSelectorProps) => {
+    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset } = multipool;
     const [search, setSearch] = useState("");
 
-    const { address } = useAccount();
+    const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
+
+    const tokenList = assets.filter((asset) => asset.type === "multipool") as MultipoolAsset[];
 
     function toHumanReadable(number: number | undefined, decimals: number) {
         if (!number) {
@@ -89,18 +91,9 @@ function TokenSelector({ action, setter }: TokenSelectorProps) {
         }
     }
 
-    function setToken(token: ExternalAsset | MultipoolAsset) {
-        if (action === "set-token-in") {
-            setter("back");
-        } else {
-            setter("back");
-        }
-    }
-
-
     return (
         <>
-            <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap">
+            <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap" onClick={() => setSelectedTabWrapper("back")}>
                 <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10">
                     <ChevronLeftIcon className="pt-2 h-8 w-8" />
                 </a>
@@ -112,10 +105,37 @@ function TokenSelector({ action, setter }: TokenSelectorProps) {
             <Separator className="my-1" />
             <ScrollArea className="h-[478px] w-full py-2">
                 {
+                    tokenList.map((asset, index) => {
+                        if (search !== "" && !asset.name.toLowerCase().includes(search.toLowerCase())) {
+                            return null;
+                        }
+
+                        return (
+                            <div key={index} className={
+                                `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer ease-in-out duration-100 rounded-xl`
+                            } onClick={() => {setToken(asset); setSelectedTabWrapper("back")}}>
+                                <div className="flex flex-row justify-between items-center gap-2 m-2">
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src={asset.logo || undefined} alt="Logo" />
+                                        <AvatarFallback>{"?"}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col text-start">
+                                        <p className="font-mono">{asset.symbol}</p>
+                                        <div className="flex flex-row gap-1 items-center">
+                                            {
+                                                getBalanceDecaration(asset)
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="font-mono">{toHumanDollarValue(asset)}</div>
+                            </div>
+                        );
+                    })
                 }
             </ScrollArea>
         </>
     )
-}
+});
 
 export { TokenSelector };

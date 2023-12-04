@@ -2,9 +2,7 @@ import { configureChains } from '@wagmi/core'
 import { publicProvider } from '@wagmi/core/providers/public'
 import { createConfig } from "wagmi";
 import { createAlchemyWeb3 } from "@alch/alchemy-web3";
-import {
-    getDefaultConfig,
-} from "connectkit";
+import { getDefaultConfig } from "connectkit";
 
 export const arbitrumMainnet = {
     id: 42161,

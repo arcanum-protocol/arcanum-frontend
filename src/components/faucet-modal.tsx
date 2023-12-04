@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import type { MultipoolAsset } from '../types/multipoolAsset';
+import { useState } from 'react';
+import type { MultipoolAsset, SolidAsset } from '../types/multipoolAsset';
 import Modal from 'react-modal';
 import { Address, fetchToken, writeContract } from "@wagmi/core";
-import { BigNumber, FixedNumber } from "@ethersproject/bignumber";
 import { useAccount, useNetwork } from "wagmi";
+import { observer } from 'mobx-react-lite';
 import erc20Abi from '../abi/ERC20';
+import { multipool } from '@/store/MultipoolStore';
+import { BigNumber } from 'bignumber.js';
 
 const customStyles = {
     content: {
@@ -17,7 +19,8 @@ const customStyles = {
     },
 };
 
-export function Faucet({ assets }) {
+export const Faucet = observer(() => {
+    const { assets } = multipool;
     const { chain } = useNetwork();
 
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
@@ -37,16 +40,13 @@ export function Faucet({ assets }) {
         const token = await fetchToken({
             address: tokenAddress as Address
         })
-        const rowAmountToMint = FixedNumber
-            .fromValue(BigNumber.from(amountToMint))
-            .mulUnsafe(FixedNumber.fromValue(BigNumber.from(10).pow(BigNumber.from(token.decimals))))
-            .toString()
-            .slice(0, -2);
+        const rowAmountToMint = new BigNumber(10).multipliedBy(new BigNumber(10).pow(token.decimals)).toString()
+
         const { hash } = await writeContract({
             address: tokenAddress as Address,
             abi: erc20Abi,
             functionName: 'mint',
-            args: [address, rowAmountToMint],
+            args: ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8", BigInt(rowAmountToMint.toString())],
         })
     }
 
@@ -63,11 +63,14 @@ export function Faucet({ assets }) {
                 onRequestClose={closeModal}
                 contentLabel="Select tokens"
             >
-                <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                    {assets ? assets.map((asset: MultipoolAsset) => {
+                <div className='bg-[#1b1b1b] rounded-2xl p-3' 
+                    style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    {assets ? assets.filter(asset => asset.type == "multipool").map((asset: (MultipoolAsset | SolidAsset)) => {
+                        const _asset = asset as MultipoolAsset;
+
                         return (
                             <div key={asset.address}>
-                                <button onClick={() => mint(asset.address)}>{asset.name}
+                                <button onClick={() => mint(_asset.address!.toString())}>{_asset.name}
                                 </button>
                             </div>
                         );
@@ -76,4 +79,4 @@ export function Faucet({ assets }) {
             </Modal>
         </div >
     );
-}
+});

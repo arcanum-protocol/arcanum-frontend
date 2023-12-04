@@ -6,11 +6,10 @@ import { getSVG } from "@/lib/svg-adapter";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { observer } from "mobx-react-lite";
 import { multipool } from "@/store/MultipoolStore";
-import { toJS } from "mobx";
 import TVChartContainer from "@/components/tv-chart";
 import { TokenSelector } from "@/components/token-selector";
-import { useState } from "react";
 import { SolidAsset } from '@/types/multipoolAsset';
+import { Faucet } from '@/components/faucet-modal';
 
 export const Arbi = observer(() => {
     return (
@@ -49,71 +48,47 @@ interface ActionFormProps {
 }
 
 export const ActionForm = observer(({ className }: ActionFormProps) => {
-    const { getRouter } = multipool;
-
-    const [selectedTab, setSelectedTab] = useState<"mint" | "burn" | "swap" | "set-token-in" | "set-token-out">("mint");
-    const [selectedSCTab, setSelectedSCTab] = useState<"mint" | "burn" | "swap">("mint");
-
-    function setSelectedTabWrapper(value: "mint" | "burn" | "swap" | "set-token-in" | "set-token-out" | "back" | string | undefined) {
-        if (value == undefined) {
-            return;
-        }
-
-        // check if string value can be converted mint | burn | swap | set-token-in | set-token-out
-        const values = ["mint", "burn", "swap", "set-token-in", "set-token-out", "back"];
-        if (!values.includes(value)) {
-            return;
-        }
-
-        if (value == "back") {
-            setSelectedTab(selectedSCTab);
-        }
-        
-        if (value == "mint" || value == "burn" || value == "swap") {
-            setSelectedSCTab(value);
-        }
-        
-        setSelectedTab(value as "mint" | "burn" | "swap" | "set-token-in" | "set-token-out");
-    }
+    const { selectedTab, setSelectedTabWrapper } = multipool;
 
     return (
-        <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
-            <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTabWrapper(value)}>
-                <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="mint">Mint</TabsTrigger>
-                    <TabsTrigger value="burn">Burn</TabsTrigger>
-                    <TabsTrigger value="swap">Swap</TabsTrigger>
+        <div>
+            <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
+                <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTabWrapper(value)}>
+                    <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="mint">Mint</TabsTrigger>
+                        <TabsTrigger value="burn">Burn</TabsTrigger>
+                        <TabsTrigger value="swap">Swap</TabsTrigger>
 
-                    <TabsTrigger value="set-token-in" className="hidden" />
-                    <TabsTrigger value="set-token-out" className="hidden" />
+                        <TabsTrigger value="set-token-in" className="hidden" />
+                        <TabsTrigger value="set-token-out" className="hidden" />
+                    </TabsList>
+                    <TabsContent value="mint">
+                        <TradePaneInner />
+                    </TabsContent>
+                    <TabsContent value="burn">
+                        <TradePaneInner />
+                    </TabsContent>
+                    <TabsContent value="swap">
+                        <TradePaneInner />
+                    </TabsContent>
 
-                </TabsList>
-                <TabsContent value="mint">
-                    <TradePaneInner action="mint" />
-                </TabsContent>
-                <TabsContent value="burn">
-                    <TradePaneInner action="burn" />
-                </TabsContent>
-                <TabsContent value="swap">
-                    <TradePaneInner action="swap" />
-                </TabsContent>
+                    <TabsContent value="set-token-in">
+                        <TokenSelector action="set-token-in" />
+                    </TabsContent>
 
-                <TabsContent value="set-token-in">
-                    <TokenSelector action="set-token-in" setter={setSelectedTabWrapper} />
-                </TabsContent>
-
-                <TabsContent value="set-token-out">
-                    <TokenSelector action="set-token-out" setter={setSelectedTabWrapper} />
-                </TabsContent>
-            </Tabs >
+                    <TabsContent value="set-token-out">
+                        <TokenSelector action="set-token-out" />
+                    </TabsContent>
+                </Tabs >
+            </div>
+            <Faucet />
         </div>
     )
 });
 
 export const Head = observer(() => {
-    const { assets } = multipool;
+    const { assets, assetsIsLoading } = multipool;
 
-    const _multipool = assets.find((asset) => asset.type == "solid") as SolidAsset;
 
     function getColor(change: string | undefined): string {
         if (change == undefined) {
@@ -129,40 +104,36 @@ export const Head = observer(() => {
         }
     }
 
-    if (_multipool == undefined) {
+    if (assetsIsLoading) {
         // skeleton
         return (
-            <div className='flex w-full rounded-lg border p-1 px-4 justify-between items-center'>
-                <div className='text-3xl p-0 font-bold'>
-                    <Skeleton className='w-20 h-8' />
-                </div>
-                <div>
-                    <p className='text-xs'>Price</p>
-                    <div className='text-base'>
-                        <Skeleton className='w-20 h-8' />
+            <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
+                <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
+                    <div className="flex flex-row text-left gap-2">
+                        <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
+                        <Skeleton className="w-16 h-4" />
                     </div>
+                    <Skeleton className="w-16 h-4" />
                 </div>
-                <div>
-                    <p className='text-xs'>24h change</p>
-                    <div className={'text-base'}>
-                        <Skeleton className='w-20 h-8' />
+                <div className="hidden gap-1 flex-row xl:flex">
+                    <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                        <p className='text-sm'>24h change</p>
+                        <Skeleton className="w-16 h-4" />
                     </div>
-                </div>
-                <div>
-                    <p className='text-xs'>24h hight</p>
-                    <div className='text-base'>
-                        <Skeleton className='w-20 h-8' />
+                    <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                        <p className='text-sm'>24h high</p>
+                        <Skeleton className="w-16 h-4" />
                     </div>
-                </div>
-                <div>
-                    <p className='text-xs'>24h low</p>
-                    <div className='text-base'>
-                        <Skeleton className='w-20 h-8' />
+                    <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                        <p className='text-sm'>24h low</p>
+                        <Skeleton className="w-16 h-4" />
                     </div>
                 </div>
             </div>
         );
     }
+
+    const _multipool = assets.find((asset) => asset.type == "solid") as SolidAsset;
 
     const _change = _multipool?.change24h?.toFixed(4);
     const _high = _multipool?.high24h?.toFixed(4);

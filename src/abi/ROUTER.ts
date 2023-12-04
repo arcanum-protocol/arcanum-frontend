@@ -1,707 +1,233 @@
 export default [
     {
+        "type": "function",
+        "name": "owner",
         "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-    },
-    {
-        "inputs": [
+        "outputs": [
             {
-                "internalType": "uint256",
-                "name": "x",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "y",
-                "type": "uint256"
+                "name": "",
+                "type": "address",
+                "internalType": "address"
             }
         ],
-        "name": "PRBMath_MulDiv18_Overflow",
-        "type": "error"
+        "stateMutability": "view"
     },
     {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "x",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "y",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "denominator",
-                "type": "uint256"
-            }
-        ],
-        "name": "PRBMath_MulDiv_Overflow",
-        "type": "error"
-    },
-    {
+        "type": "function",
+        "name": "renounceOwnership",
         "inputs": [],
-        "name": "PRBMath_SD59x18_Abs_MinSD59x18",
-        "type": "error"
+        "outputs": [],
+        "stateMutability": "nonpayable"
     },
     {
-        "inputs": [],
-        "name": "PRBMath_SD59x18_Div_InputTooSmall",
-        "type": "error"
-    },
-    {
+        "type": "function",
+        "name": "swap",
         "inputs": [
             {
-                "internalType": "SD59x18",
-                "name": "x",
-                "type": "int256"
-            },
-            {
-                "internalType": "SD59x18",
-                "name": "y",
-                "type": "int256"
-            }
-        ],
-        "name": "PRBMath_SD59x18_Div_Overflow",
-        "type": "error"
-    },
-    {
-        "inputs": [],
-        "name": "PRBMath_SD59x18_Mul_InputTooSmall",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "SD59x18",
-                "name": "x",
-                "type": "int256"
-            },
-            {
-                "internalType": "SD59x18",
-                "name": "y",
-                "type": "int256"
-            }
-        ],
-        "name": "PRBMath_SD59x18_Mul_Overflow",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "SD59x18",
-                "name": "x",
-                "type": "int256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "y",
-                "type": "uint256"
-            }
-        ],
-        "name": "PRBMath_SD59x18_Powu_Overflow",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "SD59x18",
-                "name": "x",
-                "type": "int256"
-            }
-        ],
-        "name": "PRBMath_SD59x18_Sqrt_NegativeInput",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "SD59x18",
-                "name": "x",
-                "type": "int256"
-            }
-        ],
-        "name": "PRBMath_SD59x18_Sqrt_Overflow",
-        "type": "error"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
                 "name": "poolAddress",
-                "type": "address"
+                "type": "address",
+                "internalType": "address"
             },
             {
-                "internalType": "address",
-                "name": "assetAddress",
-                "type": "address"
+                "name": "swapArgs",
+                "type": "tuple",
+                "internalType": "struct MultipoolRouter.SwapArgs",
+                "components": [
+                    {
+                        "name": "fpSharePrice",
+                        "type": "tuple",
+                        "internalType": "struct Multipool.FPSharePriceArg",
+                        "components": [
+                            {
+                                "name": "thisAddress",
+                                "type": "address",
+                                "internalType": "address"
+                            },
+                            {
+                                "name": "timestamp",
+                                "type": "uint128",
+                                "internalType": "uint128"
+                            },
+                            {
+                                "name": "value",
+                                "type": "uint128",
+                                "internalType": "uint128"
+                            },
+                            {
+                                "name": "signature",
+                                "type": "bytes",
+                                "internalType": "bytes"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "selectedAssets",
+                        "type": "tuple[]",
+                        "internalType": "struct Multipool.AssetArg[]",
+                        "components": [
+                            {
+                                "name": "addr",
+                                "type": "address",
+                                "internalType": "address"
+                            },
+                            {
+                                "name": "amount",
+                                "type": "int256",
+                                "internalType": "int256"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "isExactInput",
+                        "type": "bool",
+                        "internalType": "bool"
+                    },
+                    {
+                        "name": "to",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "refundTo",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "ethValue",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    }
+                ]
             },
             {
-                "internalType": "uint256",
-                "name": "amountOut",
-                "type": "uint256"
+                "name": "paramsBefore",
+                "type": "tuple[]",
+                "internalType": "struct MultipoolRouter.Call[]",
+                "components": [
+                    {
+                        "name": "callType",
+                        "type": "uint8",
+                        "internalType": "enum MultipoolRouter.CallType"
+                    },
+                    {
+                        "name": "data",
+                        "type": "bytes",
+                        "internalType": "bytes"
+                    }
+                ]
             },
             {
-                "internalType": "uint256",
-                "name": "sharesInMax",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
+                "name": "paramsAfter",
+                "type": "tuple[]",
+                "internalType": "struct MultipoolRouter.Call[]",
+                "components": [
+                    {
+                        "name": "callType",
+                        "type": "uint8",
+                        "internalType": "enum MultipoolRouter.CallType"
+                    },
+                    {
+                        "name": "data",
+                        "type": "bytes",
+                        "internalType": "bytes"
+                    }
+                ]
             }
         ],
-        "name": "burnWithAmountOut",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "shares",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "refund",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        "outputs": [],
+        "stateMutability": "payable"
     },
     {
+        "type": "function",
+        "name": "toggleContract",
         "inputs": [
             {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharesIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountOutMin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
+                "name": "contractAddress",
+                "type": "address",
+                "internalType": "address"
             }
         ],
-        "name": "burnWithSharesIn",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "refund",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        "outputs": [],
+        "stateMutability": "nonpayable"
     },
     {
+        "type": "function",
+        "name": "transferOwnership",
         "inputs": [
             {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharesIn",
-                "type": "uint256"
+                "name": "newOwner",
+                "type": "address",
+                "internalType": "address"
             }
         ],
-        "name": "estimateBurnAmountOut",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "amountOut",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "assetPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharePrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cashbackOut",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
+        "outputs": [],
+        "stateMutability": "nonpayable"
     },
     {
+        "type": "event",
+        "name": "OwnershipTransferred",
         "inputs": [
             {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
+                "name": "previousOwner",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             },
             {
-                "internalType": "address",
-                "name": "assetAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountOut",
-                "type": "uint256"
+                "name": "newOwner",
+                "type": "address",
+                "indexed": true,
+                "internalType": "address"
             }
         ],
-        "name": "estimateBurnSharesIn",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "sharesIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "assetPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharePrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cashbackOut",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
+        "anonymous": false
     },
     {
+        "type": "error",
+        "name": "CallFailed",
         "inputs": [
             {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
+                "name": "callNumber",
+                "type": "uint256",
+                "internalType": "uint256"
             },
             {
-                "internalType": "address",
-                "name": "assetAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharesOut",
-                "type": "uint256"
+                "name": "isPredecessing",
+                "type": "bool",
+                "internalType": "bool"
             }
-        ],
-        "name": "estimateMintAmountIn",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "amountIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "assetPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharePrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cashbackIn",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
+        ]
     },
     {
+        "type": "error",
+        "name": "ContractCallNotAllowed",
         "inputs": [
             {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountIn",
-                "type": "uint256"
+                "name": "target",
+                "type": "address",
+                "internalType": "address"
             }
-        ],
-        "name": "estimateMintSharesOut",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "sharesOut",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "assetPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharePrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cashbackIn",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
+        ]
     },
     {
+        "type": "error",
+        "name": "InsufficientEthBalance",
         "inputs": [
             {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
+                "name": "callNumber",
+                "type": "uint256",
+                "internalType": "uint256"
             },
             {
-                "internalType": "address",
-                "name": "assetInAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetOutAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountOut",
-                "type": "uint256"
+                "name": "isPredecessing",
+                "type": "bool",
+                "internalType": "bool"
             }
-        ],
-        "name": "estimateSwapAmountIn",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "shares",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "assetInPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "assetOutPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cashbackIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cashbackOut",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
+        ]
     },
     {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetInAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetOutAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountIn",
-                "type": "uint256"
-            }
-        ],
-        "name": "estimateSwapAmountOut",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "shares",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountOut",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "assetInPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "assetOutPrice",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cashbackIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "cashbackOut",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharesOutMin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            }
-        ],
-        "name": "mintWithAmountIn",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "shares",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "refund",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "sharesOut",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountInMax",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            }
-        ],
-        "name": "mintWithSharesOut",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "refund",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetInAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetOutAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountOutMin",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            }
-        ],
-        "name": "swapWithAmountIn",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "amountOut",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "refundIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "refundOut",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
-                "name": "poolAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetInAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetOutAddress",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountOut",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "amountInMax",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "to",
-                "type": "address"
-            }
-        ],
-        "name": "swapWithAmountOut",
-        "outputs": [
-            {
-                "internalType": "uint256",
-                "name": "amountIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "refundIn",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "refundOut",
-                "type": "uint256"
-            }
-        ],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        "type": "error",
+        "name": "InsufficientEthBalanceCallingSwap",
+        "inputs": []
     }
-];
+] as const;  

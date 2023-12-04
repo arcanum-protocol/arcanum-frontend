@@ -1,9 +1,4 @@
 import * as React from 'react';
-import { FixedNumber } from "ethers";
-import { useState, useEffect } from "react";
-import { SendTransactionParams } from "./trade-pane";
-
-import { useTradeContext } from '../contexts/TradeContext';
 
 export function Tooltip({ children }) {
     return <div

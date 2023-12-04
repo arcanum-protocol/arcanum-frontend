@@ -1,11 +1,13 @@
 import { BigNumber } from "bignumber.js";
+import { Address } from 'viem';
+
 
 interface BaseAsset {
     name: string;
     symbol: string;
     decimals: number;
     logo: string | undefined;
-    address: string | undefined;
+    address: Address | undefined;
     price?: number;
     balance?: number;
     quantity: BigNumber;

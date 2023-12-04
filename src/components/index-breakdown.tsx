@@ -7,21 +7,11 @@ import { multipool } from "@/store/MultipoolStore";
 import { Skeleton } from "./ui/skeleton";
 import { MultipoolAsset } from "@/types/multipoolAsset";
 
+
 export const IndexAssetsBreakdown = observer(() => {
-    const { assets, currentShares } = multipool;
+    const { assets, currentShares, assetsIsLoading } = multipool;
 
     const fetchedAssets = assets.filter((asset) => asset.type === "multipool") as MultipoolAsset[];
-
-    function toHumanReadablePrice(number: number | undefined) {
-        if (number == null) {
-            return "0";
-        }
-
-        const _number = new BigNumber(number);
-
-        const decimals = new BigNumber(10).pow(18);
-        return _number.dividedBy(decimals).toFixed(2);
-    }
 
     function tohumanReadableQuantity(number: BigNumber) {
         const decimals = new BigNumber(10).pow(18);
@@ -30,9 +20,9 @@ export const IndexAssetsBreakdown = observer(() => {
         return toHumanReadable(value, 2);
     }
 
-    if (assets.length === 0) {
+    if (assetsIsLoading) {
         return (
-            <Skeleton className="relative w-full overflow-auto rounded-2xl border h-96">
+            <Skeleton className="relative w-[897px] overflow-auto rounded-2xl border h-[225.2px]">
             </Skeleton>
         );
     }
@@ -63,7 +53,7 @@ export const IndexAssetsBreakdown = observer(() => {
                             </TableCell>
                             <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>
                             <TableCell>{currentShares.get(fetchedAsset.address!)!.toFixed(2)}%</TableCell>
-                            <TableCell>{toHumanReadablePrice(fetchedAsset.price)}$</TableCell>
+                            <TableCell>{fetchedAsset.chainPrice.toString()}$</TableCell>
                             <TableCell>{tohumanReadableQuantity(fetchedAsset.quantity)}</TableCell>
                         </TableRow>
                     )

@@ -24,11 +24,6 @@ svg {
   display: inline-flex;
 }
 
-#navbar_ul li {
-  display: inline;
-  padding: 10px;
-}
-
 body {
   margin: 0;
   place-items: center;
@@ -44,29 +39,18 @@ body {
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button:disabled {
-  color: #393939;
-}
-
-.pane {
-  --mask: url("/pane.svg") 0 0 / 100% 100% no-repeat;
-  -webkit-mask: var(--mask);
-  mask: var(--mask);
-}
-
-.multipool-token-balance {
-  animation: sineWave 5s infinite linear;
-}
-
 .TVChartContainer {
   mask-image: radial-gradient(circle 0 at top left, transparent 0, transparent 15px, black 16px);
 }
 
-body {
-  background-color: #0d0b0d;
+#root {
+  margin: 0 auto;
+  padding: 1rem;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  max-width: 100%;
 }

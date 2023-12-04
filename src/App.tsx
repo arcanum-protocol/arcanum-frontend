@@ -1,4 +1,3 @@
-import "./App.css";
 import { WagmiConfig, useNetwork } from "wagmi";
 import {
     ChainIcon,
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import "../app/globals.css";
 import { useState } from "react";
+import { Toaster } from "./components/ui/toaster";
 
 const client = new QueryClient();
 
@@ -30,6 +30,7 @@ function App() {
                 <ConnectKitProvider theme="midnight">
                     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                         <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
+                            <Toaster />
                             <Navbar />
                             <Outlet />
                         </main>
@@ -54,8 +55,8 @@ function Navbar() {
     return (
         <div className="flex flex-row min-w-full justify-between items-center mb-[1.5rem]">
             <div className="z-50 block lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
             </div>
             {/** Mobile menu, leaves from left to right for 70% of the screen */}

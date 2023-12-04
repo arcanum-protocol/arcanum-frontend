@@ -6,25 +6,23 @@ import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { observer } from 'mobx-react-lite';
 import { multipool } from "@/store/MultipoolStore";
+import { ChangeEvent } from "react";
+import ERC20 from "@/abi/ERC20";
+import { useAccount, useContractRead } from "wagmi";
+import { Skeleton } from "./ui/skeleton";
 
 
-interface TradePaneProps {
-    action: "mint" | "burn" | "swap";
-}
-
-export function TradePaneInner({
-    action
-}: TradePaneProps) {
+export const TradePaneInner = observer(() => {
+    const { assetsIsLoading } = multipool;
 
     return (
         <div className="flex flex-col justify-center mt-[1rem]">
             <div className="flex flex-col gap-4 items-center">
-                <TokenQuantityInput
-                    text={"Send"}
-                    balance={"0"}
-                    isDisabled={false}
-                    action={action}
-                />
+                {
+                    assetsIsLoading ?
+                    <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
+                        <TokenQuantityInput text={"Send"} />
+                }
 
                 <div className="my-[-2rem] z-10 bg-[#161616] border border-[#2b2b2b] p-2 rounded-lg">
                     <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -32,12 +30,11 @@ export function TradePaneInner({
                     </svg>
                 </div>
 
-                <TokenQuantityInput
-                    text={"Receive"}
-                    balance={"0"}
-                    isDisabled={false}
-                    action={action}
-                />
+                { 
+                    assetsIsLoading ?
+                    <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
+                    <TokenQuantityInput text={"Receive"} />
+                }
             </div>
             <div className="flex flex-col gap-4 items-center">
                 <TransactionParamsSelector />
@@ -45,49 +42,110 @@ export function TradePaneInner({
             </div>
         </div>
     )
-}
-
-function toHumanReadable(number: number | undefined, decimals: number | undefined) {
-    if (!number) {
-        return "0";
-    }
-
-    const root = new BigNumber(number);
-    const divisor = new BigNumber(10).pow(decimals || 18);
-
-    return root.div(divisor).toFixed(4).toString();
-}
+});
 
 interface TokenQuantityInputProps {
     text: "Send" | "Receive";
-    balance: string;
-    isDisabled?: boolean;
-    action: "mint" | "burn" | "swap";
 }
 
-export const TokenQuantityInput = observer(({ text, isDisabled }: TokenQuantityInputProps) => {
-    const { inputAsset, outputAsset } = multipool;
+export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) => {
+    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap } = multipool;
+    const { address } = useAccount();
 
+    const quantity = text === "Send" ? multipool.hrInQuantity : multipool.hrOutQuantity;
     const theAsset = text === "Send" ? inputAsset : outputAsset;
-    
+    const isDisabled = theAsset?.type === "solid";
+
+    const isThisMainInput = text === "Send" ? multipool.mainInput === "in" : multipool.mainInput === "out";
+
+    function getBalance(): JSX.Element {
+        const { data: balance, isLoading } = useContractRead({
+            address: theAsset?.address,
+            abi: ERC20,
+            functionName: "balanceOf",
+            args: [address!],
+            watch: true,
+            enabled: address !== undefined && theAsset !== undefined,
+        });
+
+        if (isLoading) {
+            return (
+                <Skeleton className="w-1 h-0.5" />
+            );
+        }
+
+        if (balance === undefined) {
+            return (
+                <div className="font-mono text-xs text-gray-500">0</div>
+            );
+        }
+
+        const tokenBalance = new BigNumber(balance.toString()).dividedBy(new BigNumber(10).pow(18));
+
+        return (
+            <div className="inline-flex font-mono text-xs text-gray-500">{tokenBalance.toFixed(4)}</div>
+        );
+    }
+
+    function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
+        if (e.target.value === "") {
+            if (text === "Send") {
+                multipool.setInputQuantity(undefined);
+            } else {
+                multipool.setOutputQuantity(undefined);
+            }
+            return;
+        }
+
+        const regex = new RegExp("^[0-9]*[.,]?[0-9]*$");
+        if (!regex.test(e.target.value)) {
+            // prevent non-numeric input
+            e.target.value = e.target.value.slice(0, -1);
+            return;
+        }
+
+        const value = e.target.value.replace(",", ".");
+
+        if (text === "Send") {
+            setMainInput("in");
+        } else {
+            setMainInput("out");
+        }
+
+        if (text === "Send") {
+            multipool.setInputQuantity(value);
+        } else {
+            multipool.setOutputQuantity(value);
+        }
+        checkSwap();
+    };
+
+
     return (
         <div className="flex flex-col justify-between items-start rounded-2xl h-full p-3 bg-[#1b1b1b]">
             <p className="leading-4 m-0 uppercase text-xs font-light">{text} </p>
             <div className="flex flex-row flex-start items-start justify-between w-full">
                 <div className={''}
                     style={{ display: "flex", flexDirection: "column", alignItems: "start" }}>
-                    <input className="w-full text-3xl h-10 rounded-lg p-2 focus:outline-none focus:border-blue-500 bg-transparent"
-                        value={0}
-                        placeholder="0"
-                        // onChange={handleInputChange}
-                    />
+                    {
+                        isThisMainInput ?
+                            <input className="w-full text-3xl h-10 rounded-lg p-2 focus:outline-none focus:border-blue-500 bg-transparent"
+                                placeholder="0"
+                                onChange={handleInputChange}
+                            /> :
+                            <input className="w-full text-3xl h-10 rounded-lg p-2 focus:outline-none focus:border-blue-500 bg-transparent"
+                                placeholder="0"
+                                value={quantity}
+                                onFocus={() => setMainInput(text === "Send" ? "in" : "out")}
+                            />
+                    }
                 </div>
-                <Button className="grow max-w-min rounded-2xl pl-0.5 pr-0.5 justify-between" variant="secondary">
+                <Button className="grow max-w-min rounded-2xl pl-0.5 pr-0.5 justify-between" variant="secondary" onClick={() => setSelectedTabWrapper(text === "Send" ? "set-token-in" : "set-token-out")} disabled={isDisabled}>
                     <Avatar className="h-8 w-8">
                         <AvatarImage src={theAsset?.logo} alt="Logo" />
                         <AvatarFallback>{theAsset?.name}</AvatarFallback>
                     </Avatar>
-                    <p className="px-0.5 text-white opacity-100">{"TEST"}</p>
+                    <p className="px-0.5 text-white opacity-100">{theAsset?.name}</p>
                     {
                         !isDisabled ?
                             <ChevronDownIcon className="w-5 h-5 text-gray-400" /> :
@@ -99,16 +157,12 @@ export const TokenQuantityInput = observer(({ text, isDisabled }: TokenQuantityI
                 <p className="m-0 text-xs text-gray-500">
                     = {(0) + "$"}
                 </p>
-                <p className="m-0 text-gray-500 text-xs">
+                <p className="m-0 text-gray-500 text-xs whitespace-nowrap">
                     Balance: {
-                        toHumanReadable(
-                            parseFloat("0"),
-                            text === "Send" ? 18 : 18
-                        )
+                        getBalance()
                     }
                 </p>
             </div>
         </div>
     );
 });
-

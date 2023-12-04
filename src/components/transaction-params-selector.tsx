@@ -1,10 +1,11 @@
-import { FixedNumber } from "ethers";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { SendTransactionParams } from "@/types/sendTransactionParams";
 import { Button } from "./ui/button";
 import { Separator } from "@radix-ui/react-separator";
 import { useState } from "react";
+import { observer } from "mobx-react-lite";
+import { multipool } from "@/store/MultipoolStore";
 
 
 export function TransactionParamsSelector() {
@@ -156,8 +157,8 @@ export function TransactionParamsSelector() {
     );
 }
 
-export function SlippageSelector() {
-    const [slippage, setSlippage] = useState(0.5);
+export const SlippageSelector = observer(() => {
+    const { slippage, setSlippage } = multipool;
 
     // 0,1,2,3 - presets, 4 - custom
     const slippagePresets = [0.5, 1, 3];
@@ -210,8 +211,8 @@ export function SlippageSelector() {
                                     if (e.target.value == "") {
                                         setSlippage(slippagePresets[0]);
                                     }
-                                    let val = FixedNumber.fromString(e.target.value);
-                                    let num = Number(val.toString());
+                                    
+                                    let num = Number(e.target.value);
                                     if (num < 100) {
                                         setSlippage(num);
                                     }
@@ -225,4 +226,4 @@ export function SlippageSelector() {
             </div>
         </div >
     );
-}
+});
