@@ -1,161 +1,165 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
-import { SendTransactionParams } from "@/types/sendTransactionParams";
 import { Button } from "./ui/button";
 import { Separator } from "@radix-ui/react-separator";
-import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { multipool } from "@/store/MultipoolStore";
+import BigNumber from "bignumber.js";
 
 
 export function TransactionParamsSelector() {
-    const p = undefined as SendTransactionParams | undefined;
-    
     return (
-        <div style={{
-            display: "flex",
-            flexDirection: "column"
-        }} className="text-xs">
+        <div className="text-xs flex flex-col gap-2">
             <SlippageSelector />
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "auto",
-                    transition: "max-height .5s",
-                }}>
-                {
-                    undefined != undefined ?
-                        <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <div className="flex flex-row items-center gap-1 text-xs">
-                                            Minimal receive
-                                            <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
-                                        </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
-                                        <p>The minimum amount of tokens you'll receive in case of the maximal slippage.</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                            <p className="m-0">
-                                {0} ({0}$)
-                            </p>
-                        </div>
-                        : (
-                            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
-                                                Maximum send
-                                                <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
-                                            <p>The maximum amount of tokens you'll pay in the case of the maximal slippage.</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                                <p className="m-0">
-                                    {0} ({0}$)
-                                </p>
-                            </div>
-
-                        )
-                }
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
-                                    Cashback
-                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono text-xs">
-                                <p>The amount of tokens in the corresponding asset you'll get for your pool balancing swaps (good actions). Cashback equal 0 means that your action was not directed towards balance.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                    {p ?
-                        <Tooltip>
-                            <p
-                                style={{
-                                    margin: "0",
-                                    textDecoration: p ? "underline" : undefined,
-                                }}>
-                                {p ? <>
-                                    {
-                                        (
-                                            Number("0") +
-                                            Number("0")
-                                        ).toString()}$
-                                </> : <>{"-"} </>}
-                            </p>
-                            <div style={{ display: "flex", flexDirection: "column", margin: "5px" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <div style={{ margin: "0", marginRight: "10px" }}>
-                                        {p?.tokenIn?.symbol}:
-                                    </div>
-                                    <div style={{ margin: "0" }}>
-                                        {Number(0) || "0"}({Number(0) || "0"})$
-                                    </div>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <div style={{ margin: "0", marginRight: "10px" }}>
-                                        {p?.tokenOut?.symbol}:
-                                    </div>
-                                    <div style={{ margin: "0" }}>
-                                        {Number(0) || "0"}({Number(0) || "0"})$
-                                    </div>
-                                </div>
-                            </div>
-                        </Tooltip>
-                        :
-                        <>{"-"}</>
-                    }
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
-                                    Fee
-                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
-                                <p>Platform fee is a summ of base fee and deviation fee.<br />
-                                    Base fee - the platform's commission, for swaps is equal 0.01%. It is zero for minting and burning. <br />
-                                    Deviation fee is added when you increase the current deviation of the token.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                    <p style={{ margin: "0" }}>{0}$ ({0}%)</p>
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
-                                    Transaction cost
-                                    <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
-                                <p>Cost of the transaction on the blockchain.</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                    <p style={{ margin: "0" }}>{Number("0").toFixed(4)}$</p>
-                </div>
+            <div className="flex flex-col gap-2">
+                <ExchangeInfo />
+                <Fee />
+                <NetworkFee />
             </div >
         </div >
     );
 }
+
+const NetworkFee = observer(() => {
+    const { transactionCost } = multipool;
+
+    if (!transactionCost) {
+        return (
+            <></>
+        );
+    }
+
+    const dollarValue = new BigNumber(transactionCost.toString()).dividedBy(new BigNumber(10).pow(18));
+    const dollar = dollarValue.multipliedBy(multipool.etherPrice[42161]);
+
+    return (
+        <div className="flex justify-between">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                            Transaction cost
+                            <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                        <p>Cost of the transaction on the blockchain.</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <p className="m-0">{dollar.toFixed(4)}$</p>
+        </div>
+    );
+});
+
+const Fee = observer(() => {
+    const { inputQuantity, fee } = multipool;
+
+    if (!inputQuantity || !fee) {
+        return (
+            <></>
+        );
+    }
+
+    const dollarValue = new BigNumber(inputQuantity!.toString()).multipliedBy(fee!.toString()).dividedBy(new BigNumber(10).pow(18));
+    const feeDollar = dollarValue.multipliedBy(multipool.etherPrice[42161]).dividedBy(new BigNumber(10).pow(18));
+    const feePersent = new BigNumber(fee!.toString()).dividedBy(new BigNumber(10).pow(18)).multipliedBy(100);
+
+    // if fee dollar is less than 0.0001$ then it is zero and if fee persent is less than 0.0001% then it is zero
+    const humanReadableFeeDollar = feeDollar.isLessThan(0.0001) ? 0 : feeDollar.toFixed(4);
+    const humanReadableFeePersent = feePersent.isLessThan(0.0001) ? 0 : feePersent.toFixed(4);
+
+    if (feeDollar.isLessThan(0.0001)) {
+        return (
+            <></>
+        );
+    }
+
+    return (
+        <div className="flex justify-between">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                            Fee
+                            <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                        <p>Platform fee is a summ of base fee and deviation fee.<br />
+                            Base fee - the platform's commission, for swaps is equal 0.01%. It is zero for minting and burning. <br />
+                            Deviation fee is added when you increase the current deviation of the token.</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <p className="m-0">{humanReadableFeeDollar}$ ({humanReadableFeePersent}%)</p>
+        </div>
+    )
+});
+
+const ExchangeInfo = observer(() => {
+    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice } = multipool;
+
+    if (minimalReceive) {
+        const bgMinimalReceive = new BigNumber(minimalReceive.toString());
+        const decimals = outputAsset?.decimals || 18;
+        const minimalReceiveFormatted = bgMinimalReceive.dividedBy(new BigNumber(10).pow(decimals));
+        const minimalReceiveFormattedDollar = minimalReceiveFormatted.multipliedBy(etherPrice[42161]);
+
+        return (
+            <div className="flex justify-between">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="flex flex-row items-center gap-1 text-xs">
+                                Minimal receive
+                                <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                            <p>The minimum amount of tokens you'll receive in case of the maximal slippage.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <p className="m-0">
+                    {minimalReceiveFormatted.toFixed(4)} ({minimalReceiveFormattedDollar.toFixed(4)}$)
+                </p>
+            </div>
+        );
+    }
+
+    if (maximumSend) {
+        const bgMaximumSend = new BigNumber(maximumSend.toString());
+        const decimals = inputAsset?.decimals || 18;
+        const maximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals));
+        const maximumSendFormattedDollar = maximumSendFormatted.multipliedBy(etherPrice[42161]);
+
+        return (
+            <div className="flex justify-between">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                                Maximum send
+                                <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                            <p>The maximum amount of tokens you'll pay in the case of the maximal slippage.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <p className="m-0">
+                    {maximumSendFormatted.toFixed(4)} ({maximumSendFormattedDollar.toFixed(4)}$)
+                </p>
+            </div>
+        );
+    }
+
+    return (
+        <></>
+    );
+});
 
 export const SlippageSelector = observer(() => {
     const { slippage, setSlippage } = multipool;
@@ -174,7 +178,7 @@ export const SlippageSelector = observer(() => {
                                     Slippage tolerance
                                     <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                                 </div>
-                                <p style={{ margin: "0" }}>{slippage}%</p>
+                                <p className="m-0">{slippage}%</p>
                             </div>
                         </TooltipTrigger>
                         <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
@@ -211,7 +215,7 @@ export const SlippageSelector = observer(() => {
                                     if (e.target.value == "") {
                                         setSlippage(slippagePresets[0]);
                                     }
-                                    
+
                                     let num = Number(e.target.value);
                                     if (num < 100) {
                                         setSlippage(num);

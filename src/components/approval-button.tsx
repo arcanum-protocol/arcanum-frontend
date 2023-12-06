@@ -32,9 +32,17 @@ export const InteractionWithApprovalButton = observer(() => {
 
         console.log("hash", hash, hash.includes("ContractFunctionExecutionError"));
 
+        if (hash.includes("insufficient allowance")) {
+            toast({
+                title: "Insufficient allowance",
+                description: hash,
+            });
+            return;
+        }
+
         if (hash.includes("ContractFunctionExecutionError")) {
             toast({
-                title: "Insufficient balance",
+                title: "Swap failed",
                 description: hash,
             });
             return;
@@ -56,7 +64,7 @@ export const InteractionWithApprovalButton = observer(() => {
 
     if (address === undefined) {
         return (
-            <div>
+            <div className="w-full">
                 <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
                     <p style={{ margin: "10px" }}>Connect Wallet</p>
                 </Button>
@@ -66,7 +74,7 @@ export const InteractionWithApprovalButton = observer(() => {
 
     if (inputQuantity === undefined || inputAsset === undefined) {
         return (
-            <div>
+            <div className="w-full">
                 <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
                     <p style={{ margin: "10px" }}>Swap</p>
                 </Button>
@@ -76,7 +84,7 @@ export const InteractionWithApprovalButton = observer(() => {
 
     if (allowanceLoading) {
         return (
-            <div>
+            <div className="w-full">
                 <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
                     <p style={{ margin: "10px" }}>Loading...</p>
                 </Button>
@@ -86,7 +94,7 @@ export const InteractionWithApprovalButton = observer(() => {
 
     if (exchangeError) {
         return (
-            <div>
+            <div className="w-full">
                 <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
                     <p style={{ margin: "10px" }}>{exchangeError}</p>
                 </Button>
@@ -96,7 +104,7 @@ export const InteractionWithApprovalButton = observer(() => {
 
     if (allowance! < BigInt(inputQuantity!.toFixed())) {
         return (
-            <div>
+            <div className="w-full">
                 <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => approve(address!, inputAsset?.address, getRouter)}>
                     <p style={{ margin: "10px" }}>Approve</p>
                 </Button>

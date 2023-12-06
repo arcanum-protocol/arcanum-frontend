@@ -15,8 +15,9 @@ export const AdminPannel = observer(() => {
         setCurveParams,
         setSharePriceTTL,
         toggleForcePushAuthority,
-        toggleTargetShareAuthority, 
-        increaseCashback } = multipool;
+        toggleTargetShareAuthority,
+        increaseCashback,
+        updateTargetShares } = multipool;
 
     const [updatePriceState, setUpdatePriceState] = useState<{ address: Address, feedType: FeedType, bytes: string } | undefined>();
     const [withdrawFeesState, setWithdrawFeesState] = useState<{ to: Address } | undefined>();
@@ -25,6 +26,7 @@ export const AdminPannel = observer(() => {
     const [toggleForcePushAuthorityState, setToggleForcePushAuthorityState] = useState<{ newSharePriceTTL: string } | undefined>();
     const [toggleTargetShareAuthorityState, setToggleTargetShareAuthorityState] = useState<{ newSharePriceTTL: string } | undefined>();
     const [increaseCashbackState, setIncreaseCashback] = useState<{ address: Address } | undefined>();
+    const [updateTargetSharesState, setUpdateTargetSharesState] = useState<{ address: Address[], targetShares: string[] } | undefined>();
 
     const { data: owner } = useContractRead({
         address: multipool.multipool.address,
@@ -228,6 +230,32 @@ export const AdminPannel = observer(() => {
                         })
                     }
                     <Button onClick={() => callWrapprer(increaseCashback, increaseCashbackState?.address)}>increase cashback</Button>
+                </div>
+                <div className="flex flex-row gap-4 items-center">
+                    {
+                        ["address[]", "string[]"].map((type, index) => {
+                            return (
+                                <div key={index} className="flex flex-col gap-2">
+                                    <div className="text-[#ffffff]">{type}</div>
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                        console.log(type, e.target.value)
+                                        if (type === "address[]") {
+                                            setUpdateTargetSharesState({
+                                                address: e.target.value.split(","),
+                                                targetShares: updateTargetSharesState?.targetShares!
+                                            })
+                                        } else if (type === "string[]") {
+                                            setUpdateTargetSharesState({
+                                                address: updateTargetSharesState?.address!,
+                                                targetShares: e.target.value.split(",")
+                                            })
+                                        }
+                                    }} />
+                                </div>
+                            )
+                        })
+                    }
+                    <Button onClick={() => callWrapprer(updateTargetShares, updateTargetSharesState?.address!, updateTargetSharesState?.targetShares!)}>update target shares</Button>
                 </div>
             </div>
         </div>

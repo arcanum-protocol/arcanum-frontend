@@ -13,7 +13,7 @@ import { Skeleton } from "./ui/skeleton";
 
 
 export const TradePaneInner = observer(() => {
-    const { assetsIsLoading } = multipool;
+    const { assetsIsLoading, swapAssets } = multipool;
 
     return (
         <div className="flex flex-col justify-center mt-[1rem]">
@@ -24,7 +24,8 @@ export const TradePaneInner = observer(() => {
                         <TokenQuantityInput text={"Send"} />
                 }
 
-                <div className="my-[-2rem] z-10 bg-[#161616] border border-[#2b2b2b] p-2 rounded-lg">
+                <div onClick={swapAssets} 
+                    className="my-[-2rem] z-10 bg-[#161616] border border-[#2b2b2b] p-2 rounded-lg">
                     <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
                     </svg>
@@ -33,7 +34,7 @@ export const TradePaneInner = observer(() => {
                 { 
                     assetsIsLoading ?
                     <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
-                    <TokenQuantityInput text={"Receive"} />
+                        <TokenQuantityInput text={"Receive"} />
                 }
             </div>
             <div className="flex flex-col gap-4 items-center">
@@ -150,7 +151,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                             /> :
                             <input className="w-full text-3xl h-10 rounded-lg p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                                 placeholder="0"
-                                value={quantity}
+                                value={quantity === undefined ? "" : quantity}
                                 onFocus={() => setMainInput(text === "Send" ? "in" : "out")}
                             />
                     }
