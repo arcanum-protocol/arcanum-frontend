@@ -37,7 +37,7 @@ export const TradePaneInner = observer(() => {
                         <TokenQuantityInput text={"Receive"} />
                 }
             </div>
-            <div className="flex flex-col gap-4 items-center">
+            <div className="flex flex-col gap-4 items-center transition-[height]">
                 <TransactionParamsSelector />
                 <InteractionWithApprovalButton />
             </div>
@@ -81,7 +81,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             );
         }
 
-        const tokenBalance = new BigNumber(balance.toString()).dividedBy(new BigNumber(10).pow(18));
+        const tokenBalance = new BigNumber(balance.toString()).dividedBy(new BigNumber(10).pow(theAsset?.decimals!));
 
         return (
             <div className="inline-flex font-mono text-xs text-gray-500">{tokenBalance.toFixed(4)}</div>

@@ -199,6 +199,45 @@ export default [
   },
   {
     "type": "function",
+    "name": "developerAddress",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "developerBaseFeeRatio",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "developerFee",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "eip712Domain",
     "inputs": [],
     "outputs": [
@@ -622,6 +661,24 @@ export default [
   },
   {
     "type": "function",
+    "name": "setDevFees",
+    "inputs": [
+      {
+        "name": "newDeveloperAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "newDevFeeRatio",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "setSharePriceTTL",
     "inputs": [
       {
@@ -866,22 +923,22 @@ export default [
   },
   {
     "type": "function",
-    "name": "updatePrice",
+    "name": "updatePrices",
     "inputs": [
       {
-        "name": "assetAddress",
-        "type": "address",
-        "internalType": "address"
+        "name": "assetAddresses",
+        "type": "address[]",
+        "internalType": "address[]"
       },
       {
-        "name": "kind",
-        "type": "uint8",
-        "internalType": "enum FeedType"
+        "name": "kinds",
+        "type": "uint8[]",
+        "internalType": "enum FeedType[]"
       },
       {
         "name": "feedData",
-        "type": "bytes",
-        "internalType": "bytes"
+        "type": "bytes[]",
+        "internalType": "bytes[]"
       }
     ],
     "outputs": [],
@@ -935,6 +992,19 @@ export default [
     ],
     "outputs": [],
     "stateMutability": "payable"
+  },
+  {
+    "type": "function",
+    "name": "withdrawDeveloperFees",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "fees",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -1046,6 +1116,25 @@ export default [
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "DevParamsChange",
+    "inputs": [
+      {
+        "name": "devAddress",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "baseFeeRatio",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
       }
     ],
     "anonymous": false
@@ -1325,12 +1414,22 @@ export default [
   },
   {
     "type": "error",
+    "name": "IsNotDeveloper",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "IsPaused",
     "inputs": []
   },
   {
     "type": "error",
     "name": "NoPriceOriginSet",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotEnoughQuantityToBurn",
     "inputs": []
   },
   {

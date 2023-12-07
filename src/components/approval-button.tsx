@@ -57,8 +57,17 @@ export const InteractionWithApprovalButton = observer(() => {
     }
 
     async function approve(address: Address, tokenAddress: Address | undefined, spender: Address) {
+        try {
         await _approve(address!, tokenAddress, spender);
-
+        } catch (e) {
+            if (e.message.includes("The Provider is disconnected from all chains")) {
+                toast({
+                    title: "Wallet disconnected",
+                    description: e.message,
+                });
+                return;
+            }
+        }
         refetch();
     }
 
@@ -113,7 +122,7 @@ export const InteractionWithApprovalButton = observer(() => {
     }
 
     return (
-        <div>
+        <div className="w-full">
             <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => swap()}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>

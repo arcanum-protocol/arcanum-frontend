@@ -21,7 +21,8 @@ interface TokenSelectorProps {
 }
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
-    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset } = multipool;
+    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice } = multipool;
+    console.log(toJS(assets));
     const [search, setSearch] = useState("");
 
     const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
@@ -36,9 +37,12 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         }
 
         const divisor = new BigNumber(10).pow(token.decimals);
-        const balance = token.type === "external" ? new BigNumber(token.balance) : new BigNumber(token.balance).multipliedBy(divisor);
-        const price = new BigNumber(token.price).div(divisor);
-        const value = balance.div(divisor).multipliedBy(price);
+
+        const balance = new BigNumber(token.balance).dividedBy(divisor);
+        const price = new BigNumber(token.price);
+        const value = balance.multipliedBy(price).multipliedBy(etherPrice[42161]);
+
+        console.log("price", token.price, "balance", balance.toFixed(), "value", value.toFixed());
 
         return value;
     }

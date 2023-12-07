@@ -14,6 +14,20 @@
           "defillama_id": "gmx"
           "coingecko_id": "gmx"
           "price_origin": "redstone"
+        - "symbol": "T2"
+          "decimals": 4
+          "logo": "https://assets.coingecko.com/coins/images/18323/large/arbit.png?1631532468"
+          "address": "0x9d4454B023096f34B160D6B654540c56A1F81688"
+          "defillama_id": "gmx"
+          "coingecko_id": "gmx"
+          "price_origin": "redstone"
+        - "symbol": "T3"
+          "decimals": 24
+          "logo": "https://assets.coingecko.com/coins/images/18323/large/arbit.png?1631532468"
+          "address": "0x5eb3Bc0a489C5A8288765d2336659EbCA68FCd00"
+          "defillama_id": "gmx"
+          "coingecko_id": "gmx"
+          "price_origin": "redstone"
         - "symbol": "CRV"
           "decimals": 18
           "logo": "https://assets.coingecko.com/coins/images/12124/large/Curve.png?1597369484"

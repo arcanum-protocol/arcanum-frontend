@@ -20,7 +20,7 @@ const customStyles = {
 };
 
 export const Faucet = observer(() => {
-    const { assets } = multipool;
+    const { assets, walletClient } = multipool;
     const { chain } = useNetwork();
 
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
@@ -40,13 +40,15 @@ export const Faucet = observer(() => {
         const token = await fetchToken({
             address: tokenAddress as Address
         })
-        const rowAmountToMint = new BigNumber(10).multipliedBy(new BigNumber(10).pow(token.decimals)).toString()
+        const rowAmountToMint = new BigNumber(10).multipliedBy(new BigNumber(10).pow(token.decimals));
+        console.log("amt", rowAmountToMint.toFixed());
+        const amt = BigInt(rowAmountToMint.toFixed());
 
         const { hash } = await writeContract({
             address: tokenAddress as Address,
             abi: erc20Abi,
             functionName: 'mint',
-            args: ["0x70997970C51812dc3A010C7d01b50e0d17dc79C8", BigInt(rowAmountToMint.toString())],
+            args: [walletClient?.account?.address!, amt],
         })
     }
 

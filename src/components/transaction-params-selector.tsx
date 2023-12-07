@@ -103,8 +103,9 @@ const ExchangeInfo = observer(() => {
     if (minimalReceive) {
         const bgMinimalReceive = new BigNumber(minimalReceive.toString());
         const decimals = outputAsset?.decimals || 18;
-        const minimalReceiveFormatted = bgMinimalReceive.dividedBy(new BigNumber(10).pow(decimals));
-        const minimalReceiveFormattedDollar = minimalReceiveFormatted.multipliedBy(etherPrice[42161]);
+
+        const absminimalReceiveFormatted = bgMinimalReceive.dividedBy(new BigNumber(10).pow(decimals)).abs();
+        const absminimalReceiveFormattedDollar = absminimalReceiveFormatted.multipliedBy(outputAsset?.price!).multipliedBy(etherPrice[42161]);
 
         return (
             <div className="flex justify-between">
@@ -122,7 +123,7 @@ const ExchangeInfo = observer(() => {
                     </Tooltip>
                 </TooltipProvider>
                 <p className="m-0">
-                    {minimalReceiveFormatted.toFixed(4)} ({minimalReceiveFormattedDollar.toFixed(4)}$)
+                    {absminimalReceiveFormatted.toFixed(4)} ({absminimalReceiveFormattedDollar.toFixed(4)}$)
                 </p>
             </div>
         );
@@ -131,8 +132,9 @@ const ExchangeInfo = observer(() => {
     if (maximumSend) {
         const bgMaximumSend = new BigNumber(maximumSend.toString());
         const decimals = inputAsset?.decimals || 18;
-        const maximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals));
-        const maximumSendFormattedDollar = maximumSendFormatted.multipliedBy(etherPrice[42161]);
+
+        const absMaximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals)).abs();
+        const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(inputAsset?.price!).multipliedBy(etherPrice[42161]);
 
         return (
             <div className="flex justify-between">
@@ -150,7 +152,7 @@ const ExchangeInfo = observer(() => {
                     </Tooltip>
                 </TooltipProvider>
                 <p className="m-0">
-                    {maximumSendFormatted.toFixed(4)} ({maximumSendFormattedDollar.toFixed(4)}$)
+                    {absMaximumSendFormatted.toFixed(4)} ({absMaximumSendFormattedDollar.toFixed(4)}$)
                 </p>
             </div>
         );

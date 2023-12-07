@@ -14,11 +14,11 @@ export const IndexAssetsBreakdown = observer(() => {
 
     const fetchedAssets = assets.filter((asset) => asset.type === "multipool") as MultipoolAsset[];
 
-    function tohumanReadableQuantity(number: BigNumber) {
-        const decimals = new BigNumber(10).pow(18);
+    function tohumanReadableQuantity(number: BigNumber, _decimals = 18) {
+        const decimals = new BigNumber(10).pow(_decimals);
 
         const value = number.div(decimals);
-        return toHumanReadable(value, 2);
+        return toHumanReadable(value.toFixed(), 2);
     }
 
     if (assetsIsLoading) {
@@ -57,7 +57,7 @@ export const IndexAssetsBreakdown = observer(() => {
                             <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>
                             <TableCell>{currentShares.get(fetchedAsset.address!)!.toFixed(2)}%</TableCell>
                             <TableCell>{price}$</TableCell>
-                            <TableCell>{tohumanReadableQuantity(fetchedAsset.quantity)}</TableCell>
+                            <TableCell>{tohumanReadableQuantity(fetchedAsset.quantity, fetchedAsset.decimals)}</TableCell>
                         </TableRow>)
                     }
                     )

@@ -243,9 +243,10 @@ class MultipoolStore {
 
             const chainPrice = await this.multipool.read.getPrice([token.address as Address]);
 
-            console.log(asset.share.toString());
             const idealShare = new BigNumber(asset.share.toString()).div(totalTargetShares).times(100);
             const quantity = new BigNumber(asset.quantity.toString());
+
+            const _chainPrice = new BigNumber(fromX96(chainPrice.toString(), token.decimals)!);
 
             _assets.push({
                 name: token.symbol,
@@ -257,11 +258,11 @@ class MultipoolStore {
                 multipoolAddress: this.staticData.address,
                 idealShare: idealShare,
                 quantity: quantity,
-                chainPrice: new BigNumber(fromX96(chainPrice.toString())),
+                chainPrice: _chainPrice,
+                price: Number(_chainPrice.toString()),
                 coingeckoId: token.coingecko_id,
                 collectedCashbacks: new BigNumber(asset.collectedCashbacks.toString())
             });
-
         }
 
         runInAction(() => {
@@ -271,17 +272,20 @@ class MultipoolStore {
     }
 
     async updatePrices() {
-        const addresses: Array<string> = this.assets.map((asset: any) => {
-            return asset.address as string;
+        const addresses: {address: string, decimals: number}[] = this.assets.map((asset: any) => {
+            return {
+                address: asset.address,
+                decimals: asset.decimals
+            }
         });
 
         const addressToPrice = new Map<string, number>();
 
-        for (const address of addresses) {
+        for (const [_, {address, decimals}] of addresses.entries()) {
             if (address === this.multipool.address.toString()) continue;
 
             const price = await this.multipool.read.getPrice([address as Address]);
-            addressToPrice.set(address, new BigNumber(fromX96(price.toString())).toNumber());
+            addressToPrice.set(address, new BigNumber(fromX96(price.toString(), decimals)!).toNumber());
         }
 
         runInAction(() => {
@@ -381,6 +385,8 @@ class MultipoolStore {
             const estimates = res[1];
             const firstTokenQuantity = estimates[0];
             const secondTokenQuantity = estimates[1];
+
+            console.log("firstTokenQuantity", firstTokenQuantity, "secondTokenQuantity", secondTokenQuantity);
 
             const firstTokenAddress = sortedAssets.keys().next().value;
 
@@ -517,7 +523,7 @@ class MultipoolStore {
                 { name: "targetOrOrigin", type: "address" },
                 { name: "amount", type: "uint256" }
             ],
-            [this.inputAsset!.address!, this.multipool.address!, BigInt(this.inputQuantity!.toString())]
+            [this.inputAsset!.address!, this.multipool.address!, BigInt(this.inputQuantity!.toFixed())]
         );
 
         const feeData = await this.checkSwap();
@@ -664,14 +670,26 @@ class MultipoolStore {
                 { name: "targetOrOrigin", type: "address" },
                 { name: "amount", type: "uint256" }
             ],
-            [this.inputAsset!.address!, this.multipool.address!, BigInt(this.inputQuantity!.toString())]
+            [this.inputAsset!.address!, this.multipool.address!, BigInt(this.inputQuantity!.toFixed())]
         );
 
         const feeData = await this.checkSwap();
         if (feeData === undefined) throw new Error("feeData is undefined");
 
         const _ethFee = new BigNumber(feeData[0].toString()).isLessThan(0) ? new BigNumber(0) : new BigNumber(feeData[0].toString());
-        const ethFee = BigInt(_ethFee.toFixed(0));
+        let ethFee = BigInt(_ethFee.toFixed(0));
+
+        // apply slippage 
+
+        const _slippage = this.slippage * 1000;
+
+        if (isExactInput) {
+            ethFee = ethFee * BigInt(_slippage) / BigInt(1000);
+        } else {
+            ethFee = ethFee * BigInt(_slippage) / BigInt(1000);
+        }
+
+        console.log("ethFee", ethFee);
 
         try {
             const { request } = await this.router.simulate.swap([
@@ -920,8 +938,11 @@ class MultipoolStore {
 
         const totalDollarValue = multipoolAssets.reduce((acc, asset) => {
             const assetPrice = new BigNumber(asset.chainPrice?.toString() ?? 0);
-            return acc.plus(assetPrice.times(asset.quantity) ?? new BigNumber(0));
+            const assetDecimals = new BigNumber(10).pow(asset.decimals);
+            return acc.plus(assetPrice.multipliedBy(asset.quantity.dividedBy(assetDecimals)) ?? new BigNumber(0));
         }, new BigNumber(0));
+
+        console.log("totalDollarValue", totalDollarValue.toString());
 
         const addressToShare = new Map<string, BigNumber>();
 
@@ -936,8 +957,9 @@ class MultipoolStore {
             }
 
             const assetPrice = new BigNumber(asset.chainPrice?.toString() ?? 0);
+            const assetDecimals = new BigNumber(10).pow(asset.decimals);
 
-            addressToShare.set(asset.address!, assetPrice.times(asset.quantity).div(totalDollarValue).times(100) ?? new BigNumber(0));
+            addressToShare.set(asset.address!, assetPrice.times(asset.quantity.dividedBy(assetDecimals)).div(totalDollarValue).times(100) ?? new BigNumber(0));
         }
 
         return addressToShare;
@@ -1033,24 +1055,22 @@ class MultipoolStore {
     }
 
     async updatePrice(assetAddress: Address, feedType: FeedType, feedData: string) {
-        const { request } = await this.multipool.simulate.updatePrice([
-            assetAddress,
-            feedType,
-            feedData as Address
+        const { request } = await this.multipool.simulate.updatePrices([
+            [assetAddress],
+            [1],
+            [feedData as Address]
         ], { account: this.walletClient?.account! });
 
         await this.walletClient?.writeContract(request);
     }
 
     async withdrawFees(to: Address) {
-        console.log("request", this.walletClient?.account!.address);
         const { request } = await this.multipool.simulate.withdrawFees([to], { account: this.walletClient?.account! });
 
         await this.walletClient?.writeContract(request);
     }
 
     async togglePause() {
-        console.log("toggle pause", this.multipool);
         const { request } = await this.multipool.simulate.togglePause({ account: this.walletClient?.account! });
 
         await this.walletClient?.writeContract(request);
