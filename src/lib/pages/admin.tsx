@@ -15,7 +15,6 @@ export const AdminPannel = observer(() => {
         setCurveParams,
         setSharePriceTTL,
         toggleForcePushAuthority,
-        toggleTargetShareAuthority,
         increaseCashback,
         updateTargetShares } = multipool;
 
@@ -43,7 +42,6 @@ export const AdminPannel = observer(() => {
                 description: e.toString(),
                 duration: 9000,
             })
-            console.log(e)
         }
     }
 
@@ -59,7 +57,6 @@ export const AdminPannel = observer(() => {
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
                                     <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
-                                        console.log(type, e.target.value)
                                         if (type === "address") {
                                             setUpdatePriceState({
                                                 address: e.target.value,
@@ -93,7 +90,7 @@ export const AdminPannel = observer(() => {
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
                                     <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
-                                        console.log(type, e.target.value)
+                                        
                                         if (type === "address") {
                                             setWithdrawFeesState({
                                                 to: e.target.value,
@@ -114,7 +111,7 @@ export const AdminPannel = observer(() => {
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
                                     <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
-                                        console.log(type, e.target.value)
+                                        
                                         if (type === "newDeviationLimit") {
                                             setCurveParamsState({
                                                 A: e.target.value,
@@ -158,7 +155,7 @@ export const AdminPannel = observer(() => {
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
                                     <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
-                                        console.log(type, e.target.value)
+                                        
                                         if (type === "newSharePriceTTL") {
                                             setSetSharePriceTTLState({
                                                 newSharePriceTTL: e.target.value
@@ -178,7 +175,7 @@ export const AdminPannel = observer(() => {
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
                                     <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
-                                        console.log(type, e.target.value)
+                                        
                                         if (type === "newSharePriceTTL") {
                                             setToggleForcePushAuthorityState({
                                                 newSharePriceTTL: e.target.value
@@ -198,7 +195,7 @@ export const AdminPannel = observer(() => {
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
                                     <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
-                                        console.log(type, e.target.value)
+                                        
                                         if (type === "newSharePriceTTL") {
                                             setToggleTargetShareAuthorityState({
                                                 newSharePriceTTL: e.target.value
@@ -218,7 +215,7 @@ export const AdminPannel = observer(() => {
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
                                     <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
-                                        console.log(type, e.target.value)
+                                        
                                         if (type === "address") {
                                             setIncreaseCashback({
                                                 address: e.target.value,
@@ -238,7 +235,7 @@ export const AdminPannel = observer(() => {
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
                                     <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
-                                        console.log(type, e.target.value)
+                                        
                                         if (type === "address[]") {
                                             setUpdateTargetSharesState({
                                                 address: e.target.value.split(","),

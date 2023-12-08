@@ -19,7 +19,6 @@ function NeonText({ text, color, href, className, rightIcon }: NeonTextProps) {
         : 'hsl(200, 100%, 70%)'; // Default blue
 
     const containerStyle: React.CSSProperties = {
-        display: 'flex',
         fontFamily: 'monospace',
         fontSize: '12px',
         opacity: '0.5',
@@ -31,7 +30,7 @@ function NeonText({ text, color, href, className, rightIcon }: NeonTextProps) {
     };
 
     return (
-        <div className={`neon-text ${className}`} style={containerStyle}>
+        <p className={`inline-flex neon-text ${className}`} style={containerStyle}>
             {href ? (
                 <a href={href} style={neonStyle}>
                     {text.split('').map((letter, index) => (
@@ -51,7 +50,7 @@ function NeonText({ text, color, href, className, rightIcon }: NeonTextProps) {
                     {rightIcon}
                 </>
             )}
-        </div>
+        </p>
     );
 }
 

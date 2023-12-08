@@ -41,7 +41,6 @@ export const Faucet = observer(() => {
             address: tokenAddress as Address
         })
         const rowAmountToMint = new BigNumber(10).multipliedBy(new BigNumber(10).pow(token.decimals));
-        console.log("amt", rowAmountToMint.toFixed());
         const amt = BigInt(rowAmountToMint.toFixed());
 
         const { hash } = await writeContract({

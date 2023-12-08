@@ -30,8 +30,6 @@ export const InteractionWithApprovalButton = observer(() => {
         const _hash = await _swap(address!);
         const hash = _hash as string;
 
-        console.log("hash", hash, hash.includes("ContractFunctionExecutionError"));
-
         if (hash.includes("insufficient allowance")) {
             toast({
                 title: "Insufficient allowance",

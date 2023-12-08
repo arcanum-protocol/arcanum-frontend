@@ -22,7 +22,6 @@ interface TokenSelectorProps {
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice } = multipool;
-    console.log(toJS(assets));
     const [search, setSearch] = useState("");
 
     const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
@@ -41,8 +40,6 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         const balance = new BigNumber(token.balance).dividedBy(divisor);
         const price = new BigNumber(token.price);
         const value = balance.multipliedBy(price).multipliedBy(etherPrice[42161]);
-
-        console.log("price", token.price, "balance", balance.toFixed(), "value", value.toFixed());
 
         return value;
     }
@@ -81,7 +78,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
                             <TooltipTrigger asChild>
                                 <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                             </TooltipTrigger>
-                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                            <TooltipContent side="top" align="center" className="inline-flex bg-black border text-gray-300 max-w-xs font-mono">
                                 <p>This asset is part of an {
                                     <NeonText text="ETF" color="purple" />
                                 }, by choosing it you will mint according to the rules of the {

@@ -36,10 +36,10 @@ export default [
                     {
                         "name": "fpSharePrice",
                         "type": "tuple",
-                        "internalType": "struct Multipool.FPSharePriceArg",
+                        "internalType": "struct Multipool.ForcePushArgs",
                         "components": [
                             {
-                                "name": "thisAddress",
+                                "name": "contractAddress",
                                 "type": "address",
                                 "internalType": "address"
                             },
@@ -49,7 +49,7 @@ export default [
                                 "internalType": "uint128"
                             },
                             {
-                                "name": "value",
+                                "name": "sharePrice",
                                 "type": "uint128",
                                 "internalType": "uint128"
                             },
@@ -63,10 +63,10 @@ export default [
                     {
                         "name": "selectedAssets",
                         "type": "tuple[]",
-                        "internalType": "struct Multipool.AssetArg[]",
+                        "internalType": "struct Multipool.AssetArgs[]",
                         "components": [
                             {
-                                "name": "addr",
+                                "name": "assetAddress",
                                 "type": "address",
                                 "internalType": "address"
                             },
