@@ -1,7 +1,7 @@
 import { MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { Address, concat, getContract } from 'viem';
-import { publicClient } from '@/config';
+import { publicClient, anvil } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
 import { fromX32, fromX96 } from '@/lib/utils';
@@ -12,7 +12,6 @@ import { encodeAbiParameters } from 'viem'
 import { createWalletClient, custom } from 'viem'
 import ERC20 from '@/abi/ERC20';
 import { WalletClient } from 'viem';
-import { arbitrumSepolia } from 'viem/chains';
 
 export interface MultipoolFees {
     deviationParam: BigNumber;
@@ -166,7 +165,7 @@ class MultipoolStore {
 
         runInAction(() => {
             this.walletClient = createWalletClient({
-                chain: arbitrumSepolia,
+                chain: anvil,
                 account: account,
                 transport: custom(window.ethereum),
             });
@@ -341,7 +340,12 @@ class MultipoolStore {
 
         let _fpSharePrice: any = (await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${this.multipool_id}`)).data;
 
-        let fpSharePricePlaceholder: any;
+        let fpSharePricePlaceholder: {
+            contractAddress: `0x${string}`;
+            timestamp: bigint;
+            sharePrice: bigint;
+            signature: `0x${string}`;
+        }
 
         if (_fpSharePrice == null) {
             fpSharePricePlaceholder = {
@@ -417,6 +421,7 @@ class MultipoolStore {
 
             return res;
         } catch (e) {
+            console.log("error", e);
             runInAction(() => {
                 // check if error contains 
                 let errorString: string = (e as Error).toString();
@@ -540,11 +545,12 @@ class MultipoolStore {
             const gas = await this.router.estimateGas.swap([
                 this.multipool.address,
                 {
-                    fpSharePrice: fpSharePricePlaceholder,
-                    selectedAssets: assetsArg,
+                    forcePushArgs: fpSharePricePlaceholder,
+                    assetsToSwap: assetsArg,
                     isExactInput: isExactInput,
-                    to: userAddress,
-                    refundTo: userAddress,
+                    receiverAddress: userAddress,
+                    refundEthToReceiver: false,
+                    refundAddress: userAddress,
                     ethValue: ethFee
                 },
                 [
@@ -687,21 +693,22 @@ class MultipoolStore {
 
         const _slippage = this.slippage * 2 * 1000;
 
-        if (isExactInput) {
-            ethFee = ethFee * BigInt(_slippage) / BigInt(1000);
-        } else {
-            ethFee = ethFee * BigInt(_slippage) / BigInt(1000);
-        }
+        // if (isExactInput) {
+        //     ethFee = ethFee * BigInt(_slippage) / BigInt(1000);
+        // } else {
+        //     ethFee = ethFee * BigInt(_slippage) / BigInt(1000);
+        // }
 
         try {
             const { request } = await this.router.simulate.swap([
                 this.multipool.address,
                 {
-                    fpSharePrice: fpSharePricePlaceholder,
-                    selectedAssets: assetsArg,
+                    forcePushArgs: fpSharePricePlaceholder,
+                    assetsToSwap: assetsArg,
                     isExactInput: isExactInput,
-                    to: userAddress,
-                    refundTo: userAddress,
+                    receiverAddress: userAddress,
+                    refundEthToReceiver: false,
+                    refundAddress: userAddress,
                     ethValue: ethFee
                 },
                 [

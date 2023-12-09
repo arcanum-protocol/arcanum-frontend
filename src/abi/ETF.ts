@@ -86,7 +86,7 @@ export default [
       {
         "name": "forcePushArgs",
         "type": "tuple",
-        "internalType": "struct Multipool.ForcePushArgs",
+        "internalType": "struct ForcePushArgs",
         "components": [
           {
             "name": "contractAddress",
@@ -113,7 +113,7 @@ export default [
       {
         "name": "assetsToSwap",
         "type": "tuple[]",
-        "internalType": "struct Multipool.AssetArgs[]",
+        "internalType": "struct AssetArgs[]",
         "components": [
           {
             "name": "assetAddress",
@@ -701,7 +701,7 @@ export default [
       {
         "name": "forcePushArgs",
         "type": "tuple",
-        "internalType": "struct Multipool.ForcePushArgs",
+        "internalType": "struct ForcePushArgs",
         "components": [
           {
             "name": "contractAddress",
@@ -728,7 +728,7 @@ export default [
       {
         "name": "assetsToSwap",
         "type": "tuple[]",
-        "internalType": "struct Multipool.AssetArgs[]",
+        "internalType": "struct AssetArgs[]",
         "components": [
           {
             "name": "assetAddress",
@@ -748,12 +748,17 @@ export default [
         "internalType": "bool"
       },
       {
-        "name": "sendTo",
+        "name": "receiverAddress",
         "type": "address",
         "internalType": "address"
       },
       {
-        "name": "refundTo",
+        "name": "refundEthToReceiver",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "refundAddress",
         "type": "address",
         "internalType": "address"
       }
