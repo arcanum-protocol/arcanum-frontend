@@ -48,6 +48,8 @@ export const InteractionWithApprovalButton = observer(() => {
         const _hash = await _swap(address!);
         const hash = _hash as string;
 
+        console.log("hash", hash);
+
         if (hash.includes("User rejected the request")) {
             toast({
                 title: "Swap rejected",

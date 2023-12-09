@@ -42,7 +42,7 @@ export const IndexAssetsBreakdown = observer(() => {
             <TableBody>
                 {
                     fetchedAssets.map((fetchedAsset) => {
-                        const price = fetchedAsset.chainPrice.multipliedBy(etherPriceBN).toString();
+                        const price = fetchedAsset.chainPrice.multipliedBy(etherPriceBN).toFixed(2);
 
                         return (<TableRow key={fetchedAsset.address}>
                             <TableCell className="text-left">
