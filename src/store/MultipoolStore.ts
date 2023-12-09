@@ -1,7 +1,7 @@
 import { MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { Address, concat, getContract } from 'viem';
-import { publicClient, anvil } from '@/config';
+import { publicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
 import { fromX32, fromX96 } from '@/lib/utils';
@@ -12,6 +12,7 @@ import { encodeAbiParameters } from 'viem'
 import { createWalletClient, custom } from 'viem'
 import ERC20 from '@/abi/ERC20';
 import { WalletClient } from 'viem';
+import { arbitrumSepolia } from 'viem/chains';
 
 export interface MultipoolFees {
     deviationParam: BigNumber;
@@ -165,8 +166,8 @@ class MultipoolStore {
 
         runInAction(() => {
             this.walletClient = createWalletClient({
+                chain: arbitrumSepolia,
                 account: account,
-                chain: anvil,
                 transport: custom(window.ethereum),
             });
         });
@@ -1125,6 +1126,12 @@ class MultipoolStore {
         ], { account: this.walletClient?.account! });
 
         await this.walletClient?.writeContract(request);
+    }
+
+    async getSharePriceParams(): Promise<number> {
+        const sharePriceParams = await this.multipool.read.getSharePriceParams();
+
+        return Number(sharePriceParams[0]);
     }
 }
 

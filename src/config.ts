@@ -64,10 +64,10 @@ export const opBnb = {
     },
 };
 
-export const anvil = {
-    id: 31337,
-    name: 'Anvil',
-    network: 'Anvil',
+export const arbitrumSepolia = {
+    id: 421614,
+    name: 'Arbitrum Sepolia',
+    network: 'Arbitrum Sepolia',
     testnet: true,
     nativeCurrency: {
         decimals: 18,
@@ -75,12 +75,12 @@ export const anvil = {
         symbol: 'ETH',
     },
     rpcUrls: {
-        public: { http: ['http://81.163.22.190:8545/'] },
-        default: { http: ['http://81.163.22.190:8545/'] },
+        public: { http: ['https://arbitrum-sepolia.blockpi.network/v1/rpc/public'] },
+        default: { http: ['https://arbitrum-sepolia.blockpi.network/v1/rpc/public'] },
     },
 };
 
-export const chains = [anvil];
+export const chains = [arbitrumSepolia];
 export const { publicClient } = configureChains(chains, [publicProvider()])
 
 export const config = createConfig({
