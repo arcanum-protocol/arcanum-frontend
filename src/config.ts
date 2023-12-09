@@ -96,7 +96,7 @@ export const anvil = {
     },
 } 
 
-export const chains = [anvil];
+export const chains = [arbitrumMainnet];
 export const { publicClient } = configureChains(chains, [publicProvider()])
 
 export const config = createConfig({

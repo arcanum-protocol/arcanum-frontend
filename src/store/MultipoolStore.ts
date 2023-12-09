@@ -1,7 +1,7 @@
 import { MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { Address, concat, getContract } from 'viem';
-import { publicClient, anvil } from '@/config';
+import { publicClient, anvil, arbitrumMainnet } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
 import { fromX32, fromX96 } from '@/lib/utils';
@@ -165,7 +165,7 @@ class MultipoolStore {
 
         runInAction(() => {
             this.walletClient = createWalletClient({
-                chain: anvil,
+                chain: arbitrumMainnet,
                 account: account,
                 transport: custom(window.ethereum),
             });
