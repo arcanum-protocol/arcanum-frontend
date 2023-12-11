@@ -1,17 +1,15 @@
-import { MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
+import { BaseAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import { makeAutoObservable, runInAction } from 'mobx';
-import { Address, concat, getContract } from 'viem';
-import { publicClient, anvil, arbitrumMainnet } from '@/config';
+import { Address, getContract } from 'viem';
+import { publicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
-import { fromX32, fromX96 } from '@/lib/utils';
+import { fromX96 } from '@/lib/utils';
 import BigNumber from 'bignumber.js';
 import SCHEME from '../scheme.yaml';
 import axios from 'axios';
 import { encodeAbiParameters } from 'viem'
-import { createWalletClient, custom } from 'viem'
 import ERC20 from '@/abi/ERC20';
-import { WalletClient } from 'viem';
 
 export interface MultipoolFees {
     deviationParam: BigNumber;
@@ -62,8 +60,6 @@ class MultipoolStore {
     multipool;
     router;
 
-    walletClient: WalletClient | undefined;
-
     fees: MultipoolFees = {
         deviationParam: BigNumber(0),
         deviationLimit: BigNumber(0),
@@ -75,6 +71,8 @@ class MultipoolStore {
 
     multipool_id: string;
     datafeedUrl = 'https://api.arcanum.to/api/tv';
+
+    balances: { [key: string]: bigint } = {};
 
     inputAsset: MultipoolAsset | SolidAsset | undefined;
     outputAsset: MultipoolAsset | SolidAsset | undefined;
@@ -90,7 +88,7 @@ class MultipoolStore {
     mainInput: "in" | "out" = "in";
 
     exchangeError: string | undefined;
-    etherPrice: { [key: number]: number } = {};
+    etherPrice: number = 0;
 
     userAddress: Address | undefined;
 
@@ -104,37 +102,21 @@ class MultipoolStore {
 
         this.staticData = SCHEME[this.multipool_id];
 
-        this.getAddresses();
-
         this.multipool = getContract({
             address: this.staticData.address,
             abi: multipoolABI,
             publicClient: this.publicClient,
-            walletClient: this.walletClient
         });
 
         this.router = getContract({
             address: this.staticData.router_address,
             abi: routerABI,
             publicClient: this.publicClient,
-            walletClient: this.walletClient
         });
 
-        this.assets = [...this.assets, {
-            name: this.staticData.name,
-            symbol: this.staticData.name,
-            decimals: 18,
-            logo: this.staticData.logo,
-            address: this.staticData.address,
-            type: "solid",
-        } as SolidAsset];
-
-        this.getAssets().then(async () => {
+        (async () => {
             await this.getFees();
             await this.updatePrices();
-            await this.updateMultipoolPriceData();
-            await this.updateEtherPrice();
-            await this.updateTokenBalances();
 
             runInAction(() => {
                 this.inputAsset = this.assets[0];
@@ -147,9 +129,6 @@ class MultipoolStore {
 
         setInterval(() => {
             this.updatePrices();
-            this.updateMultipoolPriceData();
-            this.updateEtherPrice();
-            this.updateTokenBalances();
         }, 30000);
 
 
@@ -160,47 +139,13 @@ class MultipoolStore {
         return this.staticData.router_address;
     }
 
-    async getAddresses() {
-        const [account] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-        runInAction(() => {
-            this.walletClient = createWalletClient({
-                chain: arbitrumMainnet,
-                account: account,
-                transport: custom(window.ethereum),
-            });
-        });
-    }
-
-    async updateTokenBalances() {
-        if (this.walletClient?.account?.address === undefined) return;
-        if (this.assetsIsLoading) return;
-
-        const assets = this.assets;
-
-        for (const asset of assets) {
-            if (asset.address === undefined) continue;
-
-            const balance = await this.publicClient.readContract({
-                address: asset.address,
-                abi: ERC20,
-                functionName: "balanceOf",
-                args: [this.walletClient?.account!.address]
-            });
-
-            runInAction(() => {
-                asset.balance = new BigNumber(balance.toString());
-            });
-        }
-
-        runInAction(() => {
-            this.assets = assets;
-        });
+    updateTokenBalances(balances: { [key: string]: bigint }) {
+        this.balances = balances;
     }
 
     async getFees() {
         const rawFees: [bigint, bigint, bigint, bigint, bigint, Address] = await this.multipool.read.getFeeParams() as [bigint, bigint, bigint, bigint, bigint, Address];
-        
+
         runInAction(() => {
             const deviationParam = new BigNumber((rawFees[0]).toString());
             const deviationLimit = new BigNumber((rawFees[1]).toString());
@@ -216,27 +161,9 @@ class MultipoolStore {
         });
     }
 
-    async getAssets() {
-        const tokens: Array<{
-            symbol: string;
-            decimals: number;
-            logo: string | undefined;
-            address: string | undefined;
-            coingecko_id: string;
-        }> = this.staticData.assets.map((asset: any) => {
-            return {
-                symbol: asset.symbol,
-                decimals: asset.decimals,
-                logo: asset.logo,
-                address: asset.address,
-                coingecko_id: asset.coingecko_id
-            };
-        });
-
+    async setTokens(tokens: BaseAsset[]) {
         const _assets: MultipoolAsset[] = [];
-        const _totalTargetShares = await this.multipool.read.totalTargetShares();
-
-        const totalTargetShares = new BigNumber(_totalTargetShares.toString());
+        const totalTargetShares = await this.multipool.read.totalTargetShares();
 
         for (const token of tokens) {
             const asset = await this.multipool.read.getAsset([token.address as Address]);
@@ -245,13 +172,12 @@ class MultipoolStore {
 
             const chainPrice = await this.multipool.read.getPrice([token.address as Address]);
 
-            const idealShare = new BigNumber(asset.targetShare.toString()).div(totalTargetShares).times(100);
-            const quantity = new BigNumber(asset.quantity.toString());
+            const idealShare = asset.targetShare / totalTargetShares * 100n;
+            const quantity = asset.quantity;
 
-            const _chainPrice = new BigNumber(fromX96(chainPrice.toString(), token.decimals)!);
+            const _chainPrice = fromX96(chainPrice, token.decimals);
 
             _assets.push({
-                name: token.symbol,
                 symbol: token.symbol,
                 decimals: token.decimals,
                 logo: token.logo,
@@ -259,11 +185,9 @@ class MultipoolStore {
                 type: "multipool",
                 multipoolAddress: this.staticData.address,
                 idealShare: idealShare,
-                quantity: quantity,
                 chainPrice: _chainPrice,
-                price: Number(_chainPrice.toString()),
-                coingeckoId: token.coingecko_id,
-                collectedCashbacks: new BigNumber(asset.collectedCashbacks.toString())
+                collectedCashbacks: asset.collectedCashbacks,
+                multipoolQuantity: quantity,
             });
         }
 
@@ -274,20 +198,20 @@ class MultipoolStore {
     }
 
     async updatePrices() {
-        const addresses: {address: string, decimals: number}[] = this.assets.map((asset: any) => {
+        const addresses: { address: string, decimals: number }[] = this.assets.map((asset: any) => {
             return {
                 address: asset.address,
                 decimals: asset.decimals
             }
         });
 
-        const addressToPrice = new Map<string, number>();
+        const addressToPrice = new Map<string, bigint>();
 
-        for (const [_, {address, decimals}] of addresses.entries()) {
+        for (const [_, { address, decimals }] of addresses.entries()) {
             if (address === this.multipool.address.toString()) continue;
 
             const price = await this.multipool.read.getPrice([address as Address]);
-            addressToPrice.set(address, new BigNumber(fromX96(price.toString(), decimals)!).toNumber());
+            addressToPrice.set(address, fromX96(price, decimals)!);
         }
 
         runInAction(() => {
@@ -301,23 +225,16 @@ class MultipoolStore {
         });
     }
 
-    async updateMultipoolPriceData() {
-        const _response = await axios.get(`https://api.arcanum.to/api/stats?multipool_id=${this.staticData.name}`);
+    updateMultipoolPriceData(multipool: { low_24h: number, high_24h: number, change_24h: number, total_supply: string }) {
+        const multipoolID = this.assets.findIndex((asset) => asset.type === "solid");
 
-        const response = _response.data;
-
-        runInAction(() => {
-            const multipoolID = this.assets.findIndex((asset) => asset.type === "solid");
-
-            this.assets[multipoolID] = {
-                ...this.assets[multipoolID],
-                low24h: Number(response.low_24h),
-                high24h: Number(response.high_24h),
-                change24h: Number(response.change_24h),
-                totalSupply: Number(response.total_supply),
-                price: Number(response.current_price),
-            };
-        });
+        this.assets[multipoolID] = {
+            ...this.assets[multipoolID],
+            low24h: Number(multipool.low_24h),
+            high24h: Number(multipool.high_24h),
+            change24h: Number(multipool.change_24h),
+            totalSupply: BigInt(multipool.total_supply)
+        };
     }
 
     async checkSwap() {
@@ -421,7 +338,6 @@ class MultipoolStore {
 
             return res;
         } catch (e) {
-            console.log("error", e);
             runInAction(() => {
                 // check if error contains 
                 let errorString: string = (e as Error).toString();
@@ -472,8 +388,6 @@ class MultipoolStore {
                         break;
                 }
             });
-
-            this.estimateGas(this.walletClient?.account!.address!);
         }
     }
 
@@ -537,8 +451,8 @@ class MultipoolStore {
         const feeData = await this.checkSwap();
         if (feeData === undefined) throw new Error("feeData is undefined");
 
-        const _ethFee = new BigNumber(feeData[0].toString()).isLessThan(0) ? new BigNumber(0) : new BigNumber(feeData[0].toString());
-        const ethFee = BigInt(_ethFee.toFixed(0));
+        const _ethFee: bigint = feeData[0] < 0 ? 0n : feeData[0];
+        const ethFee = _ethFee;
 
 
         try {
@@ -572,7 +486,7 @@ class MultipoolStore {
             runInAction(() => {
                 this.transactionCost = gas * gasPrice;
             });
-        } catch (e) {
+        } catch (e: any) {
             runInAction(() => {
                 // check if error contains 
                 let errorString: string = (e as Error).toString();
@@ -686,18 +600,8 @@ class MultipoolStore {
         const feeData = await this.checkSwap();
         if (feeData === undefined) throw new Error("feeData is undefined");
 
-        const _ethFee = new BigNumber(feeData[0].toString()).isLessThan(0) ? new BigNumber(0) : new BigNumber(feeData[0].toString());
-        let ethFee = BigInt(_ethFee.toFixed(0));
-
-        // apply slippage 
-
-        const _slippage = this.slippage * 2 * 1000;
-
-        // if (isExactInput) {
-        //     ethFee = ethFee * BigInt(_slippage) / BigInt(1000);
-        // } else {
-        //     ethFee = ethFee * BigInt(_slippage) / BigInt(1000);
-        // }
+        const _ethFee = feeData[0] < 0n ? 0n : feeData[0];
+        let ethFee = _ethFee;
 
         try {
             const { request } = await this.router.simulate.swap([
@@ -725,11 +629,8 @@ class MultipoolStore {
                 }
             );
 
-            const hash = await this.walletClient?.writeContract(request);
-
-            this.getAssets();
-            return hash;
-        } catch (e) {
+            return request;
+        } catch (e: any) {
             runInAction(() => {
                 // check if error contains 
                 let errorString: string = (e as Error).toString();
@@ -805,7 +706,7 @@ class MultipoolStore {
         return false;
     }
 
-    async approve(userAddress: Address, tokenAddress: Address | undefined, destAddress: Address): Promise<void> {
+    async approve(userAddress: Address, tokenAddress: Address | undefined, destAddress: Address): Promise<any> {
         if (tokenAddress === undefined) return;
 
         const biInputQuantity = BigInt(this.inputQuantity!.toFixed());
@@ -818,7 +719,7 @@ class MultipoolStore {
             account: userAddress
         })
 
-        await this.walletClient?.writeContract(request);
+        return request;
     }
 
     setInputAsset(
@@ -942,46 +843,42 @@ class MultipoolStore {
     }
 
     get currentShares() {
-        if (this.assets.length === 0) return new Map<string, BigNumber>();
+        if (this.assets.length === 0) return new Map<string, bigint>();
         const multipoolAssets = this.assets.filter((asset) => asset.type === "multipool") as MultipoolAsset[];
 
         const totalDollarValue = multipoolAssets.reduce((acc, asset) => {
-            const assetPrice = new BigNumber(asset.chainPrice?.toString() ?? 0);
-            const assetDecimals = new BigNumber(10).pow(asset.decimals);
-            return acc.plus(assetPrice.multipliedBy(asset.quantity.dividedBy(assetDecimals)) ?? new BigNumber(0));
-        }, new BigNumber(0));
+            const assetPrice = asset.chainPrice ?? 0n;
+            const assetDecimals = 10n ** BigInt(asset.decimals);
 
-        const addressToShare = new Map<string, BigNumber>();
+            return acc + assetPrice * asset.multipoolQuantity / assetDecimals;
+        }, 0n);
+
+        const addressToShare = new Map<string, bigint>();
 
         for (const asset of multipoolAssets) {
             if (asset.chainPrice === undefined) {
-                addressToShare.set(asset.address!, new BigNumber(0));
+                addressToShare.set(asset.address!, 0n);
                 continue;
             }
-            if (asset.quantity.eq(0)) {
-                addressToShare.set(asset.address!, new BigNumber(0));
+            if (asset.multipoolQuantity == 0n) {
+                addressToShare.set(asset.address!, 0n);
                 continue;
             }
 
-            const assetPrice = new BigNumber(asset.chainPrice?.toString() ?? 0);
-            const assetDecimals = new BigNumber(10).pow(asset.decimals);
+            const assetPrice = asset.chainPrice ?? 0n;
+            const assetDecimals = 10n ** BigInt(asset.decimals);
 
-            addressToShare.set(asset.address!, assetPrice.times(asset.quantity.dividedBy(assetDecimals)).div(totalDollarValue).times(100) ?? new BigNumber(0));
+            addressToShare.set(asset.address!, assetPrice ** asset.multipoolQuantity / assetDecimals / totalDollarValue ** 100n ?? 0n);
         }
 
         return addressToShare;
     }
 
-    async updateEtherPrice() {
-        const _res = await axios.get("https://token-rates-aggregator.1inch.io/v1.0/native-token-rate?vs=USD");
-        const etherPrices = _res.data;
-
-        runInAction(() => {
-            this.etherPrice[42161] = etherPrices["42161"].USD;
-        });
+    setEtherPrice(etherPrice: number) {
+        this.etherPrice = etherPrice;
     }
 
-    get getInputPrice(): BigNumber {
+    get getInputPrice(): bigint {
         const address = this.inputAsset?.address;
 
         // check if address is multipool address
@@ -993,19 +890,16 @@ class MultipoolStore {
             });
         }
         const asset = this.assets.find((asset) => asset.address === address) as MultipoolAsset;
-        if (asset === undefined) return new BigNumber(0);
+        if (asset === undefined) return 0n;
 
         if (asset.chainPrice === undefined) {
-            if (asset.price === undefined) {
-                return new BigNumber(0);
-            }
-            return new BigNumber(asset.price.toString());
+            return 0n;
         }
 
-        return new BigNumber(asset.chainPrice.toString());
+        return asset.chainPrice;
     }
 
-    get getOutputPrice(): BigNumber {
+    get getOutputPrice(): bigint {
         const address = this.outputAsset?.address;
 
         // check if address is multipool address
@@ -1017,16 +911,13 @@ class MultipoolStore {
             });
         }
         const asset = this.assets.find((asset) => asset.address === address) as MultipoolAsset;
-        if (asset === undefined) return new BigNumber(0);
+        if (asset === undefined) 0n;
 
         if (asset.chainPrice === undefined) {
-            if (asset.price === undefined) {
-                return new BigNumber(0);
-            }
-            return new BigNumber(asset.price.toString());
+            return 0n;
         }
 
-        return new BigNumber(asset.chainPrice.toString());
+        return asset.chainPrice;
     }
 
     get hrInQuantity() {
@@ -1061,79 +952,79 @@ class MultipoolStore {
         return _val.toString();
     }
 
-    async updatePrice(assetAddress: Address, feedType: FeedType, feedData: string) {
-        const { request } = await this.multipool.simulate.updatePrices([
-            [assetAddress],
-            [1],
-            [feedData as Address]
-        ], { account: this.walletClient?.account! });
+    // async updatePrice(assetAddress: Address, feedType: FeedType, feedData: string) {
+    //     const { request } = await this.multipool.simulate.updatePrices([
+    //         [assetAddress],
+    //         [1],
+    //         [feedData as Address]
+    //     ], { account: this.walletClient?.account! });
 
-        await this.walletClient?.writeContract(request);
-    }
+    //     await this.walletClient?.writeContract(request);
+    // }
 
-    async withdrawFees(to: Address) {
-        const { request } = await this.multipool.simulate.withdrawFees([to], { account: this.walletClient?.account! });
+    // async withdrawFees(to: Address) {
+    //     const { request } = await this.multipool.simulate.withdrawFees([to], { account: this.walletClient?.account! });
 
-        await this.walletClient?.writeContract(request);
-    }
+    //     await this.walletClient?.writeContract(request);
+    // }
 
-    async togglePause() {
-        const { request } = await this.multipool.simulate.togglePause({ account: this.walletClient?.account! });
+    // async togglePause() {
+    //     const { request } = await this.multipool.simulate.togglePause({ account: this.walletClient?.account! });
 
-        await this.walletClient?.writeContract(request);
-    }
+    //     await this.walletClient?.writeContract(request);
+    // }
 
-    async setCurveParams(
-        newDeviationLimit: number,
-        newHalfDeviationFee: number,
-        newDepegBaseFee: number,
-        newBaseFee: number
-    ) {
-        const { request } = await this.multipool.simulate.setFeeParams([
-            BigInt(newDeviationLimit),
-            BigInt(newHalfDeviationFee),
-            BigInt(newDepegBaseFee),
-            BigInt(newBaseFee),
-            BigInt(0),
-            this.walletClient?.account!.address!,
-        ], { account: this.walletClient?.account! });
+    // async setCurveParams(
+    //     newDeviationLimit: number,
+    //     newHalfDeviationFee: number,
+    //     newDepegBaseFee: number,
+    //     newBaseFee: number
+    // ) {
+    //     const { request } = await this.multipool.simulate.setFeeParams([
+    //         BigInt(newDeviationLimit),
+    //         BigInt(newHalfDeviationFee),
+    //         BigInt(newDepegBaseFee),
+    //         BigInt(newBaseFee),
+    //         BigInt(0),
+    //         this.walletClient?.account!.address!,
+    //     ], { account: this.walletClient?.account! });
 
-        await this.walletClient?.writeContract(request);
-    }
+    //     await this.walletClient?.writeContract(request);
+    // }
 
-    async setSharePriceTTL(newSharePriceTTL: number) {
-        const { request } = await this.multipool.simulate.setSharePriceValidityDuration([BigInt(newSharePriceTTL)], { account: this.walletClient?.account! });
+    // async setSharePriceTTL(newSharePriceTTL: number) {
+    //     const { request } = await this.multipool.simulate.setSharePriceValidityDuration([BigInt(newSharePriceTTL)], { account: this.walletClient?.account! });
 
-        await this.walletClient?.writeContract(request);
-    }
+    //     await this.walletClient?.writeContract(request);
+    // }
 
-    async toggleForcePushAuthority(authority: Address) {
-        const { request } = await this.multipool.simulate.setAuthorityRights([authority, true, true], { account: this.walletClient?.account! });
+    // async toggleForcePushAuthority(authority: Address) {
+    //     const { request } = await this.multipool.simulate.setAuthorityRights([authority, true, true], { account: this.walletClient?.account! });
 
-        await this.walletClient?.writeContract(request);
-    }
+    //     await this.walletClient?.writeContract(request);
+    // }
 
-    async increaseCashback(address: Address) {
-        const { request } = await this.multipool.simulate.increaseCashback([address], { account: this.walletClient?.account! });
+    // async increaseCashback(address: Address) {
+    //     const { request } = await this.multipool.simulate.increaseCashback([address], { account: this.walletClient?.account! });
 
-        await this.walletClient?.writeContract(request);
-    }
+    //     await this.walletClient?.writeContract(request);
+    // }
 
-    async updateTargetShares(
-        assets: Address[],
-        shares: number[]
-    ) {
-        const _shares = shares.map((share) => {
-            return BigInt(share);
-        });
+    // async updateTargetShares(
+    //     assets: Address[],
+    //     shares: number[]
+    // ) {
+    //     const _shares = shares.map((share) => {
+    //         return BigInt(share);
+    //     });
 
-        const { request } = await this.multipool.simulate.updateTargetShares([
-            assets,
-            _shares
-        ], { account: this.walletClient?.account! });
+    //     const { request } = await this.multipool.simulate.updateTargetShares([
+    //         assets,
+    //         _shares
+    //     ], { account: this.walletClient?.account! });
 
-        await this.walletClient?.writeContract(request);
-    }
+    //     await this.walletClient?.writeContract(request);
+    // }
 
     async getSharePriceParams(): Promise<number> {
         const sharePriceParams = await this.multipool.read.getSharePriceParams();
