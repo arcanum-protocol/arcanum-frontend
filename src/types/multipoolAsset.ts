@@ -1,16 +1,13 @@
-import { BigNumber } from "bignumber.js";
 import { Address } from 'viem';
 
 
 interface BaseAsset {
-    name: string;
     symbol: string;
     decimals: number;
     logo: string | undefined;
     address: Address | undefined;
-    price?: number;
-    balance?: BigNumber;
-    quantity: BigNumber;
+    balance?: bigint;
+    userQuantity?: bigint;
     type: "solid" | "multipool" | "external";
 }
 
@@ -18,7 +15,7 @@ interface ExternalAsset extends BaseAsset {}
 
 interface SolidAssetSpecific {
     routerAddress: string;
-    totalSupply: number;
+    totalSupply: bigint;
     low24h: number;
     high24h: number;
     change24h: number;
@@ -29,13 +26,13 @@ type SolidAsset = BaseAsset & SolidAssetSpecific;
 
 interface MultipoolAssetSpecific {
     multipoolAddress: string;
-    idealShare: BigNumber;
-    chainPrice: BigNumber;
-    coingeckoId: string;
-    collectedCashbacks: BigNumber;
-    deviationPercent?: BigNumber;
-    priceChange24h?: BigNumber;
-    volume24h?: BigNumber;
+    multipoolQuantity: bigint;
+    idealShare: bigint;
+    chainPrice: bigint;
+    collectedCashbacks: bigint;
+    deviationPercent?: bigint;
+    priceChange24h?: bigint;
+    volume24h?: bigint;
 }
 
 type MultipoolAsset = BaseAsset & MultipoolAssetSpecific;

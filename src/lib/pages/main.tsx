@@ -8,9 +8,14 @@ import { observer } from "mobx-react-lite";
 import { multipool } from "@/store/MultipoolStore";
 import TVChartContainer from "@/components/tv-chart";
 import { TokenSelector } from "@/components/token-selector";
-import { SolidAsset } from '@/types/multipoolAsset';
+import { BaseAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import { Faucet } from '@/components/faucet-modal';
 import { AdminPannel } from './admin';
+import { useQuery } from '@tanstack/react-query';
+import yaml from 'yamljs';
+import { alchemyClient, publicClient } from '@/config';
+import ETF from '@/abi/ETF';
+import { useAccount } from 'wagmi';
 
 export const Admin = observer(() => {
     return (
@@ -20,15 +25,101 @@ export const Admin = observer(() => {
     )
 });
 
-export const Arbi = observer(() => {
+export const Arbi = () => {
+    const { address } = useAccount();
+    const { setTokens } = multipool;
+
+    const { data: assets } = useQuery(["static-data"], async () => {
+        const response = await fetch("https://app.arcanum.to/api/arbi.yaml");
+
+        // parse yaml to js object
+        const jsData = await response.text();
+        const data = yaml.load(jsData);
+
+        return data.assets as BaseAsset[];
+    }, {
+        refetchInterval: 15000,
+    });
+
+    const { data: multipoolData } = useQuery(["multipool-data"], async () => {
+        const response = await fetch("https://app.arcanum.to/api/arbi.yaml");
+
+        // parse yaml to js object
+        const jsData = await response.text();
+        const data = yaml.load(jsData);
+
+        const multipoolId = data.name;
+
+        const _multipoolData = await fetch(`https://api.arcanum.to/api/stats?multipool_id=${multipoolId}`);
+        const multipoolData = await _multipoolData.json();
+
+        const totalSupply = await publicClient({ chainId: 42161 }).readContract({
+            address: data.address,
+            abi: ETF,
+            functionName: "totalSupply",
+        });
+
+        return {
+            symbol: data.symbol,
+            address: data.address,
+            decimals: 18,
+            routerAddress: data.router_address,
+            type: "solid",
+            low24h: multipoolData.low_24h,
+            high24h: multipoolData.high_24h,
+            change24h: multipoolData.change_24h,
+            price: multipoolData.current_price,
+            logo: data.logo,
+            chainId: data.chain_id,
+            totalSupply: totalSupply,
+        } as SolidAsset;
+    }, {
+        refetchInterval: 15000,
+    });
+
+    const { data: balances } = useQuery(["balances"], async () => {
+        const response = await alchemyClient.getTokenBalances(address!, assets!.map((token) => token.address?.toString() || ""));
+
+        const balances: { [key: string]: bigint } = {};
+        for (const token of response.tokenBalances) {
+            balances[token.contractAddress] = BigInt(token.tokenBalance || "0");
+        }
+
+        return balances;
+    }, {
+        refetchInterval: 15000,
+        enabled: !!address && !!assets,
+    });
+
+    const { data: etherPrice } = useQuery(["ether-price"], async () => {
+        const response = await fetch("https://token-rates-aggregator.1inch.io/v1.0/native-token-rate?vs=USD");
+        const data = await response.json();
+
+        return Number(data["42161"]["USD"]);
+    }, {
+        refetchInterval: 15000,
+    });
+
+    if (assets) {
+        setTokens(assets);
+    }
+
+    if (balances) {
+        multipool.updateTokenBalances(balances);
+    }
+
+    if (etherPrice) {
+        multipool.setEtherPrice(etherPrice);
+    }
+
     return (
         <>
             <MainInner />
         </>
     )
-});
+};
 
-export const MainInner = () => {
+export const MainInner = observer(() => {
     return (
         <>
             <div className='flex flex-col min-w-full mt-0.5 gap-2 items-center xl:flex-row xl:items-stretch'>
@@ -50,7 +141,7 @@ export const MainInner = () => {
             </div >
         </>
     );
-};
+});
 
 interface ActionFormProps {
     className?: string;
