@@ -56,7 +56,7 @@ export const AdminPannel = observer(() => {
                             return (
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
-                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-md p-2" type="text" onChange={(e: any) => {
                                         if (type === "address") {
                                             setUpdatePriceState({
                                                 address: e.target.value,
@@ -89,7 +89,7 @@ export const AdminPannel = observer(() => {
                             return (
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
-                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-md p-2" type="text" onChange={(e: any) => {
                                         
                                         if (type === "address") {
                                             setWithdrawFeesState({
@@ -110,7 +110,7 @@ export const AdminPannel = observer(() => {
                             return (
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
-                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-md p-2" type="text" onChange={(e: any) => {
                                         
                                         if (type === "newDeviationLimit") {
                                             setCurveParamsState({
@@ -154,7 +154,7 @@ export const AdminPannel = observer(() => {
                             return (
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
-                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-md p-2" type="text" onChange={(e: any) => {
                                         
                                         if (type === "newSharePriceTTL") {
                                             setSetSharePriceTTLState({
@@ -174,7 +174,7 @@ export const AdminPannel = observer(() => {
                             return (
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
-                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-md p-2" type="text" onChange={(e: any) => {
                                         
                                         if (type === "newSharePriceTTL") {
                                             setToggleForcePushAuthorityState({
@@ -194,7 +194,7 @@ export const AdminPannel = observer(() => {
                             return (
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
-                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-md p-2" type="text" onChange={(e: any) => {
                                         
                                         if (type === "newSharePriceTTL") {
                                             setToggleTargetShareAuthorityState({
@@ -214,7 +214,7 @@ export const AdminPannel = observer(() => {
                             return (
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
-                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-md p-2" type="text" onChange={(e: any) => {
                                         
                                         if (type === "address") {
                                             setIncreaseCashback({
@@ -234,7 +234,7 @@ export const AdminPannel = observer(() => {
                             return (
                                 <div key={index} className="flex flex-col gap-2">
                                     <div className="text-[#ffffff]">{type}</div>
-                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-lg p-2" type="text" onChange={(e: any) => {
+                                    <input className="bg-[#1b1b1b] border border-[#2b2b2b] rounded-md p-2" type="text" onChange={(e: any) => {
                                         
                                         if (type === "address[]") {
                                             setUpdateTargetSharesState({

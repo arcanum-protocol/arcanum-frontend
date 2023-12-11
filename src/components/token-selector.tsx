@@ -21,8 +21,9 @@ interface TokenSelectorProps {
 }
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
-    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice } = multipool;
+    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = multipool;
     const [search, setSearch] = useState("");
+    const currentShares = _currentShares;
 
     const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
     const oppositeToken = action === "set-token-in" ? outputAsset : inputAsset;
@@ -56,11 +57,17 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 
     function getBalanceDecaration(token: ExternalAsset | MultipoolAsset) {
         const decimals = new BigNumber(10).pow(token.decimals);
-        const balance = token.balance?.dividedBy(decimals).toNumber();
+        const balance = token.balance?.dividedBy(decimals).toFixed(4);
 
-        if (balance === undefined) {
+        if (balance === undefined || token.address === undefined) {
             return (
                 <Skeleton className="w-[20px] h-[10px] rounded-2xl"></Skeleton>
+            );
+        }
+
+        if (Number(balance) === 0) {
+            return (
+                <div className="font-mono text-xs text-gray-500">{~0}</div>
             );
         }
 
@@ -69,23 +76,36 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
                 <div className="font-mono text-xs text-gray-500">{balance}</div>
             );
         } else {
-            const isDeviationNegative = (token as MultipoolAsset).deviationPercent?.isNegative();
+            const idealShare = (token as MultipoolAsset).idealShare;
+            const thisAssetShare = currentShares.get(token.address);
+
+            const deviation = thisAssetShare?.minus(idealShare!);
+            const isDeviationNegative = deviation?.isNegative();
+
             return (
                 <>
-                    <NeonText color={isDeviationNegative ? "emerald" : "crimson"} text={balance + " " + token.symbol} />
+                    <NeonText color={isDeviationNegative ? "emerald" : "crimson"}>
+                        {balance}
+                    </NeonText>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                             </TooltipTrigger>
-                            <TooltipContent side="top" align="center" className="inline-flex bg-black border text-gray-300 max-w-xs font-mono">
-                                <p>This asset is part of an {
-                                    <NeonText text="ETF" color="purple" />
-                                }, by choosing it you will mint according to the rules of the {
-                                        <NeonText text="multipool" color="purple" />
-                                    }, {
-                                        <NeonText text="read here" color="blue" href="https://docs.arcanum.to/basics/asset-management" className="underline" rightIcon={<ExternalLinkIcon height={10} />} />
-                                    } to get acquainted with the details</p>
+                            <TooltipContent side="top" align="center" className="block bg-black border text-gray-300 max-w-xs font-mono">
+                                {"This asset is part of an "}
+                                <NeonText color="purple">
+                                    ETF
+                                </NeonText>
+                                {", by choosing it you will mint according to the rules of the "}
+                                <NeonText color="purple">
+                                    multipool
+                                </NeonText>
+                                {", "}
+                                <NeonText color="blue" href="https://docs.arcanum.to/basics/asset-management" className="underline" rightIcon={<ExternalLinkIcon height={10} />}>
+                                    read here
+                                </NeonText>
+                                {" to get acquainted with the details"}
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>

@@ -9,7 +9,7 @@ import BigNumber from "bignumber.js";
 
 export function TransactionParamsSelector() {
     return (
-        <div className="text-xs flex flex-col gap-2">
+        <div className="text-xs flex flex-col w-full">
             <SlippageSelector />
             <div className="flex flex-col gap-2">
                 <ExchangeInfo />
@@ -170,7 +170,7 @@ export const SlippageSelector = observer(() => {
     const slippagePresets = [0.5, 1, 3];
 
     return (
-        <div className='flex w-full mt-2'>
+        <div className='flex w-full'>
             <div className='flex flex-col items-start w-full gap-[10px]'>
                 <TooltipProvider>
                     <Tooltip>
@@ -188,14 +188,14 @@ export const SlippageSelector = observer(() => {
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
-                <div className='flex rounded-lg w-1/4 h-8 items-center min-w-full gap-1'>
+                <div className='flex rounded-md w-full h-8 items-center gap-1'>
                     {slippagePresets.map((slippagePreseted: number, index: number) => {
                         return (
                             <Button
                                 key={index}
                                 onClick={() => setSlippage(slippagePreseted)}
                                 className={
-                                    `flex-initial text-center rounded-lg cursor-pointer ease-out delay-100 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B]
+                                    `flex-initial w-1/4 text-center rounded-md cursor-pointer ease-out delay-100 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B]
                                         hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
                                 }>
                                 {slippagePreseted + '%'}
@@ -203,13 +203,11 @@ export const SlippageSelector = observer(() => {
                         );
                     })}
                     <div className={
-                        `flex flex-row text-center rounded-lg cursor-pointer ease-out delay-100 h-9 gap-2 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B] items-center
+                        `flex flex-row text-center rounded-md cursor-pointer ease-out delay-100 h-9 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B] items-center gap-3
                             hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
                     }>
                         <input
-                            className={
-                                `flex-initial overflow-hidden text-xs font-thin slate-600 bg-transparent outline-none text-end h-full`
-                            }
+                            className="flex-initial overflow-hidden text-xs font-thin slate-600 bg-transparent outline-none text-end w-[90%]"
                             value={slippagePresets.indexOf(slippage) ? slippage : undefined}
                             placeholder="Custom"
                             onChange={e => {
@@ -225,10 +223,10 @@ export const SlippageSelector = observer(() => {
                                 } catch { }
                             }}
                         />
-                        <div className='text-xs font-thin pr-2'>%</div>
+                        <div className='text-xs font-thin'>%</div>
                     </div>
                 </div>
-                <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] my-[1rem]" />
+                <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] mb-[0.5rem]" />
             </div>
         </div >
     );

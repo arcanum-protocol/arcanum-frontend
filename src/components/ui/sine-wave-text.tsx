@@ -1,14 +1,14 @@
 import React from 'react';
 
 type NeonTextProps = {
-    text: string;
     color?: 'emerald' | 'crimson' | 'purple' | 'blue';
     href?: string;
     className?: string;
     rightIcon?: React.ReactNode;
+    children: React.ReactNode;
 };
 
-function NeonText({ text, color, href, className, rightIcon }: NeonTextProps) {
+function NeonText({ color, href, className, rightIcon, children }: NeonTextProps) {
     const textColor = color
         ? {
               emerald: 'hsl(145, 100%, 50%)',
@@ -33,25 +33,21 @@ function NeonText({ text, color, href, className, rightIcon }: NeonTextProps) {
         <p className={`inline-flex neon-text ${className}`} style={containerStyle}>
             {href ? (
                 <a href={href} style={neonStyle}>
-                    {text.split('').map((letter, index) => (
-                        <span className="min-w-[3px]" key={index}>
-                            {letter}
-                        </span>
-                    ))}
+                    {" "}
+                    {children}
                     {rightIcon}
+                    {" "}
                 </a>
             ) : (
-                <>
-                    {text.split('').map((letter, index) => (
-                        <span className="min-w-[3px]" key={index} style={neonStyle}>
-                            {letter}
-                        </span>
-                    ))}
+                <span style={neonStyle}>
+                    {" "}
+                    {children}
                     {rightIcon}
-                </>
+                    {" "}
+                </span>
             )}
         </p>
     );
 }
 
-export {NeonText};
+export { NeonText };

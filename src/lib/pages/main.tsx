@@ -61,7 +61,7 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
 
     return (
         <div>
-            <div className={`${className} p-4 bg-[#161616] rounded-2xl border border-[#292524]`}>
+            <div className={`${className} p-3 bg-[#161616] rounded-2xl border border-[#292524]`}>
                 <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTabWrapper(value)}>
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="mint">Mint</TabsTrigger>
@@ -126,15 +126,15 @@ export const Head = observer(() => {
                 </div>
                 <div className="hidden gap-1 flex-row xl:flex">
                     <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                        <p className='text-sm'>24h change</p>
+                        <p className='text-xs'>24h change</p>
                         <Skeleton className="w-16 h-4" />
                     </div>
                     <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                        <p className='text-sm'>24h high</p>
+                        <p className='text-xs'>24h high</p>
                         <Skeleton className="w-16 h-4" />
                     </div>
                     <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                        <p className='text-sm'>24h low</p>
+                        <p className='text-xs'>24h low</p>
                         <Skeleton className="w-16 h-4" />
                     </div>
                 </div>
@@ -160,15 +160,15 @@ export const Head = observer(() => {
             </div>
             <div className="hidden gap-1 flex-row xl:flex">
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                    <p className='text-sm'>24h change</p>
+                    <p className='text-xs'>24h change</p>
                     <p className={'text-base ' + getColor(_change)}>{_change}%</p>
                 </div>
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                    <p className='text-sm'>24h high</p>
+                    <p className='text-xs'>24h high</p>
                     <p className='text-base'>{_high}$</p>
                 </div>
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                    <p className='text-sm'>24h low</p>
+                    <p className='text-xs'>24h low</p>
                     <p className='text-base'>{_low}$</p>
                 </div>
             </div>

@@ -111,7 +111,7 @@ export const InteractionWithApprovalButton = observer(() => {
     if (address === undefined) {
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
                     <p style={{ margin: "10px" }}>Connect Wallet</p>
                 </Button>
             </div >
@@ -121,7 +121,7 @@ export const InteractionWithApprovalButton = observer(() => {
     if (inputQuantity === undefined || inputAsset === undefined) {
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
                     <p style={{ margin: "10px" }}>Swap</p>
                 </Button>
             </div >
@@ -131,7 +131,7 @@ export const InteractionWithApprovalButton = observer(() => {
     if (allowanceLoading) {
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
                     <p style={{ margin: "10px" }}>Loading...</p>
                 </Button>
             </div >
@@ -141,7 +141,7 @@ export const InteractionWithApprovalButton = observer(() => {
     if (exchangeError) {
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
                     <p style={{ margin: "10px" }}>{exchangeError}</p>
                 </Button>
             </div >
@@ -151,7 +151,7 @@ export const InteractionWithApprovalButton = observer(() => {
     if (allowance! < BigInt(inputQuantity!.toFixed())) {
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => approve(address!, inputAsset?.address, getRouter)}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => approve(address!, inputAsset?.address, getRouter)}>
                     <p style={{ margin: "10px" }}>Approve</p>
                 </Button>
             </div >
@@ -161,7 +161,7 @@ export const InteractionWithApprovalButton = observer(() => {
     if (isCounting) {  
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-red-500 hover:bg-transparent " disabled={true}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-red-500 hover:bg-transparent " disabled={true}>
                     <p style={{ margin: "10px" }}>Swap {toHumanReadableTime(ttlLeft)}</p>
                 </Button>
             </div >
@@ -170,7 +170,7 @@ export const InteractionWithApprovalButton = observer(() => {
     if (isCounting) {
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-red-500 hover:bg-transparent" disabled={false} onClick={() => swap()}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-red-500 hover:bg-transparent" disabled={false} onClick={() => swap()}>
                     <p style={{ margin: "10px" }}>Swap expired</p>
                 </Button>
             </div >
@@ -179,7 +179,7 @@ export const InteractionWithApprovalButton = observer(() => {
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-lg text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => swap()}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => swap()}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >
