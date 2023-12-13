@@ -39,4 +39,4 @@ export const config = createConfig(
     }),
 );
 
-export const alchemyClient = createAlchemyWeb3("https://arbitrum-mainnet.alchemyapi.io/v2/MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_").alchemy;
+export const alchemyClient = createAlchemyWeb3("https://arb-mainnet.g.alchemy.com/v2/MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_").alchemy;

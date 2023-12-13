@@ -10,10 +10,9 @@ import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import { observer } from "mobx-react-lite";
-import { multipool } from "@/store/MultipoolStore";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { toJS } from "mobx";
 import { Skeleton } from "./ui/skeleton";
+import { useStore } from "@/contexts/StoreContext";
 
 interface TokenSelectorProps {
     action: "set-token-in" | "set-token-out";
@@ -21,7 +20,7 @@ interface TokenSelectorProps {
 }
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
-    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = multipool;
+    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
     const currentShares = _currentShares;
 

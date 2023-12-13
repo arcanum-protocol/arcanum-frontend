@@ -1,3 +1,4 @@
+import BigNumber from "bignumber.js";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -12,10 +13,10 @@ export function fromX32(value: bigint): bigint {
   return value / decimals;
 }
 
-export function fromX96(value: bigint, decimals = 18): bigint {
+export function fromX96(value: bigint, decimals = 18): BigNumber {
   const _decimals = 2n ** 96n;
 
-  const fromUniswapType = value / _decimals;
+  const fromUniswapType = new BigNumber(value.toString()).div(_decimals.toString());
 
   const diifWithStandart = 18n - BigInt(decimals);
 
@@ -23,5 +24,5 @@ export function fromX96(value: bigint, decimals = 18): bigint {
     return fromUniswapType;
   }
 
-  return fromUniswapType / 10n ** diifWithStandart;
+  return fromUniswapType.div(new BigNumber(10).pow(diifWithStandart.toString()));
 }

@@ -1,31 +1,48 @@
-import { BigNumber } from "bignumber.js";
 import { toHumanReadable } from "../lib/format-number";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { observer } from "mobx-react-lite";
-import { multipool } from "@/store/MultipoolStore";
 import { Skeleton } from "./ui/skeleton";
 import { MultipoolAsset } from "@/types/multipoolAsset";
+import { useStore } from "@/contexts/StoreContext";
+import BigNumber from "bignumber.js";
+import { useQuery } from "@tanstack/react-query";
+import { getMultipool } from "@/api/arcanum";
 
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assets, currentShares, assetsIsLoading, etherPrice } = multipool;
-    const etherPriceBN = new BigNumber(etherPrice[42161]);
+    const { getAssets: assets, setTokens, currentShares, etherPrice, multipoolId } = useStore();
 
-    const fetchedAssets = assets.filter((asset) => asset.type === "multipool") as MultipoolAsset[];
+    const { data: staticAssets, isLoading } = useQuery(["assets"], async () => {
+        const { assets } = await getMultipool(multipoolId);
 
-    function tohumanReadableQuantity(number: BigNumber, _decimals = 18) {
-        const decimals = new BigNumber(10).pow(_decimals);
+        return assets;
+    }, {
+        enabled: assets === undefined,
+    });
 
-        const value = number.div(decimals);
-        return toHumanReadable(value.toFixed(), 2);
-    }
+    console.log("assets", staticAssets);
 
-    if (assetsIsLoading) {
+    if (isLoading) {
         return (
             <Skeleton className="relative w-[897px] overflow-auto rounded-2xl border h-[225.2px]">
             </Skeleton>
         );
+    }
+
+    if (assets == undefined) {
+        setTokens(staticAssets!);
+    }
+    const fetchedAssets = assets!.filter((asset) => asset != undefined).filter((asset) => asset.type === "multipool") as MultipoolAsset[];
+
+    function tohumanReadableQuantity(number: bigint, decimals = 18) {
+        const _decimals = 10n ** BigInt(decimals);
+        const decimalsBN = new BigNumber(_decimals.toString());
+
+        const _number = new BigNumber(number.toString());
+
+        const value = _number.dividedBy(decimalsBN);
+        return toHumanReadable(value.toString(), 2);
     }
 
     return (
@@ -42,7 +59,9 @@ export const IndexAssetsBreakdown = observer(() => {
             <TableBody>
                 {
                     fetchedAssets.map((fetchedAsset) => {
-                        const price = fetchedAsset.chainPrice.multipliedBy(etherPriceBN).toFixed(2);
+                        const price = Number(fetchedAsset.chainPrice) * etherPrice;
+                        const idealShare = new BigNumber(fetchedAsset.idealShare.toString()).dividedBy(new BigNumber(10).pow(18));
+                        const currentShare = new BigNumber(currentShares.get(fetchedAsset.address!)!.toString());
 
                         return (<TableRow key={fetchedAsset.address}>
                             <TableCell className="text-left">
@@ -54,10 +73,10 @@ export const IndexAssetsBreakdown = observer(() => {
                                     {fetchedAsset.symbol}
                                 </div>
                             </TableCell>
-                            <TableCell>{fetchedAsset.idealShare.toFixed(2)}%</TableCell>
-                            <TableCell>{currentShares.get(fetchedAsset.address!)!.toFixed(2)}%</TableCell>
-                            <TableCell>{price}$</TableCell>
-                            <TableCell>{tohumanReadableQuantity(fetchedAsset.quantity, fetchedAsset.decimals)}</TableCell>
+                            <TableCell>{idealShare.toFixed(4)}%</TableCell>
+                            <TableCell>{currentShare.toFixed(4)}%</TableCell>
+                            <TableCell>{price.toFixed(4)}$</TableCell>
+                            <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>
                         </TableRow>)
                     }
                     )

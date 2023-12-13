@@ -3,8 +3,8 @@ import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { Button } from "./ui/button";
 import { Separator } from "@radix-ui/react-separator";
 import { observer } from "mobx-react-lite";
-import { multipool } from "@/store/MultipoolStore";
 import BigNumber from "bignumber.js";
+import { useStore } from "@/contexts/StoreContext";
 
 
 export function TransactionParamsSelector() {
@@ -21,7 +21,7 @@ export function TransactionParamsSelector() {
 }
 
 const NetworkFee = observer(() => {
-    const { transactionCost } = multipool;
+    const { transactionCost, etherPrice } = useStore();
 
     if (!transactionCost) {
         return (
@@ -30,7 +30,7 @@ const NetworkFee = observer(() => {
     }
 
     const dollarValue = new BigNumber(transactionCost.toString()).dividedBy(new BigNumber(10).pow(18));
-    const dollar = dollarValue.multipliedBy(multipool.etherPrice[42161]);
+    const dollar = dollarValue.multipliedBy(etherPrice);
 
     return (
         <div className="flex justify-between">
@@ -53,7 +53,7 @@ const NetworkFee = observer(() => {
 });
 
 const Fee = observer(() => {
-    const { inputQuantity, fee } = multipool;
+    const { inputQuantity, fee, etherPrice } = useStore();
 
     if (!inputQuantity || !fee) {
         return (
@@ -62,7 +62,7 @@ const Fee = observer(() => {
     }
 
     const dollarValue = new BigNumber(inputQuantity!.toString()).multipliedBy(fee!.toString()).dividedBy(new BigNumber(10).pow(18));
-    const feeDollar = dollarValue.multipliedBy(multipool.etherPrice[42161]).dividedBy(new BigNumber(10).pow(18));
+    const feeDollar = dollarValue.multipliedBy(etherPrice).dividedBy(new BigNumber(10).pow(18));
     const feePersent = new BigNumber(fee!.toString()).dividedBy(new BigNumber(10).pow(18)).multipliedBy(100);
 
     // if fee dollar is less than 0.0001$ then it is zero and if fee persent is less than 0.0001% then it is zero
@@ -98,14 +98,14 @@ const Fee = observer(() => {
 });
 
 const ExchangeInfo = observer(() => {
-    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice } = multipool;
+    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice } = useStore();
 
     if (minimalReceive) {
         const bgMinimalReceive = new BigNumber(minimalReceive.toString());
         const decimals = outputAsset?.decimals || 18;
 
         const absminimalReceiveFormatted = bgMinimalReceive.dividedBy(new BigNumber(10).pow(decimals)).abs();
-        const absminimalReceiveFormattedDollar = absminimalReceiveFormatted.multipliedBy(outputAsset?.price!).multipliedBy(etherPrice[42161]);
+        const absminimalReceiveFormattedDollar = absminimalReceiveFormatted.multipliedBy(19).multipliedBy(etherPrice);
 
         return (
             <div className="flex justify-between">
@@ -134,7 +134,7 @@ const ExchangeInfo = observer(() => {
         const decimals = inputAsset?.decimals || 18;
 
         const absMaximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals)).abs();
-        const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(inputAsset?.price!).multipliedBy(etherPrice[42161]);
+        const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(19).multipliedBy(etherPrice);
 
         return (
             <div className="flex justify-between">
@@ -164,7 +164,7 @@ const ExchangeInfo = observer(() => {
 });
 
 export const SlippageSelector = observer(() => {
-    const { slippage, setSlippage } = multipool;
+    const { slippage, setSlippage } = useStore();
 
     // 0,1,2,3 - presets, 4 - custom
     const slippagePresets = [0.5, 1, 3];

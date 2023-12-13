@@ -5,8 +5,8 @@ import { Address, fetchToken, writeContract } from "@wagmi/core";
 import { useAccount, useNetwork } from "wagmi";
 import { observer } from 'mobx-react-lite';
 import erc20Abi from '../abi/ERC20';
-import { multipool } from '@/store/MultipoolStore';
 import { BigNumber } from 'bignumber.js';
+import { useStore } from '@/contexts/StoreContext';
 
 const customStyles = {
     content: {
@@ -20,7 +20,7 @@ const customStyles = {
 };
 
 export const Faucet = observer(() => {
-    const { assets, walletClient } = multipool;
+    const { assets } = useStore();
     const { chain } = useNetwork();
 
     const [modalIsOpen, setIsOpen] = useState<boolean>(false);
@@ -47,7 +47,7 @@ export const Faucet = observer(() => {
             address: tokenAddress as Address,
             abi: erc20Abi,
             functionName: 'mint',
-            args: [walletClient?.account?.address!, amt],
+            args: ["0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F", amt],
         })
     }
 
