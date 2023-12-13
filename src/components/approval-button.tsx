@@ -1,4 +1,3 @@
-import { multipool } from "@/store/MultipoolStore";
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
 import { toast } from "./ui/use-toast";
@@ -6,6 +5,7 @@ import { useAccount, useContractRead } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { Address } from 'viem';
 import { useEffect, useState } from "react";
+import { useStore } from "@/contexts/StoreContext";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -14,7 +14,7 @@ export interface InteractionWithApprovalButtonProps {
 }
 
 export const InteractionWithApprovalButton = observer(() => {
-    const { swap: _swap, inputQuantity, inputAsset, getRouter, approve: _approve, exchangeError, getSharePriceParams } = multipool;
+    const { swap: _swap, inputQuantity, inputAsset, approve: _approve, exchangeError, getSharePriceParams, router } = useStore();
     const { address } = useAccount();
 
     const [ttlLeft, setTtlLeft] = useState<number>(600);
@@ -34,7 +34,7 @@ export const InteractionWithApprovalButton = observer(() => {
         address: inputAsset?.address,
         abi: ERC20,
         functionName: "allowance",
-        args: [address!, getRouter],
+        args: [address!, router.address],
         enabled: address !== undefined && inputAsset !== undefined,
 
     });
@@ -151,7 +151,7 @@ export const InteractionWithApprovalButton = observer(() => {
     if (allowance! < BigInt(inputQuantity!.toFixed())) {
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => approve(address!, inputAsset?.address, getRouter)}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => approve(address!, inputAsset?.address, router.address)}>
                     <p style={{ margin: "10px" }}>Approve</p>
                 </Button>
             </div >

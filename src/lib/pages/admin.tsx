@@ -1,7 +1,7 @@
 import ETF from '@/abi/ETF';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
-import { multipool, FeedType } from '@/store/MultipoolStore';
+import { useStore } from '@/contexts/StoreContext';
 import { observer } from 'mobx-react-lite'
 import { useState } from 'react';
 import { Address } from 'viem';
@@ -16,7 +16,7 @@ export const AdminPannel = observer(() => {
         setSharePriceTTL,
         toggleForcePushAuthority,
         increaseCashback,
-        updateTargetShares } = multipool;
+        updateTargetShares } = useStore();
 
     const [updatePriceState, setUpdatePriceState] = useState<{ address: Address, feedType: FeedType, bytes: string } | undefined>();
     const [withdrawFeesState, setWithdrawFeesState] = useState<{ to: Address } | undefined>();

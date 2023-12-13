@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { Address } from 'viem';
 
 
@@ -19,6 +20,7 @@ interface SolidAssetSpecific {
     low24h: number;
     high24h: number;
     change24h: number;
+    price: number;
     chainId: number;
 }
 
@@ -28,7 +30,7 @@ interface MultipoolAssetSpecific {
     multipoolAddress: string;
     multipoolQuantity: bigint;
     idealShare: bigint;
-    chainPrice: bigint;
+    chainPrice: BigNumber;
     collectedCashbacks: bigint;
     deviationPercent?: bigint;
     priceChange24h?: bigint;

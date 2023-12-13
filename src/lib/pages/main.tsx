@@ -5,17 +5,14 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { getSVG } from "@/lib/svg-adapter";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { observer } from "mobx-react-lite";
-import { multipool } from "@/store/MultipoolStore";
+import { MultipoolStore } from "@/store/MultipoolStore";
 import TVChartContainer from "@/components/tv-chart";
 import { TokenSelector } from "@/components/token-selector";
-import { BaseAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import { Faucet } from '@/components/faucet-modal';
 import { AdminPannel } from './admin';
 import { useQuery } from '@tanstack/react-query';
-import yaml from 'yamljs';
-import { alchemyClient, publicClient } from '@/config';
-import ETF from '@/abi/ETF';
-import { useAccount } from 'wagmi';
+import { StoreProvider, useStore } from '@/contexts/StoreContext';
+import { getMultipoolMarketData } from '@/api/arcanum';
 
 export const Admin = observer(() => {
     return (
@@ -26,100 +23,16 @@ export const Admin = observer(() => {
 });
 
 export const Arbi = () => {
-    const { address } = useAccount();
-    const { setTokens } = multipool;
-
-    const { data: assets } = useQuery(["static-data"], async () => {
-        const response = await fetch("https://app.arcanum.to/api/arbi.yaml");
-
-        // parse yaml to js object
-        const jsData = await response.text();
-        const data = yaml.load(jsData);
-
-        return data.assets as BaseAsset[];
-    }, {
-        refetchInterval: 15000,
-    });
-
-    const { data: multipoolData } = useQuery(["multipool-data"], async () => {
-        const response = await fetch("https://app.arcanum.to/api/arbi.yaml");
-
-        // parse yaml to js object
-        const jsData = await response.text();
-        const data = yaml.load(jsData);
-
-        const multipoolId = data.name;
-
-        const _multipoolData = await fetch(`https://api.arcanum.to/api/stats?multipool_id=${multipoolId}`);
-        const multipoolData = await _multipoolData.json();
-
-        const totalSupply = await publicClient({ chainId: 42161 }).readContract({
-            address: data.address,
-            abi: ETF,
-            functionName: "totalSupply",
-        });
-
-        return {
-            symbol: data.symbol,
-            address: data.address,
-            decimals: 18,
-            routerAddress: data.router_address,
-            type: "solid",
-            low24h: multipoolData.low_24h,
-            high24h: multipoolData.high_24h,
-            change24h: multipoolData.change_24h,
-            price: multipoolData.current_price,
-            logo: data.logo,
-            chainId: data.chain_id,
-            totalSupply: totalSupply,
-        } as SolidAsset;
-    }, {
-        refetchInterval: 15000,
-    });
-
-    const { data: balances } = useQuery(["balances"], async () => {
-        const response = await alchemyClient.getTokenBalances(address!, assets!.map((token) => token.address?.toString() || ""));
-
-        const balances: { [key: string]: bigint } = {};
-        for (const token of response.tokenBalances) {
-            balances[token.contractAddress] = BigInt(token.tokenBalance || "0");
-        }
-
-        return balances;
-    }, {
-        refetchInterval: 15000,
-        enabled: !!address && !!assets,
-    });
-
-    const { data: etherPrice } = useQuery(["ether-price"], async () => {
-        const response = await fetch("https://token-rates-aggregator.1inch.io/v1.0/native-token-rate?vs=USD");
-        const data = await response.json();
-
-        return Number(data["42161"]["USD"]);
-    }, {
-        refetchInterval: 15000,
-    });
-
-    if (assets) {
-        setTokens(assets);
-    }
-
-    if (balances) {
-        multipool.updateTokenBalances(balances);
-    }
-
-    if (etherPrice) {
-        multipool.setEtherPrice(etherPrice);
-    }
+    const multipool = new MultipoolStore("arbi");
 
     return (
-        <>
+        <StoreProvider store={multipool}>
             <MainInner />
-        </>
+        </StoreProvider>
     )
 };
 
-export const MainInner = observer(() => {
+export const MainInner = () => {
     return (
         <>
             <div className='flex flex-col min-w-full mt-0.5 gap-2 items-center xl:flex-row xl:items-stretch'>
@@ -141,14 +54,14 @@ export const MainInner = observer(() => {
             </div >
         </>
     );
-});
+};
 
 interface ActionFormProps {
     className?: string;
 }
 
 export const ActionForm = observer(({ className }: ActionFormProps) => {
-    const { selectedTab, setSelectedTabWrapper } = multipool;
+    const { selectedTab, setSelectedTabWrapper } = useStore();
 
     return (
         <div>
@@ -187,8 +100,13 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
 });
 
 export const Head = observer(() => {
-    const { assets, assetsIsLoading } = multipool;
+    const { multipoolId } = useStore();
 
+    const { data: multipool, isLoading: multipoolIsLoading } = useQuery(["multipool"], async () => {
+        return await getMultipoolMarketData(multipoolId);
+    }, {
+        refetchInterval: 15000,
+    });
 
     function getColor(change: string | undefined): string {
         if (change == undefined) {
@@ -204,7 +122,7 @@ export const Head = observer(() => {
         }
     }
 
-    if (assetsIsLoading) {
+    if (multipoolIsLoading) {
         // skeleton
         return (
             <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
@@ -233,36 +151,35 @@ export const Head = observer(() => {
         );
     }
 
-    const _multipool = assets.find((asset) => asset.type == "solid") as SolidAsset;
-
-    const _change = _multipool?.change24h?.toFixed(4);
-    const _high = _multipool?.high24h?.toFixed(4);
-    const _low = _multipool?.low24h?.toFixed(4);
-    const price = _multipool?.price?.toFixed(4);
+    const change = multipool?.change24h?.toFixed(4);
+    const high = multipool?.high24h?.toFixed(4);
+    const low = multipool?.low24h?.toFixed(4);
+    const price = multipool?.price?.toFixed(4);
 
     return (
         <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
             <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
                 <div className="flex flex-row text-left gap-2">
                     <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
-                    <p className='text-[#7E7E7E] p-0 text-2xl'>{_multipool?.name.toLocaleUpperCase() || ""}</p>
+                    <p className='text-[#7E7E7E] p-0 text-2xl'>{multipoolId.toLocaleUpperCase() || ""}</p>
                 </div>
                 <p className='text-xl'>${price}</p>
             </div>
             <div className="hidden gap-1 flex-row xl:flex">
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-xs'>24h change</p>
-                    <p className={'text-base ' + getColor(_change)}>{_change}%</p>
+                    <p className={'text-base ' + getColor(change)}>{change}%</p>
                 </div>
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-xs'>24h high</p>
-                    <p className='text-base'>{_high}$</p>
+                    <p className='text-base'>{high}$</p>
                 </div>
                 <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-xs'>24h low</p>
-                    <p className='text-base'>{_low}$</p>
+                    <p className='text-base'>{low}$</p>
                 </div>
             </div>
         </div>
     );
 });
+

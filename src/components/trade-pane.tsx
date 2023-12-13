@@ -5,36 +5,36 @@ import { InteractionWithApprovalButton } from './approval-button';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { observer } from 'mobx-react-lite';
-import { multipool } from "@/store/MultipoolStore";
 import { ChangeEvent } from "react";
 import ERC20 from "@/abi/ERC20";
 import { useAccount, useContractRead } from "wagmi";
 import { Skeleton } from "./ui/skeleton";
+import { useStore } from "@/contexts/StoreContext";
 
 
 export const TradePaneInner = observer(() => {
-    const { assetsIsLoading, swapAssets } = multipool;
+    const { swapAssets } = useStore();
 
     return (
         <div className="flex flex-col justify-center gap-2">
             <div className="flex flex-col gap-4 items-center">
                 {
-                    assetsIsLoading ?
-                    <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
-                        <TokenQuantityInput text={"Send"} />
+                    // assetsIsLoading ?
+                    // <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
+                    <TokenQuantityInput text={"Send"} />
                 }
 
-                <div onClick={swapAssets} 
+                <div onClick={swapAssets}
                     className="my-[-2rem] z-10 bg-[#161616] border border-[#2b2b2b] p-2 rounded-md">
                     <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
                     </svg>
                 </div>
 
-                { 
-                    assetsIsLoading ?
-                    <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
-                        <TokenQuantityInput text={"Receive"} />
+                {
+                    // assetsIsLoading ?
+                    // <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
+                    <TokenQuantityInput text={"Receive"} />
                 }
             </div>
             <div className="flex flex-col items-center transition-[height]">
@@ -50,14 +50,14 @@ interface TokenQuantityInputProps {
 }
 
 export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) => {
-    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap, etherPrice, getInputPrice, getOutputPrice, multipool: _multipool } = multipool;
+    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap, etherPrice, getInputPrice, getOutputPrice, multipool, hrInQuantity, hrOutQuantity, mainInput } = useStore();
     const { address } = useAccount();
 
-    const quantity = text === "Send" ? multipool.hrInQuantity : multipool.hrOutQuantity;
+    const quantity = text === "Send" ? hrInQuantity : hrOutQuantity;
     const theAsset = text === "Send" ? inputAsset : outputAsset;
     const isDisabled = theAsset?.type === "solid";
 
-    const isThisMainInput = text === "Send" ? multipool.mainInput === "in" : multipool.mainInput === "out";
+    const isThisMainInput = text === "Send" ? mainInput === "in" : mainInput === "out";
 
     function getBalance(): JSX.Element {
         const { data: balance, isLoading } = useContractRead({
@@ -127,18 +127,18 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         }
 
         const price = text === "Send" ? getInputPrice : getOutputPrice;
-        
-        if (theAsset.address === _multipool.address) {
-            const value = new BigNumber(quantity).multipliedBy(etherPrice[42161]);
+
+        if (theAsset.address === multipool.address) {
+            const value = new BigNumber(quantity).multipliedBy(etherPrice);
             return value.toFixed(2);
         }
-        
-        const value = new BigNumber(quantity).multipliedBy(price).multipliedBy(etherPrice[42161]);
-        return value.toFixed(2);
+
+        const value = BigInt(quantity) * price * BigInt(etherPrice);
+        return value.toString();
     }
-    
+
     const overrideText = text === "Send" ? "You pay" : "You receive";
-    
+
     return (
         <div className="flex flex-col justify-between items-start rounded-2xl h-full p-3 bg-[#1b1b1b]">
             <p className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light">{overrideText} </p>
@@ -160,9 +160,9 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                 <Button className="grow max-w-min rounded-xl py-[6px] pr-[5px] pl-[8px] justify-between" variant="secondary" onClick={() => setSelectedTabWrapper(text === "Send" ? "set-token-in" : "set-token-out")} disabled={isDisabled}>
                     <Avatar className="h-6 w-6 mr-1">
                         <AvatarImage src={theAsset?.logo} alt="Logo" />
-                        <AvatarFallback>{theAsset?.name}</AvatarFallback>
+                        <AvatarFallback>{theAsset?.symbol}</AvatarFallback>
                     </Avatar>
-                    <p className="px-0.5 text-white opacity-100">{theAsset?.name}</p>
+                    <p className="px-0.5 text-white opacity-100">{theAsset?.symbol}</p>
                     <ChevronDownIcon className="w-5 h-5 text-gray-400" />
                 </Button>
             </div>
