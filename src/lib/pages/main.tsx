@@ -182,3 +182,4 @@ export const Head = observer(() => {
         </div>
     );
 });
+
