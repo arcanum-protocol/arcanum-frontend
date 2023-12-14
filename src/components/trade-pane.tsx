@@ -2,13 +2,13 @@ import { BigNumber } from "bignumber.js";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { TransactionParamsSelector } from './transaction-params-selector';
 import { InteractionWithApprovalButton } from './approval-button';
-import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Skeleton } from "./ui/skeleton";
+import { Button } from './ui/button';
 import { observer } from 'mobx-react-lite';
 import { ChangeEvent } from "react";
 import ERC20 from "@/abi/ERC20";
 import { useAccount, useContractRead } from "wagmi";
-import { Skeleton } from "./ui/skeleton";
 import { useStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
 import { getSignedPrice } from "@/api/arcanum";
@@ -61,10 +61,10 @@ interface TokenQuantityInputProps {
 }
 
 export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) => {
-    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap, etherPrice, getInputPrice, getOutputPrice, hrInQuantity, hrOutQuantity, mainInput, setInputQuantity, setOutputQuantity } = useStore();
+    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity } = useStore();
     const { address } = useAccount();
 
-    const quantity = text === "Send" ? hrInQuantity : hrOutQuantity;
+    const quantity = hrQuantity(text);
     const theAsset = text === "Send" ? inputAsset : outputAsset;
     const isDisabled = theAsset?.type === "solid";
 
@@ -103,11 +103,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
         if (e.target.value === "") {
-            if (text === "Send") {
-                setInputQuantity(undefined);
-            } else {
-                setOutputQuantity(undefined);
-            }
+            setQuantity(text, undefined)
             return;
         }
 
@@ -120,17 +116,9 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
         const value = e.target.value.replace(",", ".");
 
-        if (text === "Send") {
-            setMainInput("in");
-        } else {
-            setMainInput("out");
-        }
+        setMainInput(text);
 
-        if (text === "Send") {
-            setInputQuantity(value);
-        } else {
-            setOutputQuantity(value);
-        }
+        setQuantity(text, value);
         checkSwap();
     };
 
@@ -139,7 +127,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             return "0";
         }
 
-        const price = text === "Send" ? getInputPrice : getOutputPrice;
+        const price = getItemPrice(text);
 
         const value = BigNumber(quantity).multipliedBy(price).multipliedBy(etherPrice).toFixed(4);
         return value.toString();
@@ -160,7 +148,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                             /> :
                             <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                                 placeholder="0"
-                                value={quantity === undefined ? "" : quantity}
+                                value={quantity}
                                 onFocus={() => setMainInput(text === "Send" ? "in" : "out")}
                             />
                     }

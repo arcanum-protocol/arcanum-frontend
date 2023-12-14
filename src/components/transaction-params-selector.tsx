@@ -125,12 +125,12 @@ const Fee = observer(() => {
 });
 
 const ExchangeInfo = observer(() => {
-    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice, getOutputPrice, getInputPrice } = useStore();
+    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice, getItemPrice } = useStore();
 
     if (minimalReceive) {
         const bgMinimalReceive = new BigNumber(minimalReceive.toString());
         const decimals = outputAsset?.decimals || 18;
-        const price = getOutputPrice;
+        const price = getItemPrice("Receive");
 
         const absminimalReceiveFormatted = bgMinimalReceive.dividedBy(new BigNumber(10).pow(decimals)).abs();
         const absminimalReceiveFormattedDollar = absminimalReceiveFormatted.multipliedBy(price).multipliedBy(etherPrice);
@@ -160,7 +160,7 @@ const ExchangeInfo = observer(() => {
     if (maximumSend) {
         const bgMaximumSend = new BigNumber(maximumSend.toString());
         const decimals = inputAsset?.decimals || 18;
-        const price = getInputPrice;
+        const price = getItemPrice("Send");
 
         const absMaximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals)).abs();
         const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(price).multipliedBy(etherPrice);
@@ -193,7 +193,12 @@ const ExchangeInfo = observer(() => {
 });
 
 export const SlippageSelector = observer(() => {
-    const { slippage, setSlippage } = useStore();
+    const { slippage } = useStore();
+    const store = useStore();
+
+    const setSlipage = (slippage: number) => {
+        store.slippage = slippage;
+    }
 
     // 0,1,2,3 - presets, 4 - custom
     const slippagePresets = [0.5, 1, 3];
@@ -222,7 +227,7 @@ export const SlippageSelector = observer(() => {
                         return (
                             <button
                                 key={index}
-                                onClick={() => setSlippage(slippagePreseted)}
+                                onClick={() => setSlipage(slippagePreseted)}
                                 className={
                                     `flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-xs font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
                                         hover:bg-[#2D2D2D] focus:bg-[##0c0a09] active:bg-[#0c0a09]`
@@ -239,12 +244,12 @@ export const SlippageSelector = observer(() => {
                         onChange={e => {
                             try {
                                 if (e.target.value == "") {
-                                    setSlippage(slippagePresets[0]);
+                                    setSlipage(slippagePresets[0]);
                                 }
 
                                 let num = Number(e.target.value);
                                 if (num < 100) {
-                                    setSlippage(num);
+                                    setSlipage(num);
                                 }
                             } catch { }
                         }}

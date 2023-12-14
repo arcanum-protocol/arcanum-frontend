@@ -11,7 +11,10 @@ import { getEtherPrice, getMultipool } from "@/api/arcanum";
 
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { getAssets: assets, setTokens, currentShares, etherPrice, setEtherPrice, multipoolId } = useStore();
+    const { assets, setTokens, currentShares, etherPrice, multipoolId } = useStore();
+    const multipool = useStore();
+
+    const setEtherPrice = (etherPrice: number) => multipool.etherPrice = etherPrice;
 
     const { isLoading } = useQuery(["assets"], async () => {
         const { assets } = await getMultipool(multipoolId);

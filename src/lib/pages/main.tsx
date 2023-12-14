@@ -8,7 +8,6 @@ import { observer } from "mobx-react-lite";
 import { MultipoolStore } from "@/store/MultipoolStore";
 import TVChartContainer from "@/components/tv-chart";
 import { TokenSelector } from "@/components/token-selector";
-import { Faucet } from '@/components/faucet-modal';
 import { AdminPannel } from './admin';
 import { useQuery } from '@tanstack/react-query';
 import { StoreProvider, useStore } from '@/contexts/StoreContext';
@@ -94,7 +93,6 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
                     </TabsContent>
                 </Tabs >
             </div>
-            <Faucet />
         </div>
     )
 });

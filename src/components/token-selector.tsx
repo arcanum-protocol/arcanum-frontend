@@ -13,7 +13,6 @@ import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useStore } from "@/contexts/StoreContext";
-import { toJS } from "mobx";
 import { alchemyClient } from "@/config";
 import { useAccount } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
@@ -25,12 +24,12 @@ interface TokenSelectorProps {
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { address } = useAccount();
-    const { getAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
+    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
     const currentShares = _currentShares;
 
-    const { data: balances, isLoading: balancesIsLoading } = useQuery(["balances"], async () => {
-        const assetsAddress = getAssets?.filter((asset) => asset !== undefined).map((asset) => asset.address!) || [];
+    const { data: balances } = useQuery(["balances"], async () => {
+        const assetsAddress = assets?.filter((asset) => asset !== undefined).map((asset) => asset.address!) || [];
         const rawBalances = await alchemyClient.getTokenBalances(address!, assetsAddress);
 
         const balances: { [address: string]: BigNumber } = {};
@@ -50,7 +49,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
     const oppositeToken = action === "set-token-in" ? outputAsset : inputAsset;
 
-    const tokenList = getAssets!.filter((asset) => asset.type === "multipool")
+    const tokenList = assets!.filter((asset) => asset.type === "multipool")
         .filter((asset) => asset.address !== oppositeToken?.address) as MultipoolAsset[];
 
     function toDollarValue(token: ExternalAsset | MultipoolAsset): BigNumber {
