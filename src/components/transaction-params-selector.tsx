@@ -1,22 +1,23 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
-import { Button } from "./ui/button";
 import { Separator } from "@radix-ui/react-separator";
+import { useStore } from "@/contexts/StoreContext";
 import { observer } from "mobx-react-lite";
 import BigNumber from "bignumber.js";
-import { useStore } from "@/contexts/StoreContext";
 
 
 export function TransactionParamsSelector() {
     return (
-        <div className="text-xs flex flex-col w-full">
-            <SlippageSelector />
-            <div className="flex flex-col gap-2">
-                <ExchangeInfo />
-                <Fee />
-                <NetworkFee />
-            </div >
-        </div >
+        <div className="p-4 rounded-md border bg-[#0c0a09] w-full">
+            <div className="text-xs flex flex-col w-full">
+                <SlippageSelector />
+                <div className="flex flex-col gap-2">
+                    <ExchangeInfo />
+                    <Fee />
+                    <NetworkFee />
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -25,7 +26,22 @@ const NetworkFee = observer(() => {
 
     if (!transactionCost) {
         return (
-            <></>
+            <div className="flex justify-between">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                                Transaction cost
+                                <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                            <p>Cost of the transaction on the blockchain.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <p className="m-0">-</p>
+            </div>
         );
     }
 
@@ -53,34 +69,45 @@ const NetworkFee = observer(() => {
 });
 
 const Fee = observer(() => {
-    const { inputQuantity, fee, etherPrice } = useStore();
+    const { inputQuantity, fee: _fee, etherPrice } = useStore();
 
-    if (!inputQuantity || !fee) {
+    if (!inputQuantity || !_fee) {
         return (
-            <></>
+            <div className="flex justify-between">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                                Fee
+                                <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                            <p>Platform fee is a summ of base fee and deviation fee.<br />
+                                Base fee - the platform's commission, for swaps is equal 0.01%. It is zero for minting and burning. <br />
+                                Deviation fee is added when you increase the current deviation of the token.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <p className="m-0">-</p>
+            </div>
         );
     }
 
-    const dollarValue = new BigNumber(inputQuantity!.toString()).multipliedBy(fee!.toString()).dividedBy(new BigNumber(10).pow(18));
-    const feeDollar = dollarValue.multipliedBy(etherPrice).dividedBy(new BigNumber(10).pow(18));
+    const fee = BigNumber(_fee?.toString());
+    const feeDollar = fee.multipliedBy(etherPrice).dividedBy(new BigNumber(10).pow(18));
     const feePersent = new BigNumber(fee!.toString()).dividedBy(new BigNumber(10).pow(18)).multipliedBy(100);
 
     // if fee dollar is less than 0.0001$ then it is zero and if fee persent is less than 0.0001% then it is zero
     const humanReadableFeeDollar = feeDollar.isLessThan(0.0001) ? 0 : feeDollar.toFixed(4);
     const humanReadableFeePersent = feePersent.isLessThan(0.0001) ? 0 : feePersent.toFixed(4);
 
-    if (feeDollar.isLessThan(0.0001)) {
-        return (
-            <></>
-        );
-    }
-
     return (
         <div className="flex justify-between">
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                        <div className="flex flex-row items-center gap-1 text-xs lg:text-xs">
                             Fee
                             <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                         </div>
@@ -98,14 +125,15 @@ const Fee = observer(() => {
 });
 
 const ExchangeInfo = observer(() => {
-    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice } = useStore();
+    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice, getOutputPrice, getInputPrice } = useStore();
 
     if (minimalReceive) {
         const bgMinimalReceive = new BigNumber(minimalReceive.toString());
         const decimals = outputAsset?.decimals || 18;
+        const price = getOutputPrice;
 
         const absminimalReceiveFormatted = bgMinimalReceive.dividedBy(new BigNumber(10).pow(decimals)).abs();
-        const absminimalReceiveFormattedDollar = absminimalReceiveFormatted.multipliedBy(19).multipliedBy(etherPrice);
+        const absminimalReceiveFormattedDollar = absminimalReceiveFormatted.multipliedBy(price).multipliedBy(etherPrice);
 
         return (
             <div className="flex justify-between">
@@ -123,7 +151,7 @@ const ExchangeInfo = observer(() => {
                     </Tooltip>
                 </TooltipProvider>
                 <p className="m-0">
-                    {absminimalReceiveFormatted.toFixed(4)} ({absminimalReceiveFormattedDollar.toFixed(4)}$)
+                    {absminimalReceiveFormatted.toFixed(5, BigNumber.ROUND_DOWN)} ({absminimalReceiveFormattedDollar.toFixed(4)}$)
                 </p>
             </div>
         );
@@ -132,9 +160,10 @@ const ExchangeInfo = observer(() => {
     if (maximumSend) {
         const bgMaximumSend = new BigNumber(maximumSend.toString());
         const decimals = inputAsset?.decimals || 18;
+        const price = getInputPrice;
 
         const absMaximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals)).abs();
-        const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(19).multipliedBy(etherPrice);
+        const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(price).multipliedBy(etherPrice);
 
         return (
             <div className="flex justify-between">
@@ -152,7 +181,7 @@ const ExchangeInfo = observer(() => {
                     </Tooltip>
                 </TooltipProvider>
                 <p className="m-0">
-                    {absMaximumSendFormatted.toFixed(4)} ({absMaximumSendFormattedDollar.toFixed(4)}$)
+                    {absMaximumSendFormatted.toFixed(5, BigNumber.ROUND_UP)} ({absMaximumSendFormattedDollar.toFixed(4)}$)
                 </p>
             </div>
         );
@@ -171,7 +200,7 @@ export const SlippageSelector = observer(() => {
 
     return (
         <div className='flex w-full'>
-            <div className='flex flex-col items-start w-full gap-[10px]'>
+            <div className='flex flex-col items-start gap-[10px] w-full'>
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -188,43 +217,38 @@ export const SlippageSelector = observer(() => {
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
-                <div className='flex rounded-md w-full h-8 items-center gap-1'>
+                <div className='flex w-full items-center gap-1'>
                     {slippagePresets.map((slippagePreseted: number, index: number) => {
                         return (
-                            <Button
+                            <button
                                 key={index}
                                 onClick={() => setSlippage(slippagePreseted)}
                                 className={
-                                    `flex-initial w-1/4 text-center rounded-md cursor-pointer ease-out delay-100 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B]
-                                        hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
+                                    `flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-xs font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
+                                        hover:bg-[#2D2D2D] focus:bg-[##0c0a09] active:bg-[#0c0a09]`
                                 }>
                                 {slippagePreseted + '%'}
-                            </Button>
+                            </button>
                         );
                     })}
-                    <div className={
-                        `flex flex-row text-center rounded-md cursor-pointer ease-out delay-100 h-9 transition-all text-xs font-thin min-h-full text-[#FFF] bg-[#1B1B1B] items-center gap-3
-                            hover:bg-[#2D2D2D] focus:bg-[#2D2D2D] active:bg-[#2D2D2D]`
-                    }>
-                        <input
-                            className="flex-initial overflow-hidden text-xs font-thin slate-600 bg-transparent outline-none text-end w-[90%]"
-                            value={slippagePresets.indexOf(slippage) ? slippage : undefined}
-                            placeholder="Custom"
-                            onChange={e => {
-                                try {
-                                    if (e.target.value == "") {
-                                        setSlippage(slippagePresets[0]);
-                                    }
+                    <input
+                        className={`flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-xs font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
+                            hover:bg-[#2D2D2D] focus:bg-[#0c0a09] active:bg-[#0c0a09] outline-none`}
+                        value={slippagePresets.indexOf(slippage) ? slippage : undefined}
+                        placeholder="Custom"
+                        onChange={e => {
+                            try {
+                                if (e.target.value == "") {
+                                    setSlippage(slippagePresets[0]);
+                                }
 
-                                    let num = Number(e.target.value);
-                                    if (num < 100) {
-                                        setSlippage(num);
-                                    }
-                                } catch { }
-                            }}
-                        />
-                        <div className='text-xs font-thin'>%</div>
-                    </div>
+                                let num = Number(e.target.value);
+                                if (num < 100) {
+                                    setSlippage(num);
+                                }
+                            } catch { }
+                        }}
+                    />
                 </div>
                 <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] mb-[0.5rem]" />
             </div>

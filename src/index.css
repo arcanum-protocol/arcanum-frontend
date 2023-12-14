@@ -1,5 +1,7 @@
 :root {
-  font-family: "SFMono Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-family: 'Inconsolata', monospace;
+  font-family: 'Roboto', sans-serif;
+  font-family: 'Ubuntu Mono', monospace;
   line-height: 1.5;
   font-weight: 400;
 
@@ -40,7 +42,7 @@ body {
 }
 
 .TVChartContainer {
-  mask-image: radial-gradient(circle 0 at top left, transparent 0, transparent 15px, black 16px);
+  mask-image: radial-gradient(circle at center, red 0, blue, green 100%);
 }
 
 #root {

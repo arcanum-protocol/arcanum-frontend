@@ -1,5 +1,6 @@
 import { MultipoolAsset } from '@/types/multipoolAsset';
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import yaml from 'yamljs';
 
 // once-call
@@ -42,4 +43,20 @@ async function getMultipoolMarketData(multipoolId: string) {
     }
 }
 
-export { getMultipool, getMultipoolMarketData };
+// continiously-call
+async function getEtherPrice() {
+    const responce = await axios.get(`https://token-rates-aggregator.1inch.io/v1.0/native-token-rate?vs=USD`);
+    const data = await responce.data;
+
+    return Number(data["42161"]["USD"]);
+}
+
+// continiously-call
+async function getSignedPrice(multipoolId: string) {
+    const responce = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${multipoolId}`);
+    const data = await responce.data;
+
+    return BigNumber(data.sharePrice);
+}
+
+export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice };

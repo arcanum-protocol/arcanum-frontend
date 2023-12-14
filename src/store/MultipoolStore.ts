@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js';
 import axios from 'axios';
 import { encodeAbiParameters } from 'viem'
 import ERC20 from '@/abi/ERC20';
+import { getMultipool } from '@/api/arcanum';
 
 export interface MultipoolFees {
     deviationParam: BigNumber;
@@ -55,8 +56,11 @@ export enum FeedType {
 class MultipoolStore {
     private publicClient = publicClient({ chainId: 42161 });
 
+    // multipool related data
     logo: string | undefined;
     chainId: number | undefined;
+    totalSupply: BigNumber | undefined;
+    price: BigNumber | undefined;
 
     multipool = getContract({
         address: undefined as any,
@@ -75,8 +79,8 @@ class MultipoolStore {
         depegBaseFee: BigNumber(0),
         baseFee: BigNumber(0),
     };
+
     private assets: (MultipoolAsset | SolidAsset)[] = [];
-    assetsIsLoading: boolean = true;
 
     multipoolId: string;
     datafeedUrl = 'https://api.arcanum.to/api/tv';
@@ -110,17 +114,72 @@ class MultipoolStore {
         this.multipoolId = mp_id;
 
         (async () => {
+            const multipoolData = await getMultipool(mp_id);
+
+            runInAction(() => {
+                this.multipool = getContract({
+                    address: multipoolData.address as Address,
+                    abi: multipoolABI,
+                    publicClient: this.publicClient,
+                });
+
+                this.router = getContract({
+                    address: multipoolData.router as Address,
+                    abi: routerABI,
+                    publicClient: this.publicClient,
+                });
+
+                this.logo = multipoolData.logo;
+                this.assets = multipoolData.assets;
+            });
+
             await this.getFees();
-        });
-        
+        })();
+
+        setInterval(async () => {
+            this.updateMPTotalSupply();
+            await this.updatePrices();
+        }, 30000);
+
         this.setSelectedTabWrapper("mint");
 
         makeAutoObservable(this, {}, { autoBind: true });
     }
 
     get getAssets(): (MultipoolAsset | SolidAsset)[] | undefined {
-        if (this.assetsIsLoading) return undefined;
         return this.assets;
+    }
+
+    get assetsIsLoading(): boolean {
+        return this.assets.length === 0;
+    }
+
+    get getSolidAsset(): SolidAsset | undefined {
+        return {
+            symbol: "ARBI",
+            decimals: 18,
+            logo: this.logo,
+            address: this.multipool.address,
+            type: "solid",
+            routerAddress: this.router.address,
+            totalSupply: this.totalSupply,
+            chainId: this.chainId,
+            price: this.price,
+        } as SolidAsset;
+    }
+
+    updateMPPrice(price: BigNumber) {
+        this.price = price;
+    }
+
+    updateMPTotalSupply() {
+        if (this.multipool.address === undefined) return;
+
+        this.multipool.read.totalSupply().then((totalSupply) => {
+            runInAction(() => {
+                this.totalSupply = new BigNumber(totalSupply.toString());
+            });
+        });
     }
 
     updateTokenBalances(balances: { [key: string]: bigint }) {
@@ -158,19 +217,25 @@ class MultipoolStore {
         if (this.multipool.address === undefined) return;
 
         const _assets: MultipoolAsset[] = [];
-        const totalTargetShares = await this.multipool.read.totalTargetShares();
+        const _totalTargetShares = await this.multipool.read.totalTargetShares();
+        const totalTargetShares = new BigNumber(_totalTargetShares.toString());
 
         for (const token of tokens) {
-            const asset = await this.multipool.read.getAsset([token.address as Address]);
+            const _asset = await this.multipool.read.getAsset([token.address as Address]);
+            const asset = {
+                quantity: new BigNumber(_asset.quantity.toString()),
+                targetShare: new BigNumber(_asset.targetShare.toString()),
+                collectedCashbacks: new BigNumber(_asset.collectedCashbacks.toString()),
+            };
 
             if (token.address?.toString() === this.multipool.address.toString()) continue;
 
             const chainPrice = await this.multipool.read.getPrice([token.address as Address]);
 
-            const idealShare = asset.targetShare * 10n ** 18n / totalTargetShares * 100n;
+            const idealShare = asset.targetShare.dividedBy(totalTargetShares).multipliedBy(100);
             const quantity = asset.quantity;
 
-            const _chainPrice = fromX96(chainPrice, token.decimals);
+            const price = fromX96(chainPrice, token.decimals);
 
             _assets.push({
                 symbol: token.symbol,
@@ -180,30 +245,21 @@ class MultipoolStore {
                 type: "multipool",
                 multipoolAddress: this.multipool.address,
                 idealShare: idealShare,
-                chainPrice: _chainPrice,
+                price: price,
                 collectedCashbacks: asset.collectedCashbacks,
                 multipoolQuantity: quantity,
             });
         }
 
         runInAction(() => {
-            const mp = this.assets.filter((asset) => asset !== undefined).find((asset) => asset.type === "solid") as SolidAsset;
+            this.assets = _assets;
 
-            if (mp === undefined) {
-                this.assets = [..._assets];
-                this.assetsIsLoading = false;
-                return;
-            }
-
-            this.assets = [..._assets, mp];
-            this.assetsIsLoading = false;
+            this.setAction("mint")
         });
     }
 
     async updatePrices() {
-        if (this.multipool.address === undefined) return;
-
-        const addresses: { address: string, decimals: number }[] = this.assets.map((asset: any) => {
+        const addresses: { address: string, decimals: number }[] = this.assets.filter(asset => asset.type == "multipool").map((asset: any) => {
             return {
                 address: asset.address,
                 decimals: asset.decimals
@@ -229,7 +285,7 @@ class MultipoolStore {
 
         for (const [index, result] of prices.entries()) {
             const price = result.result as bigint;
-            const {address, decimals} = addresses[index];
+            const { address, decimals } = addresses[index];
 
             addressToPrice.set(address, fromX96(price, decimals)!);
         }
@@ -243,18 +299,6 @@ class MultipoolStore {
                 };
             });
         });
-    }
-
-    updateMultipoolPriceData(multipool: { low_24h: number, high_24h: number, change_24h: number, total_supply: string }) {
-        const multipoolID = this.assets.findIndex((asset) => asset.type === "solid");
-
-        this.assets[multipoolID] = {
-            ...this.assets[multipoolID],
-            low24h: Number(multipool.low_24h),
-            high24h: Number(multipool.high_24h),
-            change24h: Number(multipool.change_24h),
-            totalSupply: BigInt(multipool.total_supply)
-        };
     }
 
     async checkSwap() {
@@ -277,7 +321,7 @@ class MultipoolStore {
 
         // if (this.inputQuantity === undefined || this.outputQuantity === undefined) return;
 
-        let _fpSharePrice: any = (await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipoolId=${this.multipoolId}`)).data;
+        let _fpSharePrice: any = (await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${this.multipoolId}`)).data;
 
         let fpSharePricePlaceholder: {
             contractAddress: `0x${string}`;
@@ -449,7 +493,7 @@ class MultipoolStore {
             });
         }
 
-        const _fpShare = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipoolId=${this.multipoolId}`);
+        const _fpShare = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${this.multipoolId}`);
         let fpSharePricePlaceholder: any;
 
         if (_fpShare.data == null) {
@@ -602,7 +646,7 @@ class MultipoolStore {
             });
         }
 
-        const _fpShare = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipoolId=${this.multipoolId}`);
+        const _fpShare = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${this.multipoolId}`);
         let fpSharePricePlaceholder: any;
 
         if (_fpShare.data == null) {
@@ -844,16 +888,15 @@ class MultipoolStore {
     setAction(
         action: "mint" | "burn" | "swap",
     ) {
-        const mpAsset = this.assets.find((asset) => asset.type === "solid") as SolidAsset;
 
         runInAction(() => {
             if (action === "mint") {
                 this.inputAsset = this.assets[0];
-                this.outputAsset = mpAsset;
+                this.outputAsset = this.getSolidAsset;
             }
 
             if (action === "burn") {
-                this.inputAsset = mpAsset;
+                this.inputAsset = this.getSolidAsset;
                 this.outputAsset = this.assets[0];
             }
 
@@ -870,42 +913,51 @@ class MultipoolStore {
         this.mainInput = value;
     }
 
-    get currentShares() {
-        if (this.assetsIsLoading) return new Map<string, bigint>();
-        if (this.assets.length === 0) return new Map<string, bigint>();
+    get currentShares(): {
+        data: Map<string, BigNumber>,
+        isLoading: boolean
+    } {
+        if (this.assets.length === 0) {
+            return {
+                data: new Map<string, BigNumber>(),
+                isLoading: true
+            };
+        }
         const multipoolAssets = this.assets.filter((asset) => asset != undefined).filter((asset) => asset.type === "multipool") as MultipoolAsset[];
+        if (multipoolAssets.some((asset) => asset.price === undefined || asset.multipoolQuantity === undefined)) {
+            return {
+                data: new Map<string, BigNumber>(),
+                isLoading: true
+            };
+        }
 
         const totalDollarValue = multipoolAssets.reduce((acc, asset) => {
-            const assetDecimals = 10n ** BigInt(asset.decimals);
-            const asBG = new BigNumber(assetDecimals.toString());
-            const assetPrice = asset.chainPrice.multipliedBy(asBG).toFixed(0);
-
-            return acc + BigInt(assetPrice) * asset.multipoolQuantity / assetDecimals / 100n;
-        }, 0n);
+            return acc.plus(asset.price.multipliedBy(asset.multipoolQuantity));
+        }, new BigNumber(0));
 
         const addressToShare = new Map<string, BigNumber>();
 
         for (const asset of multipoolAssets) {
-            if (asset.chainPrice.isEqualTo(0)) {
+            if (asset.price.isEqualTo(0)) {
                 addressToShare.set(asset.address!, BigNumber(0));
                 continue;
             }
-            if (asset.multipoolQuantity == 0n) {
+            if (asset.multipoolQuantity.isEqualTo(0)) {
                 addressToShare.set(asset.address!, BigNumber(0));
                 continue;
             }
 
-            const assetDecimals = 10n ** BigInt(asset.decimals);
-            const asBG = new BigNumber(assetDecimals.toString());
+            const assetValue = asset.price.multipliedBy(asset.multipoolQuantity);
 
-            const assetPrice = asset.chainPrice.multipliedBy(asBG).toFixed(0);
-            const share = new BigNumber((BigInt(assetPrice) * asset.multipoolQuantity / totalDollarValue).toString()).dividedBy(asBG);
+            const share = new BigNumber(assetValue).dividedBy(totalDollarValue).multipliedBy(100);
 
             addressToShare.set(asset.address!, share);
         }
 
-        console.log("current shares", toJS(addressToShare));
-        return addressToShare;
+        return {
+            data: addressToShare,
+            isLoading: false
+        };
     }
 
     setEtherPrice(etherPrice: number) {
@@ -915,47 +967,38 @@ class MultipoolStore {
     get getInputPrice(): BigNumber {
         if (this.multipool.address === undefined) return BigNumber(0);
 
-        const address = this.inputAsset?.address;
-
         // check if address is multipool address
-        if (address === this.multipool.address.toString()) {
-            axios.get(`https://api.arcanum.to/api/stats?multipoolId=${this.multipoolId}`).then((res) => {
-                const response = res.data;
-
-                return new BigNumber(response.value).div(new BigNumber(10).pow(18));
-            });
+        if (this.inputAsset?.address === this.multipool.address.toString()) {
+            const bigintPrice = BigInt(this.price?.toFixed() ?? "0");
+            return fromX96(bigintPrice, 18) ?? BigNumber(0);
         }
-        const asset = this.assets.find((asset) => asset.address === address) as MultipoolAsset;
+        const asset = this.assets.find((asset) => asset.address === this.inputAsset?.address) as MultipoolAsset;
         if (asset === undefined) return BigNumber(0);
 
-        if (asset.chainPrice === undefined) {
+        if (asset.price === undefined) {
             return BigNumber(0);
         }
 
-        return asset.chainPrice;
+        return asset.price;
     }
 
     get getOutputPrice(): BigNumber {
         if (this.multipool.address === undefined) return BigNumber(0);
 
-        const address = this.outputAsset?.address;
 
         // check if address is multipool address
-        if (address === this.multipool.address.toString()) {
-            axios.get(`https://api.arcanum.to/api/stats?multipoolId=${this.multipoolId}`).then((res) => {
-                const response = res.data;
-
-                return new BigNumber(response.value).div(new BigNumber(10).pow(18));
-            });
+        if (this.outputAsset?.address === this.multipool.address.toString()) {
+            const bigintPrice = BigInt(this.price?.toFixed() ?? "0");
+            return fromX96(bigintPrice, 18) ?? BigNumber(0);
         }
-        const asset = this.assets.find((asset) => asset.address === address) as MultipoolAsset;
+        const asset = this.assets.find((asset) => asset.address === this.outputAsset?.address) as MultipoolAsset;
         if (asset === undefined) return BigNumber(0);
 
-        if (asset.chainPrice === undefined) {
+        if (asset.price === undefined) {
             return BigNumber(0);
         }
 
-        return asset.chainPrice;
+        return asset.price;
     }
 
     get hrInQuantity() {

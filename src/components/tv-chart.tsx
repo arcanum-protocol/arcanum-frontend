@@ -150,7 +150,7 @@ const TVChartContainer = observer(() => {
 
     return (
         <div
-            style={{ borderRadius: "1rem" }}
+            style={{ borderRadius: "0.20rem" }}
             ref={chartContainerRef}
             className={`TVChartContainer w-full h-[30rem]`}
         />
