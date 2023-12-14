@@ -60,3 +60,4 @@ async function getSignedPrice(multipoolId: string) {
 }
 
 export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice };
+
