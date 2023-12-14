@@ -91,12 +91,12 @@ function Navbar() {
             </div>
             <NavigationMenu className={"hidden lg:block"}>
                 <NavigationMenuList>
-                    <NavigationMenuItem>
+                    <NavigationMenuItem className="border border-[#292524] rounded">
                         <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
                             Arbitrum Index
                         </NavigationMenuLink>
                     </NavigationMenuItem>
-                    <NavigationMenuItem>
+                    <NavigationMenuItem className="border border-[#292524] rounded">
                         <NavigationMenuLink href='https://docs.arcanum.to' className={navigationMenuTriggerStyle()}>
                             Documentation
                         </NavigationMenuLink>

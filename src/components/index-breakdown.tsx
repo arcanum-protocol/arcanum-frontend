@@ -7,21 +7,30 @@ import { MultipoolAsset } from "@/types/multipoolAsset";
 import { useStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
-import { getMultipool } from "@/api/arcanum";
+import { getEtherPrice, getMultipool } from "@/api/arcanum";
 
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { getAssets: assets, setTokens, currentShares, etherPrice, multipoolId } = useStore();
+    const { getAssets: assets, setTokens, currentShares, etherPrice, setEtherPrice, multipoolId } = useStore();
 
-    const { data: staticAssets, isLoading } = useQuery(["assets"], async () => {
+    const { isLoading } = useQuery(["assets"], async () => {
         const { assets } = await getMultipool(multipoolId);
+        await setTokens(assets);
 
         return assets;
     }, {
-        enabled: assets === undefined,
+        enabled: assets?.length! < 1,
     });
 
-    console.log("assets", staticAssets);
+    useQuery(["etherPrice"], async () => {
+        const etherPrice = await getEtherPrice();
+
+        setEtherPrice(etherPrice);
+
+        return etherPrice;
+    }, {
+        refetchInterval: 15000,
+    });
 
     if (isLoading) {
         return (
@@ -30,23 +39,22 @@ export const IndexAssetsBreakdown = observer(() => {
         );
     }
 
-    if (assets == undefined) {
-        setTokens(staticAssets!);
-    }
     const fetchedAssets = assets!.filter((asset) => asset != undefined).filter((asset) => asset.type === "multipool") as MultipoolAsset[];
 
-    function tohumanReadableQuantity(number: bigint, decimals = 18) {
-        const _decimals = 10n ** BigInt(decimals);
-        const decimalsBN = new BigNumber(_decimals.toString());
-
+    function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
+        const _decimals = new BigNumber(10).pow(decimals);
+        
+        if (number == undefined) {
+            return "0";
+        }
         const _number = new BigNumber(number.toString());
 
-        const value = _number.dividedBy(decimalsBN);
+        const value = _number.dividedBy(_decimals);
         return toHumanReadable(value.toString(), 2);
     }
 
     return (
-        <Table className="hidden sm:table bg-[#161616]">
+        <Table className="hidden sm:table bg-[#0c0a09]">
             <TableHeader>
                 <TableRow>
                     <TableHead className="text-left">Asset</TableHead>
@@ -59,9 +67,17 @@ export const IndexAssetsBreakdown = observer(() => {
             <TableBody>
                 {
                     fetchedAssets.map((fetchedAsset) => {
-                        const price = Number(fetchedAsset.chainPrice) * etherPrice;
-                        const idealShare = new BigNumber(fetchedAsset.idealShare.toString()).dividedBy(new BigNumber(10).pow(18));
-                        const currentShare = new BigNumber(currentShares.get(fetchedAsset.address!)!.toString());
+                        const { data: shares, isLoading } = currentShares;
+
+                        if (fetchedAsset.price == undefined) {
+                            return null;
+                        }
+
+                        const _etherPrice = new BigNumber(etherPrice.toString());
+                        const price = fetchedAsset.price.multipliedBy(_etherPrice);
+
+                        const idealShare = fetchedAsset.idealShare ?? new BigNumber(0);
+                        const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);
 
                         return (<TableRow key={fetchedAsset.address}>
                             <TableCell className="text-left">
@@ -74,7 +90,9 @@ export const IndexAssetsBreakdown = observer(() => {
                                 </div>
                             </TableCell>
                             <TableCell>{idealShare.toFixed(4)}%</TableCell>
-                            <TableCell>{currentShare.toFixed(4)}%</TableCell>
+                            {
+                                isLoading ? <TableCell className="text-center"><Skeleton className="w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
+                            }
                             <TableCell>{price.toFixed(4)}$</TableCell>
                             <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>
                         </TableRow>)

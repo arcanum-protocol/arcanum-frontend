@@ -13,6 +13,10 @@ import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useStore } from "@/contexts/StoreContext";
+import { toJS } from "mobx";
+import { alchemyClient } from "@/config";
+import { useAccount } from "wagmi";
+import { useQuery } from "@tanstack/react-query";
 
 interface TokenSelectorProps {
     action: "set-token-in" | "set-token-out";
@@ -20,53 +24,74 @@ interface TokenSelectorProps {
 }
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
-    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
+    const { address } = useAccount();
+    const { getAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
     const currentShares = _currentShares;
+
+    const { data: balances, isLoading: balancesIsLoading } = useQuery(["balances"], async () => {
+        const assetsAddress = getAssets?.filter((asset) => asset !== undefined).map((asset) => asset.address!) || [];
+        const rawBalances = await alchemyClient.getTokenBalances(address!, assetsAddress);
+
+        const balances: { [address: string]: BigNumber } = {};
+        for (const balance of rawBalances.tokenBalances) {
+            if (balance.contractAddress === undefined || balance.tokenBalance === undefined) {
+                continue;
+            }
+            balances[balance.contractAddress] = new BigNumber(balance.tokenBalance!);
+        }
+
+        return balances;
+    }, {
+        refetchInterval: 15000,
+        enabled: address !== undefined,
+    });
 
     const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
     const oppositeToken = action === "set-token-in" ? outputAsset : inputAsset;
 
-    const tokenList = assets.filter((asset) => asset.type === "multipool")
+    const tokenList = getAssets!.filter((asset) => asset.type === "multipool")
         .filter((asset) => asset.address !== oppositeToken?.address) as MultipoolAsset[];
 
     function toDollarValue(token: ExternalAsset | MultipoolAsset): BigNumber {
-        if (!token.balance || !token.price) {
+        if (!balances || !token.price) {
             return new BigNumber(0);
         }
 
         const divisor = new BigNumber(10).pow(token.decimals);
 
-        const balance = new BigNumber(token.balance).dividedBy(divisor);
+        const balance = new BigNumber(balances[token.address!]).dividedBy(divisor);
         const price = new BigNumber(token.price);
-        const value = balance.multipliedBy(price).multipliedBy(etherPrice[42161]);
+        const value = balance.multipliedBy(price).multipliedBy(etherPrice);
 
         return value;
     }
 
     function DollarValue({ token }: { token: ExternalAsset | MultipoolAsset }) {
-        if (!token.balance || !token.price) {
+        if (!balances || !token.price) {
             return <Skeleton className="w-[50px] h-[20px] rounded-2xl"></Skeleton>;
         }
 
         const value = toDollarValue(token);
 
-        return <div>{"$" + value.toFixed(5).toString()}</div>
+        return <div className="p-2 opacity-70">{"$" + value.toFixed(5).toString()}</div>
     }
 
     function getBalanceDecaration(token: ExternalAsset | MultipoolAsset) {
-        const decimals = new BigNumber(10).pow(token.decimals);
-        const balance = token.balance?.dividedBy(decimals).toFixed(4);
-
-        if (balance === undefined || token.address === undefined) {
+        if (balances === undefined || token.address === undefined) {
             return (
                 <Skeleton className="w-[20px] h-[10px] rounded-2xl"></Skeleton>
             );
         }
 
+        const decimals = new BigNumber(10).pow(token.decimals);
+        const balancebg = balances[token.address];
+        const balance = balancebg?.dividedBy(decimals).toFixed(4);
+
+
         if (Number(balance) === 0) {
             return (
-                <div className="font-mono text-xs text-gray-500">{~0}</div>
+                <div className="font-mono text-xs text-gray-500">~0</div>
             );
         }
 
@@ -76,7 +101,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
             );
         } else {
             const idealShare = (token as MultipoolAsset).idealShare;
-            const thisAssetShare = currentShares.get(token.address);
+            const thisAssetShare = currentShares.data.get(token.address);
 
             const deviation = thisAssetShare?.minus(idealShare!);
             const isDeviationNegative = deviation?.isNegative();
@@ -128,13 +153,13 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
             <ScrollArea className="h-[478px] w-full py-2">
                 {
                     tokenList.map((asset, index) => {
-                        if (search !== "" && !asset.name.toLowerCase().includes(search.toLowerCase())) {
+                        if (search !== "" && !asset.symbol.toLowerCase().includes(search.toLowerCase())) {
                             return null;
                         }
 
                         return (
                             <div key={index} className={
-                                `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer ease-in-out duration-100 rounded-xl`
+                                `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer ease-in-out duration-100 rounded`
                             } onClick={() => { setToken(asset); setSelectedTabWrapper("back") }}>
                                 <div className="flex flex-row justify-between items-center gap-2 m-2">
                                     <Avatar className="h-8 w-8">
@@ -161,3 +186,4 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 });
 
 export { TokenSelector };
+

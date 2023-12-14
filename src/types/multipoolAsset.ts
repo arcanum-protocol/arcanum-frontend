@@ -9,6 +9,7 @@ interface BaseAsset {
     address: Address | undefined;
     balance?: bigint;
     userQuantity?: bigint;
+    price: BigNumber;
     type: "solid" | "multipool" | "external";
 }
 
@@ -16,11 +17,7 @@ interface ExternalAsset extends BaseAsset {}
 
 interface SolidAssetSpecific {
     routerAddress: string;
-    totalSupply: bigint;
-    low24h: number;
-    high24h: number;
-    change24h: number;
-    price: number;
+    totalSupply: BigNumber;
     chainId: number;
 }
 
@@ -28,13 +25,10 @@ type SolidAsset = BaseAsset & SolidAssetSpecific;
 
 interface MultipoolAssetSpecific {
     multipoolAddress: string;
-    multipoolQuantity: bigint;
-    idealShare: bigint;
-    chainPrice: BigNumber;
-    collectedCashbacks: bigint;
-    deviationPercent?: bigint;
-    priceChange24h?: bigint;
-    volume24h?: bigint;
+    multipoolQuantity: BigNumber;
+    idealShare?: BigNumber;
+    currentShare?: BigNumber;
+    collectedCashbacks: BigNumber;
 }
 
 type MultipoolAsset = BaseAsset & MultipoolAssetSpecific;

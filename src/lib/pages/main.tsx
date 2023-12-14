@@ -65,7 +65,7 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
 
     return (
         <div>
-            <div className={`${className} p-3 bg-[#161616] rounded-2xl border border-[#292524]`}>
+            <div className={`${className} p-4 bg-[#0c0a09] rounded-md border border-[#292524]`}>
                 <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTabWrapper(value)}>
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="mint">Mint</TabsTrigger>
@@ -125,7 +125,7 @@ export const Head = observer(() => {
     if (multipoolIsLoading) {
         // skeleton
         return (
-            <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
+            <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#0c0a09] border border-[#292524]'>
                 <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
                     <div className="flex flex-row text-left gap-2">
                         <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
@@ -134,15 +134,15 @@ export const Head = observer(() => {
                     <Skeleton className="w-16 h-4" />
                 </div>
                 <div className="hidden gap-1 flex-row xl:flex">
-                    <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                    <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                         <p className='text-xs'>24h change</p>
                         <Skeleton className="w-16 h-4" />
                     </div>
-                    <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                    <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                         <p className='text-xs'>24h high</p>
                         <Skeleton className="w-16 h-4" />
                     </div>
-                    <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                    <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                         <p className='text-xs'>24h low</p>
                         <Skeleton className="w-16 h-4" />
                     </div>
@@ -157,7 +157,7 @@ export const Head = observer(() => {
     const price = multipool?.price?.toFixed(4);
 
     return (
-        <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#161616] border border-[#292524]'>
+        <div className='flex w-full rounded p-1 justify-between items-center bg-[#0c0a09] border border-[#292524]'>
             <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
                 <div className="flex flex-row text-left gap-2">
                     <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
@@ -166,15 +166,15 @@ export const Head = observer(() => {
                 <p className='text-xl'>${price}</p>
             </div>
             <div className="hidden gap-1 flex-row xl:flex">
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                <div className="rounded bg-[#0c0a09] border border-[#292524] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-xs'>24h change</p>
                     <p className={'text-base ' + getColor(change)}>{change}%</p>
                 </div>
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                <div className="rounded bg-[#0c0a09] border border-[#292524] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-xs'>24h high</p>
                     <p className='text-base'>{high}$</p>
                 </div>
-                <div className="rounded-2xl bg-[#1B1B1B] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
+                <div className="rounded bg-[#0c0a09] border border-[#292524] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                     <p className='text-xs'>24h low</p>
                     <p className='text-base'>{low}$</p>
                 </div>
