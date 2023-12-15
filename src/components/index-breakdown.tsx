@@ -3,18 +3,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { observer } from "mobx-react-lite";
 import { Skeleton } from "./ui/skeleton";
-import { MultipoolAsset } from "@/types/multipoolAsset";
+import { ExternalAsset, MultipoolAsset } from "@/types/multipoolAsset";
 import { useStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
 import { getEtherPrice, getMultipool } from "@/api/arcanum";
+import { getExternalAssets } from "@/lib/multipoolUtils";
 
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assets, setTokens, currentShares, etherPrice, multipoolId } = useStore();
-    const multipool = useStore();
-
-    const setEtherPrice = (etherPrice: number) => multipool.etherPrice = etherPrice;
+    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, multipoolId, setEtherPrice } = useStore();
 
     const { isLoading } = useQuery(["assets"], async () => {
         const { assets } = await getMultipool(multipoolId);
@@ -23,6 +21,24 @@ export const IndexAssetsBreakdown = observer(() => {
         return assets;
     }, {
         enabled: assets?.length! < 1,
+    });
+
+    useQuery(["externalAssets"], async () => {
+        const assets = await getExternalAssets();
+
+        const externalAssets = assets.map((asset) => {
+            return {
+                symbol: asset.symbol,
+                decimals: asset.decimals,
+                logo: asset.logoURI,
+                address: asset.address,
+                price: BigNumber(0),
+                type: "external",
+            } as ExternalAsset;
+        });
+        setExternalAssets(externalAssets);
+
+        return externalAssets;
     });
 
     useQuery(["etherPrice"], async () => {

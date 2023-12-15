@@ -8,7 +8,6 @@ interface BaseAsset {
     logo: string | undefined;
     address: Address | undefined;
     balance?: bigint;
-    userQuantity?: bigint;
     price: BigNumber;
     type: "solid" | "multipool" | "external";
 }

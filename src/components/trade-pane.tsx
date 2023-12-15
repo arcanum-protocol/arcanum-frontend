@@ -68,8 +68,6 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const theAsset = text === "Send" ? inputAsset : outputAsset;
     const isDisabled = theAsset?.type === "solid";
 
-    console.log("theAsset", theAsset);
-
     const isThisMainInput = text === "Send" ? mainInput === "in" : mainInput === "out";
 
     function getBalance(): JSX.Element {

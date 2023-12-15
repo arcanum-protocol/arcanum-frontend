@@ -1,3 +1,4 @@
+import { Token } from "@/types/tokenlist";
 import axios from "axios";
 import { Address } from "viem";
 
@@ -54,4 +55,13 @@ function parseError(e: any): string | undefined {
     }
 }
 
-export { getForcePushPrice, parseError }
+async function getExternalAssets(chainId: number = 42161) {
+    const responce = await axios.get(`https://tokens.1inch.io/v1.2/${chainId}`);
+    const data: { [address: string]: Token } = await responce.data;
+
+    const assets: Token[] = Object.values(data);
+
+    return assets;
+}
+
+export { getForcePushPrice, parseError, getExternalAssets }

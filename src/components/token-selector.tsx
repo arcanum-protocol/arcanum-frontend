@@ -24,12 +24,13 @@ interface TokenSelectorProps {
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { address } = useAccount();
-    const { assets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
+    console.log("address", address);
+    const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
     const currentShares = _currentShares;
 
     const { data: balances } = useQuery(["balances"], async () => {
-        const assetsAddress = assets?.filter((asset) => asset !== undefined).map((asset) => asset.address!) || [];
+        const assetsAddress = [...assets, ...externalAssets].filter((asset) => asset !== undefined).filter((asset) => asset.address !== "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee").map((asset) => asset.address!) || [];
         const rawBalances = await alchemyClient.getTokenBalances(address!, assetsAddress);
 
         const balances: { [address: string]: BigNumber } = {};
@@ -49,8 +50,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
     const oppositeToken = action === "set-token-in" ? outputAsset : inputAsset;
 
-    const tokenList = assets!.filter((asset) => asset.type === "multipool")
-        .filter((asset) => asset.address !== oppositeToken?.address) as MultipoolAsset[];
+    const tokenList = [...assets, ...externalAssets].filter((asset) => asset.address !== oppositeToken?.address);
 
     function toDollarValue(token: ExternalAsset | MultipoolAsset): BigNumber {
         if (!balances || !token.price) {
@@ -60,8 +60,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         const divisor = new BigNumber(10).pow(token.decimals);
 
         const balance = new BigNumber(balances[token.address!]).dividedBy(divisor);
-        const price = new BigNumber(token.price);
-        const value = balance.multipliedBy(price).multipliedBy(etherPrice);
+        const value = balance.multipliedBy(token.price).multipliedBy(etherPrice);
 
         return value;
     }
@@ -77,6 +76,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     }
 
     function getBalanceDecaration(token: ExternalAsset | MultipoolAsset) {
+        console.log("token", token, balances);
         if (balances === undefined || token.address === undefined) {
             return (
                 <Skeleton className="w-[20px] h-[10px] rounded-2xl"></Skeleton>
@@ -158,7 +158,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 
                         return (
                             <div key={index} className={
-                                `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer ease-in-out duration-100 rounded`
+                                `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer ease-in-out duration-100 rounded pr-2`
                             } onClick={() => { setToken(asset); setSelectedTabWrapper("back") }}>
                                 <div className="flex flex-row justify-between items-center gap-2 m-2">
                                     <Avatar className="h-8 w-8">

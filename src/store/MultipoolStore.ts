@@ -1,4 +1,4 @@
-import { MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
+import { ExternalAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import { makeAutoObservable, runInAction } from 'mobx';
 import { Address, getContract } from 'viem';
 import { publicClient } from '@/config';
@@ -40,14 +40,13 @@ class MultipoolStore {
     } | undefined;
 
     assets: MultipoolAsset[] = [];
+    externalAssets: ExternalAsset[] = [];
 
     multipoolId: string;
     datafeedUrl = 'https://api.arcanum.to/api/tv';
 
-    balances: { [key: string]: bigint } = {};
-
-    inputAsset: MultipoolAsset | SolidAsset | undefined;
-    outputAsset: MultipoolAsset | SolidAsset | undefined;
+    inputAsset: MultipoolAsset | SolidAsset | ExternalAsset | undefined;
+    outputAsset: MultipoolAsset | SolidAsset | ExternalAsset | undefined;
 
     inputQuantity: BigNumber | undefined;
     outputQuantity: BigNumber | undefined;
@@ -119,8 +118,16 @@ class MultipoolStore {
         } as SolidAsset;
     }
 
+    setExternalAssets(assets: ExternalAsset[]) {
+        this.externalAssets = assets;
+    }
+
     updateMPPrice(price: BigNumber) {
         this.price = price;
+    }
+
+    setEtherPrice(price: number) {
+        this.etherPrice = price;
     }
 
     updateMPTotalSupply() {
@@ -130,18 +137,6 @@ class MultipoolStore {
             runInAction(() => {
                 this.totalSupply = new BigNumber(totalSupply.toString());
             });
-        });
-    }
-
-    updateTokenBalances(balances: { [key: string]: bigint }) {
-        this.assets = this.assets.map((asset) => {
-            if (asset.type === "solid") return asset;
-            if (asset.address === undefined) return asset;
-
-            return {
-                ...asset,
-                balance: balances[asset.address.toString()]
-            };
         });
     }
 
@@ -516,7 +511,7 @@ class MultipoolStore {
     }
 
     setInputAsset(
-        asset: MultipoolAsset | SolidAsset,
+        asset: MultipoolAsset | SolidAsset | ExternalAsset,
     ) {
         this.inputAsset = asset;
         this.outputQuantity = undefined;
@@ -524,7 +519,7 @@ class MultipoolStore {
     }
 
     setOutputAsset(
-        asset: MultipoolAsset | SolidAsset,
+        asset: MultipoolAsset | SolidAsset | ExternalAsset,
     ) {
         this.outputAsset = asset;
         this.inputQuantity = undefined;
