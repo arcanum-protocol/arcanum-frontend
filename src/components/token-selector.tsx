@@ -24,7 +24,6 @@ interface TokenSelectorProps {
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { address } = useAccount();
-    console.log("address", address);
     const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
     const currentShares = _currentShares;
@@ -76,7 +75,6 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     }
 
     function getBalanceDecaration(token: ExternalAsset | MultipoolAsset) {
-        console.log("token", token, balances);
         if (balances === undefined || token.address === undefined) {
             return (
                 <Skeleton className="w-[20px] h-[10px] rounded-2xl"></Skeleton>

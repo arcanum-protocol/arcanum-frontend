@@ -1,9 +1,7 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { toast } from "./ui/use-toast";
-import { useAccount, useContractRead } from "wagmi";
+import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery } from "wagmi";
 import ERC20 from "@/abi/ERC20";
-import { Address } from 'viem';
 import { useEffect, useState } from "react";
 import { useStore } from "@/contexts/StoreContext";
 
@@ -35,71 +33,36 @@ export const InteractionWithApprovalButton = observer(() => {
         abi: ERC20,
         functionName: "allowance",
         args: [address!, router.address],
+        watch: true,
         enabled: address !== undefined && inputAsset !== undefined,
-
     });
 
-    async function swap() {
+    const { data: approve, isLoading: approveLoading } = useQuery(["approve"], async () => {
+        return await _approve(address!, inputAsset?.address, router.address);
+    }, {
+        enabled: address !== undefined && inputAsset !== undefined && inputQuantity !== undefined,
+    });
+
+    const { config: approvalConfig } = usePrepareContractWrite(approve);
+    const { write: approvalWrite } = useContractWrite(approvalConfig);
+
+    const { data: localSwap, isLoading: localSwapLoading } = useQuery(["swap"], async () => {
         refetch();
+        
+        return await _swap(address!);
+    }, {
+        enabled: address !== undefined && inputAsset !== undefined && inputQuantity !== undefined,
+    });
+    
+    const { config } = usePrepareContractWrite(localSwap!);
+    const { write } = useContractWrite(config);
+    
+    async function swapCall() {
         const ttl = await getSharePriceParams();
+        
+        write!();
         setTtlLeft(ttl);
         setIsCounting(true);
-
-        const _hash = await _swap(address!);
-        const hash = _hash as string;
-
-        console.log("hash", hash);
-
-        if (hash.includes("User rejected the request")) {
-            toast({
-                title: "Swap rejected",
-                description: hash,
-            });
-            return;
-        }
-        
-        if (hash.includes("insufficient allowance")) {
-            toast({
-                title: "Insufficient allowance",
-                description: hash,
-            });
-            return;
-        }
-        
-        if (hash.includes("ContractFunctionExecutionError")) {
-            toast({
-                title: "Swap failed",
-                description: hash,
-            });
-            return;
-        }
-        
-        if (hash) {
-            toast({
-                title: "Swap successful",
-                description: "Swap submitted to the blockchain",
-            });
-        }
-
-        setIsCounting(false);
-        setTtlLeft(0);
-    }
-
-    async function approve(address: Address, tokenAddress: Address | undefined, spender: Address) {
-        setIsCounting(false);
-        try {
-            await _approve(address!, tokenAddress, spender);
-        } catch (e) {
-            console.log(e);
-            if (e.message.includes("The Provider is disconnected from all chains")) {
-                toast({
-                    title: "Wallet disconnected",
-                    description: e.message,
-                });
-                return;
-            }
-        }
-        refetch();
     }
 
     function toHumanReadableTime(ttl: number) {
@@ -149,29 +112,30 @@ export const InteractionWithApprovalButton = observer(() => {
     }
 
     if (allowance! < BigInt(inputQuantity!.toFixed())) {
+        if (approveLoading) {
+            return (
+                <div className="w-full">
+                    <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
+                        <p style={{ margin: "10px" }}>Loading...</p>
+                    </Button>
+                </div >
+            )
+        }
+
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => approve(address!, inputAsset?.address, router.address)}>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={approvalWrite!}>
                     <p style={{ margin: "10px" }}>Approve</p>
                 </Button>
             </div >
         )
     }
 
-    if (isCounting) {  
+    if (localSwapLoading) {
         return (
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-red-500 hover:bg-transparent " disabled={true}>
-                    <p style={{ margin: "10px" }}>Swap {toHumanReadableTime(ttlLeft)}</p>
-                </Button>
-            </div >
-        )
-    } 
-    if (isCounting) {
-        return (
-            <div className="w-full">
-                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-red-500 hover:bg-transparent" disabled={false} onClick={() => swap()}>
-                    <p style={{ margin: "10px" }}>Swap expired</p>
+                <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
+                    <p style={{ margin: "10px" }}>Loading...</p>
                 </Button>
             </div >
         )
@@ -179,9 +143,9 @@ export const InteractionWithApprovalButton = observer(() => {
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => swap()}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-red-500 hover:bg-transparent" disabled={false} onClick={swapCall}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >
-    );
+    )
 });
