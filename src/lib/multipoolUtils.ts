@@ -1,4 +1,4 @@
-import { Token } from "@/types/tokenlist";
+import { BebopToken, Token } from "@/types/tokenlist";
 import axios from "axios";
 import { Address } from "viem";
 
@@ -55,11 +55,19 @@ function parseError(e: any): string | undefined {
     }
 }
 
-async function getExternalAssets(chainId: number = 42161) {
-    const responce = await axios.get(`https://tokens.1inch.io/v1.2/${chainId}`);
-    const data: { [address: string]: Token } = await responce.data;
-
-    const assets: Token[] = Object.values(data);
+async function getExternalAssets() {
+    const InchResponce = await axios.get(`https://api.bebop.xyz/arbitrum/v2/tokens?active_only=true`);
+    const data: { [name: string]: BebopToken } = await InchResponce.data.tokens;
+    
+    const assets: Token[] = Object.values(data).map((token: BebopToken) => {
+        return {
+            name: token.name,
+            symbol: token.ticker,
+            address: token.chainInfo[0].contractAddress,
+            decimals: token.chainInfo[0].decimals,
+            logoURI: token.iconUrl,
+        } as Token;
+    });
 
     return assets;
 }

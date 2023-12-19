@@ -31,7 +31,7 @@ export const TradePaneInner = observer(() => {
             <div className="flex flex-col gap-4 items-center">
                 {
                     isLoading ?
-                        <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
+                        <Skeleton className="rounded w-[309.4px] h-[100.8px]"></Skeleton> :
                         <TokenQuantityInput text={"Send"} />
                 }
 
@@ -44,7 +44,7 @@ export const TradePaneInner = observer(() => {
 
                 {
                     isLoading ?
-                        <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
+                        <Skeleton className="rounded w-[309.4px] h-[100.8px]"></Skeleton> :
                         <TokenQuantityInput text={"Receive"} />
                 }
             </div>
@@ -61,7 +61,7 @@ interface TokenQuantityInputProps {
 }
 
 export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) => {
-    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity } = useStore();
+    const { setMainInput, inputAsset, outputAsset, inputQuantity, outputQuantity, setSelectedTabWrapper, checkSwap, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity } = useStore();
     const { address } = useAccount();
 
     const quantity = hrQuantity(text);
@@ -69,6 +69,21 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const isDisabled = theAsset?.type === "solid";
 
     const isThisMainInput = text === "Send" ? mainInput === "in" : mainInput === "out";
+
+    const { refetch } = useQuery(["checkSwap"], async () => {
+        await checkSwap(address!);
+        return 1;
+    }, {
+        enabled: (address !== undefined && inputQuantity !== undefined && outputQuantity !== undefined),
+        refetchInterval: 5000,
+    });
+
+    function dollarValue() {
+        if (theAsset?.type === 'external') {
+            return new BigNumber(quantity).multipliedBy(getItemPrice(text)).toFixed(4);
+        }
+        return new BigNumber(quantity).multipliedBy(getItemPrice(text)).multipliedBy(etherPrice).toFixed(4);
+    }
 
     function getBalance(): JSX.Element {
         const { data: balance, isLoading } = useContractRead({
@@ -82,7 +97,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
         if (isLoading) {
             return (
-                <Skeleton className="w-1 h-0.5" />
+                <Skeleton className="rounded w-1 h-0.5" />
             );
         }
 
@@ -117,19 +132,8 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         setMainInput(text);
 
         setQuantity(text, value);
-        checkSwap();
+        refetch();
     };
-
-    function getDollarValue(): string {
-        if (theAsset === undefined || quantity === undefined || etherPrice === undefined) {
-            return "0";
-        }
-
-        const price = getItemPrice(text);
-
-        const value = BigNumber(quantity).multipliedBy(price).multipliedBy(etherPrice).toFixed(4);
-        return value.toString();
-    }
 
     const overrideText = text === "Send" ? "You pay" : "You receive";
 
@@ -162,7 +166,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
                 <p className="m-0 text-xs text-gray-500">
-                    = {getDollarValue() + "$"}
+                    = {dollarValue()}$
                 </p>
                 <p className="m-0 text-gray-500 text-xs whitespace-nowrap">
                     Balance: {

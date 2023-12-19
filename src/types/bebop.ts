@@ -49,3 +49,25 @@ export interface ToSign {
     sellTokenTransfers: string;
     buyTokenTransfers: string;
 }
+
+export function toObject(ToSign: ToSign | undefined) {
+    if (!ToSign) return undefined;
+
+    return {
+        taker: ToSign.taker,
+        receiver: ToSign.receiver,
+        expiry: ToSign.expiry,
+        nonce: ToSign.nonce,
+        executor: ToSign.executor,
+        minFillPercent: ToSign.minFillPercent,
+        hooksHash: ToSign.hooksHash,
+        sellTokens: ToSign.sellTokens,
+        buyTokens: ToSign.buyTokens,
+        sellAmounts: ToSign.sellAmounts,
+        buyAmounts: ToSign.buyAmounts,
+        sellTokenTransfers: ToSign.sellTokenTransfers,
+        buyTokenTransfers: ToSign.buyTokenTransfers,
+        sellNFTIds: [],
+        buyNFTIds: [],
+    }
+}

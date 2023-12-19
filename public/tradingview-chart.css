@@ -36,6 +36,7 @@ html.theme-dark .chart-page {
   border-style: solid;
   border-width: 1px;
   border-color: #292524;
+  border-radius: 0.2rem;
 }
 html.theme-dark .chart-container {
   border: none;

@@ -41,10 +41,6 @@ body {
   min-height: 100vh;
 }
 
-.TVChartContainer {
-  mask-image: radial-gradient(circle at center, red 0, blue, green 100%);
-}
-
 #root {
   margin: 0 auto;
   padding: 1rem;

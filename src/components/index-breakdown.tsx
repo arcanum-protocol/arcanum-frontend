@@ -53,7 +53,7 @@ export const IndexAssetsBreakdown = observer(() => {
 
     if (isLoading) {
         return (
-            <Skeleton className="relative w-[897px] overflow-auto rounded-2xl border h-[225.2px]">
+            <Skeleton className="relative w-[897px] overflow-auto rounded border h-[225.2px]">
             </Skeleton>
         );
     }
@@ -110,7 +110,7 @@ export const IndexAssetsBreakdown = observer(() => {
                             </TableCell>
                             <TableCell>{idealShare.toFixed(4)}%</TableCell>
                             {
-                                isLoading ? <TableCell className="text-center"><Skeleton className="w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
+                                isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
                             }
                             <TableCell>{price.toFixed(4)}$</TableCell>
                             <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>

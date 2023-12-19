@@ -127,22 +127,22 @@ export const Head = observer(() => {
                 <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
                     <div className="flex flex-row text-left gap-2">
                         <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
-                        <Skeleton className="w-16 h-4" />
+                        <Skeleton className="rounded w-16 h-4" />
                     </div>
-                    <Skeleton className="w-16 h-4" />
+                    <Skeleton className="rounded w-16 h-4" />
                 </div>
                 <div className="hidden gap-1 flex-row xl:flex">
                     <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                         <p className='text-xs'>24h change</p>
-                        <Skeleton className="w-16 h-4" />
+                        <Skeleton className="rounded w-16 h-4" />
                     </div>
                     <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                         <p className='text-xs'>24h high</p>
-                        <Skeleton className="w-16 h-4" />
+                        <Skeleton className="rounded w-16 h-4" />
                     </div>
                     <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
                         <p className='text-xs'>24h low</p>
-                        <Skeleton className="w-16 h-4" />
+                        <Skeleton className="rounded w-16 h-4" />
                     </div>
                 </div>
             </div>

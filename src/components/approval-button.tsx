@@ -1,9 +1,13 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery } from "wagmi";
+import { useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useEffect, useState } from "react";
 import { useStore } from "@/contexts/StoreContext";
+import { ActionType } from "@/store/MultipoolStore";
+import { JAMBalanceManager, submitOrder } from "@/api/bebop";
+import { toJS } from "mobx";
+import { toObject } from "@/types/bebop";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -12,7 +16,7 @@ export interface InteractionWithApprovalButtonProps {
 }
 
 export const InteractionWithApprovalButton = observer(() => {
-    const { swap: _swap, inputQuantity, inputAsset, approve: _approve, exchangeError, getSharePriceParams, router } = useStore();
+    const { swap: _swap, inputQuantity, inputAsset, approve: _approve, exchangeError, getSharePriceParams, router, dataToSign, swapType, orderId } = useStore();
     const { address } = useAccount();
 
     const [ttlLeft, setTtlLeft] = useState<number>(600);
@@ -32,13 +36,13 @@ export const InteractionWithApprovalButton = observer(() => {
         address: inputAsset?.address,
         abi: ERC20,
         functionName: "allowance",
-        args: [address!, router.address],
+        args: [address!, swapType === ActionType.ARCANUM ? router.address : JAMBalanceManager],
         watch: true,
-        enabled: address !== undefined && inputAsset !== undefined,
     });
 
     const { data: approve, isLoading: approveLoading } = useQuery(["approve"], async () => {
-        return await _approve(address!, inputAsset?.address, router.address);
+        const approveTo = swapType === ActionType.ARCANUM ? router.address : JAMBalanceManager;
+        return await _approve(address!, inputAsset?.address, approveTo);
     }, {
         enabled: address !== undefined && inputAsset !== undefined && inputQuantity !== undefined,
     });
@@ -48,21 +52,40 @@ export const InteractionWithApprovalButton = observer(() => {
 
     const { data: localSwap, isLoading: localSwapLoading } = useQuery(["swap"], async () => {
         refetch();
-        
+
         return await _swap(address!);
     }, {
         enabled: address !== undefined && inputAsset !== undefined && inputQuantity !== undefined,
     });
-    
+
     const { config } = usePrepareContractWrite(localSwap!);
     const { write } = useContractWrite(config);
-    
+
+    const domain = dataToSign?.PARAM_DOMAIN;
+    const types = dataToSign?.PARAM_TYPES;
+    const message = toObject(dataToSign?.toSign);
+    const { data: signedData, signTypedData } = useSignTypedData({ domain, types, primaryType: 'JamOrder', message });
+
+    useQuery(["JAMOrder"], async () => {
+        if (signedData) {
+            await submitOrder({ quoteId: orderId!, signature: signedData });
+        }
+        return 1;
+    }, {
+        enabled: signedData !== undefined,
+    });
+
     async function swapCall() {
-        const ttl = await getSharePriceParams();
-        
-        write!();
-        setTtlLeft(ttl);
-        setIsCounting(true);
+        if (swapType === ActionType.ARCANUM) {
+            const ttl = await getSharePriceParams();
+
+            write!();
+            setTtlLeft(ttl);
+            setIsCounting(true);
+        }
+        if (swapType === ActionType.BEBOP) {
+            signTypedData();
+        }
     }
 
     function toHumanReadableTime(ttl: number) {

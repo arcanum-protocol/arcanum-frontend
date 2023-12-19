@@ -29,17 +29,18 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const currentShares = _currentShares;
 
     const { data: balances } = useQuery(["balances"], async () => {
-        const assetsAddress = [...assets, ...externalAssets].filter((asset) => asset !== undefined).filter((asset) => asset.address !== "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee").map((asset) => asset.address!) || [];
+        const assetsAddress = [...assets, ...externalAssets].filter((asset) => asset !== undefined).filter((asset) => asset.address?.toLocaleLowerCase() !== "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee").map((asset) => asset.address!) || [];
         const rawBalances = await alchemyClient.getTokenBalances(address!, assetsAddress);
 
+        
         const balances: { [address: string]: BigNumber } = {};
         for (const balance of rawBalances.tokenBalances) {
-            if (balance.contractAddress === undefined || balance.tokenBalance === undefined) {
+            if (balance.contractAddress === undefined || balance.tokenBalance === null || balance.tokenBalance === "0x0") {
                 continue;
             }
-            balances[balance.contractAddress] = new BigNumber(balance.tokenBalance!);
+            balances[balance.contractAddress] = new BigNumber(balance.tokenBalance);
         }
-
+        
         return balances;
     }, {
         refetchInterval: 15000,
@@ -66,7 +67,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 
     function DollarValue({ token }: { token: ExternalAsset | MultipoolAsset }) {
         if (!balances || !token.price) {
-            return <Skeleton className="w-[50px] h-[20px] rounded-2xl"></Skeleton>;
+            return <Skeleton className="w-[50px] h-[20px] rounded"></Skeleton>;
         }
 
         const value = toDollarValue(token);
@@ -77,7 +78,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     function getBalanceDecaration(token: ExternalAsset | MultipoolAsset) {
         if (balances === undefined || token.address === undefined) {
             return (
-                <Skeleton className="w-[20px] h-[10px] rounded-2xl"></Skeleton>
+                <Skeleton className="w-[20px] h-[10px] rounded"></Skeleton>
             );
         }
 

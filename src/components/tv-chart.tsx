@@ -151,9 +151,8 @@ const TVChartContainer = observer(() => {
 
     return (
         <div
-            style={{ borderRadius: "0.20rem" }}
             ref={chartContainerRef}
-            className={`TVChartContainer w-full h-[30rem]`}
+            className={`TVChartContainer w-full h-[30rem] rounded-2xl`}
         />
     );
 });
