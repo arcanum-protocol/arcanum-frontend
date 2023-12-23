@@ -31,6 +31,8 @@ async function getForcePushPrice(multipoolId: string): Promise<{
         }
     }
 
+    console.log("data", data);
+
     return {
         contractAddress: data.contractAddress,
         timestamp: BigInt(data.timestamp),

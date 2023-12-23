@@ -92,6 +92,10 @@ export const InteractionWithApprovalButton = observer(() => {
         return <ArcanumSwap />
     }
 
+    if (swapType === ActionType.UNISWAP) {
+        return <UniswapSwap />
+    }
+
 
     // if (allowanceLoading || localSwapLoading) {
     //     <LoadingButton />
@@ -186,6 +190,61 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
     )
 }
 
+const UniswapSwap = observer(() => {
+    const { address } = useAccount();
+    const { swap, inputQuantity, inputAsset, router } = useStore();
+
+    const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
+        address: inputAsset?.address,
+        abi: ERC20,
+        functionName: "allowance",
+        args: [address!, router.address],
+        watch: true,
+    });
+
+    const { data: swapAction, isLoading: swapActionIsLoading } = useQuery(["swap"], async () => {
+        const res = await swap(address!);
+        return res;
+    }, {
+        refetchInterval: 30000,
+    });
+
+    const { config } = usePrepareContractWrite(swapAction!);
+    const { write } = useContractWrite(config);
+
+    if (swapActionIsLoading) {
+        return <LoadingButton />
+    }
+
+    async function CallSwap() {
+        write!();
+    }
+
+    if (address === undefined) {
+        <ConnectWalletButton />
+    }
+
+    if (allowanceIsLoading) {
+        return <LoadingButton />
+    }
+
+    if (allowance! < fromBigNumber(inputQuantity!)) {
+        return <ApprovalButton approveTo={router.address} />
+    }
+
+    if (inputQuantity === undefined || inputAsset === undefined) {
+        return <DefaultButton />
+    }
+
+    return (
+        <div className="w-full">
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={CallSwap}>
+                <p style={{ margin: "10px" }}>Swap</p>
+            </Button>
+        </div >
+    )
+});
+
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
     const { swap, inputQuantity, inputAsset, router } = useStore();
@@ -201,14 +260,16 @@ const ArcanumSwap = observer(() => {
     const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery(["swap"], async () => {
         const res = await swap(address!);
         return res;
+    }, {
+        refetchInterval: 30000,
     });
+
+    const { config } = usePrepareContractWrite(swapAction!);
+    const { write } = useContractWrite(config);
 
     if (swapActionIsLoading) {
         return <LoadingButton />
     }
-
-    const { config } = usePrepareContractWrite(swapAction!);
-    const { write } = useContractWrite(config);
 
     async function CallSwap() {
         await refetch();

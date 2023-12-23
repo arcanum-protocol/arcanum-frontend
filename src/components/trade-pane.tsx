@@ -12,6 +12,7 @@ import { useAccount, useContractRead } from "wagmi";
 import { useStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
 import { getSignedPrice } from "@/api/arcanum";
+import { fromX96 } from "@/lib/utils";
 
 
 export const TradePaneInner = observer(() => {

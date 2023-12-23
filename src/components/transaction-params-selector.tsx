@@ -210,12 +210,7 @@ const ExchangeInfo = observer(() => {
 });
 
 export const SlippageSelector = observer(() => {
-    const { slippage } = useStore();
-    const store = useStore();
-
-    const setSlipage = (slippage: number) => {
-        store.slippage = slippage;
-    }
+    const { slippage, setSlippage } = useStore();
 
     // 0,1,2,3 - presets, 4 - custom
     const slippagePresets = [0.5, 1, 3];
@@ -244,7 +239,7 @@ export const SlippageSelector = observer(() => {
                         return (
                             <button
                                 key={index}
-                                onClick={() => setSlipage(slippagePreseted)}
+                                onClick={() => setSlippage(slippagePreseted)}
                                 className={
                                     `flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-xs font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
                                         hover:bg-[#2D2D2D] focus:bg-[##0c0a09] active:bg-[#0c0a09]`
@@ -261,12 +256,12 @@ export const SlippageSelector = observer(() => {
                         onChange={e => {
                             try {
                                 if (e.target.value == "") {
-                                    setSlipage(slippagePresets[0]);
+                                    setSlippage(slippagePresets[0]);
                                 }
 
                                 let num = Number(e.target.value);
                                 if (num < 100) {
-                                    setSlipage(num);
+                                    setSlippage(num);
                                 }
                             } catch { }
                         }}

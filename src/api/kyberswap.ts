@@ -3,7 +3,7 @@ import axios from "axios";
 import BigNumber from "bignumber.js";
 import { Address } from "viem";
 
-async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, userAddress: Address) {
+async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, userAddress: Address, multipoolAddress: Address) {
     if (amountIn === undefined) return
     if (amountIn.isZero()) return;
     const selectedAssets: Map<Address, BigNumber> = new Map<Address, BigNumber>();
@@ -25,7 +25,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
 
     for (const quote of quotes) {
         await new Promise(r => setTimeout(r, 300));
-        builds.push(await Build(quote, userAddress));
+        builds.push(await Build(quote, userAddress, multipoolAddress));
     };
 
     return {
@@ -41,12 +41,12 @@ async function Quote(assetIn: Address, assetOut: Address, amountIn: BigNumber) {
     return data;
 }
 
-async function Build(quote: KyberswapResponce, userAddress: Address) {
+async function Build(quote: KyberswapResponce, userAddress: Address, multipoolAddress: Address) {
     // unixtime + 20 minutes
     const unixtime = Math.floor(Date.now() / 1000) + 1200;
     const responce = await axios.post(`https://aggregator-api.kyberswap.com/arbitrum/api/v1/route/build`, {
         deadline: unixtime,
-        recipient: userAddress,
+        recipient: multipoolAddress,
         routeSummary: quote.data.routeSummary,
         sender: userAddress,
         skipSimulateTx: true,

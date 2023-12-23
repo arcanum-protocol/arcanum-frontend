@@ -23,7 +23,7 @@ export enum ActionType {
 }
 
 class MultipoolStore {
-    private publicClient = publicClient({ chainId: 42161 });
+    private publicClient = publicClient;
 
     // multipool related data
     logo: string | undefined;
@@ -118,6 +118,10 @@ class MultipoolStore {
         this.setSelectedTabWrapper("mint");
 
         makeAutoObservable(this, {}, { autoBind: true });
+    }
+
+    setSlippage(value: number) {
+        this.slippage = value;
     }
 
     get getSolidAsset(): SolidAsset | undefined {
@@ -236,7 +240,7 @@ class MultipoolStore {
             functionName: "getPrice",
         } as const;
 
-        const prices = await this.publicClient?.multicall({
+        const prices = await this.publicClient().multicall({
             contracts: addresses.map(({ address }) => {
                 return {
                     ...getPriceCall,
@@ -316,6 +320,8 @@ class MultipoolStore {
 
                 selectedAssets.set(inputAssetAddress, BigInt(inputWithSlippage.toFixed(0)));
                 selectedAssets.set(outputAssetAddress, BigInt(outputQuantity.multipliedBy(-1).toFixed(0)));
+
+                console.log("selectedAssets", selectedAssets);
             }
         }
 
@@ -376,6 +382,7 @@ class MultipoolStore {
         if (this.multipool.address === undefined) return;
         if (userAddress === undefined) return;
 
+        console.log("checkSwap", this.swapType);
         if (this.swapType === ActionType.ARCANUM) {
             return await this.checkSwapMultipool();
         }
@@ -388,7 +395,7 @@ class MultipoolStore {
     }
 
     private async checkSwapUniswap(userAddress: Address) {
-        const calls = await Create(this.currentShares.data, this.inputAsset!.address!, this.inputQuantity!, userAddress);
+        const calls = await Create(this.currentShares.data, this.inputAsset!.address!, this.inputQuantity!, userAddress, this.multipool.address);
         if (calls === undefined) return;
 
         const selectedAssets = Array.from(calls.selectedAssets).map((asset) => {
@@ -496,6 +503,14 @@ class MultipoolStore {
         const fpSharePricePlaceholder = await getForcePushPrice(this.multipoolId);
 
         try {
+            const _res = await this.multipool.traceCall.checkSwap(
+                [
+                    fpSharePricePlaceholder,
+                    this.createSelectedAssets(),
+                    this.isExactInput
+                ]);
+
+            console.log("_res", _res);
 
             const res = await this.multipool.read.checkSwap(
                 [
@@ -514,10 +529,10 @@ class MultipoolStore {
                 if (this.isExactInput) {
                     this.maximumSend = undefined;
                     if (firstTokenAddress === this.inputAsset?.address) {
-                        this.outputQuantity = new BigNumber(secondTokenQuantity.toString());
+                        this.outputQuantity = new BigNumber(firstTokenQuantity.toString());
                         this.minimalReceive = secondTokenQuantity;
                     } else {
-                        this.outputQuantity = new BigNumber(firstTokenQuantity.toString());
+                        this.outputQuantity = new BigNumber(secondTokenQuantity.toString());
                         this.minimalReceive = firstTokenQuantity;
                     }
                 } else {
@@ -610,7 +625,6 @@ class MultipoolStore {
         if (this.router === undefined) return;
 
         const isExactInput = this.mainInput === "in" ? true : false;
-
         const forsePushPrice = await getForcePushPrice(this.multipoolId);
 
         const feeData = await this.checkSwap(userAddress);
@@ -621,7 +635,8 @@ class MultipoolStore {
         const ethFee = feeData[0] < 0n ? 0n : feeData[0];
 
         const callsBeforeArcanum = [{ callType: 0, data: this.encodeForcePushArgs }];
-        const callsBeforeUniswap = this.calls.map((call) => { return { callType: 2, data: call as Address } });
+        const callsBeforeUniswap = this.calls.map((call) => { return { callType: 2, data: call as Address, target: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5" } });
+        const calls = this.swapType == ActionType.ARCANUM ? callsBeforeArcanum : callsBeforeUniswap;
 
         try {
             const { request } = await this.router.simulate.swap([
@@ -635,7 +650,7 @@ class MultipoolStore {
                     refundAddress: userAddress,
                     ethValue: ethFee
                 },
-                [],
+                calls,
                 []
             ],
                 {
@@ -644,7 +659,6 @@ class MultipoolStore {
                 }
             );
             
-            console.log("request", request);
             return request;
         } catch (e: any) {
             console.log("e", e);
