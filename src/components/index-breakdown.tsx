@@ -32,7 +32,7 @@ export const IndexAssetsBreakdown = observer(() => {
                 decimals: asset.decimals,
                 logo: asset.logoURI,
                 address: asset.address,
-                price: BigNumber(0),
+                price: new BigNumber(asset.price),
                 type: "external",
             } as ExternalAsset;
         });

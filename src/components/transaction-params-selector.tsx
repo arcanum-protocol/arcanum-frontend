@@ -188,7 +188,24 @@ const ExchangeInfo = observer(() => {
     }
 
     return (
-        <></>
+        <div className="flex justify-between">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="flex flex-row items-center gap-1 text-xs">
+                            Minimal receive
+                            <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                        <p>The minimum amount of tokens you'll receive in case of the maximal slippage.</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <p className="m-0">
+                {0} (0$)
+            </p>
+        </div>
     );
 });
 

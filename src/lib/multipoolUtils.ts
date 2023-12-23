@@ -59,14 +59,15 @@ async function getExternalAssets() {
     const InchResponce = await axios.get(`https://api.bebop.xyz/arbitrum/v2/tokens?active_only=true`);
     const data: { [name: string]: BebopToken } = await InchResponce.data.tokens;
     
-    const assets: Token[] = Object.values(data).map((token: BebopToken) => {
+    const assets = Object.values(data).map((token: BebopToken) => {
         return {
             name: token.name,
             symbol: token.ticker,
             address: token.chainInfo[0].contractAddress,
             decimals: token.chainInfo[0].decimals,
             logoURI: token.iconUrl,
-        } as Token;
+            price: token.priceUsd
+        };
     });
 
     return assets;

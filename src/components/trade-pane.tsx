@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from "./ui/skeleton";
 import { Button } from './ui/button';
 import { observer } from 'mobx-react-lite';
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import ERC20 from "@/abi/ERC20";
 import { useAccount, useContractRead } from "wagmi";
 import { useStore } from "@/contexts/StoreContext";
@@ -64,7 +64,10 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const { setMainInput, inputAsset, outputAsset, inputQuantity, outputQuantity, setSelectedTabWrapper, checkSwap, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity } = useStore();
     const { address } = useAccount();
 
+    const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | undefined>(undefined);
+
     const quantity = hrQuantity(text);
+
     const theAsset = text === "Send" ? inputAsset : outputAsset;
     const isDisabled = theAsset?.type === "solid";
 
@@ -75,8 +78,21 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         return 1;
     }, {
         enabled: (address !== undefined && inputQuantity !== undefined && outputQuantity !== undefined),
-        refetchInterval: 5000,
+        retry: false,
     });
+
+    useEffect(() => {
+        const makeApiCall = () => {
+            refetch();
+            clearTimeout(timeoutId);
+        };
+
+        const timeout = setTimeout(makeApiCall, 2000);
+
+        setTimeoutId(timeout);
+
+        return () => clearTimeout(timeout);
+    }, [inputQuantity]);
 
     function dollarValue() {
         if (theAsset?.type === 'external') {
@@ -130,9 +146,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         const value = e.target.value.replace(",", ".");
 
         setMainInput(text);
-
         setQuantity(text, value);
-        refetch();
     };
 
     const overrideText = text === "Send" ? "You pay" : "You receive";

@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useStore } from "@/contexts/StoreContext";
 import { alchemyClient } from "@/config";
-import { useAccount } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 
 interface TokenSelectorProps {
@@ -24,22 +24,20 @@ interface TokenSelectorProps {
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { address } = useAccount();
+    const { data: userBalance } = useBalance({ address });
     const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
     const currentShares = _currentShares;
 
     const { data: balances } = useQuery(["balances"], async () => {
-        const assetsAddress = [...assets, ...externalAssets].filter((asset) => asset !== undefined).filter((asset) => asset.address?.toLocaleLowerCase() !== "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee").map((asset) => asset.address!) || [];
+        const assetsAddress = [...assets, ...externalAssets].map((asset) => asset.address!).filter((asset) => asset !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") || [];
         const rawBalances = await alchemyClient.getTokenBalances(address!, assetsAddress);
 
-        
         const balances: { [address: string]: BigNumber } = {};
         for (const balance of rawBalances.tokenBalances) {
-            if (balance.contractAddress === undefined || balance.tokenBalance === null || balance.tokenBalance === "0x0") {
-                continue;
-            }
-            balances[balance.contractAddress] = new BigNumber(balance.tokenBalance);
+            balances[balance.contractAddress] = new BigNumber(balance.tokenBalance!);
         }
+        balances["0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"] = new BigNumber(userBalance?.value.toString() || 0);
         
         return balances;
     }, {
@@ -60,9 +58,13 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         const divisor = new BigNumber(10).pow(token.decimals);
 
         const balance = new BigNumber(balances[token.address!]).dividedBy(divisor);
-        const value = balance.multipliedBy(token.price).multipliedBy(etherPrice);
+        const value = balance.multipliedBy(token.price);
 
-        return value;
+        if (token.type === "external") {
+            return value;
+        }
+
+        return value.multipliedBy(etherPrice);
     }
 
     function DollarValue({ token }: { token: ExternalAsset | MultipoolAsset }) {
