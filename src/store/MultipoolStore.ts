@@ -23,7 +23,7 @@ export enum ActionType {
 }
 
 class MultipoolStore {
-    private publicClient = publicClient;
+    private publicClient = publicClient({ chainId: 42161 });
 
     // multipool related data
     logo: string | undefined;
@@ -240,7 +240,7 @@ class MultipoolStore {
             functionName: "getPrice",
         } as const;
 
-        const prices = await this.publicClient().multicall({
+        const prices = await this.publicClient.multicall({
             contracts: addresses.map(({ address }) => {
                 return {
                     ...getPriceCall,
@@ -320,8 +320,6 @@ class MultipoolStore {
 
                 selectedAssets.set(inputAssetAddress, BigInt(inputWithSlippage.toFixed(0)));
                 selectedAssets.set(outputAssetAddress, BigInt(outputQuantity.multipliedBy(-1).toFixed(0)));
-
-                console.log("selectedAssets", selectedAssets);
             }
         }
 
@@ -382,7 +380,6 @@ class MultipoolStore {
         if (this.multipool.address === undefined) return;
         if (userAddress === undefined) return;
 
-        console.log("checkSwap", this.swapType);
         if (this.swapType === ActionType.ARCANUM) {
             return await this.checkSwapMultipool();
         }
@@ -503,15 +500,6 @@ class MultipoolStore {
         const fpSharePricePlaceholder = await getForcePushPrice(this.multipoolId);
 
         try {
-            const _res = await this.multipool.traceCall.checkSwap(
-                [
-                    fpSharePricePlaceholder,
-                    this.createSelectedAssets(),
-                    this.isExactInput
-                ]);
-
-            console.log("_res", _res);
-
             const res = await this.multipool.read.checkSwap(
                 [
                     fpSharePricePlaceholder,
@@ -530,10 +518,10 @@ class MultipoolStore {
                     this.maximumSend = undefined;
                     if (firstTokenAddress === this.inputAsset?.address) {
                         this.outputQuantity = new BigNumber(firstTokenQuantity.toString());
-                        this.minimalReceive = secondTokenQuantity;
+                        this.minimalReceive = firstTokenQuantity;
                     } else {
                         this.outputQuantity = new BigNumber(secondTokenQuantity.toString());
-                        this.minimalReceive = firstTokenQuantity;
+                        this.minimalReceive = secondTokenQuantity;
                     }
                 } else {
                     this.minimalReceive = undefined;
@@ -557,13 +545,16 @@ class MultipoolStore {
     }
 
     private get encodeForcePushArgs(): Address {
+        const inputsWithSlippage = this.createSelectedAssets(this.slippage);
+        const inputTokenQuantityWithSlippage = inputsWithSlippage.find((asset) => asset.assetAddress === this.inputAsset?.address)?.amount;
+
         return encodeAbiParameters(
             [
                 { name: "token", type: "address" },
                 { name: "targetOrOrigin", type: "address" },
                 { name: "amount", type: "uint256" }
             ],
-            [this.inputAsset!.address!, this.multipool.address!, BigInt(this.inputQuantity!.toFixed())]
+            [this.inputAsset!.address!, this.multipool.address!, inputTokenQuantityWithSlippage!]
         )
     }
 
@@ -638,7 +629,9 @@ class MultipoolStore {
         const callsBeforeUniswap = this.calls.map((call) => { return { callType: 2, data: call as Address, target: "0x6131B5fae19EA4f9D964eAc0408E4408b66337b5" } });
         const calls = this.swapType == ActionType.ARCANUM ? callsBeforeArcanum : callsBeforeUniswap;
 
+        console.log("assetsArg", assetsArg, callsBeforeArcanum);
         try {
+
             const { request } = await this.router.simulate.swap([
                 this.multipool.address,
                 {
@@ -647,10 +640,10 @@ class MultipoolStore {
                     isExactInput: isExactInput,
                     receiverAddress: userAddress,
                     refundEthToReceiver: false,
-                    refundAddress: userAddress,
+                    refundAddress: "0x0000000000000000000000000000000000000000",
                     ethValue: ethFee
                 },
-                calls,
+                callsBeforeArcanum,
                 []
             ],
                 {

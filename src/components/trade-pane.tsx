@@ -88,7 +88,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             clearTimeout(timeoutId);
         };
 
-        const timeout = setTimeout(makeApiCall, 2000);
+        const timeout = setTimeout(makeApiCall, 500);
 
         setTimeoutId(timeout);
 

@@ -272,8 +272,8 @@ const ArcanumSwap = observer(() => {
     }
 
     async function CallSwap() {
-        await refetch();
-        write!();
+        if (write === undefined) return;
+        write();    
     }
 
     if (address === undefined) {
