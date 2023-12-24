@@ -2,16 +2,17 @@ import { BigNumber } from "bignumber.js";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { TransactionParamsSelector } from './transaction-params-selector';
 import { InteractionWithApprovalButton } from './approval-button';
-import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Skeleton } from "./ui/skeleton";
+import { Button } from './ui/button';
 import { observer } from 'mobx-react-lite';
-import { ChangeEvent } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import ERC20 from "@/abi/ERC20";
 import { useAccount, useContractRead } from "wagmi";
-import { Skeleton } from "./ui/skeleton";
 import { useStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
 import { getSignedPrice } from "@/api/arcanum";
+import { fromX96 } from "@/lib/utils";
 
 
 export const TradePaneInner = observer(() => {
@@ -31,7 +32,7 @@ export const TradePaneInner = observer(() => {
             <div className="flex flex-col gap-4 items-center">
                 {
                     isLoading ?
-                        <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
+                        <Skeleton className="rounded w-[309.4px] h-[100.8px]"></Skeleton> :
                         <TokenQuantityInput text={"Send"} />
                 }
 
@@ -44,7 +45,7 @@ export const TradePaneInner = observer(() => {
 
                 {
                     isLoading ?
-                        <Skeleton className="w-[309.4px] h-[100.8px] rounded-2xl"></Skeleton> :
+                        <Skeleton className="rounded w-[309.4px] h-[100.8px]"></Skeleton> :
                         <TokenQuantityInput text={"Receive"} />
                 }
             </div>
@@ -61,16 +62,45 @@ interface TokenQuantityInputProps {
 }
 
 export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) => {
-    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, checkSwap, etherPrice, getInputPrice, getOutputPrice, hrInQuantity, hrOutQuantity, mainInput, setInputQuantity, setOutputQuantity } = useStore();
+    const { setMainInput, inputAsset, outputAsset, inputQuantity, outputQuantity, setSelectedTabWrapper, checkSwap, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity } = useStore();
     const { address } = useAccount();
 
-    const quantity = text === "Send" ? hrInQuantity : hrOutQuantity;
+    const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | undefined>(undefined);
+
+    const quantity = hrQuantity(text);
+
     const theAsset = text === "Send" ? inputAsset : outputAsset;
     const isDisabled = theAsset?.type === "solid";
 
-    console.log("theAsset", theAsset);
-
     const isThisMainInput = text === "Send" ? mainInput === "in" : mainInput === "out";
+
+    const { refetch } = useQuery(["checkSwap"], async () => {
+        await checkSwap(address!);
+        return 1;
+    }, {
+        enabled: (address !== undefined && inputQuantity !== undefined && outputQuantity !== undefined),
+        retry: false,
+    });
+
+    useEffect(() => {
+        const makeApiCall = () => {
+            refetch();
+            clearTimeout(timeoutId);
+        };
+
+        const timeout = setTimeout(makeApiCall, 500);
+
+        setTimeoutId(timeout);
+
+        return () => clearTimeout(timeout);
+    }, [inputQuantity]);
+
+    function dollarValue() {
+        if (theAsset?.type === 'external') {
+            return new BigNumber(quantity).multipliedBy(getItemPrice(text)).toFixed(4);
+        }
+        return new BigNumber(quantity).multipliedBy(getItemPrice(text)).multipliedBy(etherPrice).toFixed(4);
+    }
 
     function getBalance(): JSX.Element {
         const { data: balance, isLoading } = useContractRead({
@@ -84,7 +114,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
         if (isLoading) {
             return (
-                <Skeleton className="w-1 h-0.5" />
+                <Skeleton className="rounded w-1 h-0.5" />
             );
         }
 
@@ -103,11 +133,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
     function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
         if (e.target.value === "") {
-            if (text === "Send") {
-                setInputQuantity(undefined);
-            } else {
-                setOutputQuantity(undefined);
-            }
+            setQuantity(text, undefined)
             return;
         }
 
@@ -120,30 +146,9 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
         const value = e.target.value.replace(",", ".");
 
-        if (text === "Send") {
-            setMainInput("in");
-        } else {
-            setMainInput("out");
-        }
-
-        if (text === "Send") {
-            setInputQuantity(value);
-        } else {
-            setOutputQuantity(value);
-        }
-        checkSwap();
+        setMainInput(text);
+        setQuantity(text, value);
     };
-
-    function getDollarValue(): string {
-        if (theAsset === undefined || quantity === undefined || etherPrice === undefined) {
-            return "0";
-        }
-
-        const price = text === "Send" ? getInputPrice : getOutputPrice;
-
-        const value = BigNumber(quantity).multipliedBy(price).multipliedBy(etherPrice).toFixed(4);
-        return value.toString();
-    }
 
     const overrideText = text === "Send" ? "You pay" : "You receive";
 
@@ -160,7 +165,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                             /> :
                             <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                                 placeholder="0"
-                                value={quantity === undefined ? "" : quantity}
+                                value={quantity}
                                 onFocus={() => setMainInput(text === "Send" ? "in" : "out")}
                             />
                     }
@@ -176,7 +181,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
                 <p className="m-0 text-xs text-gray-500">
-                    = {getDollarValue() + "$"}
+                    = {dollarValue()}$
                 </p>
                 <p className="m-0 text-gray-500 text-xs whitespace-nowrap">
                     Balance: {

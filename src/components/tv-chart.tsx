@@ -28,17 +28,17 @@ const chartStyleOverrides = ["candleStyle", "hollowCandleStyle", "haStyle"].redu
 }, {});
 
 const chartOverrides = {
-    "paneProperties.background": "rgba(30, 29, 29, 0.8)",
-    "paneProperties.backgroundGradientStartColor": "#4D4D4D",
-    "paneProperties.backgroundGradientEndColor": "#4D4D4D",
+    "paneProperties.background": "rgba(12, 10, 9, 1)",
+    //"paneProperties.backgroundGradientStartColor": "#4D4D4D",
+    //"paneProperties.backgroundGradientEndColor": "#4D4D4D",
     "paneProperties.backgroundType": "solid",
-    "paneProperties.vertGridProperties.color": "#4D4D4D",
+    "paneProperties.vertGridProperties.color": "#292524",
     "paneProperties.vertGridProperties.style": 2,
-    "paneProperties.horzGridProperties.color": "#4D4D4D",
+    "paneProperties.horzGridProperties.color": "#292524",
     "paneProperties.horzGridProperties.style": 2,
-    "mainSeriesProperties.priceLineColor": "#4D4D4D",
-    "scalesProperties.textColor": "#4D4D4D",
-    "scalesProperties.lineColor": "#4D4D4D",
+    "mainSeriesProperties.priceLineColor": "#292524",
+    "scalesProperties.textColor": "#fff",
+    "scalesProperties.lineColor": "#292524",
     ...chartStyleOverrides,
 };
 
@@ -55,7 +55,7 @@ export const defaultChartProps = {
     header_widget_dom_node: false,
     overrides: chartOverrides,
     custom_css_url: "/tradingview-chart.css",
-    loading_screen: { backgroundColor: "#16182e", foregroundColor: "#2962ff" },
+    loading_screen: { backgroundColor: "rgba(12, 10, 9, 0.8)", foregroundColor: "rgba(12, 10, 9, 0.8)" },
     favorites: { 3: "3m", },
 };
 
@@ -88,6 +88,7 @@ const TVChartContainer = observer(() => {
             interval: '15' as ResolutionString,
             container: chartContainerRef.current,
             library_path: defaultChartProps.library_path as string,
+            loading_screen: { backgroundColor: "rgba(12, 10, 9, 1)", foregroundColor: "rgba(12, 10, 9, 1)" },
 
             locale: 'en',
             enabled_features: [
@@ -150,9 +151,8 @@ const TVChartContainer = observer(() => {
 
     return (
         <div
-            style={{ borderRadius: "0.20rem" }}
             ref={chartContainerRef}
-            className={`TVChartContainer w-full h-[30rem]`}
+            className={`TVChartContainer w-full h-[30rem] rounded-2xl`}
         />
     );
 });

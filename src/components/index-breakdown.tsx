@@ -3,15 +3,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { observer } from "mobx-react-lite";
 import { Skeleton } from "./ui/skeleton";
-import { MultipoolAsset } from "@/types/multipoolAsset";
+import { ExternalAsset, MultipoolAsset } from "@/types/multipoolAsset";
 import { useStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
 import { getEtherPrice, getMultipool } from "@/api/arcanum";
+import { getExternalAssets } from "@/lib/multipoolUtils";
 
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { getAssets: assets, setTokens, currentShares, etherPrice, setEtherPrice, multipoolId } = useStore();
+    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, multipoolId, setEtherPrice } = useStore();
 
     const { isLoading } = useQuery(["assets"], async () => {
         const { assets } = await getMultipool(multipoolId);
@@ -20,6 +21,24 @@ export const IndexAssetsBreakdown = observer(() => {
         return assets;
     }, {
         enabled: assets?.length! < 1,
+    });
+
+    useQuery(["externalAssets"], async () => {
+        const assets = await getExternalAssets();
+
+        const externalAssets = assets.map((asset) => {
+            return {
+                symbol: asset.symbol,
+                decimals: asset.decimals,
+                logo: asset.logoURI,
+                address: asset.address,
+                price: new BigNumber(asset.price),
+                type: "external",
+            } as ExternalAsset;
+        });
+        setExternalAssets(externalAssets);
+
+        return externalAssets;
     });
 
     useQuery(["etherPrice"], async () => {
@@ -34,7 +53,7 @@ export const IndexAssetsBreakdown = observer(() => {
 
     if (isLoading) {
         return (
-            <Skeleton className="relative w-[897px] overflow-auto rounded-2xl border h-[225.2px]">
+            <Skeleton className="relative w-[897px] overflow-auto rounded border h-[225.2px]">
             </Skeleton>
         );
     }
@@ -91,7 +110,7 @@ export const IndexAssetsBreakdown = observer(() => {
                             </TableCell>
                             <TableCell>{idealShare.toFixed(4)}%</TableCell>
                             {
-                                isLoading ? <TableCell className="text-center"><Skeleton className="w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
+                                isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
                             }
                             <TableCell>{price.toFixed(4)}$</TableCell>
                             <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>

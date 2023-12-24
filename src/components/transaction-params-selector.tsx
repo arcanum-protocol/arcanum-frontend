@@ -125,12 +125,12 @@ const Fee = observer(() => {
 });
 
 const ExchangeInfo = observer(() => {
-    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice, getOutputPrice, getInputPrice } = useStore();
+    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice, getItemPrice } = useStore();
 
     if (minimalReceive) {
         const bgMinimalReceive = new BigNumber(minimalReceive.toString());
         const decimals = outputAsset?.decimals || 18;
-        const price = getOutputPrice;
+        const price = getItemPrice("Receive");
 
         const absminimalReceiveFormatted = bgMinimalReceive.dividedBy(new BigNumber(10).pow(decimals)).abs();
         const absminimalReceiveFormattedDollar = absminimalReceiveFormatted.multipliedBy(price).multipliedBy(etherPrice);
@@ -160,7 +160,7 @@ const ExchangeInfo = observer(() => {
     if (maximumSend) {
         const bgMaximumSend = new BigNumber(maximumSend.toString());
         const decimals = inputAsset?.decimals || 18;
-        const price = getInputPrice;
+        const price = getItemPrice("Send");
 
         const absMaximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals)).abs();
         const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(price).multipliedBy(etherPrice);
@@ -188,7 +188,24 @@ const ExchangeInfo = observer(() => {
     }
 
     return (
-        <></>
+        <div className="flex justify-between">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div className="flex flex-row items-center gap-1 text-xs">
+                            Minimal receive
+                            <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                        <p>The minimum amount of tokens you'll receive in case of the maximal slippage.</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <p className="m-0">
+                {0} (0$)
+            </p>
+        </div>
     );
 });
 

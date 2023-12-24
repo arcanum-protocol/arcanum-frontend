@@ -14,7 +14,7 @@ export const { publicClient } = configureChains(chains, [
         rpc: (chain) => {
             if (chain.id !== 42161) {
                 return null;
-            } 
+            }
             return { http: "https://arbitrum.llamarpc.com" };
         }
     }),

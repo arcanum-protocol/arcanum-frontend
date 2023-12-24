@@ -1,4 +1,4 @@
-export interface KyberswapResponse {
+export interface KyberswapResponce {
     code: number
     message: string
     data: Data
@@ -24,6 +24,7 @@ export interface RouteSummary {
     gasUsd: string
     extraFee: ExtraFee
     route: Route[][]
+    extra: Extra2
 }
 
 export interface ExtraFee {
@@ -43,18 +44,28 @@ export interface Route {
     exchange: string
     poolLength: number
     poolType: string
-    poolExtra: any
-    extra: any
+    poolExtra?: PoolExtra
+    extra: Extra
 }
 
-export interface BuildedTransaction {
+export interface PoolExtra {
+    limitPoint: number
+}
+
+export interface Extra { }
+
+export interface Extra2 {
+    chunksInfo: any[]
+}
+
+export interface BuildResponce {
     code: number
     message: string
     data: Data
     requestId: string
-}
-
-export interface Data {
+  }
+  
+  export interface Data {
     amountIn: string
     amountInUsd: string
     amountOut: string
@@ -64,10 +75,10 @@ export interface Data {
     outputChange: OutputChange
     data: string
     routerAddress: string
-}
-
-export interface OutputChange {
+  }
+  
+  export interface OutputChange {
     amount: string
     percent: number
     level: number
-}
+  }
