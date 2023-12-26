@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
+import { Address, useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useEffect, useState } from "react";
 import { useStore } from "@/contexts/StoreContext";
@@ -9,6 +9,9 @@ import { JAMBalanceManager, submitOrder } from "@/api/bebop";
 import { toJS } from "mobx";
 import { toObject } from "@/types/bebop";
 import { fromBigNumber } from "@/lib/utils";
+import { getWalletClient } from "@wagmi/core";
+import { createWalletClient, custom } from "viem";
+import { arbitrum } from "viem/chains";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -212,6 +215,7 @@ const UniswapSwap = observer(() => {
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
 
+
     if (swapActionIsLoading) {
         return <LoadingButton />
     }
@@ -261,7 +265,8 @@ const ArcanumSwap = observer(() => {
         const res = await swap(address!);
         return res;
     }, {
-        refetchInterval: 30000,
+        refetchInterval: 1000,
+        enabled: address !== undefined && inputQuantity !== undefined && !inputQuantity.isZero()
     });
 
     const { config } = usePrepareContractWrite(swapAction!);
@@ -272,8 +277,9 @@ const ArcanumSwap = observer(() => {
     }
 
     async function CallSwap() {
+        refetch();
         if (write === undefined) return;
-        write();    
+        write();
     }
 
     if (address === undefined) {
