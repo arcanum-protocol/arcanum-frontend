@@ -595,6 +595,16 @@ class MultipoolStore {
     }
 
     private get encodeForcePushArgs(): Address | undefined {
+        if (this.swapType === ActionType.UNISWAP) {
+            return encodeAbiParameters(
+                [
+                    { name: "token", type: "address" },
+                    { name: "targetOrOrigin", type: "address" },
+                    { name: "amount", type: "uint256" }
+                ],
+                [this.inputAsset!.address!, this.router!.address!, BigInt(this.inputQuantity!.abs().toFixed(0))]
+            )
+        }
         const inputsWithSlippage = this.createSelectedAssets(this.slippage);
 
         if (inputsWithSlippage === undefined) {
@@ -642,13 +652,18 @@ class MultipoolStore {
         const selectedAssets = this.createSelectedAssets(this.slippage);
         if (selectedAssets === undefined) return;
 
-        const ethFee = feeData[0] < 0n ? 0n : feeData[0];
+        // remove input asset from selected assets
+        const _selectedAssets = selectedAssets.filter((asset) => asset.assetAddress !== this.inputAsset?.address);
 
+        const _ethFee = feeData[0] < 0n ? 0n : feeData[0];
+        const ethFeeBG = new BigNumber(_ethFee.toString()).multipliedBy(1.005).toFixed(0);
+        const ethFee = BigInt(ethFeeBG);
+        
         const callsTransfer = this.encodeForcePushArgs;
         if (callsTransfer === undefined) return;
 
         const callsBeforeUniswap = this.calls.map((call) => {
-            const data = encodeAbiParameters([{ name: "targetData", type: "bytes"}, { name: "target", type: "address"}, { name: "ethValue", type: "uint256"}], [call.data as Address, call.to as Address, BigInt(call.value)]);
+            const data = encodeAbiParameters([{ name: "target", type: "address"}, { name: "ethValue", type: "uint256"}, { name: "targetData", type: "bytes"}], [call.to as Address, BigInt(call.value), call.data as Address]);
 
             return {
                 callType: 2,
@@ -656,14 +671,24 @@ class MultipoolStore {
             }
         });
 
-        try {
-            console.log("callsBeforeUniswap", this.calls[0].to, this.calls[0].data);
+        const uniswapRouter = this.calls[0].to;
 
+        // add call to approve tokens from arcanum router to uniswap router as first call
+        const approveData = encodeAbiParameters([{ name: "token", type: "address"}, { name: "target", type: "address"}, {name: "amount", type: "uint256"}], [this.inputAsset!.address!, uniswapRouter as Address, BigInt(this.inputQuantity!.abs().toFixed(0))]);
+        const approveCall = {
+            callType: 1,
+            data: approveData
+        };
+        callsBeforeUniswap.unshift(approveCall);
+        // add call to transfer tokens to router as first call
+        callsBeforeUniswap.unshift({ callType: 0, data: callsTransfer });
+
+        try {
             const { request } = await this.router.simulate.swap([
                 this.multipool.address,
                 {
                     forcePushArgs: forsePushPrice,
-                    assetsToSwap: selectedAssets,
+                    assetsToSwap: _selectedAssets,
                     isExactInput: isExactInput,
                     receiverAddress: userAddress,
                     refundEthToReceiver: false,

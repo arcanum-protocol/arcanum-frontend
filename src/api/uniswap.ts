@@ -111,10 +111,7 @@ async function getAmountOut(route: Route<Token, Token>, amountIn: BigNumber) {
             route.input,
             amountIn.toFixed(0)
         ),
-        TradeType.EXACT_INPUT,
-        {
-            useQuoterV2: true,
-        }
+        TradeType.EXACT_INPUT
     );
 
     const { data } = await _publicClient.call({
@@ -138,7 +135,7 @@ function createTrade(route: Route<Token, Token>, amountIn: BigNumber, amountOut:
             route.output,
             amountOut.toFixed(0)
         ),
-        tradeType: TradeType.EXACT_INPUT,
+        tradeType: TradeType.EXACT_OUTPUT,
     })
 
     return uncheckedTrade
@@ -199,13 +196,11 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
 
         const swapRoute = createRoute(pools, inputToken, outputToken);
 
-        console.log(amountIn, amount);
         const amountInShare = amountIn.multipliedBy(amount).dividedBy(100);
-        const amountOut = await getAmountOut(swapRoute, amountInShare);
+        const amountOut = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
+        const trade = createTrade(swapRoute, amountInShare, amountOut);
 
         outs.set(address, amountOut);
-
-        const trade = createTrade(swapRoute, amountInShare, amountOut);
 
         const options: SwapOptions = {
             slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
@@ -217,7 +212,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         
         const tx = {
             data: methodParameters.calldata,
-            to: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+            to: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
             value: methodParameters.value,
             asset: address,
             amountOut: amountOut,

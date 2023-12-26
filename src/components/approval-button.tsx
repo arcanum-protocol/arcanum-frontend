@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
+import { Address, useAccount, useContractRead, useContractWrite, usePrepareContractWrite, usePrepareSendTransaction, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useEffect, useState } from "react";
 import { useStore } from "@/contexts/StoreContext";
@@ -194,22 +194,33 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
 }
 
 const UniswapSwap = observer(() => {
-    const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, router } = useStore();
+    // const { config: testConfig } = usePrepareSendTransaction({
+    //     data: "0xc04b8d59000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000004810e5a7741ea5fdbb658eda632ddfac3b19e3c600000000000000000000000000000000000000000000000000000000658a61970000000000000000000000000000000000000000000000000000000000ead48e000000000000000000000000000000000000000000000000046920e6a8b66c640000000000000000000000000000000000000000000000000000000000000042fd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb90001f482af49447d8a07e3bd95bd0d56f35241523fbab1002710fc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a000000000000000000000000000000000000000000000000000000000000",
+    //     to: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+    //     value: BigInt("0"),
+    //     gasPrice: BigInt("100000000"),
+    // });
 
-    const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
-        address: inputAsset?.address,
-        abi: ERC20,
-        functionName: "allowance",
-        args: [address!, router.address],
-        watch: true,
-    });
+    // const { sendTransaction: test } = useSendTransaction(testConfig);
+    // if (test === undefined) return <LoadingButton />;
+    // test!();
+
+    const { address } = useAccount();
+    const { swap, inputQuantity, inputAsset } = useStore();
 
     const { data: swapAction, isLoading: swapActionIsLoading } = useQuery(["swap"], async () => {
         const res = await swap(address!);
         return res;
     }, {
         refetchInterval: 30000,
+    });
+
+    const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
+        address: inputAsset?.address,
+        abi: ERC20,
+        functionName: "allowance",
+        args: [address!, "0xE592427A0AEce92De3Edee1F18E0157C05861564"],
+        watch: true,
     });
 
     const { config } = usePrepareContractWrite(swapAction!);
@@ -233,7 +244,7 @@ const UniswapSwap = observer(() => {
     }
 
     if (allowance! < fromBigNumber(inputQuantity!)) {
-        return <ApprovalButton approveTo={router.address} />
+        return <ApprovalButton approveTo={"0xE592427A0AEce92De3Edee1F18E0157C05861564"} />
     }
 
     if (inputQuantity === undefined || inputAsset === undefined) {
