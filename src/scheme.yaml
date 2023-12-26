@@ -1,6 +1,6 @@
 "arbi": 
     "address": "0x4810E5A7741ea5fdbb658eDA632ddfAc3b19e3c6"
-    "router_address": "0x58F3f218CbaE69fF390f47B44544c878fb244b49"
+    "router_address": "0x1d5E89Bc628f194470380a99C10615591C91F4bd"
     "rpc_url": "https://arbitrum.llamarpc.com"
     "name": "ARBI"
     "chain_id": 31337
