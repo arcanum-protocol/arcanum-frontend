@@ -31,52 +31,79 @@ const poolsAddress = [
     "0x4d834a9b910e6392460ebcfb59f8eef27d5c19ff",
     "0xdbaeb7f0dfe3a0aafd798ccecb5b22e708f7852c"];
 
+const externalTokens: Array<Address> = [
+    "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
+    "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
+    "0x912CE59144191C1204E64559FE8253a0e49E6548",
+    "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+    "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+    "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
+];
+
 async function getAllPools() {
     const pools: Array<Pool> = [];
 
-    for (const poolAddress of poolsAddress) {
-        const poolContract = getContract({
-            address: poolAddress as Address,
-            abi: UniswapV3,
-            publicClient: _publicClient
-        });
+    const [contracts] = [
+        poolsAddress.map((address) => [
+            {
+                address: address as Address,
+                abi: UniswapV3,
+                functionName: "token0",
+            },
+            {
+                address: address as Address,
+                abi: UniswapV3,
+                functionName: "token1",
+            },
+            {
+                address: address as Address,
+                abi: UniswapV3,
+                functionName: "fee",
+            },
+            {
+                address: address as Address,
+                abi: UniswapV3,
+                functionName: "liquidity",
+            },
+            {
+                address: address as Address,
+                abi: UniswapV3,
+                functionName: "slot0",
+            }
+        ])];
 
-        const [token0, token1, fee, liquidity, slot0] = await Promise.all([
-            poolContract.read.token0(),
-            poolContract.read.token1(),
-            poolContract.read.fee(),
-            poolContract.read.liquidity(),
-            poolContract.read.slot0(),
-        ]);
+    const rawResult = await _publicClient.multicall({
+        contracts: contracts.flat(),
+    });
+    const decimals = await getDecimals({});
 
-        const token0Contract = getContract({
-            address: token0 as Address,
-            abi: ERC20,
-            publicClient: _publicClient
-        });
+    for (let i = 0; i < rawResult.length; i = i + 5) {
+        const token0 = rawResult[i].status === "success" ? rawResult[i + 0].result as Address : undefined;
+        const token1 = rawResult[i + 1].status === "success" ? rawResult[i + 1].result as Address : undefined;
+        const fee = rawResult[i + 2].status === "success" ? rawResult[i + 2].result as number : undefined;
+        const liquidity = rawResult[i + 3].status === "success" ? rawResult[i + 3].result as bigint : undefined;
+        const slot0 = rawResult[i + 4].status === "success" ? rawResult[i + 4].result as readonly [bigint, number, number, number, number, number, boolean] : undefined;
 
-        const token1Contract = getContract({
-            address: token1 as Address,
-            abi: ERC20,
-            publicClient: _publicClient
-        });
+        const decimals0 = decimals.get(token0!.toLocaleLowerCase() as Address);
+        const decimals1 = decimals.get(token1!.toLocaleLowerCase() as Address);
 
-        const token0Asset: Token = new Token(42161, token0, await token0Contract.read.decimals());
-        const token1Asset: Token = new Token(42161, token1, await token1Contract.read.decimals());
+        const token0Asset: Token = new Token(42161, token0!, decimals0!);
+        const token1Asset: Token = new Token(42161, token1!, decimals1!);
 
         const _pool = {
             token0: token0Asset,
             token1: token1Asset,
             fee: fee,
-            liquidity: liquidity.toString(),
-            sqrtPriceX96: slot0[0].toString(),
-            tick: slot0[1],
+            liquidity: liquidity!.toString(),
+            sqrtPriceX96: slot0![0].toString(),
+            tick: slot0![1],
         };
 
         const pool = new Pool(
             _pool.token0,
             _pool.token1,
-            _pool.fee,
+            _pool.fee!,
             _pool.sqrtPriceX96,
             _pool.liquidity,
             _pool.tick
@@ -89,6 +116,21 @@ async function getAllPools() {
 }
 
 function createRoute(pools: Array<Pool>, inputToken: Token, outputToken: Token) {
+    // easy case for weth as input 
+    if (inputToken.address.toLocaleLowerCase() === ("0x82aF49447D8a07e3bd95BD0d56f35241523fBab1".toLocaleLowerCase())) {
+        const pool = pools.find(pool => {
+            return pool.token0.equals(outputToken) || pool.token1.equals(outputToken);
+        });
+
+        if (!pool) {
+            throw new Error("Pool not found");
+        }
+
+        const route = new Route([pool], inputToken, outputToken);
+
+        console.log("Pools used: ", pool);
+        return route;
+    }
     // pools contains all the pools also those that are not used in the route
     // so we need to filter them
     const poolsUsed = pools.filter(pool => {
@@ -99,6 +141,8 @@ function createRoute(pools: Array<Pool>, inputToken: Token, outputToken: Token) 
             pool.token1.equals(outputToken)
         );
     });
+
+
     const route = new Route(poolsUsed, inputToken, outputToken);
 
     return route;
@@ -138,20 +182,21 @@ function createTrade(route: Route<Token, Token>, amountIn: BigNumber, amountOut:
             route.output,
             amountOut.toFixed(0)
         ),
-        tradeType: TradeType.EXACT_INPUT,
+        tradeType: TradeType.EXACT_OUTPUT,
     })
 
     return uncheckedTrade
 }
 
-async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, multipoolAddress: Address) {
-    if (amountIn == undefined) {
-        throw new Error("AmountIn is undefined");
+let cacheDecimals: Map<Address, number> | undefined = undefined;
+
+async function getDecimals({ addresses }: { addresses?: Array<Address> }) {
+    if (!addresses) {
+        if (cacheDecimals) {
+            return cacheDecimals;
+        }
+        throw new Error("Addresses is undefined");
     }
-    const pools = await getAllPools();
-
-    const addresses = Array.from([...shares.keys(), inputAsset]);
-
     const _decimals = await _publicClient.multicall({
         contracts: addresses.map((address) => {
             return {
@@ -172,10 +217,23 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         if (decimal == undefined) {
             throw new Error("Decimals is not a number");
         }
-        decimals.set(address, decimal);
+        decimals.set(address.toString().toLocaleLowerCase() as Address, decimal);
     }
 
-    const inputDecimals = decimals.get(inputAsset);
+    cacheDecimals = decimals;
+    return cacheDecimals;
+}
+
+async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, multipoolAddress: Address) {
+    console.log("Uniswap pathfinding started");
+    if (amountIn == undefined) {
+        throw new Error("AmountIn is undefined");
+    }
+
+    const decimals = await getDecimals({ addresses: [...shares.keys(), ...externalTokens] });
+    const pools = await getAllPools();
+
+    const inputDecimals = decimals.get(inputAsset.toLocaleLowerCase() as Address);
     if (!inputDecimals) {
         throw new Error("Decimals not found");
     }
@@ -191,7 +249,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
     const outs: Map<Address, BigNumber> = new Map();
 
     for (const [address, amount] of shares.entries()) {
-        const outDecimal = decimals.get(address);
+        const outDecimal = decimals.get(address.toLocaleLowerCase() as Address);
         if (!outDecimal) {
             throw new Error("Decimals not found");
         }
@@ -199,13 +257,11 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
 
         const swapRoute = createRoute(pools, inputToken, outputToken);
 
-        console.log(amountIn, amount);
         const amountInShare = amountIn.multipliedBy(amount).dividedBy(100);
-        const amountOut = await getAmountOut(swapRoute, amountInShare);
+        const amountOut = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
+        const trade = createTrade(swapRoute, amountInShare, amountOut);
 
         outs.set(address, amountOut);
-
-        const trade = createTrade(swapRoute, amountInShare, amountOut);
 
         const options: SwapOptions = {
             slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
@@ -214,10 +270,10 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         }
 
         const methodParameters = SwapRouter.swapCallParameters([trade], options);
-        
+
         const tx = {
             data: methodParameters.calldata,
-            to: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+            to: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
             value: methodParameters.value,
             asset: address,
             amountOut: amountOut,

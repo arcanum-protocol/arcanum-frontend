@@ -1,17 +1,10 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
+import { Address, useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery } from "wagmi";
 import ERC20 from "@/abi/ERC20";
-import { useEffect, useState } from "react";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
-import { JAMBalanceManager, submitOrder } from "@/api/bebop";
-import { toJS } from "mobx";
-import { toObject } from "@/types/bebop";
 import { fromBigNumber } from "@/lib/utils";
-import { getWalletClient } from "@wagmi/core";
-import { createWalletClient, custom } from "viem";
-import { arbitrum } from "viem/chains";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -22,75 +15,6 @@ export interface InteractionWithApprovalButtonProps {
 export const InteractionWithApprovalButton = observer(() => {
     const { swapType } = useStore();
 
-    // const [ttlLeft, setTtlLeft] = useState<number>(600);
-    // const [isCounting, setIsCounting] = useState<boolean>(false);
-
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         if (ttlLeft < 100 && isCounting) {
-    //             return;
-    //         }
-    //         setTtlLeft(ttlLeft - 1);
-    //     }, 1000);
-    //     return () => clearInterval(interval);
-    // }, [ttlLeft]);
-
-    // const { data: allowance, isLoading: allowanceLoading, refetch } = useContractRead({
-    //     address: inputAsset?.address,
-    //     abi: ERC20,
-    //     functionName: "allowance",
-    //     args: [address!, swapType === ActionType.ARCANUM ? router.address : JAMBalanceManager],
-    //     watch: true,
-    // });
-
-    // const { data: approve, isLoading: approveLoading } = useQuery(["approve"], async () => {
-    //     const approveTo = swapType === ActionType.ARCANUM ? router.address : JAMBalanceManager;
-    //     return await _approve(address!, inputAsset?.address, approveTo);
-    // }, {
-    //     enabled: address !== undefined && inputAsset !== undefined && inputQuantity !== undefined,
-    // });
-
-    // const { config: approvalConfig } = usePrepareContractWrite(approve);
-    // const { write: approvalWrite } = useContractWrite(approvalConfig);
-
-    // const { data: localSwap, isLoading: localSwapLoading } = useQuery(["swap"], async () => {
-    //     refetch();
-
-    //     return await _swap(address!);
-    // }, {
-    //     enabled: address !== undefined && inputAsset !== undefined && inputQuantity !== undefined,
-    // });
-
-    // const { config } = usePrepareContractWrite(localSwap!);
-    // const { write } = useContractWrite(config);
-
-    // const domain = dataToSign?.PARAM_DOMAIN;
-    // const types = dataToSign?.PARAM_TYPES;
-    // const message = toObject(dataToSign?.toSign);
-    // const { data: signedData, signTypedData } = useSignTypedData({ domain, types, primaryType: 'JamOrder', message });
-
-    // useQuery(["JAMOrder"], async () => {
-    //     if (signedData) {
-    //         await submitOrder({ quoteId: orderId!, signature: signedData });
-    //     }
-    //     return 1;
-    // }, {
-    //     enabled: signedData !== undefined,
-    // });
-
-    // async function swapCall() {
-    //     if (swapType === ActionType.ARCANUM) {
-    //         const ttl = await getSharePriceParams();
-
-    //         write!();
-    //         setTtlLeft(ttl);
-    //         setIsCounting(true);
-    //     }
-    //     if (swapType === ActionType.BEBOP) {
-    //         signTypedData();
-    //     }
-    // }
-
     if (swapType === ActionType.ARCANUM) {
         return <ArcanumSwap />
     }
@@ -98,41 +22,6 @@ export const InteractionWithApprovalButton = observer(() => {
     if (swapType === ActionType.UNISWAP) {
         return <UniswapSwap />
     }
-
-
-    // if (allowanceLoading || localSwapLoading) {
-    //     <LoadingButton />
-    // }
-
-    // if (exchangeError) {
-    //     return (
-    //         <div className="w-full">
-    //             <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
-    //                 <p style={{ margin: "10px" }}>{exchangeError}</p>
-    //             </Button>
-    //         </div >
-    //     )
-    // }
-
-    // if (allowance! < BigInt(inputQuantity!.toFixed())) {
-    //     if (approveLoading) {
-    //         return (
-    //             <div className="w-full">
-    //                 <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
-    //                     <p style={{ margin: "10px" }}>Loading...</p>
-    //                 </Button>
-    //             </div >
-    //         )
-    //     }
-
-    //     return (
-    //         <div className="w-full">
-    //             <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={approvalWrite!}>
-    //                 <p style={{ margin: "10px" }}>Approve</p>
-    //             </Button>
-    //         </div >
-    //     )
-    // }
 
     return (
         <div className="w-full">
@@ -195,21 +84,21 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, router } = useStore();
-
-    const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
-        address: inputAsset?.address,
-        abi: ERC20,
-        functionName: "allowance",
-        args: [address!, router.address],
-        watch: true,
-    });
+    const { swap, inputQuantity, inputAsset } = useStore();
 
     const { data: swapAction, isLoading: swapActionIsLoading } = useQuery(["swap"], async () => {
         const res = await swap(address!);
         return res;
     }, {
-        refetchInterval: 30000,
+        refetchInterval: 1000,
+    });
+
+    const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
+        address: inputAsset?.address,
+        abi: ERC20,
+        functionName: "allowance",
+        args: [address!, "0xE592427A0AEce92De3Edee1F18E0157C05861564"],
+        watch: true,
     });
 
     const { config } = usePrepareContractWrite(swapAction!);
@@ -233,7 +122,7 @@ const UniswapSwap = observer(() => {
     }
 
     if (allowance! < fromBigNumber(inputQuantity!)) {
-        return <ApprovalButton approveTo={router.address} />
+        return <ApprovalButton approveTo={"0xE592427A0AEce92De3Edee1F18E0157C05861564"} />
     }
 
     if (inputQuantity === undefined || inputAsset === undefined) {
