@@ -510,9 +510,6 @@ class MultipoolStore {
         const selectedAssets = this.createSelectedAssets();
         if (selectedAssets === undefined) return;
 
-        const callsTransfer = this.encodeForcePushArgs;
-        if (callsTransfer === undefined) return;
-
         try {
             const res = await this.multipool.read.checkSwap(
                 [
@@ -658,12 +655,12 @@ class MultipoolStore {
         const _ethFee = feeData[0] < 0n ? 0n : feeData[0];
         const ethFeeBG = new BigNumber(_ethFee.toString()).multipliedBy(1.005).toFixed(0);
         const ethFee = BigInt(ethFeeBG);
-        
+
         const callsTransfer = this.encodeForcePushArgs;
         if (callsTransfer === undefined) return;
 
         const callsBeforeUniswap = this.calls.map((call) => {
-            const data = encodeAbiParameters([{ name: "target", type: "address"}, { name: "ethValue", type: "uint256"}, { name: "targetData", type: "bytes"}], [call.to as Address, BigInt(call.value), call.data as Address]);
+            const data = encodeAbiParameters([{ name: "target", type: "address" }, { name: "ethValue", type: "uint256" }, { name: "targetData", type: "bytes" }], [call.to as Address, BigInt(call.value), call.data as Address]);
 
             return {
                 callType: 2,
@@ -674,7 +671,7 @@ class MultipoolStore {
         const uniswapRouter = this.calls[0].to;
 
         // add call to approve tokens from arcanum router to uniswap router as first call
-        const approveData = encodeAbiParameters([{ name: "token", type: "address"}, { name: "target", type: "address"}, {name: "amount", type: "uint256"}], [this.inputAsset!.address!, uniswapRouter as Address, BigInt(this.inputQuantity!.abs().toFixed(0))]);
+        const approveData = encodeAbiParameters([{ name: "token", type: "address" }, { name: "target", type: "address" }, { name: "amount", type: "uint256" }], [this.inputAsset!.address!, uniswapRouter as Address, BigInt(this.inputQuantity!.abs().toFixed(0))]);
         const approveCall = {
             callType: 1,
             data: approveData
