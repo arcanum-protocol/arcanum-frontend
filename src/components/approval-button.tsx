@@ -5,6 +5,7 @@ import ERC20 from "@/abi/ERC20";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
 import { fromBigNumber } from "@/lib/utils";
+import { useEffect } from "react";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -84,14 +85,18 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset } = useStore();
+    const { swap, inputQuantity, inputAsset, transactionCost } = useStore();
 
-    const { data: swapAction, isLoading: swapActionIsLoading } = useQuery(["swap"], async () => {
-        const res = await swap(address!);
-        return res;
+    const { data: swapAction, refetch } = useQuery(["swap"], async () => {
+        if (address === undefined) return;
+        return await swap(address);
     }, {
-        refetchInterval: 1000,
+        refetchInterval: 10000,
     });
+
+    useEffect(() => {
+        refetch();
+    }, [inputQuantity]);
 
     const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
         address: inputAsset?.address,
@@ -99,16 +104,20 @@ const UniswapSwap = observer(() => {
         functionName: "allowance",
         args: [address!, "0xE592427A0AEce92De3Edee1F18E0157C05861564"],
         watch: true,
+        enabled: inputAsset?.address !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     });
-
+    
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
 
-
-    if (swapActionIsLoading) {
+    if (inputQuantity === undefined || inputAsset === undefined) {
+        return <DefaultButton />
+    }
+    
+    if (transactionCost == undefined) {
         return <LoadingButton />
     }
-
+    
     async function CallSwap() {
         write!();
     }
@@ -123,10 +132,6 @@ const UniswapSwap = observer(() => {
 
     if (allowance! < fromBigNumber(inputQuantity!)) {
         return <ApprovalButton approveTo={"0xE592427A0AEce92De3Edee1F18E0157C05861564"} />
-    }
-
-    if (inputQuantity === undefined || inputAsset === undefined) {
-        return <DefaultButton />
     }
 
     return (

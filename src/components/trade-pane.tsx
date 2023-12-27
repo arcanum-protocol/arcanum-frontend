@@ -12,6 +12,7 @@ import { useAccount, useContractRead } from "wagmi";
 import { useStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
 import { getSignedPrice } from "@/api/arcanum";
+import { useBalance } from "@/hooks/balances";
 
 
 export const TradePaneInner = observer(() => {
@@ -79,14 +80,10 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     }
 
     function getBalance(): JSX.Element {
-        const { data: balance, isLoading } = useContractRead({
-            address: theAsset?.address,
-            abi: ERC20,
-            functionName: "balanceOf",
-            args: [address!],
-            watch: true,
-            enabled: address !== undefined && theAsset !== undefined,
-        });
+        const { balance, isLoading } = useBalance(
+            address,
+            theAsset?.address
+        );
 
         if (isLoading) {
             return (

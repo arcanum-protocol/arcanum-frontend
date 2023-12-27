@@ -70,7 +70,7 @@ async function getExternalAssets() {
         };
     });
 
-    return assets;
+    return assets.filter((asset: Token) => asset.address != "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE");
 }
 
 export { getForcePushPrice, parseError, getExternalAssets }
