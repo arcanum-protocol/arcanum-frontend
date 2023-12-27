@@ -27,7 +27,30 @@ function App() {
     return (
         <QueryClientProvider client={client}>
             <WagmiConfig config={config}>
-                <ConnectKitProvider theme="midnight">
+                <ConnectKitProvider 
+                    theme="midnight" 
+                    customTheme={{
+                      "--ck-font-family": "'Inconsolata', monospace",
+                        /* Modal */
+                       "--ck-border-radius": "calc(var(--radius) - 2px)", 
+                       "--ck-body-background": "rgb(12 10 9)",
+                       /* Primary Button */
+                        "--ck-primary-button-color": "#fff",
+                        "--ck-primary-button-background": "rgb(12 10 9)",
+                        "--ck-primary-button-border-radius": "0px",
+
+                        "--ck-secondary-button-color": "#fff",
+                        "--ck-secondary-button-background": "rgb(12 10 9)",
+                        "--ck-secondary-button-border-radius": "calc(var(--radius) - 2px)",
+                      /* Connect Wallet Button */
+                       "--ck-connectbutton-border-radius": "calc(var(--radius) - 2px)",
+                       "--ck-connectbutton-color": "#fff", 
+                       "--ck-connectbutton-background": "rgb(12 10 9)",
+                       "--ck-connectbutton-hover-color": "#fff", 
+                       "--ck-connectbutton-hover-background": "rgb(12 10 9)", 
+                       "--ck-connectbutton-active-color": "#fff",
+                       "--ck-connectbutton-active-background": "rgb(12 10 9)", 
+                    }}>
                     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                         <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
                             <Toaster />

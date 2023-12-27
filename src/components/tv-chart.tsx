@@ -120,7 +120,12 @@ const TVChartContainer = observer(() => {
             custom_css_url: '/tradingview-chart.css',
             fullscreen: false,
             autosize: true,
-            overrides: defaultChartProps.overrides,
+            //overrides: defaultChartProps.overrides,
+            overrides: {
+                //"mainSeriesProperties.style": 2,
+                ...defaultChartProps.overrides,
+                
+            },
             favorites: {
                 ...defaultChartProps.favorites, intervals: ["15", "720", "1D"] as ResolutionString[],
             },
