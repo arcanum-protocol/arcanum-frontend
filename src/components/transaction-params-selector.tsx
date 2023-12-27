@@ -24,7 +24,7 @@ export function TransactionParamsSelector() {
 const NetworkFee = observer(() => {
     const { transactionCost, etherPrice } = useStore();
 
-    if (!transactionCost) {
+    if (transactionCost == undefined) {
         return (
             <div className="flex justify-between">
                 <TooltipProvider>

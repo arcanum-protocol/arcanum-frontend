@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js";
 import { Address, decodeAbiParameters } from "viem";
-import { getContract } from "viem";
 import { publicClient } from "@/config";
 import UniswapV3 from '../abi/UniswapV3';
 import {
@@ -11,7 +10,7 @@ import {
     SwapRouter,
     Trade
 } from '@uniswap/v3-sdk';
-import { CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core';
+import { CurrencyAmount, Ether, Percent, TradeType } from '@uniswap/sdk-core';
 import { Token } from '@uniswap/sdk-core';
 import ERC20 from "@/abi/ERC20";
 
@@ -115,7 +114,25 @@ async function getAllPools() {
     return pools;
 }
 
-function createRoute(pools: Array<Pool>, inputToken: Token, outputToken: Token) {
+function createRoute(pools: Array<Pool>, inputToken: Token | Ether, outputToken: Token) {
+    if (inputToken.equals(outputToken)) {
+        throw new Error("Input token equals output token");
+    }
+
+    if (inputToken.isNative) {
+        const pool = pools.find(pool => {
+            return pool.token0.equals(outputToken) || pool.token1.equals(outputToken);
+        });
+
+        if (!pool) {
+            throw new Error("Pool not found");
+        }
+
+        const route = new Route([pool], inputToken, outputToken);
+
+        return route;
+    }
+
     // easy case for weth as input 
     if (inputToken.address.toLocaleLowerCase() === ("0x82aF49447D8a07e3bd95BD0d56f35241523fBab1".toLocaleLowerCase())) {
         const pool = pools.find(pool => {
@@ -128,7 +145,6 @@ function createRoute(pools: Array<Pool>, inputToken: Token, outputToken: Token) 
 
         const route = new Route([pool], inputToken, outputToken);
 
-        console.log("Pools used: ", pool);
         return route;
     }
     // pools contains all the pools also those that are not used in the route
@@ -148,8 +164,8 @@ function createRoute(pools: Array<Pool>, inputToken: Token, outputToken: Token) 
     return route;
 }
 
-async function getAmountOut(route: Route<Token, Token>, amountIn: BigNumber) {
-    const { calldata } = SwapQuoter.quoteCallParameters(
+async function getAmountOut(route: Route<Token | Ether, Token>, amountIn: BigNumber) {
+    const { calldata, value } = SwapQuoter.quoteCallParameters(
         route,
         CurrencyAmount.fromRawAmount(
             route.input,
@@ -168,10 +184,13 @@ async function getAmountOut(route: Route<Token, Token>, amountIn: BigNumber) {
 
     const [outValue] = decodeAbiParameters([{ name: 'amountOut', type: 'uint256' }], data!);
 
-    return new BigNumber(outValue.toString());
+    return {
+        amountOut: new BigNumber(outValue.toString()),
+        ethValue: new BigNumber(value),
+    }
 }
 
-function createTrade(route: Route<Token, Token>, amountIn: BigNumber, amountOut: BigNumber) {
+function createTrade(route: Route<Token | Ether, Token>, amountIn: BigNumber, amountOut: BigNumber) {
     const uncheckedTrade = Trade.createUncheckedTrade({
         route: route,
         inputAmount: CurrencyAmount.fromRawAmount(
@@ -220,12 +239,13 @@ async function getDecimals({ addresses }: { addresses?: Array<Address> }) {
         decimals.set(address.toString().toLocaleLowerCase() as Address, decimal);
     }
 
+    decimals.set("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLocaleLowerCase() as Address, 18);
+
     cacheDecimals = decimals;
     return cacheDecimals;
 }
 
 async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, multipoolAddress: Address) {
-    console.log("Uniswap pathfinding started");
     if (amountIn == undefined) {
         throw new Error("AmountIn is undefined");
     }
@@ -237,7 +257,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
     if (!inputDecimals) {
         throw new Error("Decimals not found");
     }
-    const inputToken = new Token(42161, inputAsset, inputDecimals);
+    const inputToken = inputAsset.toLocaleLowerCase() != "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLocaleLowerCase() ? new Token(42161, inputAsset, inputDecimals) : Ether.onChain(42161);
 
     const callDatas: Array<{
         data: string;
@@ -258,7 +278,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         const swapRoute = createRoute(pools, inputToken, outputToken);
 
         const amountInShare = amountIn.multipliedBy(amount).dividedBy(100);
-        const amountOut = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
+        const { amountOut, ethValue } = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
         const trade = createTrade(swapRoute, amountInShare, amountOut);
 
         outs.set(address, amountOut);

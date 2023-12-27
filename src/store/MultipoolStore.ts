@@ -314,6 +314,7 @@ class MultipoolStore {
             if (inputAssetAddress === undefined || outputAssetAddress === undefined) return undefined;
 
             if (this.swapType === ActionType.UNISWAP) {
+                if (this.calls.length === 0) return undefined;
                 if (inputQuantity === undefined) return undefined;
                 if (outputQuantity === undefined) return undefined;
 
@@ -440,14 +441,14 @@ class MultipoolStore {
         const fpSharePricePlaceholder = await getForcePushPrice(this.multipoolId);
 
         try {
-            const res = await this.multipool.read.checkSwap(
+            const responce = await this.multipool.read.checkSwap(
                 [
                     fpSharePricePlaceholder,
                     sortedAssets,
                     this.isExactInput
                 ]);
 
-            const estimates = res[1];
+            const estimates = responce[1];
 
             // get the one element that negative
             const ArcanumETF = estimates.find((estimate) => estimate < 0n);
@@ -457,11 +458,11 @@ class MultipoolStore {
 
                 this.calls = calls.calldata;
                 this.selectedAssets = selectedAssets;
-                this.fee = res[0];
+                this.fee = responce[0];
                 this.exchangeError = undefined;
             });
 
-            return res;
+            return responce;
         } catch (e) {
             console.log("e", e);
             this.updateErrorMessage(e);
@@ -637,6 +638,7 @@ class MultipoolStore {
     }
 
     async swapUniswap(userAddress: Address) {
+        runInAction(() => this.calls = [])
         if (this.multipool.address === undefined) return;
         if (this.router === undefined) return;
 
@@ -681,6 +683,28 @@ class MultipoolStore {
         callsBeforeUniswap.unshift({ callType: 0, data: callsTransfer });
 
         try {
+            const gas = await this.router.estimateGas.swap([
+                this.multipool.address,
+                {
+                    forcePushArgs: forsePushPrice,
+                    assetsToSwap: _selectedAssets,
+                    isExactInput: isExactInput,
+                    receiverAddress: userAddress,
+                    refundEthToReceiver: false,
+                    refundAddress: userAddress,
+                    ethValue: ethFee
+                },
+                callsBeforeUniswap,
+                []
+            ],
+                {
+                    account: userAddress,
+                    value: ethFee
+                }
+            );
+
+            const gasPrice = await this.publicClient?.getGasPrice();
+
             const { request } = await this.router.simulate.swap([
                 this.multipool.address,
                 {
@@ -700,6 +724,10 @@ class MultipoolStore {
                     value: ethFee
                 }
             );
+
+            runInAction(() => {
+                this.transactionCost = gas * gasPrice;
+            });
 
             return request;
         } catch (e: any) {

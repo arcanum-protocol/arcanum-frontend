@@ -140,16 +140,15 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 
     return (
         <>
-            <div className="grid grid-cols-3 items-center px-2 whitespace-nowrap" onClick={() => setSelectedTabWrapper("back")}>
+            <div className="grid grid-cols-4 items-center whitespace-nowrap text-center" onClick={() => setSelectedTabWrapper("back")}>
                 <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10">
                     <ChevronLeftIcon className="pt-2 h-8 w-8" />
                 </a>
-                <div className="font-mono font-bold">Select a token</div>
+                <div className="font-mono font-bold col-span-2">Select a token</div>
             </div>
-            <div className="px-2 py-1">
+            <div className="py-1">
                 <Input placeholder="Search for a token" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
-            <Separator className="my-1" />
             <ScrollArea className="h-[478px] w-full py-2">
                 {
                     tokenList.map((asset, index) => {
@@ -159,7 +158,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 
                         return (
                             <div key={index} className={
-                                `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer ease-in-out duration-100 rounded pr-2`
+                                `flex flex-row justify-between items-center h-12 hover:bg-gray-900 cursor-pointer ease-in-out duration-100 rounded mr-2`
                             } onClick={() => { setToken(asset); setSelectedTabWrapper("back") }}>
                                 <div className="flex flex-row justify-between items-center gap-2 m-2">
                                     <Avatar className="h-8 w-8">
