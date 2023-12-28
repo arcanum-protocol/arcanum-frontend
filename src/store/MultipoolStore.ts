@@ -371,6 +371,8 @@ class MultipoolStore {
 
     private clearSwapData() {
         runInAction(() => {
+            this.inputQuantity = undefined;
+            this.outputQuantity = undefined;
             this.maximumSend = undefined;
             this.minimalReceive = undefined;
             this.fee = undefined;
