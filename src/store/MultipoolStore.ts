@@ -639,7 +639,7 @@ class MultipoolStore {
     }
 
     async swap(userAddress: Address) {
-        if (this.inputQuantity === undefined || this.outputQuantity === undefined) this.clearSwapData();
+        if (this.inputQuantity === undefined && this.outputQuantity === undefined) this.clearSwapData();
         if (this.swapType === ActionType.ARCANUM) {
             return await this.swapMultipool(userAddress);
         }
