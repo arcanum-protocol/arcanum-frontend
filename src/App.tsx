@@ -27,14 +27,14 @@ function App() {
     return (
         <QueryClientProvider client={client}>
             <WagmiConfig config={config}>
-                <ConnectKitProvider 
-                    theme="midnight" 
+                <ConnectKitProvider
+                    theme="midnight"
                     customTheme={{
-                      "--ck-font-family": "'Inconsolata', monospace",
+                        "--ck-font-family": "'Inconsolata', monospace",
                         /* Modal */
-                       "--ck-border-radius": "calc(var(--radius) - 2px)", 
-                       "--ck-body-background": "rgb(12 10 9)",
-                       /* Primary Button */
+                        "--ck-border-radius": "calc(var(--radius) - 2px)",
+                        "--ck-body-background": "rgb(12 10 9)",
+                        /* Primary Button */
                         "--ck-primary-button-color": "#fff",
                         "--ck-primary-button-background": "rgb(12 10 9)",
                         "--ck-primary-button-border-radius": "0px",
@@ -42,14 +42,14 @@ function App() {
                         "--ck-secondary-button-color": "#fff",
                         "--ck-secondary-button-background": "rgb(12 10 9)",
                         "--ck-secondary-button-border-radius": "calc(var(--radius) - 2px)",
-                      /* Connect Wallet Button */
-                       "--ck-connectbutton-border-radius": "calc(var(--radius) - 2px)",
-                       "--ck-connectbutton-color": "#fff", 
-                       "--ck-connectbutton-background": "rgb(12 10 9)",
-                       "--ck-connectbutton-hover-color": "#fff", 
-                       "--ck-connectbutton-hover-background": "rgb(12 10 9)", 
-                       "--ck-connectbutton-active-color": "#fff",
-                       "--ck-connectbutton-active-background": "rgb(12 10 9)", 
+                        /* Connect Wallet Button */
+                        "--ck-connectbutton-border-radius": "calc(var(--radius) - 2px)",
+                        "--ck-connectbutton-color": "#fff",
+                        "--ck-connectbutton-background": "rgb(12 10 9)",
+                        "--ck-connectbutton-hover-color": "#fff",
+                        "--ck-connectbutton-hover-background": "rgb(12 10 9)",
+                        "--ck-connectbutton-active-color": "#fff",
+                        "--ck-connectbutton-active-background": "rgb(12 10 9)",
                     }}>
                     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                         <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
@@ -117,6 +117,43 @@ function Navbar() {
                     <NavigationMenuItem className="border border-[#292524] rounded">
                         <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
                             Arbitrum Index
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem className="border border-[#292524] rounded">
+                        <NavigationMenuLink href='https://twitter.com/0xArcanum' className={navigationMenuTriggerStyle()}>
+                            <div className="flex gap-2">
+                                <div className="w-3 h-5">
+                                    <svg viewBox="0 0 1200 1227" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z" fill="white" />
+                                    </svg>
+                                </div>
+                                Twitter
+                            </div>
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem className="border border-[#292524] rounded">
+                        <NavigationMenuLink href='https://discord.gg/nqJfDgtx82' className={navigationMenuTriggerStyle()}>
+                            <div className="flex gap-2">
+                                <div className="w-5 h-5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+                                        <path fill="#fff" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
+                                    </svg>
+                                </div>
+                                Discord
+                            </div>
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem className="border border-[#292524] rounded">
+                        <NavigationMenuLink href='https://dune.com/badconfig/arcanum' className={navigationMenuTriggerStyle()}>
+                            <div className="flex gap-2">
+                                <div className="w-5 h-5">
+                                    <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M150 300C232.843 300 300 232.843 300 150C300 67.1575 232.843 0.000244141 150 0.000244141C67.1573 0.000244141 0 67.1575 0 150C0 232.843 67.1573 300 150 300Z" fill="#F06040" />
+                                        <path d="M26 234.405C26 234.405 125.092 201.946 299.739 145C299.739 145 309.305 238.257 212.626 286.901C212.626 286.901 164.951 309.75 112.648 295.093C112.648 295.093 60.5661 285.262 26 234.405Z" fill="#2B286C" />
+                                    </svg>
+                                </div>
+                                Dune
+                            </div>
                         </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem className="border border-[#292524] rounded">

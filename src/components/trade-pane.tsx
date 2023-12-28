@@ -92,14 +92,14 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
         if (balance === undefined) {
             return (
-                <div className="inline-flex font-mono text-sm text-gray-500">0</div>
+                <div className="inline-flex font-mono text-xs text-gray-500">0</div>
             );
         }
 
         const tokenBalance = new BigNumber(balance.toString()).dividedBy(new BigNumber(10).pow(theAsset?.decimals!));
 
         return (
-            <div className="inline-flex font-mono text-sm text-gray-500">{tokenBalance.toFixed(4)}</div>
+            <div className="inline-flex font-mono text-xs text-gray-500">{tokenBalance.toFixed(4)}</div>
         );
     }
 
@@ -152,10 +152,10 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                 </Button>
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
-                <p className="m-0 text-sm text-gray-500">
+                <p className="m-0 text-xs text-gray-500">
                     = {dollarValue()}$
                 </p>
-                <p className="m-0 text-gray-500 text-sm whitespace-nowrap">
+                <p className="m-0 text-gray-500 text-xs whitespace-nowrap">
                     Balance: {
                         getBalance()
                     }
