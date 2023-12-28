@@ -21,6 +21,7 @@ export const IndexAssetsBreakdown = observer(() => {
         return assets;
     }, {
         enabled: assets?.length! < 1,
+        retry: true,
     });
 
     useQuery(["externalAssets"], async () => {

@@ -187,46 +187,53 @@ class MultipoolStore {
     async setTokens(tokens: MultipoolAsset[]) {
         if (this.multipool.address === undefined) return;
 
-        const _assets: MultipoolAsset[] = [];
-        const _totalTargetShares = await this.multipool.read.totalTargetShares();
-        const totalTargetShares = new BigNumber(_totalTargetShares.toString());
+        try {
+            const _assets: MultipoolAsset[] = [];
+            const _totalTargetShares = await this.multipool.read.totalTargetShares();
+            const totalTargetShares = new BigNumber(_totalTargetShares.toString());
 
-        for (const token of tokens) {
-            const _asset = await this.multipool.read.getAsset([token.address as Address]);
-            const asset = {
-                quantity: new BigNumber(_asset.quantity.toString()),
-                targetShare: new BigNumber(_asset.targetShare.toString()),
-                collectedCashbacks: new BigNumber(_asset.collectedCashbacks.toString()),
-            };
+            for (const token of tokens) {
+                if (token.address?.toString() === this.multipool.address.toString()) continue;
 
-            if (token.address?.toString() === this.multipool.address.toString()) continue;
+                console.log("token.address", token.address);
+                const _asset = await this.multipool.read.getAsset([token.address as Address]);
+                console.log("token.address", token.address, _asset);
 
-            const chainPrice = await this.multipool.read.getPrice([token.address as Address]);
+                const asset = {
+                    quantity: new BigNumber(_asset.quantity.toString()),
+                    targetShare: new BigNumber(_asset.targetShare.toString()),
+                    collectedCashbacks: new BigNumber(_asset.collectedCashbacks.toString()),
+                };
 
-            const idealShare = asset.targetShare.dividedBy(totalTargetShares).multipliedBy(100);
-            const quantity = asset.quantity;
+                const chainPrice = await this.multipool.read.getPrice([token.address as Address]);
 
-            const price = fromX96(chainPrice, token.decimals);
+                const idealShare = asset.targetShare.dividedBy(totalTargetShares).multipliedBy(100);
+                const quantity = asset.quantity;
 
-            _assets.push({
-                symbol: token.symbol,
-                decimals: token.decimals,
-                logo: token.logo,
-                address: token.address as Address,
-                type: "multipool",
-                multipoolAddress: this.multipool.address,
-                idealShare: idealShare,
-                price: price,
-                collectedCashbacks: asset.collectedCashbacks,
-                multipoolQuantity: quantity,
+                const price = fromX96(chainPrice, token.decimals);
+
+                _assets.push({
+                    symbol: token.symbol,
+                    decimals: token.decimals,
+                    logo: token.logo,
+                    address: token.address as Address,
+                    type: "multipool",
+                    multipoolAddress: this.multipool.address,
+                    idealShare: idealShare,
+                    price: price,
+                    collectedCashbacks: asset.collectedCashbacks,
+                    multipoolQuantity: quantity,
+                });
+            }
+
+            runInAction(() => {
+                this.assets = _assets;
+
+                this.setAction("mint")
             });
+        } catch (e) {
+            console.log(e);
         }
-
-        runInAction(() => {
-            this.assets = _assets;
-
-            this.setAction("mint")
-        });
     }
 
     async updatePricesUniswap() {
