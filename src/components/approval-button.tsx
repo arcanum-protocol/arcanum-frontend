@@ -143,7 +143,6 @@ const BebopSwap = observer(() => {
 
     async function CallSwap() {
         const signedData = await signTypedDataAsync();
-        console.log("signedData", signedData, "order", swapData!.orderId);
         await submitOrder({ quoteId: swapData!.orderId, signature: signedData! });
     }
 

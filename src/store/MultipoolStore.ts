@@ -381,8 +381,6 @@ class MultipoolStore {
 
     private updateErrorMessage(e: any) {
         runInAction(() => {
-            console.log("333", e);
-            console.log("_333", parseError(e));
             this.exchangeError = parseError(e);
         });
     }
@@ -407,8 +405,6 @@ class MultipoolStore {
     async checkSwap(userAddress: Address) {
         if (this.multipool.address === undefined) return;
         if (userAddress === undefined) return;
-
-        console.log("checkSwap", this.swapType);
 
         if (this.swapType === ActionType.ARCANUM) {
             return await this.checkSwapMultipool(userAddress);
@@ -467,7 +463,6 @@ class MultipoolStore {
 
             return responce;
         } catch (e) {
-            console.log("e", e);
             this.updateErrorMessage(e);
         }
     }
@@ -506,7 +501,6 @@ class MultipoolStore {
                 toSign: JAMRequest.toSign,
             };
         } catch (e) {
-            console.log("e", e);
             this.updateErrorMessage(e);
         }
     }
@@ -603,7 +597,6 @@ class MultipoolStore {
 
             return res;
         } catch (e) {
-            console.log("e", e);
             this.updateErrorMessage(e);
         }
     }
@@ -750,7 +743,6 @@ class MultipoolStore {
 
             return request;
         } catch (e: any) {
-            console.log("e", e);
             this.updateErrorMessage(e);
             return undefined;
         }
@@ -800,7 +792,6 @@ class MultipoolStore {
 
             return request;
         } catch (e: any) {
-            console.log("e", e);
             this.updateErrorMessage(e);
             return undefined;
         }
