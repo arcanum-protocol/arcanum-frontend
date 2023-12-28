@@ -61,6 +61,7 @@ async function JAMQuote({ sellTokens, buyTokens, sellAmounts, buyAmounts, takerA
 
     if (sellAmounts) {
         const responce = await axios.get(`https://api.bebop.xyz/jam/arbitrum/v1/quote?sell_tokens=${selltokens}&buy_tokens=${buytokens}&sell_amounts=${sellAmounts.toString()}&taker_address=${takerAddress}&approval_type=${ApprovalType.Standard}`);
+        if (responce.data.error) throw new Error("Amount too small");
         const data: BebopQuoteResponce = await responce.data;
 
         const buyAmt = BigNumber(data.buyTokens[buytokens].amount);
@@ -82,6 +83,7 @@ async function JAMQuote({ sellTokens, buyTokens, sellAmounts, buyAmounts, takerA
 
     if (buyAmounts) {
         const responce = await axios.get(`https://api.bebop.xyz/jam/arbitrum/v1/quote?sell_tokens=${selltokens}&buy_tokens=${buytokens}&buy_amounts=${buyAmounts.toString()}&taker_address=${takerAddress}&approval_type=${ApprovalType.Standard}`);
+        if (responce.data.error) throw new Error("Amount too small");
         const data: BebopQuoteResponce = await responce.data;
 
         const sellAmt = BigNumber(data.sellTokens[selltokens].amount);

@@ -41,6 +41,7 @@ async function getForcePushPrice(multipoolId: string): Promise<{
 
 function parseError(e: any): string | undefined {
     let errorString: string = (e as Error).toString();
+    if (errorString == "Error: Amount too small") return "Amount too small";
 
     errorString = errorString.replace("ContractFunctionExecutionError: ", "");
     const startIndex = errorString.indexOf('Error: ');

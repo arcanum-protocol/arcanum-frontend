@@ -1,14 +1,9 @@
 import { ScrollArea } from "./ui/scroll-area";
 import { Input } from "./ui/input";
-import { Separator } from "./ui/separator";
 import { BigNumber } from "bignumber.js";
-import { NeonText } from "./ui/sine-wave-text";
 import { useState } from "react";
 import { ExternalAsset, MultipoolAsset } from "@/types/multipoolAsset";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
-import { ExternalLinkIcon } from "@radix-ui/react-icons";
-import { ChevronLeftIcon } from "@radix-ui/react-icons";
+import { ChevronLeftIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
 import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
@@ -16,6 +11,29 @@ import { useStore } from "@/contexts/StoreContext";
 import { alchemyClient } from "@/config";
 import { useAccount, useBalance } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { NeonText } from "./ui/sine-wave-text";
+
+
+function MultipoolTokenTooltip() {
+    return (
+        <div className="font-mono text-xs">
+            {"This asset is part of an "}
+            <NeonText color="purple">
+                ETF
+            </NeonText>
+            {", by choosing it you will mint according to the rules of the "}
+            <NeonText color="purple">
+                multipool
+            </NeonText>
+            {", "}
+            <NeonText color="blue" href="https://docs.arcanum.to/basics/asset-management" className="underline" rightIcon={<ExternalLinkIcon height={10} />}>
+                read here
+            </NeonText>
+            {" to get acquainted with the details"}
+        </div>
+    );
+}
 
 interface TokenSelectorProps {
     action: "set-token-in" | "set-token-out";
@@ -27,7 +45,6 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { data: userBalance } = useBalance({ address });
     const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
-    const currentShares = _currentShares;
 
     const { data: balances } = useQuery(["balances"], async () => {
         const assetsAddress = [...assets, ...externalAssets].map((asset) => asset.address!).filter((asset) => asset !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") || [];
@@ -38,7 +55,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
             balances[balance.contractAddress] = new BigNumber(balance.tokenBalance!);
         }
         balances["0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"] = new BigNumber(userBalance?.value.toString() || 0);
-        
+
         return balances;
     }, {
         refetchInterval: 15000,
@@ -95,47 +112,32 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
             );
         }
 
-        if (token.type === "external") {
-            return (
-                <div className="font-mono text-xs text-gray-500">{balance}</div>
-            );
-        } else {
-            const idealShare = (token as MultipoolAsset).idealShare;
-            const thisAssetShare = currentShares.data.get(token.address);
+        return (
+            <div className="font-mono text-xs text-gray-500">{balance}</div>
+        );
+    }
 
-            const deviation = thisAssetShare?.minus(idealShare!);
-            const isDeviationNegative = deviation?.isNegative();
-
+    function getTokenNameDecaration(token: ExternalAsset | MultipoolAsset) {
+        if (token.type === "multipool") {
             return (
-                <>
-                    <NeonText color={isDeviationNegative ? "emerald" : "crimson"}>
-                        {balance}
-                    </NeonText>
+                <div>
                     <TooltipProvider>
                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
+                            <TooltipTrigger asChild className="text-xs">
+                                <p>{token.symbol} 👁</p>
                             </TooltipTrigger>
-                            <TooltipContent side="top" align="center" className="block bg-black border text-gray-300 max-w-xs font-mono">
-                                {"This asset is part of an "}
-                                <NeonText color="purple">
-                                    ETF
-                                </NeonText>
-                                {", by choosing it you will mint according to the rules of the "}
-                                <NeonText color="purple">
-                                    multipool
-                                </NeonText>
-                                {", "}
-                                <NeonText color="blue" href="https://docs.arcanum.to/basics/asset-management" className="underline" rightIcon={<ExternalLinkIcon height={10} />}>
-                                    read here
-                                </NeonText>
-                                {" to get acquainted with the details"}
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                <MultipoolTokenTooltip />
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                </>
+                </div>
             );
         }
+
+        return (
+            <div className="font-mono text-xs">{token.symbol}</div>
+        );
     }
 
     return (
@@ -166,7 +168,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
                                         <AvatarFallback>{"?"}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col text-start">
-                                        <p className="font-mono">{asset.symbol}</p>
+                                        {getTokenNameDecaration(asset)}
                                         <div className="flex flex-row gap-1 items-center">
                                             {
                                                 getBalanceDecaration(asset)
