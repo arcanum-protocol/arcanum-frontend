@@ -124,15 +124,15 @@ export const Head = observer(() => {
                 </div>
                 <div className="hidden gap-1 flex-row xl:flex">
                     <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                        <p className='text-xs'>24h change</p>
+                        <p className='text-sm'>24h change</p>
                         <Skeleton className="rounded w-16 h-4" />
                     </div>
                     <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                        <p className='text-xs'>24h high</p>
+                        <p className='text-sm'>24h high</p>
                         <Skeleton className="rounded w-16 h-4" />
                     </div>
                     <div className="rounded-2xl bg-[#0c0a09] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                        <p className='text-xs'>24h low</p>
+                        <p className='text-sm'>24h low</p>
                         <Skeleton className="rounded w-16 h-4" />
                     </div>
                 </div>
@@ -156,15 +156,15 @@ export const Head = observer(() => {
             </div>
             <div className="hidden gap-1 flex-row xl:flex">
                 <div className="rounded bg-[#0c0a09] border border-[#292524] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                    <p className='text-xs'>24h change</p>
+                    <p className='text-sm'>24h change</p>
                     <p className={'text-base ' + getColor(change)}>{change}%</p>
                 </div>
                 <div className="rounded bg-[#0c0a09] border border-[#292524] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                    <p className='text-xs'>24h high</p>
+                    <p className='text-sm'>24h high</p>
                     <p className='text-base'>{high}$</p>
                 </div>
                 <div className="rounded bg-[#0c0a09] border border-[#292524] px-[1.5rem] py-[0.75rem] max-h-16 whitespace-nowrap">
-                    <p className='text-xs'>24h low</p>
+                    <p className='text-sm'>24h low</p>
                     <p className='text-base'>{low}$</p>
                 </div>
             </div>

@@ -17,7 +17,7 @@ import { NeonText } from "./ui/sine-wave-text";
 
 function MultipoolTokenTooltip() {
     return (
-        <div className="font-mono text-xs">
+        <div className="font-mono text-sm">
             {"This asset is part of an "}
             <NeonText color="purple">
                 ETF
@@ -108,12 +108,12 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 
         if (Number(balance) === 0) {
             return (
-                <div className="font-mono text-xs text-gray-500">~0</div>
+                <div className="font-mono text-sm text-gray-500">~0</div>
             );
         }
 
         return (
-            <div className="font-mono text-xs text-gray-500">{balance}</div>
+            <div className="font-mono text-sm text-gray-500">{balance}</div>
         );
     }
 
@@ -123,7 +123,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
                 <div>
                     <TooltipProvider>
                         <Tooltip>
-                            <TooltipTrigger asChild className="text-xs">
+                            <TooltipTrigger asChild className="text-sm">
                                 <p>{token.symbol} 👁</p>
                             </TooltipTrigger>
                             <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
@@ -136,7 +136,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         }
 
         return (
-            <div className="font-mono text-xs">{token.symbol}</div>
+            <div className="font-mono text-sm">{token.symbol}</div>
         );
     }
 

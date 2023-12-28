@@ -9,7 +9,7 @@ import BigNumber from "bignumber.js";
 export function TransactionParamsSelector() {
     return (
         <div className="p-4 rounded-md border bg-[#0c0a09] w-full">
-            <div className="text-xs flex flex-col w-full">
+            <div className="text-sm flex flex-col w-full">
                 <SlippageSelector />
                 <div className="flex flex-col gap-2">
                     <ExchangeInfo />
@@ -30,7 +30,7 @@ const NetworkFee = observer(() => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                            <div className="flex flex-row items-center gap-1 text-lg lg:text-sm">
                                 Transaction cost
                                 <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                             </div>
@@ -53,7 +53,7 @@ const NetworkFee = observer(() => {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                        <div className="flex flex-row items-center gap-1 text-lg lg:text-sm">
                             Transaction cost
                             <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                         </div>
@@ -77,7 +77,7 @@ const Fee = observer(() => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                            <div className="flex flex-row items-center gap-1 text-lg lg:text-sm">
                                 Fee
                                 <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                             </div>
@@ -107,7 +107,7 @@ const Fee = observer(() => {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="flex flex-row items-center gap-1 text-xs lg:text-xs">
+                        <div className="flex flex-row items-center gap-1 text-sm lg:text-sm">
                             Fee
                             <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                         </div>
@@ -140,7 +140,7 @@ const ExchangeInfo = observer(() => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="flex flex-row items-center gap-1 text-xs">
+                            <div className="flex flex-row items-center gap-1 text-sm">
                                 Minimal receive
                                 <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                             </div>
@@ -170,7 +170,7 @@ const ExchangeInfo = observer(() => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="flex flex-row items-center gap-1 text-lg lg:text-xs">
+                            <div className="flex flex-row items-center gap-1 text-lg lg:text-sm">
                                 Maximum send
                                 <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                             </div>
@@ -192,7 +192,7 @@ const ExchangeInfo = observer(() => {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="flex flex-row items-center gap-1 text-xs">
+                        <div className="flex flex-row items-center gap-1 text-sm">
                             Minimal receive
                             <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                         </div>
@@ -221,7 +221,7 @@ export const SlippageSelector = observer(() => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="flex flex-row items-center gap-1 text-xs w-full justify-between">
+                            <div className="flex flex-row items-center gap-1 text-sm w-full justify-between">
                                 <div className="flex flex-row gap-1 items-center">
                                     Slippage tolerance
                                     <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
@@ -241,7 +241,7 @@ export const SlippageSelector = observer(() => {
                                 key={index}
                                 onClick={() => setSlippage(slippagePreseted)}
                                 className={
-                                    `flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-xs font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
+                                    `flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-sm font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
                                         hover:bg-[#2D2D2D] focus:bg-[##0c0a09] active:bg-[#0c0a09]`
                                 }>
                                 {slippagePreseted + '%'}
@@ -249,7 +249,7 @@ export const SlippageSelector = observer(() => {
                         );
                     })}
                     <input
-                        className={`flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-xs font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
+                        className={`flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-sm font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
                             hover:bg-[#2D2D2D] focus:bg-[#0c0a09] active:bg-[#0c0a09] outline-none`}
                         value={slippagePresets.indexOf(slippage) ? slippage : undefined}
                         placeholder="Custom"
