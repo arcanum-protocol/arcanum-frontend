@@ -375,11 +375,14 @@ class MultipoolStore {
             this.minimalReceive = undefined;
             this.fee = undefined;
             this.transactionCost = undefined;
+            this.exchangeError = undefined;
         });
     }
 
     private updateErrorMessage(e: any) {
         runInAction(() => {
+            console.log("333", e);
+            console.log("_333", parseError(e));
             this.exchangeError = parseError(e);
         });
     }
@@ -469,30 +472,43 @@ class MultipoolStore {
         }
     }
 
-    private async checkSwapBebop(userAddress: Address) {
-        const test = await JAMQuote({
-            sellTokens: this.inputAsset!.address!,
-            buyTokens: this.outputAsset!.address!,
-            sellAmounts: this.inputQuantity,
-            takerAddress: userAddress,
-        });
+    async checkSwapBebop(userAddress: Address) {
+        this.clearSwapData();
+        try {
+            const JAMRequest = await JAMQuote({
+                sellTokens: this.inputAsset!.address!,
+                buyTokens: this.outputAsset!.address!,
+                sellAmounts: this.inputQuantity,
+                takerAddress: userAddress,
+            });
 
-        if (test === undefined) return;
+            if (JAMRequest === undefined) return;
 
-        const prices: Map<string, BigNumber> = new Map<string, BigNumber>();
+            const prices: Map<string, BigNumber> = new Map<string, BigNumber>();
 
-        prices.set(this.inputAsset!.address!, test.sellPrice);
-        prices.set(this.outputAsset!.address!, test.buyPrice);
-        this.updatePrice(prices);
+            prices.set(this.inputAsset!.address!, JAMRequest.sellPrice);
+            prices.set(this.outputAsset!.address!, JAMRequest.buyPrice);
+            this.updatePrice(prices);
 
-        runInAction(() => {
-            if (this.outputQuantity !== test.buyAmounts) {
-                this.outputQuantity = test.buyAmounts
-            }
-            this.transactionCost = BigInt(test.gasFee.toFixed(0));
-            this.toSign = test.toSign;
-            this.orderId = test.orderId;
-        });
+            runInAction(() => {
+                if (this.outputQuantity !== JAMRequest.buyAmounts) {
+                    this.outputQuantity = JAMRequest.buyAmounts
+                }
+                this.transactionCost = BigInt(JAMRequest.gasFee.toFixed(0));
+                this.toSign = JAMRequest.toSign;
+                this.orderId = JAMRequest.orderId;
+            });
+
+            return {
+                PARAM_DOMAIN: PARAM_DOMAIN,
+                PARAM_TYPES: PARAM_TYPES,
+                orderId: JAMRequest.orderId,
+                toSign: JAMRequest.toSign,
+            };
+        } catch (e) {
+            console.log("e", e);
+            this.updateErrorMessage(e);
+        }
     }
 
     get dataToSign() {
@@ -635,6 +651,9 @@ class MultipoolStore {
         if (this.swapType === ActionType.UNISWAP) {
             return await this.swapUniswap(userAddress);
         }
+        if (this.swapType === ActionType.BEBOP) {
+            return await this.checkSwapBebop(userAddress);
+        }
     }
 
     async swapUniswap(userAddress: Address) {
@@ -645,7 +664,7 @@ class MultipoolStore {
         const isExactInput = this.mainInput === "in" ? true : false;
         const forsePushPrice = await getForcePushPrice(this.multipoolId);
 
-        const feeData = await this.checkSwap(userAddress);
+        const feeData = await this.checkSwap(userAddress) as readonly [bigint, readonly bigint[]];
         if (feeData === undefined) throw new Error("feeData is undefined");
 
         const selectedAssets = this.createSelectedAssets(this.slippage);
@@ -744,7 +763,7 @@ class MultipoolStore {
         const isExactInput = this.mainInput === "in" ? true : false;
         const forsePushPrice = await getForcePushPrice(this.multipoolId);
 
-        const feeData = await this.checkSwap(userAddress);
+        const feeData = await this.checkSwap(userAddress) as readonly [bigint, readonly bigint[]];
         if (feeData === undefined) throw new Error("feeData is undefined");
 
         const selectedAssets = this.createSelectedAssets(this.slippage);

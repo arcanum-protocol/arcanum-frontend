@@ -69,5 +69,5 @@ export function toObject(ToSign: ToSign | undefined) {
         buyTokenTransfers: ToSign.buyTokenTransfers,
         sellNFTIds: [],
         buyNFTIds: [],
-    }
+    } as const;
 }
