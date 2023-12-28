@@ -13,6 +13,7 @@ import { useStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
 import { getSignedPrice } from "@/api/arcanum";
 import { useBalance } from "@/hooks/balances";
+import { SwapType } from "./swaptype";
 
 
 export const TradePaneInner = observer(() => {
@@ -51,6 +52,7 @@ export const TradePaneInner = observer(() => {
             </div>
             <div className="flex flex-col items-center gap-2">
                 <TransactionParamsSelector />
+                <SwapType />
                 <InteractionWithApprovalButton />
             </div>
         </div>
