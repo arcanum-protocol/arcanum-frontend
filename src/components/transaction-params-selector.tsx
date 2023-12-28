@@ -107,7 +107,7 @@ const Fee = observer(() => {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="flex flex-row items-center gap-1 text-sm lg:text-sm">
+                        <div className="flex flex-row items-center gap-1 text-lg lg:text-sm">
                             Fee
                             <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                         </div>
@@ -140,7 +140,7 @@ const ExchangeInfo = observer(() => {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="flex flex-row items-center gap-1 text-sm">
+                            <div className="flex flex-row items-center gap-1 text-lg lg:text-sm">
                                 Minimal receive
                                 <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                             </div>
@@ -192,7 +192,7 @@ const ExchangeInfo = observer(() => {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div className="flex flex-row items-center gap-1 text-sm">
+                        <div className="flex flex-row items-center gap-1 text-lg lg:text-sm">
                             Minimal receive
                             <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                         </div>
