@@ -24,6 +24,7 @@ export const TradePaneInner = observer(() => {
         return 1;
     }, {
         refetchInterval: 30000,
+        retry: true,
     });
 
     return (

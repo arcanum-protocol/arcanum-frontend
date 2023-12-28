@@ -39,6 +39,8 @@ export const IndexAssetsBreakdown = observer(() => {
         setExternalAssets(externalAssets);
 
         return externalAssets;
+    }, {
+        retry: true,
     });
 
     useQuery(["etherPrice"], async () => {
@@ -49,6 +51,7 @@ export const IndexAssetsBreakdown = observer(() => {
         return etherPrice;
     }, {
         refetchInterval: 15000,
+        retry: true,
     });
 
     if (isLoading) {

@@ -59,6 +59,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         return balances;
     }, {
         refetchInterval: 15000,
+        retry: true,
         enabled: address !== undefined,
     });
 

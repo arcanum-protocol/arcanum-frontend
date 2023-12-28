@@ -95,6 +95,7 @@ export const Head = observer(() => {
         return await getMultipoolMarketData(multipoolId);
     }, {
         refetchInterval: 15000,
+        retry: true,
     });
 
     function getColor(change: string | undefined): string {
