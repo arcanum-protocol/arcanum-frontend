@@ -194,8 +194,6 @@ const UniswapSwap = observer(() => {
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
 
-    console.log("exchangeError", exchangeError);
-
     if (exchangeError) {
         return <ErrorButton errorMessage={exchangeError} />
     }
@@ -245,11 +243,13 @@ const ArcanumSwap = observer(() => {
         watch: true,
     });
 
+    const isNeedApproval = allowance! < fromBigNumber(inputQuantity!);
+
     const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery(["swap"], async () => {
         const res = await swap(address!);
         return res;
     }, {
-        refetchInterval: 1000,
+        refetchInterval: 15000,
         enabled: address !== undefined && inputQuantity !== undefined && !inputQuantity.isZero()
     });
 
