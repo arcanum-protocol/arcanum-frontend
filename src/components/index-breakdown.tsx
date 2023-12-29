@@ -9,6 +9,7 @@ import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
 import { getEtherPrice, getMultipool } from "@/api/arcanum";
 import { getExternalAssets } from "@/lib/multipoolUtils";
+import { useEffect } from "react";
 
 
 export const IndexAssetsBreakdown = observer(() => {
@@ -24,7 +25,7 @@ export const IndexAssetsBreakdown = observer(() => {
         retry: true,
     });
 
-    useQuery(["externalAssets"], async () => {
+    const { data: externalAssets } = useQuery(["externalAssets"], async () => {
         const assets = await getExternalAssets();
 
         const externalAssets = assets.map((asset) => {
@@ -37,14 +38,20 @@ export const IndexAssetsBreakdown = observer(() => {
                 type: "external",
             } as ExternalAsset;
         });
-        setExternalAssets(externalAssets);
 
         return externalAssets;
     }, {
         retry: true,
     });
 
-    useQuery(["etherPrice"], async () => {
+    useEffect(() => {
+        if (externalAssets == undefined) {
+            return;
+        }
+        setExternalAssets(externalAssets);
+    }, [externalAssets]);
+
+    const {data: _etherPrice} = useQuery(["etherPrice"], async () => {
         const etherPrice = await getEtherPrice();
 
         setEtherPrice(etherPrice);
@@ -54,6 +61,13 @@ export const IndexAssetsBreakdown = observer(() => {
         refetchInterval: 15000,
         retry: true,
     });
+
+    useEffect(() => {
+        if (_etherPrice == undefined) {
+            return;
+        }
+        setEtherPrice(_etherPrice);
+    }, [_etherPrice]);
 
     if (isLoading) {
         return (
@@ -66,7 +80,7 @@ export const IndexAssetsBreakdown = observer(() => {
 
     function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
         const _decimals = new BigNumber(10).pow(decimals);
-        
+
         if (number == undefined) {
             return "0";
         }

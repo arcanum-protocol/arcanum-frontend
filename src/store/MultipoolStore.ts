@@ -1,5 +1,5 @@
 import { ExternalAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
-import { makeAutoObservable, runInAction, toJS } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import { Address, getContract } from 'viem';
 import { publicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
@@ -185,55 +185,49 @@ class MultipoolStore {
     }
 
     async setTokens(tokens: MultipoolAsset[]) {
-        if (this.multipool.address === undefined) return;
+        if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
 
-        try {
-            const _assets: MultipoolAsset[] = [];
-            const _totalTargetShares = await this.multipool.read.totalTargetShares();
-            const totalTargetShares = new BigNumber(_totalTargetShares.toString());
+        const _assets: MultipoolAsset[] = [];
+        const _totalTargetShares = await this.multipool.read.totalTargetShares();
+        const totalTargetShares = new BigNumber(_totalTargetShares.toString());
 
-            for (const token of tokens) {
-                if (token.address?.toString() === this.multipool.address.toString()) continue;
+        for (const token of tokens) {
+            if (token.address?.toString() === this.multipool.address.toString()) continue;
+            const tokenAddress = token.address as Address;
 
-                console.log("token.address", token.address);
-                const _asset = await this.multipool.read.getAsset([token.address as Address]);
-                console.log("token.address", token.address, _asset);
+            if (tokenAddress == null) continue;
+            const _asset = await this.multipool.read.getAsset([tokenAddress]);
 
-                const asset = {
-                    quantity: new BigNumber(_asset.quantity.toString()),
-                    targetShare: new BigNumber(_asset.targetShare.toString()),
-                    collectedCashbacks: new BigNumber(_asset.collectedCashbacks.toString()),
-                };
+            const asset = {
+                quantity: new BigNumber(_asset.quantity.toString()),
+                targetShare: new BigNumber(_asset.targetShare.toString()),
+                collectedCashbacks: new BigNumber(_asset.collectedCashbacks.toString()),
+            };
 
-                const chainPrice = await this.multipool.read.getPrice([token.address as Address]);
+            const chainPrice = await this.multipool.read.getPrice([tokenAddress]);
 
-                const idealShare = asset.targetShare.dividedBy(totalTargetShares).multipliedBy(100);
-                const quantity = asset.quantity;
+            const idealShare = asset.targetShare.dividedBy(totalTargetShares).multipliedBy(100);
+            const quantity = asset.quantity;
 
-                const price = fromX96(chainPrice, token.decimals);
+            const price = fromX96(chainPrice, token.decimals);
 
-                _assets.push({
-                    symbol: token.symbol,
-                    decimals: token.decimals,
-                    logo: token.logo,
-                    address: token.address as Address,
-                    type: "multipool",
-                    multipoolAddress: this.multipool.address,
-                    idealShare: idealShare,
-                    price: price,
-                    collectedCashbacks: asset.collectedCashbacks,
-                    multipoolQuantity: quantity,
-                });
-            }
-
-            runInAction(() => {
-                this.assets = _assets;
-
-                this.setAction("mint")
+            _assets.push({
+                symbol: token.symbol,
+                decimals: token.decimals,
+                logo: token.logo,
+                address: tokenAddress,
+                type: "multipool",
+                multipoolAddress: this.multipool.address,
+                idealShare: idealShare,
+                price: price,
+                collectedCashbacks: asset.collectedCashbacks,
+                multipoolQuantity: quantity,
             });
-        } catch (e) {
-            console.log(e);
         }
+        runInAction(() => {
+            this.assets = _assets;
+            this.setAction("mint");
+        });
     }
 
     async updatePricesUniswap() {
