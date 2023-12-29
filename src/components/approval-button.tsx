@@ -194,6 +194,8 @@ const UniswapSwap = observer(() => {
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
 
+    console.log("exchangeError", exchangeError);
+
     if (exchangeError) {
         return <ErrorButton errorMessage={exchangeError} />
     }

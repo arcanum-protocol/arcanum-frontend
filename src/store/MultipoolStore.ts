@@ -423,26 +423,27 @@ class MultipoolStore {
     private async checkSwapUniswap() {
         if (this.inputQuantity === undefined) return;
         const calls = await Create(this.currentShares.data, this.inputAsset!.address!, this.inputQuantity, this.multipool.address);
+        console.log("calls", calls);
         if (calls === undefined) return;
 
-        const selectedAssets = Array.from(calls.selectedAssets).map((asset) => {
-            return {
-                assetAddress: asset[0],
-                amount: BigInt(asset[1].toFixed(0))
-            }
-        });
-        selectedAssets.push({
-            assetAddress: this.multipool.address,
-            amount: BigInt("-1000000000000000000")
-        });
-
-        const sortedAssets = selectedAssets.sort((a, b) => {
-            return BigInt(a.assetAddress) > BigInt(b.assetAddress) ? 1 : -1;
-        });
-
-        const fpSharePricePlaceholder = await getForcePushPrice(this.multipoolId);
-
         try {
+            const selectedAssets = Array.from(calls.selectedAssets).map((asset) => {
+                return {
+                    assetAddress: asset[0],
+                    amount: BigInt(asset[1].toFixed(0))
+                }
+            });
+            selectedAssets.push({
+                assetAddress: this.multipool.address,
+                amount: BigInt("-1000000000000000000")
+            });
+
+            const sortedAssets = selectedAssets.sort((a, b) => {
+                return BigInt(a.assetAddress) > BigInt(b.assetAddress) ? 1 : -1;
+            });
+
+            const fpSharePricePlaceholder = await getForcePushPrice(this.multipoolId);
+
             const responce = await this.multipool.read.checkSwap(
                 [
                     fpSharePricePlaceholder,
@@ -464,6 +465,7 @@ class MultipoolStore {
                 this.exchangeError = undefined;
             });
 
+            console.log("responce", responce);
             return responce;
         } catch (e) {
             this.updateErrorMessage(e);
@@ -697,6 +699,8 @@ class MultipoolStore {
         // add call to transfer tokens to router as first call
         callsBeforeUniswap.unshift({ callType: 0, data: callsTransfer });
 
+        console.log("callsBeforeUniswap", callsBeforeUniswap);
+
         try {
             const gas = await this.router.estimateGas.swap([
                 this.multipool.address,
@@ -718,7 +722,10 @@ class MultipoolStore {
                 }
             );
 
+            console.log("gas", gas);
+
             const gasPrice = await this.publicClient?.getGasPrice();
+            this.updateGas(gas, gasPrice!);
 
             const { request } = await this.router.simulate.swap([
                 this.multipool.address,
@@ -740,15 +747,19 @@ class MultipoolStore {
                 }
             );
 
-            runInAction(() => {
-                this.transactionCost = gas * gasPrice;
-            });
 
             return request;
         } catch (e: any) {
             this.updateErrorMessage(e);
             return undefined;
         }
+    }
+
+    updateGas(gas: bigint, gasPrice: bigint) {
+        console.log(gas, gasPrice);
+        runInAction(() => {
+            this.transactionCost = gas * gasPrice;
+        });
     }
 
     async swapMultipool(userAddress: Address) {
