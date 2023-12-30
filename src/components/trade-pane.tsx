@@ -85,7 +85,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             watch: true,
         });
 
-        if (balance === undefined) {
+        if (balance == undefined) {
             return (
                 <div className="inline-flex font-mono text-xs text-gray-500">0</div>
             );
@@ -97,7 +97,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             );
         }
 
-        const tokenBalance = new BigNumber(balance.toString()).dividedBy(new BigNumber(10).pow(theAsset?.decimals!));
+        const tokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(theAsset?.decimals!));
 
         return (
             <div className="inline-flex font-mono text-xs text-gray-500">{tokenBalance.toFixed(4)}</div>

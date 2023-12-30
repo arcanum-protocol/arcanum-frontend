@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useConnect, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
+import { Address, useAccount, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -8,8 +8,21 @@ import { fromBigNumber } from "@/lib/utils";
 import { useEffect } from "react";
 import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
-import { ConnectArgs, InjectedConnector } from "@wagmi/core";
-import { chains } from "@/config";
+import { ConnectKitButton } from "connectkit";
+
+export const ConnectWallet = () => {
+    return (
+        <ConnectKitButton.Custom>
+            {({ isConnected, show, address }) => {
+                return (
+                    <button onClick={show} className="w-full border h-8 bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent">
+                        {isConnected ? address : "Connect Wallet"}
+                    </button>
+                );
+            }}
+        </ConnectKitButton.Custom>
+    );
+};
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -71,16 +84,8 @@ function DefaultButton() {
     )
 }
 
-function ConnectWalletButton({ connect }: { connect: (args?: Partial<ConnectArgs> | undefined) => void}) {
-    const connector = new InjectedConnector({ chains: chains });
-
-    return (
-        <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => connect({ connector: connector })}>
-                <p style={{ margin: "10px" }}>Connect Wallet</p>
-            </Button>
-        </div >
-    )
+function ConnectWalletButton() {
+    return <ConnectWallet />
 }
 
 function ApprovalButton({ approveTo }: { approveTo: Address }) {
@@ -105,7 +110,6 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
 
 const BebopSwap = observer(() => {
     const { address } = useAccount();
-    const { connect } = useConnect();
     const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError } = useStore();
 
     const { data: swapData, refetch } = useQuery(["swap"], async () => {
@@ -152,7 +156,7 @@ const BebopSwap = observer(() => {
     }
 
     if (address === undefined) {
-        return <ConnectWalletButton connect={connect} />
+        return <ConnectWalletButton />
     }
 
     if (allowanceIsLoading) {
@@ -173,7 +177,6 @@ const BebopSwap = observer(() => {
 });
 
 const UniswapSwap = observer(() => {
-    const { connect } = useConnect();
     const { address } = useAccount();
     const { swap, inputQuantity, inputAsset, transactionCost, exchangeError } = useStore();
 
@@ -217,7 +220,7 @@ const UniswapSwap = observer(() => {
     }
 
     if (address === undefined) {
-        return <ConnectWalletButton connect={connect} />
+        return <ConnectWalletButton />
     }
 
     if (allowanceIsLoading) {
@@ -238,7 +241,6 @@ const UniswapSwap = observer(() => {
 });
 
 const ArcanumSwap = observer(() => {
-    const {connect} = useConnect();
     const { address } = useAccount();
     const { swap, inputQuantity, inputAsset, router, exchangeError } = useStore();
 
@@ -263,7 +265,7 @@ const ArcanumSwap = observer(() => {
 
     console.log("address", address, !address);
     if (!address) {
-        return <ConnectWalletButton connect={connect} />
+        return <ConnectWalletButton />
     }
 
     if (exchangeError) {
