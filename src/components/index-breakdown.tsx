@@ -111,6 +111,7 @@ export const IndexAssetsBreakdown = observer(() => {
                     <TableHead className="text-center">Current</TableHead>
                     <TableHead className="text-center">Price</TableHead>
                     <TableHead className="text-center">Quantity</TableHead>
+                    <TableHead className="text-center">Deviation</TableHead>
                     <TableHead className="text-center">Cashbacks</TableHead>
                 </TableRow>
             </TableHeader>
@@ -129,6 +130,9 @@ export const IndexAssetsBreakdown = observer(() => {
                         const idealShare = fetchedAsset.idealShare ?? new BigNumber(0);
                         const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);
 
+                        const Deviation = idealShare.minus(currentShare).multipliedBy(-100).dividedBy(idealShare);
+                        const color = Deviation.isLessThan(0) ? "text-red-200" : "text-green-200";
+
                         return (
                             <TableRow key={fetchedAsset.address}>
                                 <TableCell className="text-left">
@@ -146,6 +150,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                 }
                                 <TableCell>{price.toFixed(4)}$</TableCell>
                                 <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>
+                                <TableCell className={color}>{Deviation.toFixed(3)} %</TableCell>
                                 <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, fetchedAsset.decimals)}</TableCell>
                             </TableRow>
                         )
