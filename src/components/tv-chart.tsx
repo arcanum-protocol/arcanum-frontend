@@ -11,8 +11,9 @@ import { useStore } from '@/contexts/StoreContext';
 
 export const SUPPORTED_RESOLUTIONS = { 1: "1m", 3: "3m", 5: "5m", 15: "15m", 30: "30m", 60: "1h", 720: "12h", "1D": "1d" };
 
-const RED = "#fa3c58";
-const GREEN = "#0ecc83";
+const GREEN = "#4ADE80";
+const RED = "#F87171";
+
 export const DEFAULT_PERIOD = "12h";
 
 const chartStyleOverrides = ["candleStyle", "hollowCandleStyle", "haStyle"].reduce((acc, cv) => {
@@ -39,6 +40,7 @@ const chartOverrides = {
     "mainSeriesProperties.priceLineColor": "#292524",
     "scalesProperties.textColor": "#fff",
     "scalesProperties.lineColor": "#292524",
+    "lineStyle.color": "#8AA9FF",
     ...chartStyleOverrides,
 };
 
@@ -122,7 +124,7 @@ const TVChartContainer = observer(() => {
             autosize: true,
             //overrides: defaultChartProps.overrides,
             overrides: {
-                //"mainSeriesProperties.style": 2,
+                "mainSeriesProperties.style": 2,
                 ...defaultChartProps.overrides,
                 
             },

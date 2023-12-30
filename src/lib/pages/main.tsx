@@ -104,9 +104,9 @@ export const Head = observer(() => {
         }
 
         if (Number(change) > 0) {
-            return "text-green-600";
+            return "text-green-400";
         } else if (Number(change) < 0) {
-            return 'text-red-700';
+            return 'text-red-400';
         } else {
             return '0';
         }
