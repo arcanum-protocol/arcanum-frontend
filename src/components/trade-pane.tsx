@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from "./ui/skeleton";
 import { Button } from './ui/button';
 import { observer } from 'mobx-react-lite';
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { useAccount, useBalance } from "wagmi";
 import { useStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
@@ -63,6 +63,7 @@ interface TokenQuantityInputProps {
 export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) => {
     const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity } = useStore();
     const { address } = useAccount();
+    const [debounce, setDebounce] = useState<NodeJS.Timeout | undefined>();
 
     const quantity = hrQuantity(text);
 
@@ -120,7 +121,11 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         const value = e.target.value.replace(",", ".");
 
         setMainInput(text);
-        setQuantity(text, value);
+
+        debounce && clearTimeout(debounce);
+        setDebounce(setTimeout(() => {
+            setQuantity(text, value);
+        }, 500));
     };
 
     const overrideText = text === "Send" ? "You pay" : "You receive";
