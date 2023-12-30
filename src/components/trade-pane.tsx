@@ -85,15 +85,15 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             theAsset?.address
         );
 
-        if (isLoading) {
-            return (
-                <Skeleton className="rounded w-1 h-0.5" />
-            );
-        }
-
         if (balance === undefined) {
             return (
                 <div className="inline-flex font-mono text-xs text-gray-500">0</div>
+            );
+        }
+
+        if (isLoading) {
+            return (
+                <Skeleton className="rounded w-1 h-0.5" />
             );
         }
 

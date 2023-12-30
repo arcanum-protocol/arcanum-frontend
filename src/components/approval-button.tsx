@@ -70,6 +70,7 @@ function DefaultButton() {
 }
 
 function ConnectWalletButton() {
+    console.log("connect wallet button");
     return (
         <div className="w-full">
             <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
@@ -147,7 +148,7 @@ const BebopSwap = observer(() => {
     }
 
     if (address === undefined) {
-        <ConnectWalletButton />
+        return <ConnectWalletButton />
     }
 
     if (allowanceIsLoading) {
@@ -211,7 +212,7 @@ const UniswapSwap = observer(() => {
     }
 
     if (address === undefined) {
-        <ConnectWalletButton />
+        return <ConnectWalletButton />
     }
 
     if (allowanceIsLoading) {
@@ -254,6 +255,11 @@ const ArcanumSwap = observer(() => {
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
 
+    console.log("address", address, !address);
+    if (!address) {
+        return <ConnectWalletButton />
+    }
+
     if (exchangeError) {
         return <ErrorButton errorMessage={exchangeError} />
     }
@@ -266,10 +272,6 @@ const ArcanumSwap = observer(() => {
         refetch();
         if (write === undefined) return;
         write();
-    }
-
-    if (address === undefined) {
-        <ConnectWalletButton />
     }
 
     if (allowanceIsLoading) {

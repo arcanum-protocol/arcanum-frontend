@@ -151,7 +151,7 @@ export const Head = observer(() => {
             <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
                 <div className="flex flex-row text-left gap-2">
                     <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
-                    <p className='text-[#7E7E7E] p-0 text-2xl'>{multipoolId.toLocaleUpperCase() || ""}</p>
+                    <p className='text-[#fff] p-0 text-2xl'>{multipoolId.toLocaleUpperCase() || ""}</p>
                 </div>
                 <p className='text-xl'>${price}</p>
             </div>
