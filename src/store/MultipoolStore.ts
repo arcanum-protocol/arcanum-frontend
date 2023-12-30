@@ -406,8 +406,8 @@ class MultipoolStore {
     }
 
     async checkSwap(userAddress: Address) {
-        if (this.multipool.address === undefined) return;
-        if (userAddress === undefined) return;
+        if (this.multipool.address == undefined) this.clearSwapData();
+        if (userAddress == undefined) this.clearSwapData();
 
         if (this.swapType === ActionType.ARCANUM) {
             return await this.checkSwapMultipool(userAddress);
@@ -542,6 +542,8 @@ class MultipoolStore {
             runInAction(() => {
                 if (this.isExactInput) {
                     this.maximumSend = undefined;
+                    console.log("this.inputQuantity", this.inputQuantity?.toFixed());
+                    if (this.inputQuantity === undefined) return;
                     if (firstTokenAddress === this.inputAsset?.address) {
                         this.outputQuantity = new BigNumber(secondTokenQuantity.toString());
                         this.minimalReceive = secondTokenQuantity;
@@ -551,6 +553,8 @@ class MultipoolStore {
                     }
                 } else {
                     this.minimalReceive = undefined;
+                    console.log("this.outputQuantity", this.outputQuantity?.toFixed());
+                    if (this.outputQuantity === undefined) return;
                     if (firstTokenAddress === this.outputAsset?.address) {
                         this.inputQuantity = new BigNumber(secondTokenQuantity.toString());
                         this.maximumSend = secondTokenQuantity;
@@ -811,6 +815,7 @@ class MultipoolStore {
     setInputAsset(
         asset: MultipoolAsset | SolidAsset | ExternalAsset,
     ) {
+        this.clearSwapData();
         this.inputAsset = asset;
         this.outputQuantity = undefined;
     }
@@ -818,6 +823,7 @@ class MultipoolStore {
     setOutputAsset(
         asset: MultipoolAsset | SolidAsset | ExternalAsset,
     ) {
+        this.clearSwapData();
         this.outputAsset = asset;
         this.inputQuantity = undefined;
     }
@@ -887,8 +893,8 @@ class MultipoolStore {
     setAction(
         action: "mint" | "burn" | "swap",
     ) {
+        this.clearSwapData();
         runInAction(() => {
-            this.clearSwapData();
             if (action === "mint") {
                 this.inputAsset = this.assets[0];
                 this.outputAsset = this.getSolidAsset;
