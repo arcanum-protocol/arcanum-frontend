@@ -423,7 +423,6 @@ class MultipoolStore {
     private async checkSwapUniswap() {
         if (this.inputQuantity === undefined) return;
         const calls = await Create(this.currentShares.data, this.inputAsset!.address!, this.inputQuantity, this.multipool.address);
-        console.log("calls", calls);
         if (calls === undefined) return;
 
         try {
@@ -463,9 +462,9 @@ class MultipoolStore {
                 this.selectedAssets = selectedAssets;
                 this.fee = responce[0];
                 this.exchangeError = undefined;
+                this.minimalReceive = ArcanumETF;
             });
 
-            console.log("responce", responce);
             return responce;
         } catch (e) {
             this.updateErrorMessage(e);
@@ -698,8 +697,6 @@ class MultipoolStore {
         callsBeforeUniswap.unshift(approveCall);
         // add call to transfer tokens to router as first call
         callsBeforeUniswap.unshift({ callType: 0, data: callsTransfer });
-
-        console.log("callsBeforeUniswap", callsBeforeUniswap);
 
         try {
             const gas = await this.router.estimateGas.swap([

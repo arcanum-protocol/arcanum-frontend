@@ -195,13 +195,28 @@ const UniswapSwap = observer(() => {
         address: inputAsset?.address,
         abi: ERC20,
         functionName: "allowance",
-        args: [address!, "0xE592427A0AEce92De3Edee1F18E0157C05861564"],
+        args: [address!, "0x1d5E89Bc628f194470380a99C10615591C91F4bd"],
         watch: true,
-        enabled: inputAsset?.address !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+        enabled: inputAsset?.address !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        onSuccess: () => {
+            refetch();
+        }
     });
 
-    const { config } = usePrepareContractWrite(swapAction!);
+    const { config } = usePrepareContractWrite(swapAction);
     const { write } = useContractWrite(config);
+
+    if (address === undefined) {
+        return <ConnectWalletButton />
+    }
+
+    if (allowanceIsLoading) {
+        return <LoadingButton />
+    }
+
+    if (allowance! < fromBigNumber(inputQuantity!)) {
+        return <ApprovalButton approveTo={"0x1d5E89Bc628f194470380a99C10615591C91F4bd"} />
+    }
 
     if (exchangeError) {
         return <ErrorButton errorMessage={exchangeError} />
@@ -217,18 +232,6 @@ const UniswapSwap = observer(() => {
 
     async function CallSwap() {
         write!();
-    }
-
-    if (address === undefined) {
-        return <ConnectWalletButton />
-    }
-
-    if (allowanceIsLoading) {
-        return <LoadingButton />
-    }
-
-    if (allowance! < fromBigNumber(inputQuantity!)) {
-        return <ApprovalButton approveTo={"0xE592427A0AEce92De3Edee1F18E0157C05861564"} />
     }
 
     return (
