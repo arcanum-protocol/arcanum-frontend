@@ -912,6 +912,14 @@ class MultipoolStore {
     setMainInput(
         value: "in" | "out" | "Send" | "Receive",
     ) {
+        if (this.swapType === ActionType.UNISWAP) {
+            this.mainInput = "in";
+            return;
+        }
+        if (this.swapType === ActionType.BEBOP) {
+            this.mainInput = "in";
+            return;
+        }
         if (value === "Send") {
             this.mainInput = "in";
             return;
