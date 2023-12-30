@@ -53,6 +53,7 @@ function App() {
                         "--ck-connectbutton-hover-background": "rgb(12 10 9)",
                         "--ck-connectbutton-active-color": "#fff",
                         "--ck-connectbutton-active-background": "rgb(12 10 9)",
+                        "--ck-scrollbar-width": "100%"
                     }}>
                     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
                         <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">

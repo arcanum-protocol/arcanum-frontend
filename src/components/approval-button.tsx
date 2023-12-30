@@ -8,6 +8,8 @@ import { fromBigNumber } from "@/lib/utils";
 import { useEffect } from "react";
 import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
+import { ConnectArgs, InjectedConnector } from "@wagmi/core";
+import { chains } from "@/config";
 
 export interface InteractionWithApprovalButtonProps {
     approveMax?: boolean,
@@ -69,12 +71,12 @@ function DefaultButton() {
     )
 }
 
-function ConnectWalletButton() {
-    const { connect, connectors } = useConnect();
-    
+function ConnectWalletButton({ connect }: { connect: (args?: Partial<ConnectArgs> | undefined) => void}) {
+    const connector = new InjectedConnector({ chains: chains });
+
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => connect({ connector: connectors[0] })}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => connect({ connector: connector })}>
                 <p style={{ margin: "10px" }}>Connect Wallet</p>
             </Button>
         </div >
@@ -103,6 +105,7 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
 
 const BebopSwap = observer(() => {
     const { address } = useAccount();
+    const { connect } = useConnect();
     const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError } = useStore();
 
     const { data: swapData, refetch } = useQuery(["swap"], async () => {
@@ -149,7 +152,7 @@ const BebopSwap = observer(() => {
     }
 
     if (address === undefined) {
-        return <ConnectWalletButton />
+        return <ConnectWalletButton connect={connect} />
     }
 
     if (allowanceIsLoading) {
@@ -170,6 +173,7 @@ const BebopSwap = observer(() => {
 });
 
 const UniswapSwap = observer(() => {
+    const { connect } = useConnect();
     const { address } = useAccount();
     const { swap, inputQuantity, inputAsset, transactionCost, exchangeError } = useStore();
 
@@ -213,7 +217,7 @@ const UniswapSwap = observer(() => {
     }
 
     if (address === undefined) {
-        return <ConnectWalletButton />
+        return <ConnectWalletButton connect={connect} />
     }
 
     if (allowanceIsLoading) {
@@ -234,6 +238,7 @@ const UniswapSwap = observer(() => {
 });
 
 const ArcanumSwap = observer(() => {
+    const {connect} = useConnect();
     const { address } = useAccount();
     const { swap, inputQuantity, inputAsset, router, exchangeError } = useStore();
 
@@ -258,7 +263,7 @@ const ArcanumSwap = observer(() => {
 
     console.log("address", address, !address);
     if (!address) {
-        return <ConnectWalletButton />
+        return <ConnectWalletButton connect={connect} />
     }
 
     if (exchangeError) {

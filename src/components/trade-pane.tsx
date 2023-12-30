@@ -7,11 +7,10 @@ import { Skeleton } from "./ui/skeleton";
 import { Button } from './ui/button';
 import { observer } from 'mobx-react-lite';
 import { ChangeEvent } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { useStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
 import { getSignedPrice } from "@/api/arcanum";
-import { useBalance } from "@/hooks/balances";
 
 
 export const TradePaneInner = observer(() => {
@@ -80,10 +79,11 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     }
 
     function getBalance(): JSX.Element {
-        const { balance, isLoading } = useBalance(
-            address,
-            theAsset?.address
-        );
+        const { data: balance, isLoading } = useBalance({
+            address: address,
+            token: theAsset?.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : theAsset?.address,
+            watch: true,
+        });
 
         if (balance === undefined) {
             return (
