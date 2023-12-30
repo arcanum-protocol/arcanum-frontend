@@ -135,6 +135,8 @@ const ExchangeInfo = observer(() => {
         const absminimalReceiveFormatted = bgMinimalReceive.dividedBy(new BigNumber(10).pow(decimals)).abs();
         const absminimalReceiveFormattedDollar = absminimalReceiveFormatted.multipliedBy(price).multipliedBy(etherPrice);
 
+        const tooLong = absminimalReceiveFormattedDollar.isGreaterThan(new BigNumber(1000).multipliedBy(BigNumber(10).pow(18)));
+
         return (
             <div className="flex justify-between">
                 <TooltipProvider>
@@ -151,7 +153,13 @@ const ExchangeInfo = observer(() => {
                     </Tooltip>
                 </TooltipProvider>
                 <p className="m-0">
-                    {absminimalReceiveFormatted.toFixed(5, BigNumber.ROUND_DOWN)} ({absminimalReceiveFormattedDollar.toFixed(4)}$)
+                    {absminimalReceiveFormatted.toFixed(5, BigNumber.ROUND_UP)}
+                    {
+                        tooLong ?
+                            absminimalReceiveFormattedDollar.toFixed(4) + "$" :
+                            ""
+                    }
+
                 </p>
             </div>
         );
@@ -164,6 +172,9 @@ const ExchangeInfo = observer(() => {
 
         const absMaximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals)).abs();
         const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(price).multipliedBy(etherPrice);
+
+        console.log(absMaximumSendFormatted.toFixed());
+        const tooLong = absMaximumSendFormatted.isGreaterThan(new BigNumber(1000).multipliedBy(BigNumber(10).pow(18)));
 
         return (
             <div className="flex justify-between">
@@ -181,7 +192,12 @@ const ExchangeInfo = observer(() => {
                     </Tooltip>
                 </TooltipProvider>
                 <p className="m-0">
-                    {absMaximumSendFormatted.toFixed(5, BigNumber.ROUND_UP)} ({absMaximumSendFormattedDollar.toFixed(4)}$)
+                    {absMaximumSendFormatted.toFixed(5, BigNumber.ROUND_UP)}
+                    {
+                        tooLong ?
+                            absMaximumSendFormattedDollar.toFixed(4) + "$" :
+                            ""
+                    }
                 </p>
             </div>
         );
