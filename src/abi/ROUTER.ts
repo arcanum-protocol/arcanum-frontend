@@ -54,9 +54,9 @@ export default [
                 "internalType": "uint128"
               },
               {
-                "name": "signature",
-                "type": "bytes",
-                "internalType": "bytes"
+                "name": "signatures",
+                "type": "bytes[]",
+                "internalType": "bytes[]"
               }
             ]
           },
@@ -233,88 +233,6 @@ export default [
   {
     "type": "error",
     "name": "InsufficientEthBalanceCallingSwap",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "AssetsNotSortedOrNotUnique",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "DeviationExceedsLimit",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "FeeExceeded",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ForcePushPriceExpired",
-    "inputs": [
-      {
-        "name": "blockTimestamp",
-        "type": "uint256",
-        "internalType": "uint256"
-      },
-      {
-        "name": "priceTimestamp",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "InsufficientBalance",
-    "inputs": [
-      {
-        "name": "asset",
-        "type": "address",
-        "internalType": "address"
-      }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "InvalidForcePushAuthority",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "InvalidTargetShareAuthority",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "IsPaused",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NoPriceOriginSet",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NoPriceOriginSet",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NotEnoughQuantityToBurn",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "SleepageExceeded",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ZeroAmountSupplied",
     "inputs": []
   }
 ] as const;

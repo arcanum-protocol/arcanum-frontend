@@ -17,7 +17,7 @@ async function getForcePushPrice(multipoolId: string): Promise<{
     contractAddress: Address,
     timestamp: bigint,
     sharePrice: bigint,
-    signature: Address
+    signatures: Address[]
 }> {
     const responce = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${multipoolId}`);
     const data = await responce.data;
@@ -27,7 +27,7 @@ async function getForcePushPrice(multipoolId: string): Promise<{
             contractAddress: "0x0000000000000000000000000000000000000000",
             timestamp: BigInt(0),
             sharePrice: BigInt(0),
-            signature: "0x0"
+            signatures: ["0x0"]
         }
     }
 
@@ -35,7 +35,7 @@ async function getForcePushPrice(multipoolId: string): Promise<{
         contractAddress: data.contractAddress,
         timestamp: BigInt(data.timestamp),
         sharePrice: BigInt(data.sharePrice),
-        signature: data.signature
+        signatures: [data.signature]
     }
 }
 

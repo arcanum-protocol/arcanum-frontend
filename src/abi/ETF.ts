@@ -1,5 +1,10 @@
 export default [
   {
+    "type": "constructor",
+    "inputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
     "type": "function",
     "name": "DOMAIN_SEPARATOR",
     "inputs": [],
@@ -104,9 +109,9 @@ export default [
             "internalType": "uint128"
           },
           {
-            "name": "signature",
-            "type": "bytes",
-            "internalType": "bytes"
+            "name": "signatures",
+            "type": "bytes[]",
+            "internalType": "bytes[]"
           }
         ]
       },
@@ -391,6 +396,11 @@ export default [
         "name": "_initialSharePrice",
         "type": "uint128",
         "internalType": "uint128"
+      },
+      {
+        "name": "_signatureThershold",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "stateMutability": "view"
@@ -683,12 +693,17 @@ export default [
   },
   {
     "type": "function",
-    "name": "setSharePriceValidityDuration",
+    "name": "setSharePriceParams",
     "inputs": [
       {
         "name": "newValidityDuration",
         "type": "uint128",
         "internalType": "uint128"
+      },
+      {
+        "name": "newSignatureThershold",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
@@ -719,9 +734,9 @@ export default [
             "internalType": "uint128"
           },
           {
-            "name": "signature",
-            "type": "bytes",
-            "internalType": "bytes"
+            "name": "signatures",
+            "type": "bytes[]",
+            "internalType": "bytes[]"
           }
         ]
       },
@@ -1371,6 +1386,11 @@ export default [
   },
   {
     "type": "error",
+    "name": "InvalidForcePushSignatureNumber",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "InvalidTargetShareAuthority",
     "inputs": []
   },
@@ -1386,17 +1406,22 @@ export default [
   },
   {
     "type": "error",
-    "name": "NoPriceOriginSet",
-    "inputs": []
-  },
-  {
-    "type": "error",
     "name": "NotEnoughQuantityToBurn",
     "inputs": []
   },
   {
     "type": "error",
+    "name": "SignaturesNotSortedOrNotUnique",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "SleepageExceeded",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "UniV3PriceFetchingReverted",
     "inputs": []
   },
   {
