@@ -15,7 +15,7 @@ export const ConnectWallet = () => {
         <ConnectKitButton.Custom>
             {({ isConnected, show, address }) => {
                 return (
-                    <button onClick={show} className="w-full border h-8 bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent">
+                    <button onClick={show} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
                         {isConnected ? address : "Connect Wallet"}
                     </button>
                 );
@@ -47,7 +47,7 @@ export const InteractionWithApprovalButton = observer(() => {
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-red-500 hover:bg-transparent" disabled={true}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-red-300 hover:border-red-500 hover:bg-transparent" disabled={true}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >
@@ -57,7 +57,7 @@ export const InteractionWithApprovalButton = observer(() => {
 const ErrorButton = observer(({ errorMessage }: { errorMessage: string }) => {
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-red-500 hover:bg-transparent" disabled={true}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-red-300 hover:border-red-500 hover:bg-transparent" disabled={true}>
                 <p style={{ margin: "10px" }}>{errorMessage}</p>
             </Button>
         </div >
@@ -67,7 +67,7 @@ const ErrorButton = observer(({ errorMessage }: { errorMessage: string }) => {
 function LoadingButton() {
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-green-300 hover:border-green-500 hover:bg-transparent" disabled={true}>
                 <p style={{ margin: "10px" }}>Loading...</p>
             </Button>
         </div >
@@ -77,7 +77,7 @@ function LoadingButton() {
 function DefaultButton() {
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={true}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-green-300 hover:border-green-500 hover:bg-transparent" disabled={true}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >
@@ -101,7 +101,7 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={approve}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-green-300 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={approve}>
                 <p style={{ margin: "10px" }}>Approve</p>
             </Button>
         </div >
@@ -169,7 +169,7 @@ const BebopSwap = observer(() => {
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={CallSwap}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-green-300 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={CallSwap}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >
@@ -236,7 +236,7 @@ const UniswapSwap = observer(() => {
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={CallSwap}>
+            <Button className="w-full border bg-transparent rounded-md border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={CallSwap}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >
@@ -299,7 +299,7 @@ const ArcanumSwap = observer(() => {
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={CallSwap}>
+            <Button className="w-full border bg-transparent rounded-md border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={CallSwap}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >
