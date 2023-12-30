@@ -51,7 +51,7 @@ export const IndexAssetsBreakdown = observer(() => {
         setExternalAssets(externalAssets);
     }, [externalAssets]);
 
-    const {data: _etherPrice} = useQuery(["etherPrice"], async () => {
+    const { data: _etherPrice } = useQuery(["etherPrice"], async () => {
         const etherPrice = await getEtherPrice();
 
         setEtherPrice(etherPrice);
@@ -90,6 +90,18 @@ export const IndexAssetsBreakdown = observer(() => {
         return toHumanReadable(value.toString(), 2);
     }
 
+    function tohumanReadableCashback(number: BigNumber, decimals = 18) {
+        const _decimals = new BigNumber(10).pow(decimals);
+
+        if (number == undefined) {
+            return "0";
+        }
+        const _number = new BigNumber(number.toString());
+
+        const value = _number.dividedBy(_decimals).multipliedBy(etherPrice);
+        return value.toFixed(2) + "$";
+    }
+
     return (
         <Table className="hidden sm:table bg-[#0c0a09]">
             <TableHeader>
@@ -99,6 +111,7 @@ export const IndexAssetsBreakdown = observer(() => {
                     <TableHead className="text-center">Current</TableHead>
                     <TableHead className="text-center">Price</TableHead>
                     <TableHead className="text-center">Quantity</TableHead>
+                    <TableHead className="text-center">Cashbacks</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -116,25 +129,27 @@ export const IndexAssetsBreakdown = observer(() => {
                         const idealShare = fetchedAsset.idealShare ?? new BigNumber(0);
                         const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);
 
-                        return (<TableRow key={fetchedAsset.address}>
-                            <TableCell className="text-left">
-                                <div className="flex flex-row items-center gap-2">
-                                    <Avatar className="w-5 h-5">
-                                        <AvatarImage src={fetchedAsset.logo == null ? undefined : fetchedAsset.logo} />
-                                        <AvatarFallback>{fetchedAsset.symbol}</AvatarFallback>
-                                    </Avatar>
-                                    {fetchedAsset.symbol}
-                                </div>
-                            </TableCell>
-                            <TableCell>{idealShare.toFixed(4)}%</TableCell>
-                            {
-                                isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
-                            }
-                            <TableCell>{price.toFixed(4)}$</TableCell>
-                            <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>
-                        </TableRow>)
-                    }
-                    )
+                        return (
+                            <TableRow key={fetchedAsset.address}>
+                                <TableCell className="text-left">
+                                    <div className="flex flex-row items-center gap-2">
+                                        <Avatar className="w-5 h-5">
+                                            <AvatarImage src={fetchedAsset.logo == null ? undefined : fetchedAsset.logo} />
+                                            <AvatarFallback>{fetchedAsset.symbol}</AvatarFallback>
+                                        </Avatar>
+                                        {fetchedAsset.symbol}
+                                    </div>
+                                </TableCell>
+                                <TableCell>{idealShare.toFixed(4)}%</TableCell>
+                                {
+                                    isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
+                                }
+                                <TableCell>{price.toFixed(4)}$</TableCell>
+                                <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>
+                                <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, fetchedAsset.decimals)}</TableCell>
+                            </TableRow>
+                        )
+                    })
                 }
             </TableBody>
         </Table>

@@ -243,8 +243,6 @@ const ArcanumSwap = observer(() => {
         watch: true,
     });
 
-    const isNeedApproval = allowance! < fromBigNumber(inputQuantity!);
-
     const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery(["swap"], async () => {
         const res = await swap(address!);
         return res;
