@@ -131,7 +131,7 @@ export const IndexAssetsBreakdown = observer(() => {
                         const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);
 
                         const Deviation = idealShare.minus(currentShare).multipliedBy(-100).dividedBy(idealShare);
-                        const color = Deviation.isLessThan(0) ? "text-red-200" : "text-green-200";
+                        const color = Deviation.isLessThan(0) ? "text-red-400" : "text-green-400";
 
                         return (
                             <TableRow key={fetchedAsset.address}>
