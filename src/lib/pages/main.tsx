@@ -58,9 +58,9 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
             <div className={`${className} p-4 bg-[#0c0a09] rounded-md border border-[#292524]`}>
                 <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTabWrapper(value)}>
                     <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="mint" className='text-base font-bold'>Mint</TabsTrigger>
-                        <TabsTrigger value="burn" className='text-base font-bold'>Burn</TabsTrigger>
-                        <TabsTrigger value="swap" className='text-base font-bold'>Swap</TabsTrigger>
+                        <TabsTrigger value="mint" className='text-lg font-bold'>Mint</TabsTrigger>
+                        <TabsTrigger value="burn" className='text-lg font-bold'>Burn</TabsTrigger>
+                        <TabsTrigger value="swap" className='text-lg font-bold'>Swap</TabsTrigger>
 
                         <TabsTrigger value="set-token-in" className="hidden" />
                         <TabsTrigger value="set-token-out" className="hidden" />
