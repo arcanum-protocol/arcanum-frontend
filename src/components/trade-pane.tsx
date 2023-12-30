@@ -125,7 +125,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         debounce && clearTimeout(debounce);
         setDebounce(setTimeout(() => {
             setQuantity(text, value);
-        }, 500));
+        }, 1000));
     };
 
     const overrideText = text === "Send" ? "You pay" : "You receive";
