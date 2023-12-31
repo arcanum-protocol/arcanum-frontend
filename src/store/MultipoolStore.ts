@@ -89,6 +89,8 @@ class MultipoolStore {
         amountOut: BigNumber;
     }[] = [];
 
+    swapIsLoading: boolean = false;
+
     constructor(mp_id: string) {
         this.multipoolId = mp_id;
 
@@ -603,7 +605,7 @@ class MultipoolStore {
             } catch (e) {
                 this.updateErrorMessage(e, true);
             }
-            
+
             return res;
         } catch (e) {
             this.updateErrorMessage(e, true);
@@ -647,14 +649,30 @@ class MultipoolStore {
 
     async swap(userAddress: Address) {
         if (this.inputQuantity === undefined && this.outputQuantity === undefined) this.clearSwapData();
+        runInAction(() => {
+            this.swapIsLoading = true;
+        });
+
         if (this.swapType === ActionType.ARCANUM) {
-            return await this.swapMultipool(userAddress);
+            const data = await this.swapMultipool(userAddress);
+            runInAction(() => {
+                this.swapIsLoading = false;
+            });
+            return data;
         }
         if (this.swapType === ActionType.UNISWAP) {
-            return await this.swapUniswap(userAddress);
+            const data = await this.swapUniswap(userAddress);
+            runInAction(() => {
+                this.swapIsLoading = false;
+            });
+            return data;
         }
         if (this.swapType === ActionType.BEBOP) {
-            return await this.checkSwapBebop(userAddress);
+            const data = await this.checkSwapBebop(userAddress);
+            runInAction(() => {
+                this.swapIsLoading = false;
+            });
+            return data;
         }
     }
 

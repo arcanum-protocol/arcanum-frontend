@@ -61,7 +61,7 @@ interface TokenQuantityInputProps {
 }
 
 export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) => {
-    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity } = useStore();
+    const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity, swapIsLoading } = useStore();
     const { address } = useAccount();
     const [debounce, setDebounce] = useState<NodeJS.Timeout | undefined>();
 
@@ -131,9 +131,9 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const overrideText = text === "Send" ? "You pay" : "You receive";
 
     return (
-        <div className="flex flex-col justify-between items-start h-full p-3 rounded-md border bg-[#0c0a09]">
+        <div className="flex flex-col justify-between items-start h-full p-3 rounded-md border bg-[#0c0a09] w-full">
             <p className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light">{overrideText} </p>
-            <div className="flex flex-row flex-start items-start justify-between w-full">
+            <div className="flex flex-row flex-start items-start justify-between w-full gap-1">
                 <div className={'flex flex-row items-center justify-between w-full'}>
                     {
                         isThisMainInput ?
@@ -141,11 +141,13 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                                 placeholder="0"
                                 onChange={handleInputChange}
                             /> :
-                            <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
-                                placeholder="0"
-                                value={quantity}
-                                onFocus={() => setMainInput(text === "Send" ? "in" : "out")}
-                            />
+                            swapIsLoading ?
+                                <Skeleton className="rounded w-full h-10" /> :
+                                <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
+                                    placeholder="0"
+                                    value={quantity}
+                                    onFocus={() => setMainInput(text === "Send" ? "in" : "out")}
+                                />
                     }
                 </div>
                 <Button className="grow max-w-min rounded py-[6px] pr-[5px] pl-[8px] justify-between bg-[#0c0a09] border border-[#292524]" variant="secondary" onClick={() => setSelectedTabWrapper(text === "Send" ? "set-token-in" : "set-token-out")} disabled={isDisabled}>

@@ -110,7 +110,7 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
 
 const BebopSwap = observer(() => {
     const { address } = useAccount();
-    const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError } = useStore();
+    const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError, swapIsLoading } = useStore();
 
     const { data: swapData, refetch } = useQuery(["swap"], async () => {
         if (address === undefined) return;
@@ -146,7 +146,7 @@ const BebopSwap = observer(() => {
         return <DefaultButton />
     }
 
-    if (transactionCost == undefined) {
+    if (transactionCost == undefined || swapIsLoading) {
         return <LoadingButton />
     }
 
@@ -178,7 +178,7 @@ const BebopSwap = observer(() => {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, transactionCost, exchangeError, updateErrorMessage } = useStore();
+    const { swap, inputQuantity, inputAsset, transactionCost, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
 
     const inputQuantityBigInt = BigInt(inputQuantity?.toFixed() || "0");
 
@@ -212,8 +212,6 @@ const UniswapSwap = observer(() => {
         enabled: address !== undefined && inputQuantity !== undefined && !inputQuantity.isZero()
     });
 
-    console.log("isLoading", isLoading);
-
     useEffect(() => {
         refetch();
     }, [inputQuantity]);
@@ -229,7 +227,7 @@ const UniswapSwap = observer(() => {
         return <ErrorButton errorMessage={exchangeError.toString()} />
     }
 
-    if (allowanceIsLoading || isLoading) {
+    if (allowanceIsLoading || isLoading || swapIsLoading) {
         return <LoadingButton />
     }
 
@@ -260,7 +258,7 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage } = useStore();
+    const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
 
     const { data: balance, isLoading: balanceIsLoading } = useBalance({
         address: address,
@@ -311,7 +309,7 @@ const ArcanumSwap = observer(() => {
         return <ErrorButton errorMessage={exchangeError} />
     }
 
-    if (swapActionIsLoading || balanceIsLoading || allowanceIsLoading) {
+    if (swapActionIsLoading || balanceIsLoading || allowanceIsLoading || swapIsLoading) {
         return <LoadingButton />
     }
 
