@@ -259,6 +259,7 @@ export const SlippageSelector = observer(() => {
                             <button
                                 key={index}
                                 onClick={() => setSlippage(slippagePreseted)}
+                                disabled={disabled}
                                 className={
                                     `flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-sm font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
                                         hover:bg-[#2D2D2D] focus:bg-[##0c0a09] active:bg-[#0c0a09]`
@@ -272,6 +273,7 @@ export const SlippageSelector = observer(() => {
                             hover:bg-[#2D2D2D] focus:bg-[#0c0a09] active:bg-[#0c0a09] outline-none`}
                         value={slippagePresets.indexOf(slippage) ? slippage : undefined}
                         placeholder="Custom"
+                        disabled={disabled}
                         onChange={e => {
                             try {
                                 if (e.target.value == "") {
