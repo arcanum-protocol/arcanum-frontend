@@ -245,7 +245,7 @@ export const SlippageSelector = observer(() => {
                                     Slippage tolerance
                                     <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                                 </div>
-                                <p className="m-0">{slippage}%</p>
+                                <p className="m-0">{disabled ? "-" : slippage}%</p>
                             </div>
                         </TooltipTrigger>
                         <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
@@ -262,7 +262,7 @@ export const SlippageSelector = observer(() => {
                                 disabled={disabled}
                                 className={
                                     `flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-sm font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
-                                        hover:bg-[#2D2D2D] focus:bg-[##0c0a09] active:bg-[#0c0a09]`
+                                        hover:bg-[#2D2D2D] focus:bg-[##0c0a09] active:bg-[#0c0a09] ${disabled? "opacity-50" : ""}`
                                 }>
                                 {slippagePreseted + '%'}
                             </button>
@@ -270,7 +270,7 @@ export const SlippageSelector = observer(() => {
                     })}
                     <input
                         className={`flex-initial w-1/4 p-0 h-6 text-center cursor-pointer rounded ease-out delay-100 transition-all text-sm font-semibold text-[#FFF] bg-[#0c0a09] border border-[#292524]
-                            hover:bg-[#2D2D2D] focus:bg-[#0c0a09] active:bg-[#0c0a09] outline-none`}
+                            hover:bg-[#2D2D2D] focus:bg-[#0c0a09] active:bg-[#0c0a09] outline-none ${disabled? "opacity-50" : ""}`}
                         value={slippagePresets.indexOf(slippage) ? slippage : undefined}
                         placeholder="Custom"
                         disabled={disabled}

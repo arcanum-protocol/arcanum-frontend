@@ -47,7 +47,7 @@ export const InteractionWithApprovalButton = observer(() => {
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-red-300 hover:border-red-500 hover:bg-transparent" disabled={true}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-white hover:border-red-500 hover:bg-transparent" disabled={true}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >
@@ -67,7 +67,7 @@ const ErrorButton = observer(({ errorMessage }: { errorMessage: string }) => {
 function LoadingButton() {
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-green-300 hover:border-green-500 hover:bg-transparent" disabled={true}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-white hover:border-green-500 hover:bg-transparent" disabled={true}>
                 <p style={{ margin: "10px" }}>Loading...</p>
             </Button>
         </div >
@@ -77,7 +77,7 @@ function LoadingButton() {
 function DefaultButton() {
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-green-300 hover:border-green-500 hover:bg-transparent" disabled={true}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-white hover:border-green-500 hover:bg-transparent" disabled={true}>
                 <p style={{ margin: "10px" }}>Swap</p>
             </Button>
         </div >

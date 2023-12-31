@@ -130,7 +130,7 @@ export const IndexAssetsBreakdown = observer(() => {
                         const idealShare = fetchedAsset.idealShare ?? new BigNumber(0);
                         const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);
 
-                        const Deviation = idealShare.minus(currentShare).multipliedBy(-100).dividedBy(idealShare);
+                        const Deviation = idealShare.minus(currentShare);
                         const color = Deviation.isLessThan(0) ? "text-red-400" : "text-green-400";
 
                         return (
