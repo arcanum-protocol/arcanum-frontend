@@ -378,13 +378,12 @@ class MultipoolStore {
             this.minimalReceive = undefined;
             this.fee = undefined;
             this.transactionCost = undefined;
-            this.exchangeError = undefined;
         });
     }
 
-    private updateErrorMessage(e: any) {
+    updateErrorMessage(e: any, parse?: boolean) {
         runInAction(() => {
-            this.exchangeError = parseError(e);
+            this.exchangeError = parseError(e, parse);
         });
     }
 
@@ -461,13 +460,12 @@ class MultipoolStore {
                 this.calls = calls.calldata;
                 this.selectedAssets = selectedAssets;
                 this.fee = responce[0];
-                this.exchangeError = undefined;
                 this.minimalReceive = ArcanumETF;
             });
 
             return responce;
         } catch (e) {
-            this.updateErrorMessage(e);
+            this.updateErrorMessage(e, true);
         }
     }
 
@@ -505,7 +503,7 @@ class MultipoolStore {
                 toSign: JAMRequest.toSign,
             };
         } catch (e) {
-            this.updateErrorMessage(e);
+            this.updateErrorMessage(e, true);
         }
     }
 
@@ -542,7 +540,6 @@ class MultipoolStore {
             runInAction(() => {
                 if (this.isExactInput) {
                     this.maximumSend = undefined;
-                    console.log("this.inputQuantity", this.inputQuantity?.toFixed());
                     if (this.inputQuantity === undefined) return;
                     if (firstTokenAddress === this.inputAsset?.address) {
                         this.outputQuantity = new BigNumber(secondTokenQuantity.toString());
@@ -553,7 +550,6 @@ class MultipoolStore {
                     }
                 } else {
                     this.minimalReceive = undefined;
-                    console.log("this.outputQuantity", this.outputQuantity?.toFixed());
                     if (this.outputQuantity === undefined) return;
                     if (firstTokenAddress === this.outputAsset?.address) {
                         this.inputQuantity = new BigNumber(secondTokenQuantity.toString());
@@ -567,6 +563,7 @@ class MultipoolStore {
                 this.exchangeError = undefined;
             });
 
+
             const ethFee: bigint = res[0] < 0 ? 0n : res[0];
 
             const newSelectedAssets = this.createSelectedAssets(this.slippage);
@@ -577,35 +574,39 @@ class MultipoolStore {
 
             const newCalls = [{ callType: 0, data: newArgs }];
 
-            const gas = await this.router.estimateGas.swap([
-                this.multipool.address,
-                {
-                    forcePushArgs: fpSharePricePlaceholder,
-                    assetsToSwap: newSelectedAssets,
-                    isExactInput: this.isExactInput,
-                    receiverAddress: userAddress,
-                    refundEthToReceiver: false,
-                    refundAddress: userAddress,
-                    ethValue: ethFee
-                },
-                newCalls,
-                []
-            ],
-                {
-                    account: userAddress,
-                    value: ethFee
-                }
-            );
+            try {
+                const gas = await this.router.estimateGas.swap([
+                    this.multipool.address,
+                    {
+                        forcePushArgs: fpSharePricePlaceholder,
+                        assetsToSwap: newSelectedAssets,
+                        isExactInput: this.isExactInput,
+                        receiverAddress: userAddress,
+                        refundEthToReceiver: false,
+                        refundAddress: userAddress,
+                        ethValue: ethFee
+                    },
+                    newCalls,
+                    []
+                ],
+                    {
+                        account: userAddress,
+                        value: ethFee
+                    }
+                );
 
-            const gasPrice = await this.publicClient?.getGasPrice();
+                const gasPrice = await this.publicClient?.getGasPrice();
 
-            runInAction(() => {
-                this.transactionCost = gas * gasPrice;
-            });
-
+                runInAction(() => {
+                    this.transactionCost = gas * gasPrice;
+                });
+            } catch (e) {
+                this.updateErrorMessage(e, true);
+            }
+            
             return res;
         } catch (e) {
-            this.updateErrorMessage(e);
+            this.updateErrorMessage(e, true);
         }
     }
 
@@ -723,8 +724,6 @@ class MultipoolStore {
                 }
             );
 
-            console.log("gas", gas);
-
             const gasPrice = await this.publicClient?.getGasPrice();
             this.updateGas(gas, gasPrice!);
 
@@ -751,13 +750,11 @@ class MultipoolStore {
 
             return request;
         } catch (e: any) {
-            this.updateErrorMessage(e);
-            return undefined;
+            return 1;
         }
     }
 
     updateGas(gas: bigint, gasPrice: bigint) {
-        console.log(gas, gasPrice);
         runInAction(() => {
             this.transactionCost = gas * gasPrice;
         });
@@ -807,8 +804,8 @@ class MultipoolStore {
 
             return request;
         } catch (e: any) {
-            this.updateErrorMessage(e);
-            return undefined;
+            this.updateErrorMessage(e, true);
+            return 1;
         }
     }
 
@@ -816,6 +813,7 @@ class MultipoolStore {
         asset: MultipoolAsset | SolidAsset | ExternalAsset,
     ) {
         this.clearSwapData();
+        this.exchangeError = undefined;
         this.inputAsset = asset;
         this.outputQuantity = undefined;
     }
@@ -824,6 +822,7 @@ class MultipoolStore {
         asset: MultipoolAsset | SolidAsset | ExternalAsset,
     ) {
         this.clearSwapData();
+        this.exchangeError = undefined;
         this.outputAsset = asset;
         this.inputQuantity = undefined;
     }
@@ -895,6 +894,7 @@ class MultipoolStore {
     ) {
         this.clearSwapData();
         runInAction(() => {
+            this.exchangeError = undefined;
             if (action === "mint") {
                 this.inputAsset = this.assets[0];
                 this.outputAsset = this.getSolidAsset;

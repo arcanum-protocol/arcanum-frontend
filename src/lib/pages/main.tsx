@@ -3,7 +3,6 @@ import { TradePaneInner } from '../../components/trade-pane';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getSVG } from "@/lib/svg-adapter";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { observer } from "mobx-react-lite";
 import { MultipoolStore } from "@/store/MultipoolStore";
 import TVChartContainer from "@/components/tv-chart";

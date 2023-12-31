@@ -4,6 +4,7 @@ import { Separator } from "@radix-ui/react-separator";
 import { useStore } from "@/contexts/StoreContext";
 import { observer } from "mobx-react-lite";
 import BigNumber from "bignumber.js";
+import { ActionType } from "@/store/MultipoolStore";
 
 
 export function TransactionParamsSelector() {
@@ -226,7 +227,9 @@ const ExchangeInfo = observer(() => {
 });
 
 export const SlippageSelector = observer(() => {
-    const { slippage, setSlippage } = useStore();
+    const { slippage, setSlippage, swapType } = useStore();
+
+    const disabled = swapType == ActionType.UNISWAP || swapType == ActionType.BEBOP;
 
     // 0,1,2,3 - presets, 4 - custom
     const slippagePresets = [0.5, 1, 3];
