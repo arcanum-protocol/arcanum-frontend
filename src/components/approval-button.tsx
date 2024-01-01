@@ -290,7 +290,9 @@ const ArcanumSwap = observer(() => {
         enabled: address !== undefined && inputQuantity !== undefined && !inputQuantity.isZero()
     });
 
-    console.log("exchangeError", exchangeError);
+    useEffect(() => {
+        refetch();
+    }, [inputQuantity]);
 
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
