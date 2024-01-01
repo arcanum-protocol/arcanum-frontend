@@ -156,7 +156,11 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                         <AvatarFallback>{theAsset?.symbol}</AvatarFallback>
                     </Avatar>
                     <p className="px-0.5 text-white opacity-100">{theAsset?.symbol}</p>
-                    <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                    {
+                        isDisabled ?
+                            <></> :
+                            <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                    }
                 </Button>
             </div>
             <div className="flex flex-row justify-between w-full mt-[4px]">
