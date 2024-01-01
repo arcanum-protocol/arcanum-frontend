@@ -241,7 +241,7 @@ export const SlippageSelector = observer(() => {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <div className="flex flex-row items-center gap-1 text-sm w-full justify-between">
-                                <div className="flex flex-row gap-1 items-center">
+                                <div className={`flex flex-row gap-1 items-center ${disabled ? "opacity-50": "opacity-100"}`}>
                                     Slippage tolerance
                                     <QuestionMarkCircledIcon height={12} width={12} opacity={0.5} />
                                 </div>
