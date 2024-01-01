@@ -383,8 +383,13 @@ class MultipoolStore {
         });
     }
 
-    updateErrorMessage(e: any, parse?: boolean) {
+    updateErrorMessage(e: any | undefined, parse?: boolean) {
         runInAction(() => {
+            console.log("e", e);
+            if (e === undefined) {
+                this.exchangeError = undefined;
+                return;
+            }
             this.exchangeError = parseError(e, parse);
         });
     }
@@ -648,10 +653,15 @@ class MultipoolStore {
     }
 
     async swap(userAddress: Address) {
-        if (this.inputQuantity === undefined && this.outputQuantity === undefined) this.clearSwapData();
         runInAction(() => {
             this.swapIsLoading = true;
         });
+        if (this.inputQuantity === undefined && this.outputQuantity === undefined) {
+            this.clearSwapData();
+            runInAction(() => {
+                this.swapIsLoading = false;
+            });
+        }
 
         if (this.swapType === ActionType.ARCANUM) {
             const data = await this.swapMultipool(userAddress);
@@ -765,9 +775,11 @@ class MultipoolStore {
                 }
             );
 
-
+            console.log("updateErrorMessage", undefined);
+            this.updateErrorMessage(undefined, true);
             return request;
         } catch (e: any) {
+            console.log("e uniswap", e);
             return 1;
         }
     }

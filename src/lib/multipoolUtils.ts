@@ -40,6 +40,9 @@ async function getForcePushPrice(multipoolId: string): Promise<{
 }
 
 function parseError(e: any, parse?: boolean): string | undefined {
+    if (!e) {
+        return undefined;
+    }
     if (!parse) {
         return (e as string).toString();
     }

@@ -200,12 +200,14 @@ const UniswapSwap = observer(() => {
         if (balance && inputQuantity) {
             if (balance.value < inputQuantityBigInt) {
                 updateErrorMessage("Insufficient Balance", false);
+            } else {
+                updateErrorMessage(undefined, false);
             }
         }
 
         if (address === undefined) return 1;
         if (inputQuantity === undefined) return 1;
-
+        
         return await swap(address);
     }, {
         refetchInterval: 10000,
@@ -227,6 +229,7 @@ const UniswapSwap = observer(() => {
         return <ErrorButton errorMessage={exchangeError.toString()} />
     }
 
+    console.log(isLoading, allowanceIsLoading, swapIsLoading);
     if (allowanceIsLoading || isLoading || swapIsLoading) {
         return <LoadingButton />
     }
@@ -237,10 +240,6 @@ const UniswapSwap = observer(() => {
 
     if (inputQuantity === undefined || inputAsset === undefined) {
         return <DefaultButton />
-    }
-
-    if (transactionCost == undefined) {
-        return <LoadingButton />
     }
 
     async function CallSwap() {
