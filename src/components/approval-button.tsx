@@ -178,7 +178,7 @@ const BebopSwap = observer(() => {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, transactionCost, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
+    const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
 
     const inputQuantityBigInt = BigInt(inputQuantity?.toFixed() || "0");
 
@@ -192,7 +192,7 @@ const UniswapSwap = observer(() => {
         address: inputAsset?.address,
         abi: ERC20,
         functionName: "allowance",
-        args: [address!, "0x1d5E89Bc628f194470380a99C10615591C91F4bd"],
+        args: [address!, router.address],
         watch: true,
     });
 
