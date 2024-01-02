@@ -138,7 +138,7 @@ const BebopSwap = observer(() => {
 
     const { signTypedDataAsync } = useSignTypedData({ domain, types, primaryType: 'JamOrder', message: message });
 
-    if (exchangeError) {
+    if (exchangeError && !swapIsLoading) {
         return <ErrorButton errorMessage={exchangeError} />
     }
 
@@ -225,11 +225,10 @@ const UniswapSwap = observer(() => {
         return <ConnectWalletButton />
     }
 
-    if (exchangeError) {
+    if (exchangeError && !swapIsLoading) {
         return <ErrorButton errorMessage={exchangeError.toString()} />
     }
 
-    console.log(isLoading, allowanceIsLoading, swapIsLoading);
     if (allowanceIsLoading || isLoading || swapIsLoading) {
         return <LoadingButton />
     }
@@ -306,7 +305,7 @@ const ArcanumSwap = observer(() => {
         return <ConnectWalletButton />
     }
 
-    if (exchangeError) {
+    if (exchangeError && !swapIsLoading) {
         return <ErrorButton errorMessage={exchangeError} />
     }
 
