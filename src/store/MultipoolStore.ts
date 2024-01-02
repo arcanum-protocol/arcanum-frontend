@@ -391,6 +391,7 @@ class MultipoolStore {
                 return;
             }
             this.exchangeError = parseError(e, parse);
+            this.swapIsLoading = false;
         });
     }
 
