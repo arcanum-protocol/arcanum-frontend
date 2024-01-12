@@ -113,7 +113,6 @@ const BebopSwap = observer(() => {
     const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError, swapIsLoading } = useStore();
 
     const { data: swapData, refetch } = useQuery(["swap"], async () => {
-        if (address === undefined) return;
         return await checkSwapBebop(address);
     }, {
         refetchInterval: 3000,
@@ -132,9 +131,9 @@ const BebopSwap = observer(() => {
         enabled: inputAsset?.address !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     });
 
-    const domain = swapData!.PARAM_DOMAIN;
-    const types = swapData!.PARAM_TYPES;
-    const message = toObject(swapData!.toSign);
+    const domain = swapData?.PARAM_DOMAIN;
+    const types = swapData?.PARAM_TYPES;
+    const message = toObject(swapData?.toSign);
 
     const { signTypedDataAsync } = useSignTypedData({ domain, types, primaryType: 'JamOrder', message: message });
 
@@ -207,7 +206,7 @@ const UniswapSwap = observer(() => {
 
         if (address === undefined) return 1;
         if (inputQuantity === undefined) return 1;
-        
+
         return await swap(address);
     }, {
         refetchInterval: 10000,
@@ -281,7 +280,7 @@ const ArcanumSwap = observer(() => {
                 updateErrorMessage("Insufficient Balance", false);
             }
         }
-        
+
         return data;
     }, {
         refetchInterval: 15000,
@@ -294,7 +293,7 @@ const ArcanumSwap = observer(() => {
 
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
-    
+
     async function CallSwap() {
         refetch();
         if (write === undefined) return;

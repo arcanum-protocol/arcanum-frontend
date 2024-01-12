@@ -131,6 +131,10 @@ class MultipoolStore {
         this.slippage = value;
     }
 
+    get multipoolAddress(): Address | undefined {
+        return this.multipool.address;
+    }
+
     get getSolidAsset(): SolidAsset | undefined {
         return {
             symbol: "ARBI",
@@ -404,6 +408,12 @@ class MultipoolStore {
         const isMultipool = inputAsset.type === "multipool";
         const isSolid = inputAsset.type === "solid";
 
+        console.log("isExternal", isExternal);
+        console.log("isMultipool", isMultipool);
+        console.log("isSolid", isSolid);
+
+        console.log(`(outputAsset.type === "external" || outputAsset.type === "multipool")`, (outputAsset.type === "external" || outputAsset.type === "multipool"));
+
         if (isExternal && (outputAsset.type === "external" || outputAsset.type === "multipool")) return ActionType.BEBOP;
         if (isExternal && outputAsset.type === "solid") return ActionType.UNISWAP;
         if (isMultipool && (outputAsset.type === "multipool" || outputAsset.type === "solid")) return ActionType.ARCANUM;
@@ -414,7 +424,6 @@ class MultipoolStore {
 
     async checkSwap(userAddress: Address) {
         if (this.multipool.address == undefined) this.clearSwapData();
-        if (userAddress == undefined) this.clearSwapData();
 
         if (this.swapType === ActionType.ARCANUM) {
             return await this.checkSwapMultipool(userAddress);
@@ -477,14 +486,13 @@ class MultipoolStore {
         }
     }
 
-    async checkSwapBebop(userAddress: Address) {
-        this.clearSwapData();
+    async checkSwapBebop(userAddress?: Address) {
         try {
             const JAMRequest = await JAMQuote({
                 sellTokens: this.inputAsset!.address!,
                 buyTokens: this.outputAsset!.address!,
                 sellAmounts: this.inputQuantity,
-                takerAddress: userAddress,
+                takerAddress: userAddress === undefined ? "0x000000000000000000000000000000000000dEaD" : userAddress,
             });
 
             if (JAMRequest === undefined) return;
@@ -524,8 +532,8 @@ class MultipoolStore {
         }
     }
 
-    private async checkSwapMultipool(userAddress: Address) {
-        if (this.multipool.address === undefined) return;
+    private async checkSwapMultipool(userAddress?: Address) {
+        const skipEstimateAndSimulate = userAddress == undefined;
 
         const fpSharePricePlaceholder = await getForcePushPrice(this.multipoolId);
         const selectedAssets = this.createSelectedAssets();
@@ -583,31 +591,33 @@ class MultipoolStore {
             const newCalls = [{ callType: 0, data: newArgs }];
 
             try {
-                const gas = await this.router.estimateGas.swap([
-                    this.multipool.address,
-                    {
-                        forcePushArgs: fpSharePricePlaceholder,
-                        assetsToSwap: newSelectedAssets,
-                        isExactInput: this.isExactInput,
-                        receiverAddress: userAddress,
-                        refundEthToReceiver: false,
-                        refundAddress: userAddress,
-                        ethValue: ethFee
-                    },
-                    newCalls,
-                    []
-                ],
-                    {
-                        account: userAddress,
-                        value: ethFee
-                    }
-                );
+                if (!skipEstimateAndSimulate) {
+                    const gas = await this.router.estimateGas.swap([
+                        this.multipool.address,
+                        {
+                            forcePushArgs: fpSharePricePlaceholder,
+                            assetsToSwap: newSelectedAssets,
+                            isExactInput: this.isExactInput,
+                            receiverAddress: userAddress,
+                            refundEthToReceiver: false,
+                            refundAddress: userAddress,
+                            ethValue: ethFee
+                        },
+                        newCalls,
+                        []
+                    ],
+                        {
+                            account: userAddress,
+                            value: ethFee
+                        }
+                    );
 
-                const gasPrice = await this.publicClient?.getGasPrice();
+                    const gasPrice = await this.publicClient?.getGasPrice();
 
-                runInAction(() => {
-                    this.transactionCost = gas * gasPrice;
-                });
+                    runInAction(() => {
+                        this.transactionCost = gas * gasPrice;
+                    });
+                }
             } catch (e) {
                 this.updateErrorMessage(e, true);
             }

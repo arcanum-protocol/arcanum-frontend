@@ -10,7 +10,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 function ErrorBoundary() {
     const error = useRouteError();
-    const { toast } = useToast()
+    const { toast } = useToast();
 
     return (
         <>
