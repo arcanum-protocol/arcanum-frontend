@@ -82,7 +82,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     function getBalance(): JSX.Element {
         const { data: balance, isLoading } = useBalance({
             address: address,
-            token: theAsset?.address === "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : theAsset?.address,
+            token: theAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : theAsset?.address,
             watch: true,
         });
 

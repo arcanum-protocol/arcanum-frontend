@@ -13,10 +13,10 @@ import { useEffect } from "react";
 
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, multipoolId, setEtherPrice } = useStore();
+    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, multipoolId, setEtherPrice, multipoolIsLoading } = useStore();
 
     const { isLoading } = useQuery(["assets"], async () => {
-        const { assets } = await getMultipool(multipoolId);
+        const { multipool: { assets } } = await getMultipool(multipoolId);
         await setTokens(assets);
 
         return assets;

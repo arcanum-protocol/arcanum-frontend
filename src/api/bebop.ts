@@ -53,8 +53,6 @@ export const PARAM_TYPES = {
 }
 
 async function JAMQuote({ sellTokens, buyTokens, sellAmounts, buyAmounts, takerAddress }: JAMQuoteParams) {
-    console.log("takerAddress", takerAddress);
-    
     if (sellAmounts && buyAmounts) throw new Error("You can't specify both sellAmounts and buyAmounts");
     if (!sellAmounts && !buyAmounts) throw new Error("You must specify either sellAmounts or buyAmounts");
 

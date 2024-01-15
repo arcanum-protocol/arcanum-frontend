@@ -1,6 +1,7 @@
 import { MultipoolAsset } from '@/types/multipoolAsset';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { Address } from 'viem';
 import yaml from 'yamljs';
 
 // once-call
@@ -22,11 +23,13 @@ async function getMultipool(multipoolId: string) {
     });
 
     return {
-        name: name,
-        address: address,
-        router: router_address,
-        logo: logo,
-        assets: assetsStaticData,
+        multipool: {
+            name: name as string,
+            address: address as Address,
+            router: router_address as Address,
+            logo: logo as string,
+            assets: assetsStaticData,
+        }
     }
 }
 

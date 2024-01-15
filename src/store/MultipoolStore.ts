@@ -1,6 +1,6 @@
 import { ExternalAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
 import { makeAutoObservable, runInAction } from 'mobx';
-import { Address, getContract } from 'viem';
+import { Address, getContract, parseEther } from 'viem';
 import { publicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
@@ -90,32 +90,36 @@ class MultipoolStore {
     }[] = [];
 
     swapIsLoading: boolean = false;
+    multipoolIsLoading: boolean = true;
 
     constructor(mp_id: string) {
         this.multipoolId = mp_id;
 
         (async () => {
-            const multipoolData = await getMultipool(mp_id);
+            const { multipool } = await getMultipool(mp_id);
+            console.log("multipool", multipool.address);
 
             runInAction(() => {
                 this.multipool = getContract({
-                    address: multipoolData.address as Address,
+                    address: multipool.address as Address,
                     abi: multipoolABI,
                     publicClient: this.publicClient,
                 });
 
                 this.router = getContract({
-                    address: multipoolData.router as Address,
+                    address: multipool.router as Address,
                     abi: routerABI,
                     publicClient: this.publicClient,
                 });
 
-                this.logo = multipoolData.logo;
-                this.assets = multipoolData.assets;
+                this.logo = multipool.logo;
+                this.assets = multipool.assets;
+                this.multipoolIsLoading = false;
             });
 
             await this.getFees();
         })();
+
 
         setInterval(async () => {
             this.updateMPTotalSupply();
@@ -389,7 +393,6 @@ class MultipoolStore {
 
     updateErrorMessage(e: any | undefined, parse?: boolean) {
         runInAction(() => {
-            console.log("e", e);
             if (e === undefined) {
                 this.exchangeError = undefined;
                 return;
@@ -407,12 +410,6 @@ class MultipoolStore {
         const isExternal = inputAsset.type === "external";
         const isMultipool = inputAsset.type === "multipool";
         const isSolid = inputAsset.type === "solid";
-
-        console.log("isExternal", isExternal);
-        console.log("isMultipool", isMultipool);
-        console.log("isSolid", isSolid);
-
-        console.log(`(outputAsset.type === "external" || outputAsset.type === "multipool")`, (outputAsset.type === "external" || outputAsset.type === "multipool"));
 
         if (isExternal && (outputAsset.type === "external" || outputAsset.type === "multipool")) return ActionType.BEBOP;
         if (isExternal && outputAsset.type === "solid") return ActionType.UNISWAP;
@@ -715,32 +712,51 @@ class MultipoolStore {
         const _selectedAssets = selectedAssets.filter((asset) => asset.assetAddress !== this.inputAsset?.address);
 
         const _ethFee = feeData[0] < 0n ? 0n : feeData[0];
-        const ethFeeBG = new BigNumber(_ethFee.toString()).multipliedBy(1.005).toFixed(0);
+        const ethFeeBG = new BigNumber(_ethFee.toString()).multipliedBy(1.01).toFixed(0);
         const ethFee = BigInt(ethFeeBG);
 
         const callsTransfer = this.encodeForcePushArgs;
         if (callsTransfer === undefined) return;
 
         const callsBeforeUniswap = this.calls.map((call) => {
-            const data = encodeAbiParameters([{ name: "target", type: "address" }, { name: "ethValue", type: "uint256" }, { name: "targetData", type: "bytes" }], [call.to as Address, BigInt(call.value), call.data as Address]);
+            const data = encodeAbiParameters([{ name: "target", type: "address" }, { name: "ethValue", type: "uint256" }, { name: "targetData", type: "bytes" }], [call.to as Address, 0n, call.data as Address]);
 
             return {
                 callType: 2,
-                data: data
+                data: data,
             }
         });
 
+        const ethValue = ethFee + BigInt(this.inputQuantity?.multipliedBy(1.01).toFixed(0)!);
         const uniswapRouter = this.calls[0].to;
 
-        // add call to approve tokens from arcanum router to uniswap router as first call
-        const approveData = encodeAbiParameters([{ name: "token", type: "address" }, { name: "target", type: "address" }, { name: "amount", type: "uint256" }], [this.inputAsset!.address!, uniswapRouter as Address, BigInt(this.inputQuantity!.abs().toFixed(0))]);
-        const approveCall = {
-            callType: 1,
-            data: approveData
-        };
-        callsBeforeUniswap.unshift(approveCall);
-        // add call to transfer tokens to router as first call
-        callsBeforeUniswap.unshift({ callType: 0, data: callsTransfer });
+        if (this.inputAsset?.address !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
+            // add call to approve tokens from arcanum router to uniswap router as first call
+            const approveData = encodeAbiParameters([{ name: "token", type: "address" }, { name: "target", type: "address" }, { name: "amount", type: "uint256" }], [this.inputAsset!.address!, uniswapRouter as Address, BigInt(this.inputQuantity!.abs().toFixed(0))]);
+            const approveCall = {
+                callType: 1,
+                data: approveData
+            };
+            callsBeforeUniswap.unshift(approveCall);
+            // add call to transfer tokens to router as first call
+            callsBeforeUniswap.unshift({ callType: 0, data: callsTransfer });
+        } else {
+            const wrapData = encodeAbiParameters([{ name: "weth", type: "address" }, { name: "wrap", type: "bool" }, { name: "ethValue", type: "uint256" }], ["0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", true, BigInt(this.inputQuantity?.multipliedBy(1.01).toFixed(0)!)]);
+            const wrapCall = {
+                callType: 3,
+                data: wrapData
+            };
+            callsBeforeUniswap.unshift(wrapCall);
+
+            const approveData = encodeAbiParameters([{ name: "token", type: "address" }, { name: "target", type: "address" }, { name: "amount", type: "uint256" }], ["0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", uniswapRouter as Address, BigInt(this.inputQuantity!.abs().toFixed(0))]);
+            const approveCall = {
+                callType: 1,
+                data: approveData
+            };
+            callsBeforeUniswap.unshift(approveCall);
+        }
+
+        console.log("callsBeforeUniswap", ethFee, ethValue);
 
         try {
             const gas = await this.router.estimateGas.swap([
@@ -750,7 +766,7 @@ class MultipoolStore {
                     assetsToSwap: _selectedAssets,
                     isExactInput: isExactInput,
                     receiverAddress: userAddress,
-                    refundEthToReceiver: false,
+                    refundEthToReceiver: true,
                     refundAddress: userAddress,
                     ethValue: ethFee
                 },
@@ -759,7 +775,7 @@ class MultipoolStore {
             ],
                 {
                     account: userAddress,
-                    value: ethFee
+                    value: ethValue
                 }
             );
 
@@ -773,7 +789,7 @@ class MultipoolStore {
                     assetsToSwap: _selectedAssets,
                     isExactInput: isExactInput,
                     receiverAddress: userAddress,
-                    refundEthToReceiver: false,
+                    refundEthToReceiver: true,
                     refundAddress: userAddress,
                     ethValue: ethFee
                 },
@@ -782,11 +798,10 @@ class MultipoolStore {
             ],
                 {
                     account: userAddress,
-                    value: ethFee
+                    value: ethValue
                 }
             );
 
-            console.log("updateErrorMessage", undefined);
             this.updateErrorMessage(undefined, true);
             return request;
         } catch (e: any) {

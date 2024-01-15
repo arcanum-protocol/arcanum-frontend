@@ -174,7 +174,6 @@ const ExchangeInfo = observer(() => {
         const absMaximumSendFormatted = bgMaximumSend.dividedBy(new BigNumber(10).pow(decimals)).abs();
         const absMaximumSendFormattedDollar = absMaximumSendFormatted.multipliedBy(price).multipliedBy(etherPrice);
 
-        console.log(absMaximumSendFormatted.toFixed());
         const tooLong = absMaximumSendFormatted.isGreaterThan(new BigNumber(1000).multipliedBy(BigNumber(10).pow(18)));
 
         return (

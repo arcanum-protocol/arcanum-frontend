@@ -8,11 +8,12 @@ import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useStore } from "@/contexts/StoreContext";
-import { alchemyClient } from "@/config";
+import { alchemyClient, publicClient } from "@/config";
 import { useAccount, useBalance } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { NeonText } from "./ui/sine-wave-text";
+import ERC20 from "@/abi/ERC20";
 
 
 function MultipoolTokenTooltip() {
@@ -46,13 +47,27 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
 
+
     const { data: balances } = useQuery(["balances"], async () => {
-        const assetsAddress = [...assets, ...externalAssets].map((asset) => asset.address!).filter((asset) => asset !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") || [];
-        const rawBalances = await alchemyClient.getTokenBalances(address!, assetsAddress);
+        const addresses = [...assets, ...externalAssets];
+
+        const results = await publicClient({ chainId: 42161 }).multicall({
+            contracts: addresses.map((asset) => {
+                return {
+                    address: asset.address!,
+                    abi: ERC20,
+                    functionName: "balanceOf",
+                    args: [address],
+                };
+            }),
+        });
+
+        // return results;
 
         const balances: { [address: string]: BigNumber } = {};
-        for (const balance of rawBalances.tokenBalances) {
-            balances[balance.contractAddress] = new BigNumber(balance.tokenBalance!);
+        for (let i = 0; i < results.length; i++) {
+            if (results[i].status !== "success") continue;
+            balances[addresses[i].address!] = new BigNumber((results[i].result as bigint).toString());
         }
         balances["0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"] = new BigNumber(userBalance?.value.toString() || 0);
 
@@ -105,7 +120,6 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         const decimals = new BigNumber(10).pow(token.decimals);
         const balancebg = balances[token.address];
         const balance = balancebg?.dividedBy(decimals).toFixed(4);
-
 
         if (Number(balance) === 0) {
             return (

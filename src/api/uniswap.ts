@@ -257,7 +257,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
     if (!inputDecimals) {
         throw new Error("Decimals not found");
     }
-    const inputToken = inputAsset.toLocaleLowerCase() != "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLocaleLowerCase() ? new Token(42161, inputAsset, inputDecimals) : Ether.onChain(42161);
+    const inputToken = inputAsset.toLocaleLowerCase() != "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLocaleLowerCase() ? new Token(42161, inputAsset, inputDecimals) : new Token(42161, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", inputDecimals);
 
     const callDatas: Array<{
         data: string;
@@ -280,6 +280,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         const amountInShare = amountIn.multipliedBy(amount).dividedBy(100);
         const { amountOut, ethValue } = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
         const trade = createTrade(swapRoute, amountInShare, amountOut);
+        console.log("trade", trade);
 
         outs.set(address, amountOut);
 

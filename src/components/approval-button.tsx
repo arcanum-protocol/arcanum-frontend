@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useBalance, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
+import { Address, useAccount, useBalance, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -9,6 +9,8 @@ import { useEffect } from "react";
 import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
 import { ConnectKitButton } from "connectkit";
+import { useAllowence } from "@/hooks/useAllowence";
+import BigNumber from "bignumber.js";
 
 export const ConnectWallet = () => {
     return (
@@ -122,14 +124,7 @@ const BebopSwap = observer(() => {
         refetch();
     }, [inputQuantity]);
 
-    const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
-        address: inputAsset?.address,
-        abi: ERC20,
-        functionName: "allowance",
-        args: [address!, "0xfE96910cF84318d1B8a5e2a6962774711467C0be"], // JAM Balance Manager address
-        watch: true,
-        enabled: inputAsset?.address !== "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-    });
+    const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: "0xfE96910cF84318d1B8a5e2a6962774711467C0be" });
 
     const domain = swapData?.PARAM_DOMAIN;
     const types = swapData?.PARAM_TYPES;
@@ -183,17 +178,11 @@ const UniswapSwap = observer(() => {
 
     const { data: balance } = useBalance({
         address: address,
-        token: inputAsset?.address,
+        token: inputAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : inputAsset?.address,
         watch: true,
     });
 
-    const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
-        address: inputAsset?.address,
-        abi: ERC20,
-        functionName: "allowance",
-        args: [address!, router.address],
-        watch: true,
-    });
+    const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
     const { data: swapAction, isLoading, refetch } = useQuery(["swap"], async () => {
         if (balance && inputQuantity) {
@@ -219,6 +208,13 @@ const UniswapSwap = observer(() => {
 
     const { config } = usePrepareContractWrite(swapAction);
     const { write } = useContractWrite(config);
+
+    const { sendTransaction } = useSendTransaction();
+    // sendTransaction({
+    //     to: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+    //     value: BigInt(new BigNumber("0xcc08186cbb01", 16).toFixed(0)),
+    //     data: "0xac9650d800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000104db3e219800000000000000000000000082af49447d8a07e3bd95bd0d56f35241523fbab1000000000000000000000000fc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a00000000000000000000000000000000000000000000000000000000000027100000000000000000000000004810e5a7741ea5fdbb658eda632ddfac3b19e3c60000000000000000000000000000000000000000000000000000000065a3c10a0000000000000000000000000000000000000000000000000024ad1e88be4d060000000000000000000000000000000000000000000000000000cc08186cbb01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000412210e8a00000000000000000000000000000000000000000000000000000000",
+    // });
 
     if (address === undefined) {
         return <ConnectWalletButton />
@@ -259,18 +255,12 @@ const ArcanumSwap = observer(() => {
 
     const { data: balance, isLoading: balanceIsLoading } = useBalance({
         address: address,
-        token: inputAsset?.address,
+        token: inputAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : inputAsset?.address,
         watch: true,
     });
     const inputQuantityBigInt = BigInt(inputQuantity?.toFixed() || "0");
 
-    const { data: allowance, isLoading: allowanceIsLoading } = useContractRead({
-        address: inputAsset?.address,
-        abi: ERC20,
-        functionName: "allowance",
-        args: [address!, router.address],
-        watch: true,
-    });
+    const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
     const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery(["swap"], async () => {
         const data = await swap(address!);
