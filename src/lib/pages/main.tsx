@@ -21,6 +21,16 @@ export const Admin = observer(() => {
     )
 });
 
+export const SPI = () => {
+    const multipool = new MultipoolStore("spi");
+
+    return (
+        <StoreProvider store={multipool}>
+            <MainInner />
+        </StoreProvider>
+    )
+};
+
 export const Arbi = () => {
     const multipool = new MultipoolStore("arbi");
 

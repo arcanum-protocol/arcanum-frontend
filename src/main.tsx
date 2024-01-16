@@ -3,7 +3,7 @@ import { App } from "./App";
 import "./index.css";
 
 import { RouterProvider, createBrowserRouter, useRouteError } from "react-router-dom";
-import { Admin, Arbi } from "./lib/pages/main";
+import { Admin, Arbi, SPI } from "./lib/pages/main";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -71,6 +71,10 @@ const router = createBrowserRouter([
             {
                 path: "/admin",
                 element: <Admin />,
+            },
+            {
+                path: "/spi",
+                element: <SPI />,
             }
         ]
     },
