@@ -1,0 +1,20 @@
+"name": "SPI"
+"address": "0xbB5b3D9F6B57077b4545ea9879ee7fD0BDB08dB0"
+"router_address": "0x36ebe888dc501e3a764f1c4910b13aaf8efd0583"
+"chain_id": 42161
+"logo": "https://app.arcanum.to/ARBI.svg"
+"assets":
+  - "symbol": "WBTC"
+    "logo": "https://app.arcanum.to/tokens/wbtc.svg"
+    "decimals": 18
+    "address": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f"
+
+  - "symbol": "USDT"
+    "logo": "https://app.arcanum.to/tokens/usdt.svg"
+    "decimals": 18
+    "address": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+
+  - "symbol": "wstETH"
+    "logo": "https://app.arcanum.to/tokens/wsteth.svg"
+    "decimals": 18
+    "address": "0x5979d7b546e38e414f7e9822514be443a4800529"
