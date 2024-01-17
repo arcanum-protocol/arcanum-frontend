@@ -17,18 +17,20 @@ import ERC20 from "@/abi/ERC20";
 const _publicClient = publicClient({ chainId: 42161 });
 
 const poolsAddress = [
-    "0x2f5e87c9312fa29aed5c179e456625d79015299c",
-    "0xc6f780497a95e246eb9449f5e4770916dcd6396a",
-    "0xa961f0473da4864c5ed28e00fcc53a3aab056c1b",
-    "0xc31e54c7a869b9fcbecc14363cf510d1c41fa443",
-    "0x641c00a822e8b671738d32a431a4fb6074e5c79d",
-    "0xc6962004f452be9203591991d15f6b388e09e8d0",
-    "0x59d72ddb29da32847a4665d08ffc8464a7185fae",
-    "0x80a9ae39310abf666a87c743d6ebbd0e8c42158e",
-    "0x446bf9748b4ea044dd759d9b9311c70491df8f29",
-    "0xd3e11119d2680c963f1cdcffece0c4ade823fb58",
-    "0x4d834a9b910e6392460ebcfb59f8eef27d5c19ff",
-    "0xdbaeb7f0dfe3a0aafd798ccecb5b22e708f7852c"];
+    "0x2f5e87c9312fa29aed5c179e456625d79015299c", // WBTC/ETH
+    "0xc6f780497a95e246eb9449f5e4770916dcd6396a", // ARB/ETH
+    "0xa961f0473da4864c5ed28e00fcc53a3aab056c1b", // DAI/ETH
+    "0xc31e54c7a869b9fcbecc14363cf510d1c41fa443", // USDC/ETH
+    "0x641c00a822e8b671738d32a431a4fb6074e5c79d", // USDT/ETH
+    "0xc6962004f452be9203591991d15f6b388e09e8d0", // USDC/ETH
+    "0x59d72ddb29da32847a4665d08ffc8464a7185fae", // MAGIC/ETH
+    "0x80a9ae39310abf666a87c743d6ebbd0e8c42158e", // GMX/ETH
+    "0x446bf9748b4ea044dd759d9b9311c70491df8f29", // RDNT/ETH
+    "0xd3e11119d2680c963f1cdcffece0c4ade823fb58", // SILO/ETH
+    "0x4d834a9b910e6392460ebcfb59f8eef27d5c19ff", // PREMIA/ETH
+    "0xdbaeb7f0dfe3a0aafd798ccecb5b22e708f7852c", // PENDLE/ETH
+    "0x35218a1cbac5bbc3e57fd9bd38219d37571b3537"  // wstETH/ETH
+];
 
 const externalTokens: Array<Address> = [
     "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
@@ -86,6 +88,11 @@ async function getAllPools() {
 
         const decimals0 = decimals.get(token0!.toLocaleLowerCase() as Address);
         const decimals1 = decimals.get(token1!.toLocaleLowerCase() as Address);
+
+        if (!decimals0 || !decimals1) {
+            // if we dont have decimals we skip the pool
+            continue;
+        }
 
         const token0Asset: Token = new Token(42161, token0!, decimals0!);
         const token1Asset: Token = new Token(42161, token1!, decimals1!);
@@ -158,8 +165,19 @@ function createRoute(pools: Array<Pool>, inputToken: Token | Ether, outputToken:
         );
     });
 
+    // sort pools so first pool contains input token
+    poolsUsed.sort((a, b) => {
+        if (a.token0.equals(inputToken) || a.token1.equals(inputToken)) {
+            return -1;
+        }
+        if (b.token0.equals(inputToken) || b.token1.equals(inputToken)) {
+            return 1;
+        }
+        return 0;
+    }); 
 
     const route = new Route(poolsUsed, inputToken, outputToken);
+    console.log("route", route);
 
     return route;
 }
@@ -173,9 +191,11 @@ async function getAmountOut(route: Route<Token | Ether, Token>, amountIn: BigNum
         ),
         TradeType.EXACT_INPUT,
         {
-            useQuoterV2: true,
+            useQuoterV2: false,
         }
     );
+
+    console.log("calldata", amountIn.toFixed(0), calldata, value);
 
     const { data } = await _publicClient.call({
         to: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
@@ -278,9 +298,9 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         const swapRoute = createRoute(pools, inputToken, outputToken);
 
         const amountInShare = amountIn.multipliedBy(amount).dividedBy(100);
+        console.log("amountIn", amountIn.toFixed(0), amount.toFixed(0), amountInShare.toFixed(0));
         const { amountOut, ethValue } = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
         const trade = createTrade(swapRoute, amountInShare, amountOut);
-        console.log("trade", trade);
 
         outs.set(address, amountOut);
 

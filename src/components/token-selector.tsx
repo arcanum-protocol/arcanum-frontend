@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { NeonText } from "./ui/sine-wave-text";
 import ERC20 from "@/abi/ERC20";
+import { toJS } from "mobx";
 
 
 function MultipoolTokenTooltip() {
@@ -47,7 +48,6 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
     const [search, setSearch] = useState("");
 
-
     const { data: balances } = useQuery(["balances"], async () => {
         const addresses = [...assets, ...externalAssets];
 
@@ -61,8 +61,6 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
                 };
             }),
         });
-
-        // return results;
 
         const balances: { [address: string]: BigNumber } = {};
         for (let i = 0; i < results.length; i++) {
@@ -81,7 +79,9 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
     const oppositeToken = action === "set-token-in" ? outputAsset : inputAsset;
 
-    const tokenList = [...assets, ...externalAssets].filter((asset) => asset.address !== oppositeToken?.address);
+    let tokenList = [...assets, ...externalAssets].filter((asset) => asset.address !== oppositeToken?.address);
+    // exclude repetitions at the address
+    tokenList = tokenList.filter((asset, index) => tokenList.findIndex((a) => a.address?.toLocaleLowerCase() === asset.address?.toLocaleLowerCase()) === index);
 
     function toDollarValue(token: ExternalAsset | MultipoolAsset): BigNumber {
         if (!balances || !token.price) {

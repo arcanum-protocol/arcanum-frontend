@@ -1,4 +1,4 @@
-import { BebopToken, Token } from "@/types/tokenlist";
+import { BebopToken } from "@/types/tokenlist";
 import axios from "axios";
 import { Address } from "viem";
 
@@ -22,11 +22,11 @@ async function getForcePushPrice(multipoolId: string): Promise<{
     const responce = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${multipoolId}`);
     const data = await responce.data;
 
-    if (data.toString() == "null") {
+    if (String(data) == "null") {
         return {
             contractAddress: "0x0000000000000000000000000000000000000000",
             timestamp: BigInt(0),
-            sharePrice: BigInt(0),
+            sharePrice: BigInt("3953991356574894"),
             signatures: ["0x0"]
         }
     }

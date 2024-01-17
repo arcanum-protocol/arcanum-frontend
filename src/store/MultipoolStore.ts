@@ -29,6 +29,7 @@ class MultipoolStore {
     chainId: number | undefined;
     totalSupply: BigNumber | undefined;
     price: BigNumber | undefined;
+    name: string | undefined;
 
     multipool = getContract({
         address: undefined as any,
@@ -97,7 +98,6 @@ class MultipoolStore {
 
         (async () => {
             const { multipool } = await getMultipool(mp_id);
-            console.log("multipool", multipool.address);
 
             runInAction(() => {
                 this.multipool = getContract({
@@ -114,6 +114,7 @@ class MultipoolStore {
 
                 this.logo = multipool.logo;
                 this.assets = multipool.assets;
+                this.name = multipool.name;
                 this.multipoolIsLoading = false;
             });
 
@@ -141,7 +142,7 @@ class MultipoolStore {
 
     get getSolidAsset(): SolidAsset | undefined {
         return {
-            symbol: "ARBI",
+            symbol: this.name,
             decimals: 18,
             logo: this.logo,
             address: this.multipool.address,
