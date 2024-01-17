@@ -99,7 +99,7 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
 });
 
 export const Head = observer(() => {
-    const { multipoolId, multipoolAddress } = useStore();
+    const { multipoolId, multipoolAddress, logo } = useStore();
     const { toast } = useToast();
 
     const { data: multipool, isLoading: multipoolIsLoading } = useQuery(["multipool"], async () => {
@@ -129,7 +129,7 @@ export const Head = observer(() => {
             <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#0c0a09] border border-[#292524]'>
                 <div className="flex flex-row items-center justify-between gap-2 px-8 py-2 xl:py-0 w-full">
                     <div className="flex flex-row text-left gap-2">
-                        <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
+                        <img src={logo} alt="Logo" className='w-8 h-8' />
                         <Skeleton className="rounded w-16 h-4" />
                     </div>
                     <Skeleton className="rounded w-16 h-4" />
@@ -170,7 +170,7 @@ export const Head = observer(() => {
         <div className='flex w-full rounded p-1 justify-between items-center bg-[#0c0a09] border border-[#292524]'>
             <div className="flex flex-row items-center justify-between gap-2 pl-6 pr-8 py-2 xl:py-0 w-full">
                 <div className="flex flex-row text-left gap-2 items-center">
-                    <img src={getSVG("ARBI")} alt="Logo" className='w-8 h-8' />
+                    <img src={logo} alt="Logo" className='w-8 h-8' />
                     <div>
                         <p className='text-[#fff] p-0 text-2xl'>{multipoolId.toLocaleUpperCase() || ""}</p>
                         <div className='flex flex-row gap-2 items-center text-white opacity-70 cursor-pointer' onClick={copyToClipboard}>
