@@ -151,7 +151,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                                 />
                     }
                 </div>
-                <Button className="grow max-w-min rounded py-[6px] pr-[5px] pl-[8px] justify-between bg-[#0c0a09] border border-[#292524]" variant="secondary" onClick={() => setSelectedTabWrapper(text === "Send" ? "set-token-in" : "set-token-out")} disabled={isDisabled}>
+                <Button className="grow max-w-min rounded py-[6px] pr-[5px] pl-[8px] justify-between bg-[#0c0a09] border border-[#292524] disabled:opacity-100" variant="secondary" onClick={() => setSelectedTabWrapper(text === "Send" ? "set-token-in" : "set-token-out")} disabled={isDisabled}>
                     <Avatar className="bg-[#0c0a09] h-6 w-6 mr-1">
                         <AvatarImage src={theAsset?.logo} alt="Logo" />
                         <AvatarFallback>{theAsset?.symbol}</AvatarFallback>
