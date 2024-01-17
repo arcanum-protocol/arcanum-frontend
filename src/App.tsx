@@ -117,17 +117,17 @@ function Navbar() {
             </div>
             <NavigationMenu className={"hidden lg:block"}>
                 <NavigationMenuList>
-                    <NavigationMenuItem className="border border-[#292524] rounded">
+                    <NavigationMenuItem>
                         <NavigationMenuLink href='/spi' className={navigationMenuTriggerStyle()}>
                             Sharpe Portfolio Index
                         </NavigationMenuLink>
                     </NavigationMenuItem>
-                    <NavigationMenuItem className="border border-[#292524] rounded">
+                    <NavigationMenuItem>
                         <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
                             Arbitrum Index
                         </NavigationMenuLink>
                     </NavigationMenuItem>
-                    <NavigationMenuItem className="border border-[#292524] rounded">
+                    <NavigationMenuItem>
                         <NavigationMenuTrigger>Socials</NavigationMenuTrigger>
                         <NavigationMenuContent>
                             <ul className="grid gap-3 p-4 md:grid-cols-1 w-32">
@@ -170,7 +170,7 @@ function Navbar() {
                             </ul>
                         </NavigationMenuContent>
                     </NavigationMenuItem>
-                    <NavigationMenuItem className="border border-[#292524] rounded">
+                    <NavigationMenuItem>
                         <NavigationMenuLink href='https://docs.arcanum.to' className={navigationMenuTriggerStyle()}>
                             Documentation
                         </NavigationMenuLink>
