@@ -2,7 +2,7 @@
 "address": "0x4810E5A7741ea5fdbb658eDA632ddfAc3b19e3c6"
 "router_address": "0x36ebe888dc501e3a764f1c4910b13aaf8efd0583"
 "chain_id": 42161
-"logo": "https://app.arcanum.to/multipools/ARBI.svg"
+"logo": "/multipools/ARBI.svg"
 "assets": 
     - "symbol": "GMX"
       "logo": "https://app.arcanum.to/tokens/gmx.svg"

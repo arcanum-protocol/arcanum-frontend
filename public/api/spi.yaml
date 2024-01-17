@@ -2,7 +2,7 @@
 "address": "0xbB5b3D9F6B57077b4545ea9879ee7fD0BDB08dB0"
 "router_address": "0x36ebe888dc501e3a764f1c4910b13aaf8efd0583"
 "chain_id": 42161
-"logo": "https://app.arcanum.to/multipools/SPI.svg"
+"logo": "/multipools/SPI.svg"
 "assets":
   - "symbol": "WBTC"
     "logo": "https://app.arcanum.to/tokens/wbtc.svg"

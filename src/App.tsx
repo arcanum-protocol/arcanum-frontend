@@ -152,10 +152,17 @@ function Navbar() {
                                 <NavigationMenuLink href='https://dune.com/badconfig/arcanum'>
                                     <div className="flex gap-2">
                                         <div className="w-5 h-5">
-                                            <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M150 300C232.843 300 300 232.843 300 150C300 67.1575 232.843 0.000244141 150 0.000244141C67.1573 0.000244141 0 67.1575 0 150C0 232.843 67.1573 300 150 300Z" fill="#F06040" />
-                                                <path d="M26 234.405C26 234.405 125.092 201.946 299.739 145C299.739 145 309.305 238.257 212.626 286.901C212.626 286.901 164.951 309.75 112.648 295.093C112.648 295.093 60.5661 285.262 26 234.405Z" fill="#2B286C" />
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <g clip-path="url(#clip0_12_16)">
+                                                    <path d="M15.2749 7.64168L1.98832 12.1133M15.2836 7.99989C15.2836 12.0225 12.0226 15.2835 8 15.2835C3.97738 15.2835 0.716415 12.0225 0.716415 7.99989C0.716415 3.97728 3.97738 0.716309 8 0.716309C12.0226 0.716309 15.2836 3.97728 15.2836 7.99989Z" stroke="white" />
+                                                </g>
+                                                <defs>
+                                                    <clipPath id="clip0_12_16">
+                                                        <rect width="16" height="16" fill="white" />
+                                                    </clipPath>
+                                                </defs>
                                             </svg>
+
                                         </div>
                                         Dune
                                     </div>
