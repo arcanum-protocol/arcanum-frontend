@@ -118,11 +118,8 @@ function Navbar() {
             <NavigationMenu className={"hidden lg:block"}>
                 <NavigationMenuList>
                     <NavigationMenuItem className="border border-[#292524] rounded">
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <NavigationMenuLink href='/spi' className={navigationMenuTriggerStyle()}>
                             Sharpe Portfolio Index
-                            <div className="border px-[1px] text-[10px] ml-1 rounded">
-                                soon
-                            </div>
                         </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem className="border border-[#292524] rounded">
