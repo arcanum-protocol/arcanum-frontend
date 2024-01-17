@@ -8,13 +8,12 @@ import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useStore } from "@/contexts/StoreContext";
-import { alchemyClient, publicClient } from "@/config";
+import { publicClient } from "@/config";
 import { useAccount, useBalance } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { NeonText } from "./ui/sine-wave-text";
 import ERC20 from "@/abi/ERC20";
-import { toJS } from "mobx";
 
 
 function MultipoolTokenTooltip() {
@@ -101,6 +100,9 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     }
 
     function DollarValue({ token }: { token: ExternalAsset | MultipoolAsset }) {
+        if (address === undefined) {
+            return <div className="p-2 opacity-70">{"$" + 0}</div>
+        }
         if (!balances || !token.price) {
             return <Skeleton className="w-[50px] h-[20px] rounded"></Skeleton>;
         }
@@ -111,6 +113,9 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     }
 
     function getBalanceDecaration(token: ExternalAsset | MultipoolAsset) {
+        if (address === undefined) {
+            return <div className="font-mono text-sm text-gray-500">~0</div>
+        }
         if (balances === undefined || token.address === undefined) {
             return (
                 <Skeleton className="w-[20px] h-[10px] rounded"></Skeleton>
