@@ -110,7 +110,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         const tokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(balance.decimals));
 
         return (
-            <div className="inline-flex font-mono text-xs text-gray-500 cursor-pointer" onClick={() => setQuantity(text, balanceBG.dividedBy(decimalsBG).toFixed())}>{tokenBalance.toFixed(4)}</div>
+            <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => setQuantity(text, balanceBG.dividedBy(decimalsBG).toFixed())}>{tokenBalance.toFixed(4)}</div>
         );
     }
 
