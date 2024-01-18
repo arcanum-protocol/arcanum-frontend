@@ -68,7 +68,6 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const quantity = hrQuantity(text);
 
     const theAsset = text === "Send" ? inputAsset : outputAsset;
-    console.log(theAsset);
     const isDisabled = theAsset?.type === "solid";
 
     const isThisMainInput = text === "Send" ? mainInput === "in" : mainInput === "out";

@@ -3,71 +3,31 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { observer } from "mobx-react-lite";
 import { Skeleton } from "./ui/skeleton";
-import { ExternalAsset, MultipoolAsset } from "@/types/multipoolAsset";
+import { MultipoolAsset } from "@/types/multipoolAsset";
 import { useStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
-import { getEtherPrice, getMultipool } from "@/api/arcanum";
-import { getExternalAssets } from "@/lib/multipoolUtils";
-import { useEffect } from "react";
 
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, multipoolId, setEtherPrice, multipoolIsLoading } = useStore();
+    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, setEtherPrice } = useStore();
 
     const { isLoading } = useQuery(["assets"], async () => {
-        const { multipool: { assets } } = await getMultipool(multipoolId);
-        await setTokens(assets);
+        await Promise.all([setTokens(), setExternalAssets()]);
 
-        return assets;
-    }, {
-        enabled: assets?.length! < 1,
-        retry: true,
-    });
-
-    const { data: externalAssets } = useQuery(["externalAssets"], async () => {
-        const assets = await getExternalAssets();
-
-        const externalAssets = assets.map((asset) => {
-            return {
-                symbol: asset.symbol,
-                decimals: asset.decimals,
-                logo: asset.logoURI,
-                address: asset.address,
-                price: new BigNumber(asset.price),
-                type: "external",
-            } as ExternalAsset;
-        });
-
-        return externalAssets;
+        return 1;
     }, {
         retry: true,
     });
 
-    useEffect(() => {
-        if (externalAssets == undefined) {
-            return;
-        }
-        setExternalAssets(externalAssets);
-    }, [externalAssets]);
+    useQuery(["etherPrice"], async () => {
+        await setEtherPrice();
 
-    const { data: _etherPrice } = useQuery(["etherPrice"], async () => {
-        const etherPrice = await getEtherPrice();
-
-        setEtherPrice(etherPrice);
-
-        return etherPrice;
+        return 1;
     }, {
         refetchInterval: 15000,
         retry: true,
     });
-
-    useEffect(() => {
-        if (_etherPrice == undefined) {
-            return;
-        }
-        setEtherPrice(_etherPrice);
-    }, [_etherPrice]);
 
     if (isLoading) {
         return (

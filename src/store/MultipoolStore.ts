@@ -7,8 +7,8 @@ import routerABI from '../abi/ROUTER';
 import { fromX96 } from '@/lib/utils';
 import BigNumber from 'bignumber.js';
 import { encodeAbiParameters } from 'viem';
-import { getMultipool } from '@/api/arcanum';
-import { getForcePushPrice, parseError } from '@/lib/multipoolUtils';
+import { getEtherPrice, getMultipool } from '@/api/arcanum';
+import { getExternalAssets, getForcePushPrice, parseError } from '@/lib/multipoolUtils';
 import { JAMQuote, PARAM_DOMAIN, PARAM_TYPES } from '@/api/bebop';
 import { BebopQuoteResponce } from '@/types/bebop';
 import { Create } from '@/api/uniswap';
@@ -154,16 +154,34 @@ class MultipoolStore {
         } as SolidAsset;
     }
 
-    setExternalAssets(assets: ExternalAsset[]) {
-        this.externalAssets = assets;
+    async setExternalAssets() {
+        const assets = await getExternalAssets();
+
+        const externalAssets = assets.map((asset) => {
+            return {
+                symbol: asset.symbol,
+                decimals: asset.decimals,
+                logo: asset.logoURI,
+                address: asset.address,
+                price: new BigNumber(asset.price),
+                type: "external",
+            } as ExternalAsset;
+        });
+
+        runInAction(() => {
+            this.externalAssets = externalAssets;
+        });
     }
 
     updateMPPrice(price: BigNumber) {
         this.price = price;
     }
 
-    setEtherPrice(price: number) {
-        this.etherPrice = price;
+    async setEtherPrice() {
+        const etherPrice = await getEtherPrice();
+        runInAction(() => {
+            this.etherPrice = etherPrice;
+        });
     }
 
     updateMPTotalSupply() {
@@ -195,19 +213,43 @@ class MultipoolStore {
         });
     }
 
-    async setTokens(tokens: MultipoolAsset[]) {
+    async setTokens() {
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
+        const { multipool: { assets } } = await getMultipool(this.multipoolId);
 
         const _assets: MultipoolAsset[] = [];
         const _totalTargetShares = await this.multipool.read.totalTargetShares();
         const totalTargetShares = new BigNumber(_totalTargetShares.toString());
 
-        for (const token of tokens) {
+        const multipoolContract = {
+            address: this.multipool.address as Address,
+            abi: multipoolABI,
+        } as const;
+
+        const result = await this.publicClient.multicall({
+            contracts: assets.map(({ address }) => {
+                return [{
+                    ...multipoolContract,
+                    functionName: "getAsset",
+                    args: [address]
+                }, {
+                    ...multipoolContract,
+                    functionName: "getPrice",
+                    args: [address]
+                }]
+            }).flat()
+        });
+
+        console.log("result", result);
+
+        for (let i = 0; i < assets.length; i++) {
+            const token = assets[i];
+
             if (token.address?.toString() === this.multipool.address.toString()) continue;
             const tokenAddress = token.address as Address;
 
             if (tokenAddress == null) continue;
-            const _asset = await this.multipool.read.getAsset([tokenAddress]);
+            const _asset = result[(i * 2)].result as any;
 
             const asset = {
                 quantity: new BigNumber(_asset.quantity.toString()),
@@ -215,7 +257,7 @@ class MultipoolStore {
                 collectedCashbacks: new BigNumber(_asset.collectedCashbacks.toString()),
             };
 
-            const chainPrice = await this.multipool.read.getPrice([tokenAddress]);
+            const chainPrice = result[(i * 2) + 1].result as bigint;
 
             const idealShare = asset.targetShare.dividedBy(totalTargetShares).multipliedBy(100);
             const quantity = asset.quantity;
