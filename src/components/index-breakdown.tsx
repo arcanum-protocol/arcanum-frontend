@@ -8,6 +8,29 @@ import { useStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
 
+export function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
+    const _decimals = new BigNumber(10).pow(decimals);
+
+    if (number == undefined) {
+        return "0";
+    }
+    const _number = new BigNumber(number.toString());
+
+    const value = _number.dividedBy(_decimals);
+    return toHumanReadable(value.toString(), 2);
+}
+
+export function tohumanReadableCashback(number: BigNumber, etherPrice: number, decimals = 18) {
+    const _decimals = new BigNumber(10).pow(decimals);
+
+    if (number == undefined) {
+        return "0";
+    }
+    const _number = new BigNumber(number.toString());
+
+    const value = _number.dividedBy(_decimals).multipliedBy(etherPrice);
+    return value.toFixed(2) + "$";
+}
 
 export const IndexAssetsBreakdown = observer(() => {
     const { assets, setTokens, setExternalAssets, currentShares, etherPrice, setEtherPrice } = useStore();
@@ -37,30 +60,6 @@ export const IndexAssetsBreakdown = observer(() => {
     }
 
     const fetchedAssets = assets!.filter((asset) => asset != undefined).filter((asset) => asset.type === "multipool") as MultipoolAsset[];
-
-    function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
-        const _decimals = new BigNumber(10).pow(decimals);
-
-        if (number == undefined) {
-            return "0";
-        }
-        const _number = new BigNumber(number.toString());
-
-        const value = _number.dividedBy(_decimals);
-        return toHumanReadable(value.toString(), 2);
-    }
-
-    function tohumanReadableCashback(number: BigNumber, decimals = 18) {
-        const _decimals = new BigNumber(10).pow(decimals);
-
-        if (number == undefined) {
-            return "0";
-        }
-        const _number = new BigNumber(number.toString());
-
-        const value = _number.dividedBy(_decimals).multipliedBy(etherPrice);
-        return value.toFixed(2) + "$";
-    }
 
     return (
         <Table className="hidden sm:table bg-[#0c0a09]">
@@ -111,7 +110,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                 <TableCell>{price.toFixed(4)}$</TableCell>
                                 <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>
                                 <TableCell className={color}>{Deviation.toFixed(3)} %</TableCell>
-                                <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, fetchedAsset.decimals)}</TableCell>
+                                <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, etherPrice, fetchedAsset.decimals)}</TableCell>
                             </TableRow>
                         )
                     })

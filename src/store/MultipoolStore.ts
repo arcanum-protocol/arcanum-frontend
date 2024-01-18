@@ -1,6 +1,6 @@
 import { ExternalAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
-import { makeAutoObservable, runInAction } from 'mobx';
-import { Address, getContract, parseEther } from 'viem';
+import { makeAutoObservable, runInAction, toJS, when } from 'mobx';
+import { Address, decodeAbiParameters, getContract, parseEther } from 'viem';
 import { publicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
@@ -92,6 +92,7 @@ class MultipoolStore {
 
     swapIsLoading: boolean = false;
     multipoolIsLoading: boolean = true;
+    assetsIsLoading: boolean = true;
 
     constructor(mp_id: string) {
         this.multipoolId = mp_id;
@@ -152,6 +153,39 @@ class MultipoolStore {
             chainId: this.chainId,
             price: this.price,
         } as SolidAsset;
+    }
+
+    async getPriceFeeds() {
+        await when(() => this.assets.length > 0);
+
+        const multipool = {
+            address: this.multipool.address,
+            abi: multipoolABI,
+        } as const;
+
+        const result = await this.publicClient?.multicall({
+            contracts: this.assets.map((asset) => {
+                return {
+                    ...multipool,
+                    functionName: "getPriceFeed",
+                    args: [asset.address]
+                }
+            })
+        });
+
+        const feedInfos = result?.map((result) => {
+            return {
+                feedType: (result.result as any).kind as bigint,
+                feedData: decodeAbiParameters([{ name: "oracle", type: "address" }, { name: "reversed", type: "bool" }, { name: "twapInterval", type: "uint256" }], (result.result as any).data as Address)
+            }
+        });
+
+        const feedInfosMap = new Map<Address, { feedType: bigint, oracle: Address, reversed: boolean, twapInterval: bigint }>();
+        for (const [index, feedInfo] of feedInfos!.entries()) {
+            feedInfosMap.set(this.assets[index].address!, { feedType: feedInfo.feedType, oracle: feedInfo.feedData[0], reversed: feedInfo.feedData[1], twapInterval: feedInfo.feedData[2] });
+        }
+
+        return feedInfosMap;
     }
 
     async setExternalAssets() {
@@ -240,8 +274,6 @@ class MultipoolStore {
             }).flat()
         });
 
-        console.log("result", result);
-
         for (let i = 0; i < assets.length; i++) {
             const token = assets[i];
 
@@ -277,8 +309,11 @@ class MultipoolStore {
                 multipoolQuantity: quantity,
             });
         }
+
+        console.log("assets", toJS(_assets))
         runInAction(() => {
             this.assets = _assets;
+            this.assetsIsLoading = false;
             this.setAction("mint");
         });
     }

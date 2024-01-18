@@ -2,7 +2,6 @@ import { IndexAssetsBreakdown } from '../../components/index-breakdown';
 import { TradePaneInner } from '../../components/trade-pane';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getSVG } from "@/lib/svg-adapter";
 import { observer } from "mobx-react-lite";
 import { MultipoolStore } from "@/store/MultipoolStore";
 import TVChartContainer from "@/components/tv-chart";
@@ -11,7 +10,7 @@ import { AdminPannel } from './admin';
 import { useQuery } from '@tanstack/react-query';
 import { StoreProvider, useStore } from '@/contexts/StoreContext';
 import { getMultipoolMarketData } from '@/api/arcanum';
-import { toast, useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 export const Admin = observer(() => {
     return (
@@ -200,4 +199,3 @@ export const Head = observer(() => {
         </div>
     );
 });
-

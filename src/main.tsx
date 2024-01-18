@@ -3,9 +3,10 @@ import { App } from "./App";
 import "./index.css";
 
 import { RouterProvider, createBrowserRouter, useRouteError } from "react-router-dom";
-import { Admin, Arbi, SPI } from "./lib/pages/main";
+import { Admin, Arbi, SPI } from "./lib/pages/multipool";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { Analytics } from "./lib/pages/analytics";
 
 
 function ErrorBoundary() {
@@ -75,6 +76,14 @@ const router = createBrowserRouter([
             {
                 path: "/spi",
                 element: <SPI />,
+            }, 
+            {
+                path: "*",
+                element: <ErrorBoundary />,
+            },
+            {
+                path: "/analytics/:id",
+                element: <Analytics />,
             }
         ]
     },
