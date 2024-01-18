@@ -298,7 +298,6 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         const swapRoute = createRoute(pools, inputToken, outputToken);
 
         const amountInShare = amountIn.multipliedBy(amount).dividedBy(100);
-        console.log("amountIn", amountIn.toFixed(0), amount.toFixed(0), amountInShare.toFixed(0));
         const { amountOut, ethValue } = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
         const trade = createTrade(swapRoute, amountInShare, amountOut);
 
