@@ -110,7 +110,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                 <TableCell>{price.toFixed(4)}$</TableCell>
                                 <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>
                                 <TableCell className={color}>{Deviation.toFixed(3)} %</TableCell>
-                                <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, etherPrice, fetchedAsset.decimals)}</TableCell>
+                                <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, etherPrice)}</TableCell>
                             </TableRow>
                         )
                     })
