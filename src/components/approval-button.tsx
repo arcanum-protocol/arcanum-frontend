@@ -174,7 +174,7 @@ const UniswapSwap = observer(() => {
     const { address } = useAccount();
     const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
 
-    const inputQuantityBigInt = BigInt(inputQuantity?.toFixed() || "0");
+    const inputQuantityBigInt = BigInt(inputQuantity?.toFixed(0) || "0");
 
     const { data: balance } = useBalance({
         address: address,
@@ -258,7 +258,7 @@ const ArcanumSwap = observer(() => {
         token: inputAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : inputAsset?.address,
         watch: true,
     });
-    const inputQuantityBigInt = BigInt(inputQuantity?.toFixed() || "0");
+    const inputQuantityBigInt = BigInt(inputQuantity?.toFixed(0) || "0");
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 

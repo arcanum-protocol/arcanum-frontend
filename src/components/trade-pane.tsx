@@ -66,6 +66,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const [debounce, setDebounce] = useState<NodeJS.Timeout | undefined>();
 
     const quantity = hrQuantity(text);
+    const thisQuantity = text === "Send" ? hrQuantity("Receive") : hrQuantity("Send");
 
     const theAsset = text === "Send" ? inputAsset : outputAsset;
     const isDisabled = theAsset?.type === "solid";
@@ -103,10 +104,13 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             );
         }
 
-        const tokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(theAsset?.decimals!));
+        const balanceBG = new BigNumber(balance.value.toString());
+        const decimalsBG = new BigNumber(10).pow(balance.decimals);
+
+        const tokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(balance.decimals));
 
         return (
-            <div className="inline-flex font-mono text-xs text-gray-500">{tokenBalance.toFixed(4)}</div>
+            <div className="inline-flex font-mono text-xs text-gray-500 cursor-pointer" onClick={() => setQuantity(text, balanceBG.dividedBy(decimalsBG).toFixed())}>{tokenBalance.toFixed(4)}</div>
         );
     }
 
@@ -145,6 +149,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                             <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                                 placeholder="0"
                                 onChange={handleInputChange}
+                                value={thisQuantity}
                             /> :
                             swapIsLoading ?
                                 <Skeleton className="rounded w-full h-10" /> :

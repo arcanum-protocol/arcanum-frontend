@@ -10,7 +10,7 @@ import BigNumber from "bignumber.js";
 import { observer } from "mobx-react-lite";
 import { useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import { useQuery } from "wagmi";
+import { useQuery } from "@tanstack/react-query";
 
 export const Head = observer(() => {
     const { multipoolId, multipoolAddress, assets, setTokens, setEtherPrice, assetsIsLoading, etherPrice } = useStore();

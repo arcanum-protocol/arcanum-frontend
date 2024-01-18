@@ -390,13 +390,13 @@ class MultipoolStore {
             if (this.isExactInput) {
                 if (inputQuantity === undefined) return undefined;
 
-                selectedAssets.set(inputAssetAddress, BigInt(inputQuantity.toFixed()));
+                selectedAssets.set(inputAssetAddress, BigInt(inputQuantity.toFixed(0)));
                 selectedAssets.set(outputAssetAddress, BigInt("-1000000000000000000"));
             } else {
                 if (outputQuantity === undefined) return undefined;
 
                 selectedAssets.set(inputAssetAddress, BigInt("1000000000000000000"));
-                selectedAssets.set(outputAssetAddress, BigInt(outputQuantity.multipliedBy(-1).toFixed()));
+                selectedAssets.set(outputAssetAddress, BigInt(outputQuantity.multipliedBy(-1).toFixed(0)));
             }
         } else {
             if (this.inputAsset === undefined || this.outputAsset === undefined) return undefined
@@ -978,6 +978,7 @@ class MultipoolStore {
         direction: "Send" | "Receive",
         value: string | undefined
     ) {
+        console.log("setQuantity", direction, value);
         if (value === undefined) {
             this.inputQuantity = undefined;
             this.outputQuantity = undefined;

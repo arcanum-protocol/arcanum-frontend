@@ -41,6 +41,7 @@ export const IndexAssetsBreakdown = observer(() => {
         return 1;
     }, {
         retry: true,
+        refetchOnWindowFocus: false,
     });
 
     useQuery(["etherPrice"], async () => {
@@ -50,6 +51,7 @@ export const IndexAssetsBreakdown = observer(() => {
     }, {
         refetchInterval: 15000,
         retry: true,
+        refetchOnWindowFocus: false,
     });
 
     if (isLoading) {
