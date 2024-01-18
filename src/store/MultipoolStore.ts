@@ -1086,8 +1086,8 @@ class MultipoolStore {
         }
 
         const totalDollarValue = multipoolAssets.reduce((acc, asset) => {
-            return acc.plus(asset.price.multipliedBy(asset.multipoolQuantity));
-        }, new BigNumber(0));
+            return acc.plus(asset.price.multipliedBy(asset.multipoolQuantity.dividedBy(10 ** asset.decimals)));
+        }, new BigNumber(0)).multipliedBy(this.etherPrice);
 
         const addressToShare = new Map<Address, BigNumber>();
 
@@ -1101,7 +1101,7 @@ class MultipoolStore {
                 continue;
             }
 
-            const assetValue = asset.price.multipliedBy(asset.multipoolQuantity);
+            const assetValue = asset.price.multipliedBy(asset.multipoolQuantity).dividedBy(10 ** asset.decimals).multipliedBy(this.etherPrice);
 
             const share = new BigNumber(assetValue).dividedBy(totalDollarValue).multipliedBy(100);
 
