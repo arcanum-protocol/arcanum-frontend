@@ -128,6 +128,11 @@ function Navbar() {
                         </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
+                        <NavigationMenuLink href='/farms' className={navigationMenuTriggerStyle()}>
+                            Farming
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
                         <NavigationMenuTrigger>Socials</NavigationMenuTrigger>
                         <NavigationMenuContent>
                             <ul className="grid gap-3 p-4 md:grid-cols-1 w-32">

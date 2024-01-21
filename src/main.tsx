@@ -7,6 +7,7 @@ import { Admin, Arbi, SPI } from "./lib/pages/multipool";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "./lib/pages/analytics";
+import { Farms } from "./lib/pages/farm";
 
 
 function ErrorBoundary() {
@@ -84,6 +85,10 @@ const router = createBrowserRouter([
             {
                 path: "/analytics/:id",
                 element: <Analytics />,
+            }, 
+            {
+                path: "/farms",
+                element: <Farms />,
             }
         ]
     },

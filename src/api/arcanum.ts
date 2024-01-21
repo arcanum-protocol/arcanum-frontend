@@ -62,5 +62,12 @@ async function getSignedPrice(multipoolId: string) {
     return BigNumber(data.sharePrice);
 }
 
-export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice };
+async function fetchFarms() {
+    const farms = await axios.get(`https://app.arcanum.to/api/farms.yaml`);
+    // parse farms
+    const data = yaml.parse(farms.data);
+    return data;
+}
+
+export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice, fetchFarms };
 
