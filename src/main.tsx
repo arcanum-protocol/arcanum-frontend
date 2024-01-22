@@ -3,7 +3,7 @@ import { App } from "./App";
 import "./index.css";
 
 import { RouterProvider, createBrowserRouter, useRouteError } from "react-router-dom";
-import { Admin, Arbi, SPI } from "./lib/pages/multipool";
+import { Admin, Multipool } from "./lib/pages/multipool";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "./lib/pages/analytics";
@@ -64,19 +64,15 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <Arbi />,
+                element: <Multipool />,
             },
             {
-                path: "/arbi",
-                element: <Arbi />,
+                path: "/:id",
+                element: <Multipool />,
             },
             {
                 path: "/admin",
                 element: <Admin />,
-            },
-            {
-                path: "/spi",
-                element: <SPI />,
             }, 
             {
                 path: "*",

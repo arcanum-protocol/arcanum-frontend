@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { StoreProvider, useStore } from '@/contexts/StoreContext';
 import { getMultipoolMarketData } from '@/api/arcanum';
 import { useToast } from '@/components/ui/use-toast';
+import { useParams } from 'react-router-dom';
 
 export const Admin = observer(() => {
     return (
@@ -20,18 +21,18 @@ export const Admin = observer(() => {
     )
 });
 
-export const SPI = () => {
-    const multipool = new MultipoolStore("spi");
+export const Multipool = () => {
+    const { id } = useParams();
+    if (id == undefined) {
+        const multipool = new MultipoolStore("arbi");
 
-    return (
-        <StoreProvider store={multipool}>
-            <MainInner />
-        </StoreProvider>
-    )
-};
-
-export const Arbi = () => {
-    const multipool = new MultipoolStore("arbi");
+        return (
+            <StoreProvider store={multipool}>
+                <MainInner />
+            </StoreProvider>
+        )
+    }
+    const multipool = new MultipoolStore(id);
 
     return (
         <StoreProvider store={multipool}>
