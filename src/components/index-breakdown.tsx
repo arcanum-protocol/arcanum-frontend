@@ -1,4 +1,3 @@
-import { toHumanReadable } from "../lib/format-number";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { observer } from "mobx-react-lite";
@@ -7,17 +6,30 @@ import { MultipoolAsset } from "@/types/multipoolAsset";
 import { useStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 export function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
+    const subsrint = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"];
     const _decimals = new BigNumber(10).pow(decimals);
+    if (number.dividedBy(_decimals).isLessThan(0.001)) {
+        const _number = number.dividedBy(_decimals).toFixed();
+        console.log("number", _number);
+        const numberWithout_zerodotzero = _number.substring(3, _number.length);
 
-    if (number == undefined) {
-        return "0";
+        // regex to remove trailing zeros
+        const numberWithoutTrailingZeros = numberWithout_zerodotzero.replace(/^0+(?=\d)/, '');
+        const trailingZerosCount = numberWithout_zerodotzero.length - numberWithoutTrailingZeros.length;
+        // replase the zeros with the subscript
+        const numberWithSubscript = trailingZerosCount.toString().split("").map((char) => subsrint[parseInt(char)]).join("");
+
+        return `0.0${numberWithSubscript}${numberWithoutTrailingZeros}`;
+    } else {
+        const _decimals = new BigNumber(10).pow(decimals);
+        const _number = new BigNumber(number.toString());
+
+        const value = _number.dividedBy(_decimals);
+        return value.toFixed(3);
     }
-    const _number = new BigNumber(number.toString());
-
-    const value = _number.dividedBy(_decimals);
-    return toHumanReadable(value.toString(), 2);
 }
 
 export function tohumanReadableCashback(number: BigNumber, etherPrice: number, decimals = 18) {
@@ -94,6 +106,8 @@ export const IndexAssetsBreakdown = observer(() => {
                         const Deviation = idealShare.minus(currentShare);
                         const color = Deviation.isLessThan(0) ? "text-red-400" : "text-green-400";
 
+                        const balance = fetchedAsset.multipoolQuantity;
+
                         return (
                             <TableRow key={fetchedAsset.address}>
                                 <TableCell className="text-left">
@@ -110,7 +124,22 @@ export const IndexAssetsBreakdown = observer(() => {
                                     isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
                                 }
                                 <TableCell>{price.toFixed(4)}$</TableCell>
-                                <TableCell>{tohumanReadableQuantity(fetchedAsset.multipoolQuantity, fetchedAsset.decimals)}</TableCell>
+                                <TableCell>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild className="items-center text-lg lg:text-sm">
+                                                <p>
+                                                    {balance === undefined ? "0.000" : tohumanReadableQuantity(balance, fetchedAsset.decimals)}
+                                                </p>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                                <p>
+                                                    {balance.dividedBy(BigNumber(10).pow(fetchedAsset.decimals)).toFixed()} {fetchedAsset.symbol}
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </TableCell>
                                 <TableCell className={color}>{Deviation.toFixed(3)} %</TableCell>
                                 <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, etherPrice)}</TableCell>
                             </TableRow>
