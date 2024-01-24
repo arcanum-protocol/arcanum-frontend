@@ -1,5 +1,6 @@
 import { WagmiConfig, useNetwork } from "wagmi";
 import {
+    Avatar,
     ChainIcon,
     ConnectKitButton,
     ConnectKitProvider,
@@ -24,6 +25,23 @@ import { useState } from "react";
 import { Toaster } from "./components/ui/toaster";
 
 const client = new QueryClient();
+
+const ConnectWallet = () => {
+    return (
+        <ConnectKitButton.Custom>
+            {({ isConnected, show, truncatedAddress }) => {
+                return (
+                    <>
+                        <button onClick={show} className="flex w-full border h-9 rounded bg-[#0c0a09] px-2 gap-2 items-center justify-center">
+                            <Avatar address={"0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"} size={24} />
+                            {isConnected ? truncatedAddress : "Connect Wallet"}
+                        </button>
+                    </>
+                );
+            }}
+        </ConnectKitButton.Custom>
+    );
+};
 
 function App() {
     return (
@@ -79,8 +97,8 @@ function Navbar() {
     }
 
     return (
-        <div className="flex flex-row min-w-full justify-between items-center mb-[1.5rem]">
-            <div className="z-50 block lg:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <div className="flex flex-row min-w-full justify-between items-center mb-2">
+            <div className="z-50 block xl:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
@@ -110,12 +128,10 @@ function Navbar() {
                     </div>
                 </div>
             </div>
-            <div className="hidden lg:block w-[200px]">
-                <div className="w-[200px]">
-                    <img src={getSVG("logo")} alt="Logo" />
-                </div>
+            <div className="hidden xl:block">
+                    <img className="w-8 h-8" src={getSVG("logo")} alt="Logo" />
             </div>
-            <NavigationMenu className={"hidden lg:block"}>
+            <NavigationMenu className={"hidden xl:block"}>
                 <NavigationMenuList>
                     <NavigationMenuItem>
                         <NavigationMenuLink href='/spi' className={navigationMenuTriggerStyle()}>
@@ -185,9 +201,9 @@ function Navbar() {
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
-            <div className="flex flex-row justify-center items-center gap-3 w-[225px]">
+            <div className="flex flex-row justify-center items-center gap-3">
                 {getChainIcon()}
-                <ConnectKitButton />
+                <ConnectWallet />
             </div>
         </div>
     );

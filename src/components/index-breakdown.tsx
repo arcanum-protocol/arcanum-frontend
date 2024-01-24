@@ -108,7 +108,7 @@ export const IndexAssetsBreakdown = observer(() => {
 
     if (isLoading) {
         return (
-            <Skeleton className="relative w-[897px] overflow-auto rounded border h-[225.2px]">
+            <Skeleton className="hidden sm:table relative w-[897px] overflow-auto rounded border h-[225.2px]">
             </Skeleton>
         );
     }
@@ -116,8 +116,8 @@ export const IndexAssetsBreakdown = observer(() => {
     const fetchedAssets = assets!.filter((asset) => asset != undefined).filter((asset) => asset.type === "multipool") as MultipoolAsset[];
 
     return (
-        <>
-            <Table className="hidden sm:table bg-[#0c0a09]">
+        <div className="hidden sm:table w-full">
+            <Table className="bg-[#0c0a09]">
                 <TableHeader>
                     <TableRow>
                         <TableHead className="text-left">Asset</TableHead>
@@ -200,6 +200,6 @@ export const IndexAssetsBreakdown = observer(() => {
                     }
                 </TableBody>
             </Table>
-        </>
+        </div>
     );
 });

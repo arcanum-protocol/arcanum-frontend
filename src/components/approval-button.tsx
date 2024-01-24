@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useBalance, useContractRead, useContractWrite, usePrepareContractWrite, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
+import { Address, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -10,7 +10,6 @@ import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
 import { ConnectKitButton } from "connectkit";
 import { useAllowence } from "@/hooks/useAllowence";
-import BigNumber from "bignumber.js";
 
 export const ConnectWallet = () => {
     return (
