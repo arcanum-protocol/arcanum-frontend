@@ -15,7 +15,6 @@ export function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
     const _decimals = new BigNumber(10).pow(decimals);
     if (number.dividedBy(_decimals).isLessThan(0.001)) {
         const _number = number.dividedBy(_decimals).toFixed();
-        console.log("number", _number);
         const numberWithout_zerodotzero = _number.substring(3, _number.length);
 
         // regex to remove trailing zeros

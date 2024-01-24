@@ -193,13 +193,12 @@ const UniswapSwap = observer(() => {
             }
         }
 
-        if (address === undefined) return 1;
         if (inputQuantity === undefined) return 1;
 
         return await swap(address);
     }, {
         refetchInterval: 10000,
-        enabled: address !== undefined && inputQuantity !== undefined && !inputQuantity.isZero()
+        enabled: inputQuantity !== undefined && !inputQuantity.isZero()
     });
 
     useEffect(() => {
