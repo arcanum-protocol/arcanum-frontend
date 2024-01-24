@@ -159,7 +159,7 @@ const TVChartContainer = observer(() => {
     return (
         <div
             ref={chartContainerRef}
-            className={`TVChartContainer w-full h-[16rem] xl:h-[30rem] rounded-2xl`}
+            className={`TVChartContainer w-full h-[22rem] xl:h-[30rem] rounded-2xl`}
         />
     );
 });
