@@ -1,9 +1,34 @@
 import { fetchFarms } from "@/api/arcanum"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useQuery } from "@tanstack/react-query"
 
+
+function Details() {
+    return (
+        <Accordion type="single" collapsible className="w-full px-4">
+            <AccordionItem value="item-1">
+                <AccordionTrigger>Details</AccordionTrigger>
+                <AccordionContent>
+                    <div className="grid grid-cols-2 gap-2 justify-between">
+                        <p className="text-left">Pool</p>
+                        <p className="text-right">0xd0fF••••048F</p>
+                        <p className="text-left">ETF</p>
+                        <p className="text-right">0xd0fF••••048F</p>
+                        <p className="text-left">Reward token</p>
+                        <p className="text-right">
+                            <div className="inline-flex align-baseline">
+                                <img className="w-5 h-5" src='/brands/arbitrum.svg' />$ARB
+                            </div>
+                        </p>
+                    </div>
+                </AccordionContent>
+            </AccordionItem>
+        </Accordion>
+    )
+}
 
 function Farms() {
     const { data, isLoading, isError } = useQuery(['farms'], () => fetchFarms(), { refetchOnWindowFocus: false });
@@ -24,11 +49,11 @@ function Farms() {
                 <div className="text-3xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">🌱FARMS🌱</div>
                 <div className="text-gray-300 text-xl">EARN <a className="bg-gradient-to-r from-red-700 to-purple-400 text-transparent bg-clip-text animate-gradient">REWARDS</a> BY STAKING YOUR <a className="underline decoration-indigo-500">ETF</a> TOKENS</div>
             </div>
-            <div className="grid grid-cols-6 gap-1">
+            <div className="grid grid-cols-4 gap-1">
                 {
                     farms?.map((farm: any) => {
                         return (
-                            <div className="border rounded bg-[#0c0a09]">
+                            <div className="flex flex-col border rounded bg-[#0c0a09] h-min">
                                 <div className="flex flex-col items-center px-4 pb-4">
                                     <Avatar className="w-12 h-12">
                                         <AvatarImage src={farm.logo} className="w-12 h-12" />
@@ -46,11 +71,7 @@ function Farms() {
                                 </div>
                                 <Separator />
                                 <div className="text-xs p-1 cursor-pointer">
-                                    Details
-                                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd">
-                                        </path>
-                                    </svg>
+                                    <Details />
                                 </div>
                                 <div className="w-full">
                                     <Button className="w-full border bg-transparent rounded-md border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false}>
