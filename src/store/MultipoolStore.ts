@@ -1,12 +1,11 @@
+import { Address, decodeAbiParameters, getContract, encodeAbiParameters } from 'viem';
+import { makeAutoObservable, runInAction, when } from 'mobx';
 import { ExternalAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
-import { makeAutoObservable, runInAction, toJS, when } from 'mobx';
-import { Address, decodeAbiParameters, getContract, parseEther } from 'viem';
 import { publicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
 import { fromX96 } from '@/lib/utils';
 import BigNumber from 'bignumber.js';
-import { encodeAbiParameters } from 'viem';
 import { getEtherPrice, getMultipool } from '@/api/arcanum';
 import { getExternalAssets, getForcePushPrice, parseError } from '@/lib/multipoolUtils';
 import { JAMQuote, PARAM_DOMAIN, PARAM_TYPES } from '@/api/bebop';
@@ -90,9 +89,12 @@ class MultipoolStore {
         amountOut: BigNumber;
     }[] = [];
 
+    prices: Map<Address, BigNumber> = new Map<Address, BigNumber>();
+
     swapIsLoading: boolean = false;
     multipoolIsLoading: boolean = true;
     assetsIsLoading: boolean = true;
+    pricesIsLoading: boolean = true;
 
     constructor(mp_id: string) {
         this.multipoolId = mp_id;
@@ -197,13 +199,17 @@ class MultipoolStore {
                 decimals: asset.decimals,
                 logo: asset.logoURI,
                 address: asset.address,
-                price: new BigNumber(asset.price),
                 type: "external",
             } as ExternalAsset;
         });
 
+        const exPrices: Map<Address, BigNumber> = new Map<Address, BigNumber>();
+
         runInAction(() => {
             this.externalAssets = externalAssets;
+            for (const [address, price] of exPrices) {
+                exPrices.set(address, price);
+            }
         });
     }
 
@@ -274,6 +280,8 @@ class MultipoolStore {
             }).flat()
         });
 
+        const mpAssetsPrices = new Map<Address, BigNumber>();
+
         for (let i = 0; i < assets.length; i++) {
             const token = assets[i];
 
@@ -304,18 +312,50 @@ class MultipoolStore {
                 type: "multipool",
                 multipoolAddress: this.multipool.address,
                 idealShare: idealShare,
-                price: price,
                 collectedCashbacks: asset.collectedCashbacks,
                 multipoolQuantity: quantity,
             });
+
+            mpAssetsPrices.set(tokenAddress, price);
         }
 
-        console.log("assets", toJS(_assets))
         runInAction(() => {
             this.assets = _assets;
             this.assetsIsLoading = false;
             this.setAction("mint");
+            mpAssetsPrices.forEach((price, address) => {
+                this.prices.set(address, price);
+            });
         });
+    }
+
+    async setPrices() {
+        for (const asset of this.assets) {
+            if (asset.address === undefined) continue;
+            const rawPrice = await this.multipool.read.getPrice([asset.address]);
+            const price = fromX96(rawPrice, asset.decimals);
+            
+            runInAction(() => {
+                this.prices.set(asset.address!, new BigNumber(price.toString()));
+            });
+        }
+
+        const exPrices: Map<Address, BigNumber> = (await getExternalAssets()).reduce((map, asset) => {
+            map.set(asset.address! as Address, new BigNumber(asset.price));
+            return map;
+        }, new Map<Address, BigNumber>());
+
+        for (const asset of this.externalAssets) {
+            if (asset.address == undefined) continue;
+
+            runInAction(() => {
+                this.prices.set(asset.address!, exPrices.get(asset.address!)!);
+            });
+        }
+    }
+
+    get getPrices() {
+        return this.prices;
     }
 
     async updatePricesUniswap() {
@@ -1079,7 +1119,7 @@ class MultipoolStore {
             };
         }
         const multipoolAssets = this.assets.filter((asset) => asset != undefined).filter((asset) => asset.type === "multipool") as MultipoolAsset[];
-        if (multipoolAssets.some((asset) => asset.price === undefined || asset.multipoolQuantity === undefined)) {
+        if (multipoolAssets.some((asset) => this.prices.get(asset.address!) === undefined || asset.multipoolQuantity === undefined)) {
             return {
                 data: new Map<Address, BigNumber>(),
                 isLoading: true
@@ -1087,13 +1127,13 @@ class MultipoolStore {
         }
 
         const totalDollarValue = multipoolAssets.reduce((acc, asset) => {
-            return acc.plus(asset.price.multipliedBy(asset.multipoolQuantity.dividedBy(10 ** asset.decimals)));
+            return acc.plus(this.prices.get(asset.address!)!.multipliedBy(asset.multipoolQuantity.dividedBy(10 ** asset.decimals)));
         }, new BigNumber(0)).multipliedBy(this.etherPrice);
 
         const addressToShare = new Map<Address, BigNumber>();
 
         for (const asset of multipoolAssets) {
-            if (asset.price.isEqualTo(0)) {
+            if (this.prices.get(asset.address!)!.isEqualTo(0)) {
                 addressToShare.set(asset.address!, BigNumber(0));
                 continue;
             }
@@ -1102,7 +1142,7 @@ class MultipoolStore {
                 continue;
             }
 
-            const assetValue = asset.price.multipliedBy(asset.multipoolQuantity).dividedBy(10 ** asset.decimals).multipliedBy(this.etherPrice);
+            const assetValue = this.prices.get(asset.address!)!.multipliedBy(asset.multipoolQuantity).dividedBy(10 ** asset.decimals).multipliedBy(this.etherPrice);
 
             const share = new BigNumber(assetValue).dividedBy(totalDollarValue).multipliedBy(100);
 
@@ -1128,9 +1168,9 @@ class MultipoolStore {
         const asset = [...this.assets, ...this.externalAssets].find((asset) => asset.address === thisPrice) as MultipoolAsset | ExternalAsset;
 
         if (asset === undefined) return BigNumber(0);
-        if (asset.price === undefined) return BigNumber(0);
+        if (this.prices.get(asset.address!) === undefined) return BigNumber(0);
 
-        return asset.price;
+        return this.prices.get(asset.address!)!;
     }
 
     hrQuantity(direction: "Send" | "Receive"): string {

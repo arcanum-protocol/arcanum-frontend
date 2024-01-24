@@ -7,6 +7,9 @@ import { useStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { useEffect, useState } from "react";
+import { get } from "http";
+import { Address } from "viem";
 
 export function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
     const subsrint = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"];
@@ -45,7 +48,8 @@ export function tohumanReadableCashback(number: BigNumber, etherPrice: number, d
 }
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, setEtherPrice } = useStore();
+    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, setEtherPrice, getPrices, setPrices } = useStore();
+    const [priceChangeColor, setPriceChangeColor] = useState<Map<Address, "increase" | "decrease" | "none"> | undefined>(undefined);
 
     const { isLoading } = useQuery(["assets"], async () => {
         await Promise.all([setTokens(), setExternalAssets()]);
@@ -56,8 +60,49 @@ export const IndexAssetsBreakdown = observer(() => {
         refetchOnWindowFocus: false,
     });
 
+    useEffect(() => {
+        (async () => {
+            const priceChangeColor: Map<Address, "increase" | "decrease" | "none"> = new Map();
+            getPrices.forEach((value, key) => {
+                priceChangeColor.set(key, "none");
+            });
+
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            setPriceChangeColor(priceChangeColor);
+        })()
+    }, [priceChangeColor]);
+
     useQuery(["etherPrice"], async () => {
+        const previousPrices: Map<Address, BigNumber> = new Map();
+        getPrices.forEach((value, key) => {
+            previousPrices.set(key, value);
+        });
+
         await setEtherPrice();
+        await setPrices();
+
+        const newPrices: Map<Address, BigNumber> = new Map();
+        getPrices.forEach((value, key) => {
+            newPrices.set(key, value);
+        });
+
+        const priceChangeColor: Map<Address, "increase" | "decrease" | "none"> = new Map();
+
+        newPrices.forEach((value, key) => {
+            const previousPrice = previousPrices.get(key);
+            if (previousPrice != undefined) {
+                if (value.isGreaterThan(previousPrice)) {
+                    priceChangeColor.set(key, 'increase');
+                } else if (value.isLessThan(previousPrice)) {
+                    priceChangeColor.set(key, 'decrease');
+                } else {
+                    priceChangeColor.set(key, "none");
+                }
+            }
+        });
+
+        setPriceChangeColor(priceChangeColor);
 
         return 1;
     }, {
@@ -65,6 +110,7 @@ export const IndexAssetsBreakdown = observer(() => {
         retry: true,
         refetchOnWindowFocus: false,
     });
+
 
     if (isLoading) {
         return (
@@ -93,12 +139,16 @@ export const IndexAssetsBreakdown = observer(() => {
                     fetchedAssets.map((fetchedAsset) => {
                         const { data: shares, isLoading } = currentShares;
 
-                        if (fetchedAsset.price == undefined) {
+                        if (fetchedAsset.address == undefined) {
+                            return null;
+                        }
+
+                        if (getPrices.get(fetchedAsset.address) == undefined) {
                             return null;
                         }
 
                         const _etherPrice = new BigNumber(etherPrice.toString());
-                        const price = fetchedAsset.price.multipliedBy(_etherPrice);
+                        const price = getPrices.get(fetchedAsset.address)!.multipliedBy(_etherPrice);
 
                         const idealShare = fetchedAsset.idealShare ?? new BigNumber(0);
                         const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);
@@ -107,6 +157,8 @@ export const IndexAssetsBreakdown = observer(() => {
                         const color = Deviation.isLessThan(0) ? "text-red-400" : "text-green-400";
 
                         const balance = fetchedAsset.multipoolQuantity;
+
+                        const priceChangeColorClass = priceChangeColor?.get(fetchedAsset.address) === 'increase' ? 'text-green-400' : priceChangeColor?.get(fetchedAsset.address) === 'decrease' ? 'text-red-400' : '';
 
                         return (
                             <TableRow key={fetchedAsset.address}>
@@ -123,7 +175,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                 {
                                     isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
                                 }
-                                <TableCell>{price.toFixed(4)}$</TableCell>
+                                <TableCell className={priceChangeColorClass}>{price.toFixed(4)}$</TableCell>
                                 <TableCell>
                                     <TooltipProvider>
                                         <Tooltip>
@@ -134,7 +186,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                             </TooltipTrigger>
                                             <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
                                                 <p>
-                                                    {balance.dividedBy(BigNumber(10).pow(fetchedAsset.decimals)).toFixed()} {fetchedAsset.symbol}
+                                                    {balance === undefined ? "0" : balance.dividedBy(BigNumber(10).pow(fetchedAsset.decimals)).toFixed()} {fetchedAsset.symbol}
                                                 </p>
                                             </TooltipContent>
                                         </Tooltip>
