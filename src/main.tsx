@@ -82,10 +82,10 @@ const router = createBrowserRouter([
                 path: "/analytics/:id",
                 element: <Analytics />,
             }, 
-            // {
-            //     path: "/farms",
-            //     element: <Farms />,
-            // }
+            {
+                path: "/farms",
+                element: <Farms />,
+            }
         ]
     },
 
