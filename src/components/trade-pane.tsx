@@ -151,7 +151,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                             <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                                 placeholder="0"
                                 onChange={handleInputChange}
-                                value={thisQuantity}
+                                value={address == undefined ? undefined : thisQuantity }
                             /> :
                             swapIsLoading ?
                                 <Skeleton className="rounded w-full h-10" /> :
