@@ -29,11 +29,11 @@ const client = new QueryClient();
 const ConnectWallet = () => {
     return (
         <ConnectKitButton.Custom>
-            {({ isConnected, show, truncatedAddress }) => {
+            {({ isConnected, show, truncatedAddress, address }) => {
                 return (
                     <>
                         <button onClick={show} className="flex w-full border h-9 rounded bg-[#0c0a09] px-2 gap-2 items-center justify-center">
-                            <Avatar address={"0xd0fFEB96E4e9D1A4de008A2FD5A9C416d7cE048F"} size={24} />
+                            {address ? <Avatar address={address} size={24} /> : <></>}
                             {isConnected ? truncatedAddress : "Connect Wallet"}
                         </button>
                     </>
