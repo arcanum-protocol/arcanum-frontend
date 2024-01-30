@@ -797,7 +797,6 @@ class MultipoolStore {
             return data;
         }
         if (this.swapType === ActionType.UNISWAP) {
-            console.log("uniswap");
             const data = await this.swapUniswap(userAddress);
             runInAction(() => {
                 this.swapIsLoading = false;
