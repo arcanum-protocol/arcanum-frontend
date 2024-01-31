@@ -161,9 +161,9 @@ function Farm({ farm }: { farm: any }) {
                             <div className="border rounded p-2 w-full mt-2">
                                 <Tabs value={tab} className="w-full" onValueChange={(value) => setTab(value)}>
                                     <TabsList className="grid w-full grid-cols-3">
-                                        <TabsTrigger value='stake'>Stake</TabsTrigger>
-                                        <TabsTrigger value='unstake'>Unstake</TabsTrigger>
-                                        <TabsTrigger value='claim'>Claim</TabsTrigger>
+                                        <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='stake'>Stake</TabsTrigger>
+                                        <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='unstake'>Unstake</TabsTrigger>
+                                        <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='claim'>Claim</TabsTrigger>
                                     </TabsList>
                                     <TabsContent className="flex flex-col gap-2" value='stake'>
 
