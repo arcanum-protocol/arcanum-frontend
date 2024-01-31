@@ -64,9 +64,9 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const { setMainInput, inputAsset, outputAsset, setSelectedTabWrapper, etherPrice, getItemPrice, hrQuantity, mainInput, setQuantity, swapIsLoading } = useStore();
     const { address } = useAccount();
     const [debounce, setDebounce] = useState<NodeJS.Timeout | undefined>();
+    const [inputType, setInputType] = useState<"balance" | "input">("input");
 
     const quantity = hrQuantity(text);
-    const thisQuantity = text === "Send" ? hrQuantity("Receive") : hrQuantity("Send");
 
     const theAsset = text === "Send" ? inputAsset : outputAsset;
     const isDisabled = theAsset?.type === "solid";
@@ -106,32 +106,38 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             );
         }
 
-        const balanceBG = new BigNumber(balance.value.toString());
-        const decimalsBG = new BigNumber(10).pow(balance.decimals);
-
         const tokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(balance.decimals));
 
         return (
-            <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => setQuantity(text, balanceBG.dividedBy(decimalsBG).toFixed())}>{tokenBalance.toFixed(4)}</div>
+            <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => handleInputChange(tokenBalance.toFixed(), "balance")}>{tokenBalance.toFixed(4)}</div>
         );
     }
 
-    function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
-        if (e.target.value === "") {
+    function handleInputChange(e: string, inputType: "balance" | "input") {
+        if (inputType === "input") {
+            setInputType("input");
+        }
+        if (e === "") {
             setQuantity(text, undefined)
             return;
         }
 
         const regex = new RegExp("^[0-9]*[.,]?[0-9]*$");
-        if (!regex.test(e.target.value)) {
+        if (!regex.test(e)) {
             // prevent non-numeric input
-            e.target.value = e.target.value.slice(0, -1);
+            e = e.slice(0, -1);
             return;
         }
 
-        const value = e.target.value.replace(",", ".");
+        const value = e.replace(",", ".");
 
         setMainInput(text);
+
+        if (inputType === "balance") {
+            setInputType("balance");
+            setQuantity(text, value);
+            return;
+        }
 
         debounce && clearTimeout(debounce);
         setDebounce(setTimeout(() => {
@@ -150,8 +156,8 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                         isThisMainInput ?
                             <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                                 placeholder="0"
-                                onChange={handleInputChange}
-                                value={address == undefined ? undefined : thisQuantity }
+                                onChange={(value) => handleInputChange(value.target.value, "input")}
+                                value={inputType == "balance" ? quantity : undefined}
                             /> :
                             swapIsLoading ?
                                 <Skeleton className="rounded w-full h-10" /> :
