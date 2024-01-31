@@ -104,45 +104,6 @@ function Farm({ farm }: { farm: any }) {
                         <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">13.37M</div>
                     </div>
 
-                    <div className="flex flex-row w-full justify-between">
-                        <div className="text-base">Returns:</div>
-                        <Dialog>
-                            <DialogTrigger>
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <div className="text-base bg-gradient-to-r underline decoration-dotted cursor-pointer">
-                                                332 ARB
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-[16px] h-[16px]">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0 0 12 2.25Z" />
-                                                </svg>
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono rounded">
-                                            <div className="text-base">412$</div>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                            </DialogTrigger>
-                            <DialogContent className='rounded'>
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex flex-row justify-between">
-                                        <div className="text-base">Daily:</div>
-                                        <div className="text-base">0.1 ARB</div>
-                                    </div>
-                                    <div className="flex flex-row justify-between">
-                                        <div className="text-base">Weekly:</div>
-                                        <div className="text-base">0.7 ARB</div>
-                                    </div>
-                                    <div className="flex flex-row justify-between">
-                                        <div className="text-base">Monthly:</div>
-                                        <div className="text-base">3 ARB</div>
-                                    </div>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
-
                 </div>
 
                 {
@@ -154,12 +115,46 @@ function Farm({ farm }: { farm: any }) {
                                     <div className="text-base">0 ${farm.name}</div>
                                 </div>
                                 <div className="flex flex-row justify-between">
-                                    <div className="text-base">Rewards:</div>
-                                    <div className="text-base inline-flex">0 $ARB<img className='w-3' src="/brands/arbitrum.svg" /></div>
-                                </div>
-                                <div className="flex flex-row justify-between">
                                     <div className="text-base">Unclaimed:</div>
                                     <div className="text-base inline-flex">0 $ARB<img className='w-3' src="/brands/arbitrum.svg" /></div>
+                                </div>
+                                <div className="flex flex-row w-full justify-between">
+                                    <div className="text-base">Returns:</div>
+                                    <Dialog>
+                                        <DialogTrigger>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <div className="text-base bg-gradient-to-r underline decoration-dotted cursor-pointer">
+                                                            332 ARB
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-[16px] h-[16px]">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V13.5Zm0 2.25h.008v.008H8.25v-.008Zm0 2.25h.008v.008H8.25V18Zm2.498-6.75h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V13.5Zm0 2.25h.007v.008h-.007v-.008Zm0 2.25h.007v.008h-.007V18Zm2.504-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5Zm0 2.25h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V18Zm2.498-6.75h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V13.5ZM8.25 6h7.5v2.25h-7.5V6ZM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0 0 12 2.25Z" />
+                                                            </svg>
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono rounded">
+                                                        <div className="text-base">412$</div>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </DialogTrigger>
+                                        <DialogContent className='rounded'>
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex flex-row justify-between">
+                                                    <div className="text-base">Daily:</div>
+                                                    <div className="text-base">0.1 ARB</div>
+                                                </div>
+                                                <div className="flex flex-row justify-between">
+                                                    <div className="text-base">Weekly:</div>
+                                                    <div className="text-base">0.7 ARB</div>
+                                                </div>
+                                                <div className="flex flex-row justify-between">
+                                                    <div className="text-base">Monthly:</div>
+                                                    <div className="text-base">3 ARB</div>
+                                                </div>
+                                            </div>
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
                             </div>
 
@@ -171,29 +166,45 @@ function Farm({ farm }: { farm: any }) {
                                         <TabsTrigger value='claim'>Claim</TabsTrigger>
                                     </TabsList>
                                     <TabsContent className="flex flex-col gap-2" value='stake'>
-                                        <div className="flex flex-row flex-start items-center justify-between w-full gap-1 rounded border mt-2">
-                                            <div className={'flex flex-row items-center justify-between w-full'}>
-                                                <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
-                                                    placeholder="0" />
+
+                                        <div className="flex flex-col items-center border border-[#292524] mt-2 p-2">
+                                            <div className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left w-[95%]">
+                                                You send to farm:
                                             </div>
-                                            <Dialog>
-                                                <DialogTrigger>
-                                                    <Button className="grow max-w-min rounded py-[6px] pr-[5px] pl-[8px] ml-6 mr-[1px] h-full justify-between bg-[#0c0a09] border border-[#292524] disabled:opacity-100" variant="secondary">
-                                                        <Avatar className="bg-[#0c0a09] h-6 w-6 mr-1">
-                                                            <AvatarImage src={farm.logo} alt="Logo" />
-                                                            <AvatarFallback>{farm.name}</AvatarFallback>
-                                                        </Avatar>
-                                                        <p className="px-0.5 text-white opacity-100">{farm.name}</p>
-                                                        <ChevronDownIcon className="w-5 h-5 text-gray-400" />
-                                                    </Button>
-                                                </DialogTrigger>
-                                                <DialogContent className='rounded w-64'>
-                                                    {
-                                                        <TokenSelector />
-                                                    }
-                                                </DialogContent>
-                                            </Dialog>
+                                            
+                                            <div className="flex flex-row flex-start items-center justify-between w-full gap-1">
+                                                
+                                                <div className={'flex flex-row items-center justify-between w-full'}>
+                                                    <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
+                                                        placeholder="0" />
+                                                </div>
+
+                                                <Dialog>
+                                                    <DialogTrigger>
+                                                        <Button className="grow max-w-min rounded py-[6px] pr-[5px] pl-[8px] ml-6 mr-[1px] h-full justify-between border bg-[#0c0a09] disabled:opacity-100" variant="secondary">
+                                                            <Avatar className="bg-[#0c0a09] h-6 w-6 mr-1">
+                                                                <AvatarImage src={farm.logo} alt="Logo" />
+                                                                <AvatarFallback>{farm.name}</AvatarFallback>
+                                                            </Avatar>
+                                                            <p className="px-0.5 text-white opacity-100">{farm.name}</p>
+                                                            <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className='rounded w-64'>
+                                                        {
+                                                            <TokenSelector />
+                                                        }
+                                                    </DialogContent>
+                                                </Dialog>
+                                            </div>
+
+                                            <div className="flex flex-row justify-between w-[95%]">
+                                                <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = 0 ${farm.name}</div>
+                                                <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left">Balance: 0 ${farm.name}</div>
+                                            </div>
                                         </div>
+
+
                                         <div className="w-full">
                                             <Button className="w-full border bg-transparent rounded-md border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => setOpen(!open)}>
                                                 <p style={{ margin: "10px" }}>Stake</p>
