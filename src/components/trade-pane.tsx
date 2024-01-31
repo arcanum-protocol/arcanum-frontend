@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from "./ui/skeleton";
 import { Button } from './ui/button';
 import { observer } from 'mobx-react-lite';
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { useAccount, useBalance } from "wagmi";
 import { useStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ export const TradePaneInner = observer(() => {
     });
 
     return (
-        <div className="flex flex-col justify-center gap-2">
+        <div className="flex flex-col justify-center gap-2 mt-2">
             <div className="flex flex-col gap-4 items-center">
                 {
                     isLoading ?
@@ -36,7 +36,7 @@ export const TradePaneInner = observer(() => {
                 }
 
                 <div onClick={swapAssets}
-                    className="my-[-2rem] z-10 bg-[#0c0a09] border border-[#2b2b2b] p-2 rounded-md">
+                    className="my-[-2rem] z-10 bg-[#0c0a09] border border-[#2b2b2b] p-2 rounded">
                     <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
                     </svg>
@@ -148,7 +148,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const overrideText = text === "Send" ? "You pay" : "You receive";
 
     return (
-        <div className="flex flex-col justify-between items-start h-full p-3 rounded-md border bg-[#0c0a09] w-full">
+        <div className="flex flex-col justify-between items-start h-full p-3 rounded-md border bg-[#0c0a09] w-[386px]">
             <p className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light">{overrideText} </p>
             <div className="flex flex-row flex-start items-start justify-between w-full gap-1">
                 <div className={'flex flex-row items-center justify-between w-full'}>
