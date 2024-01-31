@@ -169,7 +169,7 @@ function Farm({ farm }: { farm: any }) {
 
                                         <div className="flex flex-col items-center border border-[#292524] mt-2 p-2">
                                             <div className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left w-[95%]">
-                                                You send to farm:
+                                                Deposit:
                                             </div>
                                             
                                             <div className="flex flex-row flex-start items-center justify-between w-full gap-1">
@@ -212,28 +212,41 @@ function Farm({ farm }: { farm: any }) {
                                         </div >
                                     </TabsContent>
                                     <TabsContent className="flex flex-col gap-2" value='unstake'>
-                                        <div className="flex flex-row flex-start items-center justify-between w-full gap-1 rounded border mt-2">
-                                            <div className={'flex flex-row items-center justify-between w-full'}>
-                                                <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
-                                                    placeholder="0" />
+                                    <div className="flex flex-col items-center border border-[#292524] mt-2 p-2">
+                                            <div className="leading-4 m-0 text-xs text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left w-[95%]">
+                                                Withdrawn:
                                             </div>
-                                            <Dialog>
-                                                <DialogTrigger>
-                                                    <Button className="grow max-w-min rounded py-[6px] pr-[5px] pl-[8px] ml-6 mr-[1px] h-full justify-between bg-[#0c0a09] border border-[#292524] disabled:opacity-100" variant="secondary">
-                                                        <Avatar className="bg-[#0c0a09] h-6 w-6 mr-1">
-                                                            <AvatarImage src={farm.logo} alt="Logo" />
-                                                            <AvatarFallback>{farm.name}</AvatarFallback>
-                                                        </Avatar>
-                                                        <p className="px-0.5 text-white opacity-100">{farm.name}</p>
-                                                        <ChevronDownIcon className="w-5 h-5 text-gray-400" />
-                                                    </Button>
-                                                </DialogTrigger>
-                                                <DialogContent className='rounded w-64'>
-                                                    {
-                                                        <TokenSelector />
-                                                    }
-                                                </DialogContent>
-                                            </Dialog>
+                                            
+                                            <div className="flex flex-row flex-start items-center justify-between w-full gap-1">
+                                                
+                                                <div className={'flex flex-row items-center justify-between w-full'}>
+                                                    <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
+                                                        placeholder="0" />
+                                                </div>
+
+                                                <Dialog>
+                                                    <DialogTrigger>
+                                                        <Button className="grow max-w-min rounded py-[6px] pr-[5px] pl-[8px] ml-6 mr-[1px] h-full justify-between border bg-[#0c0a09] disabled:opacity-100" variant="secondary">
+                                                            <Avatar className="bg-[#0c0a09] h-6 w-6 mr-1">
+                                                                <AvatarImage src={farm.logo} alt="Logo" />
+                                                                <AvatarFallback>{farm.name}</AvatarFallback>
+                                                            </Avatar>
+                                                            <p className="px-0.5 text-white opacity-100">{farm.name}</p>
+                                                            <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className='rounded w-64'>
+                                                        {
+                                                            <TokenSelector />
+                                                        }
+                                                    </DialogContent>
+                                                </Dialog>
+                                            </div>
+
+                                            <div className="flex flex-row justify-between w-[95%]">
+                                                <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = 0 ${farm.name}</div>
+                                                <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left">Balance: 0 ${farm.name}</div>
+                                            </div>
                                         </div>
                                         <div className="w-full">
                                             <Button className="w-full border bg-transparent rounded-md border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => setOpen(!open)}>
