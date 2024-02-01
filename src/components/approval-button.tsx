@@ -11,25 +11,19 @@ import { submitOrder } from "@/api/bebop";
 import { ConnectKitButton } from "connectkit";
 import { useAllowence } from "@/hooks/useAllowence";
 
-export const ConnectWallet = () => {
+export const ConnectWallet = ({ customText }: { customText?: string }) => {
     return (
         <ConnectKitButton.Custom>
             {({ isConnected, show, address }) => {
                 return (
                     <button onClick={show} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
-                        {isConnected ? address : "Connect Wallet"}
+                        {isConnected ? address : customText || "Connect Wallet"}
                     </button>
                 );
             }}
         </ConnectKitButton.Custom>
     );
 };
-
-export interface InteractionWithApprovalButtonProps {
-    approveMax?: boolean,
-    networkId: number,
-    errorMessage?: string
-}
 
 export const InteractionWithApprovalButton = observer(() => {
     const { swapType } = useStore();
@@ -85,8 +79,8 @@ function DefaultButton() {
     )
 }
 
-function ConnectWalletButton() {
-    return <ConnectWallet />
+function ConnectWalletButton({ customText }: { customText?: string }) {
+    return <ConnectWallet customText={customText} />
 }
 
 function ApprovalButton({ approveTo }: { approveTo: Address }) {
@@ -149,7 +143,7 @@ const BebopSwap = observer(() => {
     }
 
     if (address === undefined) {
-        return <ConnectWalletButton />
+        return <ConnectWalletButton customText={exchangeError} />
     }
 
     if (allowanceIsLoading) {
@@ -207,19 +201,12 @@ const UniswapSwap = observer(() => {
     const { config } = usePrepareContractWrite(swapAction);
     const { write } = useContractWrite(config);
 
-    const { sendTransaction } = useSendTransaction();
-    // sendTransaction({
-    //     to: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
-    //     value: BigInt(new BigNumber("0xcc08186cbb01", 16).toFixed(0)),
-    //     data: "0xac9650d800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000104db3e219800000000000000000000000082af49447d8a07e3bd95bd0d56f35241523fbab1000000000000000000000000fc5a1a6eb076a2c7ad06ed22c90d7e710e35ad0a00000000000000000000000000000000000000000000000000000000000027100000000000000000000000004810e5a7741ea5fdbb658eda632ddfac3b19e3c60000000000000000000000000000000000000000000000000000000065a3c10a0000000000000000000000000000000000000000000000000024ad1e88be4d060000000000000000000000000000000000000000000000000000cc08186cbb01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000412210e8a00000000000000000000000000000000000000000000000000000000",
-    // });
-
     if (address === undefined) {
-        return <ConnectWalletButton />
+        return <ConnectWalletButton customText={exchangeError} />
     }
 
     if (exchangeError && !swapIsLoading) {
-        return <ErrorButton errorMessage={exchangeError.toString()} />
+        return <ErrorButton errorMessage={exchangeError} />
     }
 
     if (allowanceIsLoading || isLoading || swapIsLoading) {
@@ -289,7 +276,7 @@ const ArcanumSwap = observer(() => {
     }
 
     if (!address) {
-        return <ConnectWalletButton />
+        return <ConnectWalletButton customText={exchangeError} />
     }
 
     if (exchangeError && !swapIsLoading) {
