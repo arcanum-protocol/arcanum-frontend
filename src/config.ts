@@ -2,14 +2,12 @@ import { configureChains } from '@wagmi/core'
 import { createConfig } from "wagmi";
 import { getDefaultConfig } from "connectkit";
 import { arbitrum } from 'wagmi/chains';
-import { alchemyProvider } from "wagmi/providers/alchemy";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { createAlchemyWeb3 } from "@alch/alchemy-web3";
 
 
 export const chains = [arbitrum];
 export const { publicClient } = configureChains(chains, [
-    alchemyProvider({ apiKey: "MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_" }),
     jsonRpcProvider({
         rpc: (chain) => {
             if (chain.id !== 42161) {
