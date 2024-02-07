@@ -191,11 +191,9 @@ async function getAmountOut(route: Route<Token | Ether, Token>, amountIn: BigNum
         ),
         TradeType.EXACT_INPUT,
         {
-            useQuoterV2: false,
+            useQuoterV2: true,
         }
     );
-
-    console.log("calldata", amountIn.toFixed(0), calldata, value);
 
     const { data } = await _publicClient.call({
         to: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
