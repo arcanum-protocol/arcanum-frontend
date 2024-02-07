@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
+import { Address, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -27,6 +27,11 @@ export const ConnectWallet = ({ customText }: { customText?: string }) => {
 
 export const InteractionWithApprovalButton = observer(() => {
     const { swapType } = useStore();
+    const { address } = useAccount();
+
+    if (!address) {
+        return <ConnectWalletButton />
+    }
 
     if (swapType === ActionType.ARCANUM) {
         return <ArcanumSwap />
@@ -142,7 +147,7 @@ const BebopSwap = observer(() => {
         await submitOrder({ quoteId: swapData!.orderId, signature: signedData! });
     }
 
-    if (address === undefined) {
+    if (!address) {
         return <ConnectWalletButton customText={exchangeError} />
     }
 
@@ -201,7 +206,7 @@ const UniswapSwap = observer(() => {
     const { config } = usePrepareContractWrite(swapAction);
     const { write } = useContractWrite(config);
 
-    if (address === undefined) {
+    if (!address) {
         return <ConnectWalletButton customText={exchangeError} />
     }
 
