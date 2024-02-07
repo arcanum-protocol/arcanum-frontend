@@ -1,16 +1,11 @@
-import { WagmiConfig, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import {
     Avatar,
     ChainIcon,
     ConnectKitButton,
-    ConnectKitProvider,
 } from "connectkit";
-import { Outlet } from "react-router-dom";
-
-import { config } from './config';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Link, Outlet } from "react-router-dom";
 import { getSVG } from "./lib/svg-adapter";
-import { ThemeProvider } from "./contexts/ThemeProvider";
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -24,7 +19,6 @@ import "../app/globals.css";
 import { useState } from "react";
 import { Toaster } from "./components/ui/toaster";
 
-const client = new QueryClient();
 
 const ConnectWallet = () => {
     return (
@@ -45,43 +39,11 @@ const ConnectWallet = () => {
 
 function App() {
     return (
-        <QueryClientProvider client={client}>
-            <WagmiConfig config={config}>
-                <ConnectKitProvider
-                    theme="midnight"
-                    customTheme={{
-                        "--ck-font-family": "'Inconsolata', monospace",
-                        /* Modal */
-                        "--ck-border-radius": "calc(var(--radius) - 2px)",
-                        "--ck-body-background": "rgb(12 10 9)",
-                        /* Primary Button */
-                        "--ck-primary-button-color": "#fff",
-                        "--ck-primary-button-background": "rgb(12 10 9)",
-                        "--ck-primary-button-border-radius": "0px",
-
-                        "--ck-secondary-button-color": "#fff",
-                        "--ck-secondary-button-background": "rgb(12 10 9)",
-                        "--ck-secondary-button-border-radius": "calc(var(--radius) - 2px)",
-                        /* Connect Wallet Button */
-                        "--ck-connectbutton-border-radius": "calc(var(--radius) - 2px)",
-                        "--ck-connectbutton-color": "#fff",
-                        "--ck-connectbutton-background": "rgb(12 10 9)",
-                        "--ck-connectbutton-hover-color": "#fff",
-                        "--ck-connectbutton-hover-background": "rgb(12 10 9)",
-                        "--ck-connectbutton-active-color": "#fff",
-                        "--ck-connectbutton-active-background": "rgb(12 10 9)",
-                        "--ck-scrollbar-width": "100%"
-                    }}>
-                    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                        <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
-                            <Toaster />
-                            <Navbar />
-                            <Outlet />
-                        </main>
-                    </ThemeProvider>
-                </ConnectKitProvider>
-            </WagmiConfig>
-        </QueryClientProvider>
+        <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
+            <Toaster />
+            <Navbar />
+            <Outlet />
+        </main>
     );
 }
 
@@ -108,14 +70,10 @@ function Navbar() {
                 <div className="flex text-left flex-col items-end h-full pl-24">
                     <img src={getSVG("logo")} alt="Logo" className="w-10" />
 
-                    <div className="w-full text-left text-base py-2" onClick={() => {
-                        setIsMenuOpen(false);
-
-                        setTimeout(() => {
-                            window.location.href = "/arbi";
-                        }, 300);
-                    }}>
-                        ARBI
+                    <div className="w-full text-left text-base py-2">
+                        <Link to="/arbi" className="text-white">
+                            ARBI
+                        </Link>
                     </div>
                     <div className="w-full text-left text-base py-2" onClick={() => {
                         setIsMenuOpen(false);
@@ -129,19 +87,19 @@ function Navbar() {
                 </div>
             </div>
             <div className="hidden xl:block">
-                    <img className="w-8 h-8" src={getSVG("logo")} alt="Logo" />
+                <img className="w-8 h-8" src={getSVG("logo")} alt="Logo" />
             </div>
             <NavigationMenu className={"hidden xl:block"}>
                 <NavigationMenuList>
                     <NavigationMenuItem>
-                        <NavigationMenuLink href='/spi' className={navigationMenuTriggerStyle()}>
+                        <Link to='/spi' className={navigationMenuTriggerStyle()}>
                             Sharpe Portfolio Index
-                        </NavigationMenuLink>
+                        </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                        <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
+                        <Link to='/arbi' className={navigationMenuTriggerStyle()}>
                             Arbitrum Index
-                        </NavigationMenuLink>
+                        </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>

@@ -8,6 +8,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "./lib/pages/analytics";
 import { Farms } from "./lib/pages/farm";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { WagmiConfig } from "wagmi";
+import { ConnectKitProvider } from "connectkit";
+import { config } from "./config";
+import { ThemeProvider } from "./contexts/ThemeProvider";
 
 
 function ErrorBoundary() {
@@ -73,7 +78,7 @@ const router = createBrowserRouter([
             {
                 path: "/admin",
                 element: <Admin />,
-            }, 
+            },
             {
                 path: "*",
                 element: <ErrorBoundary />,
@@ -81,7 +86,7 @@ const router = createBrowserRouter([
             {
                 path: "/analytics/:id",
                 element: <Analytics />,
-            }, 
+            },
             {
                 path: "/farms",
                 element: <Farms />,
@@ -91,6 +96,41 @@ const router = createBrowserRouter([
 
 ]);
 
+const client = new QueryClient();
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-    <RouterProvider router={router} />
+    <QueryClientProvider client={client}>
+        <WagmiConfig config={config}>
+            <ConnectKitProvider
+                theme="midnight"
+                customTheme={{
+                    "--ck-font-family": "'Inconsolata', monospace",
+                    /* Modal */
+                    "--ck-border-radius": "calc(var(--radius) - 2px)",
+                    "--ck-body-background": "rgb(12 10 9)",
+                    /* Primary Button */
+                    "--ck-primary-button-color": "#fff",
+                    "--ck-primary-button-background": "rgb(12 10 9)",
+                    "--ck-primary-button-border-radius": "0px",
+
+                    "--ck-secondary-button-color": "#fff",
+                    "--ck-secondary-button-background": "rgb(12 10 9)",
+                    "--ck-secondary-button-border-radius": "calc(var(--radius) - 2px)",
+                    /* Connect Wallet Button */
+                    "--ck-connectbutton-border-radius": "calc(var(--radius) - 2px)",
+                    "--ck-connectbutton-color": "#fff",
+                    "--ck-connectbutton-background": "rgb(12 10 9)",
+                    "--ck-connectbutton-hover-color": "#fff",
+                    "--ck-connectbutton-hover-background": "rgb(12 10 9)",
+                    "--ck-connectbutton-active-color": "#fff",
+                    "--ck-connectbutton-active-background": "rgb(12 10 9)",
+                    "--ck-scrollbar-width": "100%"
+                }}>
+
+                <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                    <RouterProvider router={router} />
+                </ThemeProvider>
+            </ConnectKitProvider>
+        </WagmiConfig>
+    </QueryClientProvider>
 );

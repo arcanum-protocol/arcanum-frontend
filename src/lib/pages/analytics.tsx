@@ -11,20 +11,26 @@ import { observer } from "mobx-react-lite";
 import { useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { toJS } from "mobx";
 
 export const Head = observer(() => {
-    const { multipoolId, multipoolAddress, assets, setTokens, setEtherPrice, assetsIsLoading, etherPrice } = useStore();
+    const { multipoolId, multipoolAddress, assets, setTokens, setEtherPrice, assetsIsLoading, etherPrice, getPrices, setPrices } = useStore();
     const { toast } = useToast();
 
     const { data: multipool, isLoading: multipoolIsLoading } = useQuery(["multipool"], async () => {
         await setEtherPrice();
         await setTokens();
+        await setPrices();
         const mp = await getMultipoolMarketData(multipoolId);
 
         return mp;
     }, {
         retry: true,
+        refetchInterval: 1000,
+        enabled: assetsIsLoading
     });
+
+    console.log("multipoolIsLoading, assetsIsLoading", multipoolIsLoading, assetsIsLoading, toJS(assets));
 
     if (multipoolIsLoading || assetsIsLoading) {
         // skeleton
@@ -47,7 +53,7 @@ export const Head = observer(() => {
         );
     }
 
-    const TVLraw = assets.reduce((acc, asset) => acc.plus(asset.multipoolQuantity.multipliedBy(asset.price)), BigNumber(0));
+    const TVLraw = assets.reduce((acc, asset) => acc.plus(asset.multipoolQuantity.multipliedBy(getPrices.get(asset.address) ?? 0)), BigNumber(0));
     const TVL = TVLraw.multipliedBy(etherPrice).dividedBy(10 ** 18);
     const price = multipool?.price?.toFixed(4);
 
@@ -88,7 +94,7 @@ export const Head = observer(() => {
 });
 
 const AssetsTable = observer(() => {
-    const { assets, assetsIsLoading, currentShares, etherPrice, getPriceFeeds } = useStore();
+    const { assets, assetsIsLoading, currentShares, etherPrice, getPriceFeeds, getPrices } = useStore();
 
     const { data: priceFeeds, isLoading: priceFeedsIsLoading } = useQuery(["assets"], async () => {
         return await getPriceFeeds();
@@ -119,12 +125,12 @@ const AssetsTable = observer(() => {
                     assets.map((fetchedAsset) => {
                         const { data: shares, isLoading } = currentShares;
 
-                        if (fetchedAsset.price == undefined) {
+                        if (getPrices.get(fetchedAsset.address) == undefined) {
                             return null;
                         }
 
                         const _etherPrice = new BigNumber(etherPrice.toString());
-                        const price = fetchedAsset.price.multipliedBy(_etherPrice);
+                        const price = getPrices.get(fetchedAsset.address)!.multipliedBy(_etherPrice);
 
                         const idealShare = fetchedAsset.idealShare ?? new BigNumber(0);
                         const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);

@@ -2,7 +2,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { observer } from "mobx-react-lite";
 import { Skeleton } from "./ui/skeleton";
-import { MultipoolAsset } from "@/types/multipoolAsset";
 import { useStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
@@ -56,7 +55,7 @@ function getNewColor(direction: "increase" | "decrease" | "none" | undefined) {
 }
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assets, setTokens, setExternalAssets, currentShares, etherPrice, setEtherPrice, getPrices, setPrices } = useStore();
+    const { assetsIsLoading, assets, setTokens, setExternalAssets, currentShares, etherPrice, setEtherPrice, getPrices, setPrices } = useStore();
     const [priceChangeColor, setPriceChangeColor] = useState<Map<Address, "increase" | "decrease" | "none"> | undefined>(undefined);
 
     const { isLoading } = useQuery(["assets"], async () => {
@@ -66,6 +65,8 @@ export const IndexAssetsBreakdown = observer(() => {
     }, {
         retry: true,
         refetchOnWindowFocus: false,
+        refetchInterval: 1000,
+        enabled: assetsIsLoading,
     });
 
     useQuery(["etherPrice"], async () => {
@@ -106,14 +107,12 @@ export const IndexAssetsBreakdown = observer(() => {
         refetchOnWindowFocus: false,
     });
 
-    if (isLoading) {
+    if (isLoading || assetsIsLoading) {
         return (
             <Skeleton className="hidden sm:table relative w-[897px] overflow-auto rounded border h-[225.2px]">
             </Skeleton>
         );
     }
-
-    const fetchedAssets = assets!.filter((asset) => asset != undefined).filter((asset) => asset.type === "multipool") as MultipoolAsset[];
 
     return (
         <div className="hidden sm:table w-full">
@@ -131,7 +130,7 @@ export const IndexAssetsBreakdown = observer(() => {
                 </TableHeader>
                 <TableBody>
                     {
-                        fetchedAssets.map((fetchedAsset) => {
+                        assets.map((fetchedAsset) => {
                             const { data: shares, isLoading } = currentShares;
 
                             if (fetchedAsset.address == undefined) {

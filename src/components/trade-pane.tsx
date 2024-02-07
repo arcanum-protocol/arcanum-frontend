@@ -14,7 +14,7 @@ import { getSignedPrice } from "@/api/arcanum";
 
 
 export const TradePaneInner = observer(() => {
-    const { multipoolId, swapAssets, updateMPPrice } = useStore();
+    const { multipoolId, swapAssets, updateMPPrice, assetsIsLoading } = useStore();
 
     const { isLoading } = useQuery(["assets"], async () => {
         const price = await getSignedPrice(multipoolId);
@@ -30,8 +30,8 @@ export const TradePaneInner = observer(() => {
         <div className="flex flex-col justify-center gap-2 mt-2">
             <div className="flex flex-col gap-4 items-center">
                 {
-                    isLoading ?
-                        <Skeleton className="rounded w-[309.4px] h-[100.8px]"></Skeleton> :
+                    isLoading || assetsIsLoading ?
+                        <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
                         <TokenQuantityInput text={"Send"} />
                 }
 
@@ -43,8 +43,8 @@ export const TradePaneInner = observer(() => {
                 </div>
 
                 {
-                    isLoading ?
-                        <Skeleton className="rounded w-[309.4px] h-[100.8px]"></Skeleton> :
+                    isLoading || assetsIsLoading ?
+                        <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
                         <TokenQuantityInput text={"Receive"} />
                 }
             </div>
