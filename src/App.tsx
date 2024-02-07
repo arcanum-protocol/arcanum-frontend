@@ -18,6 +18,7 @@ import {
 import "../app/globals.css";
 import { useState } from "react";
 import { Toaster } from "./components/ui/toaster";
+import { Separator } from "@radix-ui/react-separator";
 
 
 const ConnectWallet = () => {
@@ -59,38 +60,72 @@ function Navbar() {
     }
 
     return (
-        <div className="flex flex-row min-w-full justify-between items-center mb-2">
-            <div className="z-50 block xl:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        // prevent scrolling when menu is open
+        <div className={`z-50 flex flex-row min-w-full justify-between sticky items-center mb-2 top-0 bg-[#0c0a09] border rounded px-4 py-2`}>
+            <div className={`z-50 xl:hidden ${isMenuOpen ? "fixed" : "sticky"}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
             </div>
-            {/** Mobile menu, leaves from left to right for 70% of the screen */}
-            <div className={`fixed top-0 left-0 w-full h-full bg-[#0d0b0d]/50 backdrop-blur p-4 z-40 transform transition-transform duration-300 ${isMenuOpen ? "-translate-x-1/4" : "-translate-x-full"}`}>
-                <div className="flex text-left flex-col items-end h-full pl-24">
+            <div className={`fixed flex flex-row top-0 left-0 w-full h-full z-40 transform transition-transform duration-300 ${isMenuOpen ? "-translate-x-0" : "-translate-x-full"}`}>
+                <div className="z-50 flex w-3/4 text-left flex-col items-end h-full p-4 border bg-[#0c0a09]">
                     <img src={getSVG("logo")} alt="Logo" className="w-10" />
 
-                    <div className="w-full text-right text-base md:text-xl py-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="/arbi" className="text-white">
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/arbi" className="text-white inline-flex gap-1 items-center ">
+                            <img src={'/multipools/ARBI.svg'} alt="Arbi" className="w-5 h-5" />
                             ARBI
                         </Link>
                     </div>
 
-                    <div className="w-full text-right text-base md:text-xl py-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="/spi" className="text-white">
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/spi" className="text-white inline-flex gap-1 items-center">
+                            <img src={'/multipools/SPI.svg'} alt="Spi" className="w-5 h-5" />
                             SPI
                         </Link>
                     </div>
 
-                    <div className="w-full text-right text-base md:text-xl py-2" onClick={() => {
+                    <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] mb-[0.5rem]" />
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="https://dune.com/badconfig/arcanum" className="text-white inline-flex gap-1 items-center">
+                            <img src={'/dune.svg'} alt="Spi" className="w-4 h-4" />
+                            Dune
+                        </Link>
+                    </div>
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="https://twitter.com/0xArcanum" className="text-white inline-flex gap-1 items-center">
+                            <img src={'/x.svg'} alt="Spi" className="w-4 h-4" />
+                            Twitter
+                        </Link>
+                    </div>
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="https://discord.gg/nqJfDgtx82" className="text-white inline-flex gap-1 items-center">
+                            <img src={'/discord.svg'} alt="Spi" className="w-4 h-4" />
+                            Discord
+                        </Link>
+                    </div>
+
+
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2 inline-flex gap-1 items-center" onClick={() => {
                         setIsMenuOpen(false);
 
                         setTimeout(() => {
                             window.location.href = "https://docs.arcanum.to/overview/about";
                         }, 300);
                     }}>
+                        <img src={'/docs.svg'} alt="Spi" className="w-4 h-4" />
                         DOCS
                     </div>
+
+                    <div className="w-3/4">
+
+                    </div>
+                </div>
+                <div className="z-40 w-1/4 h-full bg-transparent" onClick={() => setIsMenuOpen(false)}>
                 </div>
             </div>
             <div className="hidden xl:block">
