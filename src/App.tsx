@@ -70,12 +70,19 @@ function Navbar() {
                 <div className="flex text-left flex-col items-end h-full pl-24">
                     <img src={getSVG("logo")} alt="Logo" className="w-10" />
 
-                    <div className="w-full text-left text-base py-2">
+                    <div className="w-full text-right text-base md:text-xl py-2" onClick={() => setIsMenuOpen(false)}>
                         <Link to="/arbi" className="text-white">
                             ARBI
                         </Link>
                     </div>
-                    <div className="w-full text-left text-base py-2" onClick={() => {
+
+                    <div className="w-full text-right text-base md:text-xl py-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/spi" className="text-white">
+                            SPI
+                        </Link>
+                    </div>
+
+                    <div className="w-full text-right text-base md:text-xl py-2" onClick={() => {
                         setIsMenuOpen(false);
 
                         setTimeout(() => {

@@ -109,7 +109,7 @@ export const IndexAssetsBreakdown = observer(() => {
 
     if (isLoading || assetsIsLoading) {
         return (
-            <Skeleton className="hidden sm:table relative w-[897px] overflow-auto rounded border h-[225.2px]">
+            <Skeleton className="hidden sm:table relative w-[897px] md:w-full overflow-auto rounded border h-[225.2px]">
             </Skeleton>
         );
     }
