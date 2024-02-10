@@ -62,24 +62,29 @@ function Navbar() {
     return (
         // prevent scrolling when menu is open
         <div className={`z-50 flex flex-row min-w-full justify-between sticky items-center mb-2 top-0 bg-[#0c0a09] border rounded px-4 py-2`}>
-            <div className={`z-50 xl:hidden ${isMenuOpen ? "fixed" : "sticky"}`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <div className={`xl:hidden`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
             </div>
             <div className={`fixed flex flex-row top-0 left-0 w-full h-full z-40 transform transition-transform duration-300 ${isMenuOpen ? "-translate-x-0" : "-translate-x-full"}`}>
                 <div className="z-50 flex w-3/4 text-left flex-col items-end h-full p-4 border bg-[#0c0a09]">
-                    <img src={getSVG("logo")} alt="Logo" className="w-10" />
+                    <div className="w-full flex justify-between items-center mb-4">
+                        <div className="w-6 h-6" onClick={() => setIsMenuOpen(false)}>
+                            <svg width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <img src={getSVG("logo")} alt="Logo" className="w-10" />
+                    </div>
 
                     <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="/arbi" className="text-white inline-flex gap-1 items-center ">
+                        <Link to="/arbi" className="text-white inline-flex gap-2 items-center ">
                             <img src={'/multipools/ARBI.svg'} alt="Arbi" className="w-5 h-5" />
                             ARBI
                         </Link>
                     </div>
 
                     <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="/spi" className="text-white inline-flex gap-1 items-center">
+                        <Link to="/spi" className="text-white inline-flex gap-2 items-center">
                             <img src={'/multipools/SPI.svg'} alt="Spi" className="w-5 h-5" />
                             SPI
                         </Link>
@@ -88,21 +93,21 @@ function Navbar() {
                     <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] mb-[0.5rem]" />
 
                     <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="https://dune.com/badconfig/arcanum" className="text-white inline-flex gap-1 items-center">
+                        <Link to="https://dune.com/badconfig/arcanum" className="text-white inline-flex gap-2 items-center">
                             <img src={'/dune.svg'} alt="Spi" className="w-4 h-4" />
                             Dune
                         </Link>
                     </div>
 
                     <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="https://twitter.com/0xArcanum" className="text-white inline-flex gap-1 items-center">
+                        <Link to="https://twitter.com/0xArcanum" className="text-white inline-flex gap-2 items-center">
                             <img src={'/x.svg'} alt="Spi" className="w-4 h-4" />
                             Twitter
                         </Link>
                     </div>
 
                     <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="https://discord.gg/nqJfDgtx82" className="text-white inline-flex gap-1 items-center">
+                        <Link to="https://discord.gg/nqJfDgtx82" className="text-white inline-flex gap-2 items-center">
                             <img src={'/discord.svg'} alt="Spi" className="w-4 h-4" />
                             Discord
                         </Link>
@@ -110,7 +115,7 @@ function Navbar() {
 
 
 
-                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2 inline-flex gap-1 items-center" onClick={() => {
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2 inline-flex gap-2 items-center" onClick={() => {
                         setIsMenuOpen(false);
 
                         setTimeout(() => {
