@@ -27,11 +27,6 @@ export const ConnectWallet = ({ customText }: { customText?: string }) => {
 
 export const InteractionWithApprovalButton = observer(() => {
     const { swapType } = useStore();
-    const { address } = useAccount();
-
-    if (!address) {
-        return <ConnectWalletButton />
-    }
 
     if (swapType === ActionType.ARCANUM) {
         return <ArcanumSwap />
@@ -243,6 +238,8 @@ const ArcanumSwap = observer(() => {
     const { address } = useAccount();
     const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
 
+    console.log("ArcanumSwap");
+
     const { data: balance, isLoading: balanceIsLoading } = useBalance({
         address: address,
         token: inputAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : inputAsset?.address,
@@ -253,7 +250,7 @@ const ArcanumSwap = observer(() => {
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
     const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery(["swap"], async () => {
-        const data = await swap(address!);
+        const data = await swap(address);
 
         if (balance && inputQuantity) {
             if (balance.value < inputQuantityBigInt) {
@@ -264,7 +261,7 @@ const ArcanumSwap = observer(() => {
         return data;
     }, {
         refetchInterval: 15000,
-        enabled: address !== undefined && inputQuantity !== undefined && !inputQuantity.isZero()
+        enabled: inputQuantity !== undefined && !inputQuantity.isZero()
     });
 
     useEffect(() => {
