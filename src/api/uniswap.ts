@@ -268,6 +268,19 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         throw new Error("AmountIn is undefined");
     }
 
+    // filter out shares with 0
+    shares.forEach((value, key) => {
+        if (value.isEqualTo(0)) {
+            shares.delete(key);
+        }
+    });
+
+    console.log("shares", shares);
+
+    if (shares.values().next().value == new BigNumber(0)) {
+        throw new Error("Shares is empty");
+    }
+
     const decimals = await getDecimals({ addresses: [...shares.keys(), ...externalTokens] });
     const pools = await getAllPools();
 

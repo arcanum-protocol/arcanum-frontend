@@ -74,10 +74,12 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const isThisMainInput = text === "Send" ? mainInput === "in" : mainInput === "out";
 
     function dollarValue() {
+        console.log("getItemPrice(text)", theAsset?.type);
         if (theAsset?.type === 'external') {
             return new BigNumber(quantity).multipliedBy(getItemPrice(text)).toFixed(4);
         }
-        return new BigNumber(quantity).multipliedBy(getItemPrice(text)).multipliedBy(etherPrice).toFixed(4);
+        console.log("getItemPrice(text)", quantity);
+        return new BigNumber(quantity.replace(',', "")).multipliedBy(getItemPrice(text)).multipliedBy(etherPrice).toFixed(4);
     }
 
     function getBalance(): JSX.Element {
