@@ -1188,7 +1188,7 @@ class MultipoolStore {
         const quantity = direction == "Send" ? this.inputQuantity : this.outputQuantity;
         let _val = new BigNumber(quantity!.div(divider).toFixed(12));
 
-        return _val.absoluteValue().decimalPlaces(12);
+        return _val.absoluteValue().decimalPlaces(12).toFormat();
     }
 
     async getSharePriceParams(): Promise<number> {
