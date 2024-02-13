@@ -114,6 +114,9 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     }
 
     function handleInputChange(e: string, inputType: "balance" | "input") {
+
+        console.log("inputType", mainInput);
+
         if (inputType === "input") {
             setInputType("input");
         }

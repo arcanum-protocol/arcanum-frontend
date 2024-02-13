@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
+import { Address, mainnet, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -236,9 +236,7 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
-
-    console.log("ArcanumSwap");
+    const { swap, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
 
     const { data: balance, isLoading: balanceIsLoading } = useBalance({
         address: address,
@@ -260,13 +258,18 @@ const ArcanumSwap = observer(() => {
 
         return data;
     }, {
-        refetchInterval: 15000,
-        enabled: inputQuantity !== undefined && !inputQuantity.isZero()
+        refetchInterval: 15000
     });
 
     useEffect(() => {
+        if (mainInput === 'out') return;
         refetch();
     }, [inputQuantity]);
+
+    useEffect(() => {
+        if (mainInput === 'in') return;
+        refetch();
+    }, [outputQuantity]);
 
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
