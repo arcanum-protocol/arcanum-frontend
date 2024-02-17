@@ -1072,6 +1072,7 @@ class MultipoolStore {
     setAction(
         action: "mint" | "burn" | "swap",
     ) {
+        if (this.assetsIsLoading) return;
         this.clearSwapData();
         runInAction(() => {
             this.exchangeError = undefined;

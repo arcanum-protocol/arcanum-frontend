@@ -3,7 +3,7 @@ import { Input } from "./ui/input";
 import { BigNumber } from "bignumber.js";
 import { useState } from "react";
 import { ExternalAsset, MultipoolAsset } from "@/types/multipoolAsset";
-import { ChevronLeftIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
@@ -44,7 +44,7 @@ interface TokenSelectorProps {
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { address } = useAccount();
     const { data: userBalance } = useBalance({ address });
-    const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares } = useStore();
+    const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares, selectedSCTab } = useStore();
     const [search, setSearch] = useState("");
 
     const { data: balances } = useQuery(["balances"], async () => {
@@ -81,6 +81,10 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     let tokenList = [...assets, ...externalAssets].filter((asset) => asset.address !== oppositeToken?.address);
     // exclude repetitions at the address
     tokenList = tokenList.filter((asset, index) => tokenList.findIndex((a) => a.address?.toLocaleLowerCase() === asset.address?.toLocaleLowerCase()) === index);
+
+    if (selectedSCTab !== "mint") {
+        tokenList = tokenList.filter((asset) => asset.type === "multipool");
+    }
 
     function toDollarValue(token: ExternalAsset | MultipoolAsset): BigNumber {
         if (!balances || !token.price) {
@@ -162,16 +166,10 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 
     return (
         <>
-            <div className="grid grid-cols-4 items-center whitespace-nowrap text-center" onClick={() => setSelectedTabWrapper("back")}>
-                <a className="flex flex-col place-items-center hover:cursor-pointer hover:rounded-xl hover:bg-gray-900 hover:transition ease-in-out duration-100 w-10 h-10">
-                    <ChevronLeftIcon className="pt-2 h-8 w-8" />
-                </a>
-                <div className="font-mono font-bold col-span-2">Select a token</div>
-            </div>
             <div className="py-1">
                 <Input placeholder="Search for a token" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
-            <ScrollArea className="h-[478px] w-full py-2">
+            <ScrollArea className="h-[478px] w-full py-1">
                 {
                     tokenList.map((asset, index) => {
                         if (search !== "" && !asset.symbol.toLowerCase().includes(search.toLowerCase())) {

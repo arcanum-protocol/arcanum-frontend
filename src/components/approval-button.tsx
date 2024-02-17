@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, mainnet, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
+import { Address, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -8,7 +8,7 @@ import { fromBigNumber } from "@/lib/utils";
 import { useEffect } from "react";
 import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
-import { ConnectKitButton } from "connectkit";
+import { ConnectKitButton, useModal } from "connectkit";
 import { useAllowence } from "@/hooks/useAllowence";
 
 export const ConnectWallet = ({ customText }: { customText?: string }) => {
@@ -26,7 +26,17 @@ export const ConnectWallet = ({ customText }: { customText?: string }) => {
 };
 
 export const InteractionWithApprovalButton = observer(() => {
+    const { address } = useAccount();
     const { swapType } = useStore();
+    const { setOpen } = useModal();
+
+    if (!address) {
+        return (
+            <button onClick={() => setOpen(true)} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
+                Connect Wallet
+            </button>
+        );
+    }
 
     if (swapType === ActionType.ARCANUM) {
         return <ArcanumSwap />
@@ -39,14 +49,6 @@ export const InteractionWithApprovalButton = observer(() => {
     if (swapType === ActionType.BEBOP) {
         return <BebopSwap />
     }
-
-    return (
-        <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-white hover:border-red-500 hover:bg-transparent" disabled={true}>
-                <p style={{ margin: "10px" }}>Swap</p>
-            </Button>
-        </div >
-    )
 });
 
 const ErrorButton = observer(({ errorMessage }: { errorMessage: string }) => {
