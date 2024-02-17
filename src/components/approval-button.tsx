@@ -8,35 +8,21 @@ import { fromBigNumber } from "@/lib/utils";
 import { useEffect } from "react";
 import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
-import { ConnectKitButton, useModal } from "connectkit";
+import { useModal } from "connectkit";
 import { useAllowence } from "@/hooks/useAllowence";
 
-export const ConnectWallet = ({ customText }: { customText?: string }) => {
+export const ConnectWallet = () => {
+    const { setOpen } = useModal();
+
     return (
-        <ConnectKitButton.Custom>
-            {({ isConnected, show, address }) => {
-                return (
-                    <button onClick={show} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
-                        {isConnected ? address : customText || "Connect Wallet"}
-                    </button>
-                );
-            }}
-        </ConnectKitButton.Custom>
+        <button onClick={() => setOpen(true)} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
+            Connect Wallet
+        </button>
     );
 };
 
 export const InteractionWithApprovalButton = observer(() => {
-    const { address } = useAccount();
     const { swapType } = useStore();
-    const { setOpen } = useModal();
-
-    if (!address) {
-        return (
-            <button onClick={() => setOpen(true)} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
-                Connect Wallet
-            </button>
-        );
-    }
 
     if (swapType === ActionType.ARCANUM) {
         return <ArcanumSwap />
@@ -239,6 +225,7 @@ const UniswapSwap = observer(() => {
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
     const { swap, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
+    const { setOpen } = useModal();
 
     const { data: balance, isLoading: balanceIsLoading } = useBalance({
         address: address,
