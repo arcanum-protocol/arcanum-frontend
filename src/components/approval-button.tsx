@@ -67,8 +67,8 @@ function DefaultButton() {
     )
 }
 
-function ConnectWalletButton({ customText }: { customText?: string }) {
-    return <ConnectWallet customText={customText} />
+function ConnectWalletButton() {
+    return <ConnectWallet />
 }
 
 function ApprovalButton({ approveTo }: { approveTo: Address }) {
@@ -131,7 +131,7 @@ const BebopSwap = observer(() => {
     }
 
     if (!address) {
-        return <ConnectWalletButton customText={exchangeError} />
+        return <ConnectWalletButton />
     }
 
     if (allowanceIsLoading) {
@@ -190,7 +190,7 @@ const UniswapSwap = observer(() => {
     const { write } = useContractWrite(config);
 
     if (!address) {
-        return <ConnectWalletButton customText={exchangeError} />
+        return <ConnectWalletButton />
     }
 
     if (exchangeError && !swapIsLoading) {
@@ -270,7 +270,7 @@ const ArcanumSwap = observer(() => {
     }
 
     if (!address) {
-        return <ConnectWalletButton customText={exchangeError} />
+        return <ConnectWalletButton />
     }
 
     if (exchangeError && !swapIsLoading) {
