@@ -70,7 +70,7 @@ export const Head = observer(() => {
         <div className='flex w-full rounded p-1 justify-between items-center bg-[#0c0a09] border border-[#292524]'>
             <div className="flex flex-row items-center justify-between gap-2 pl-4 pr-8 py-2 xl:py-0 w-full">
                 <div className="flex flex-row text-left gap-2 items-center">
-                    <img src={`/multipools/${multipoolId}_eclipse.svg`} alt="Logo" className='w-14 h-14' />
+                    <img src={`/multipools/${multipoolId}_eclipse.svg`} alt="Logo" className='w-1 h-1' />
                     <div>
                         <p className='text-[#fff] p-0 text-2xl'>{multipoolId.toLocaleUpperCase() || ""}</p>
                         <div className='flex flex-row gap-2 items-center text-white opacity-70 cursor-pointer' onClick={copyToClipboard}>
