@@ -10,7 +10,8 @@ const errors: { [key: string]: string } = {
     "SleepageExceeded()": "Sleepage Exceeded",
     "AssetsNotSortedOrNotUnique()": "Assets Not Sorted Or Not Unique",
     "IsPaused()": "Is Paused",
-    "DeviationExceedsLimit()": "Deviation Exceeds Limit"
+    "DeviationExceedsLimit()": "Deviation Exceeds Limit",
+    "TargetShareIsZero()": "Target Share Is Zero",
 }
 
 async function getForcePushPrice(multipoolId: string): Promise<{

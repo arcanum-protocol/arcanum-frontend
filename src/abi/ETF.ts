@@ -1421,6 +1421,11 @@ export default [
   },
   {
     "type": "error",
+    "name": "TargetShareIsZero",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "UniV3PriceFetchingReverted",
     "inputs": []
   },
