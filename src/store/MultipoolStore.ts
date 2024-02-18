@@ -537,7 +537,7 @@ class MultipoolStore {
         return ActionType.UNAVAILABLE;
     }
 
-    async checkSwap(userAddress: Address) {
+    async checkSwap(userAddress?: Address) {
         if (this.multipool.address == undefined) this.clearSwapData();
 
         if (this.swapType === ActionType.ARCANUM) {
@@ -778,7 +778,8 @@ class MultipoolStore {
         )
     }
 
-    async swap(userAddress: Address) {
+    async swap(userAddress?: Address) {
+        console.log("swap");
         runInAction(() => {
             this.swapIsLoading = true;
         });
@@ -934,7 +935,7 @@ class MultipoolStore {
         });
     }
 
-    async swapMultipool(userAddress: Address) {
+    async swapMultipool(userAddress?: Address) {
         if (this.multipool.address === undefined) return;
         if (this.router === undefined) return;
 
@@ -955,6 +956,10 @@ class MultipoolStore {
         const callsBeforeArcanum = [{ callType: 0, data: callsTransfer }];
 
         try {
+
+            if (!userAddress) {
+                return 1;
+            }
 
             const { request } = await this.router.simulate.swap([
                 this.multipool.address,
@@ -1067,6 +1072,7 @@ class MultipoolStore {
     setAction(
         action: "mint" | "burn" | "swap",
     ) {
+        if (this.assetsIsLoading) return; // #31
         this.clearSwapData();
         runInAction(() => {
             this.exchangeError = undefined;
@@ -1183,7 +1189,7 @@ class MultipoolStore {
         const quantity = direction == "Send" ? this.inputQuantity : this.outputQuantity;
         let _val = new BigNumber(quantity!.div(divider).toFixed(12));
 
-        return _val.absoluteValue().toFixed(12);
+        return _val.absoluteValue().decimalPlaces(12).toFormat();
     }
 
     async getSharePriceParams(): Promise<number> {

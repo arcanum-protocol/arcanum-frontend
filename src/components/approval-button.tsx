@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSendTransaction, useSignTypedData } from "wagmi";
+import { Address, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -8,20 +8,16 @@ import { fromBigNumber } from "@/lib/utils";
 import { useEffect } from "react";
 import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
-import { ConnectKitButton } from "connectkit";
+import { useModal } from "connectkit";
 import { useAllowence } from "@/hooks/useAllowence";
 
-export const ConnectWallet = ({ customText }: { customText?: string }) => {
+export const ConnectWallet = () => {
+    const { setOpen } = useModal();
+
     return (
-        <ConnectKitButton.Custom>
-            {({ isConnected, show, address }) => {
-                return (
-                    <button onClick={show} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
-                        {isConnected ? address : customText || "Connect Wallet"}
-                    </button>
-                );
-            }}
-        </ConnectKitButton.Custom>
+        <button onClick={() => setOpen(true)} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
+            Connect Wallet
+        </button>
     );
 };
 
@@ -39,14 +35,6 @@ export const InteractionWithApprovalButton = observer(() => {
     if (swapType === ActionType.BEBOP) {
         return <BebopSwap />
     }
-
-    return (
-        <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-white hover:border-red-500 hover:bg-transparent" disabled={true}>
-                <p style={{ margin: "10px" }}>Swap</p>
-            </Button>
-        </div >
-    )
 });
 
 const ErrorButton = observer(({ errorMessage }: { errorMessage: string }) => {
@@ -79,8 +67,8 @@ function DefaultButton() {
     )
 }
 
-function ConnectWalletButton({ customText }: { customText?: string }) {
-    return <ConnectWallet customText={customText} />
+function ConnectWalletButton() {
+    return <ConnectWallet />
 }
 
 function ApprovalButton({ approveTo }: { approveTo: Address }) {
@@ -142,8 +130,8 @@ const BebopSwap = observer(() => {
         await submitOrder({ quoteId: swapData!.orderId, signature: signedData! });
     }
 
-    if (address === undefined) {
-        return <ConnectWalletButton customText={exchangeError} />
+    if (!address) {
+        return <ConnectWalletButton />
     }
 
     if (allowanceIsLoading) {
@@ -201,8 +189,8 @@ const UniswapSwap = observer(() => {
     const { config } = usePrepareContractWrite(swapAction);
     const { write } = useContractWrite(config);
 
-    if (address === undefined) {
-        return <ConnectWalletButton customText={exchangeError} />
+    if (!address) {
+        return <ConnectWalletButton />
     }
 
     if (exchangeError && !swapIsLoading) {
@@ -236,7 +224,8 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
+    const { swap, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
+    const { setOpen } = useModal();
 
     const { data: balance, isLoading: balanceIsLoading } = useBalance({
         address: address,
@@ -248,7 +237,7 @@ const ArcanumSwap = observer(() => {
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
     const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery(["swap"], async () => {
-        const data = await swap(address!);
+        const data = await swap(address);
 
         if (balance && inputQuantity) {
             if (balance.value < inputQuantityBigInt) {
@@ -258,13 +247,18 @@ const ArcanumSwap = observer(() => {
 
         return data;
     }, {
-        refetchInterval: 15000,
-        enabled: address !== undefined && inputQuantity !== undefined && !inputQuantity.isZero()
+        refetchInterval: 15000
     });
 
     useEffect(() => {
+        if (mainInput === 'out') return;
         refetch();
     }, [inputQuantity]);
+
+    useEffect(() => {
+        if (mainInput === 'in') return;
+        refetch();
+    }, [outputQuantity]);
 
     const { config } = usePrepareContractWrite(swapAction!);
     const { write } = useContractWrite(config);
@@ -276,7 +270,7 @@ const ArcanumSwap = observer(() => {
     }
 
     if (!address) {
-        return <ConnectWalletButton customText={exchangeError} />
+        return <ConnectWalletButton />
     }
 
     if (exchangeError && !swapIsLoading) {

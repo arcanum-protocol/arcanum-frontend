@@ -1,16 +1,11 @@
-import { WagmiConfig, useNetwork } from "wagmi";
+import { useNetwork } from "wagmi";
 import {
     Avatar,
     ChainIcon,
     ConnectKitButton,
-    ConnectKitProvider,
 } from "connectkit";
-import { Outlet } from "react-router-dom";
-
-import { config } from './config';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Link, Outlet } from "react-router-dom";
 import { getSVG } from "./lib/svg-adapter";
-import { ThemeProvider } from "./contexts/ThemeProvider";
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -23,8 +18,8 @@ import {
 import "../app/globals.css";
 import { useState } from "react";
 import { Toaster } from "./components/ui/toaster";
+import { Separator } from "@radix-ui/react-separator";
 
-const client = new QueryClient();
 
 const ConnectWallet = () => {
     return (
@@ -45,43 +40,11 @@ const ConnectWallet = () => {
 
 function App() {
     return (
-        <QueryClientProvider client={client}>
-            <WagmiConfig config={config}>
-                <ConnectKitProvider
-                    theme="midnight"
-                    customTheme={{
-                        "--ck-font-family": "'Inconsolata', monospace",
-                        /* Modal */
-                        "--ck-border-radius": "calc(var(--radius) - 2px)",
-                        "--ck-body-background": "rgb(12 10 9)",
-                        /* Primary Button */
-                        "--ck-primary-button-color": "#fff",
-                        "--ck-primary-button-background": "rgb(12 10 9)",
-                        "--ck-primary-button-border-radius": "0px",
-
-                        "--ck-secondary-button-color": "#fff",
-                        "--ck-secondary-button-background": "rgb(12 10 9)",
-                        "--ck-secondary-button-border-radius": "calc(var(--radius) - 2px)",
-                        /* Connect Wallet Button */
-                        "--ck-connectbutton-border-radius": "calc(var(--radius) - 2px)",
-                        "--ck-connectbutton-color": "#fff",
-                        "--ck-connectbutton-background": "rgb(12 10 9)",
-                        "--ck-connectbutton-hover-color": "#fff",
-                        "--ck-connectbutton-hover-background": "rgb(12 10 9)",
-                        "--ck-connectbutton-active-color": "#fff",
-                        "--ck-connectbutton-active-background": "rgb(12 10 9)",
-                        "--ck-scrollbar-width": "100%"
-                    }}>
-                    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                        <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
-                            <Toaster />
-                            <Navbar />
-                            <Outlet />
-                        </main>
-                    </ThemeProvider>
-                </ConnectKitProvider>
-            </WagmiConfig>
-        </QueryClientProvider>
+        <main className="xl:w-[1280px] lg:w-[960px] md:w-[720px] sm:w-[540px] w-full mx-auto xl:px-4 shrink-0 text-white">
+            <Toaster />
+            <Navbar />
+            <Outlet />
+        </main>
     );
 }
 
@@ -97,51 +60,93 @@ function Navbar() {
     }
 
     return (
-        <div className="flex flex-row min-w-full justify-between items-center mb-2">
-            <div className="z-50 block xl:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        // prevent scrolling when menu is open
+        <div className={`z-50 flex flex-row min-w-full justify-between sticky items-center mb-2 top-0 bg-[#0c0a09] border rounded px-4 py-2`}>
+            <div className={`xl:hidden`} onClick={() => setIsMenuOpen(!isMenuOpen)}>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
             </div>
-            {/** Mobile menu, leaves from left to right for 70% of the screen */}
-            <div className={`fixed top-0 left-0 w-full h-full bg-[#0d0b0d]/50 backdrop-blur p-4 z-40 transform transition-transform duration-300 ${isMenuOpen ? "-translate-x-1/4" : "-translate-x-full"}`}>
-                <div className="flex text-left flex-col items-end h-full pl-24">
-                    <img src={getSVG("logo")} alt="Logo" className="w-10" />
-
-                    <div className="w-full text-left text-base py-2" onClick={() => {
-                        setIsMenuOpen(false);
-
-                        setTimeout(() => {
-                            window.location.href = "/arbi";
-                        }, 300);
-                    }}>
-                        ARBI
+            <div className={`fixed flex flex-row top-0 left-0 w-full h-full z-40 transform transition-transform duration-300 ${isMenuOpen ? "-translate-x-0" : "-translate-x-full"}`}>
+                <div className="z-50 flex w-3/4 text-left flex-col items-end h-full p-4 border bg-[#0c0a09]">
+                    <div className="w-full flex justify-between items-center mb-4">
+                        <div className="w-6 h-6" onClick={() => setIsMenuOpen(false)}>
+                            <svg width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <img src={getSVG("logo")} alt="Logo" className="w-10" />
                     </div>
-                    <div className="w-full text-left text-base py-2" onClick={() => {
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/arbi" className="text-white inline-flex gap-2 items-center ">
+                            <img src={'/multipools/ARBI.svg'} alt="Arbi" className="w-5 h-5" />
+                            ARBI
+                        </Link>
+                    </div>
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="/spi" className="text-white inline-flex gap-2 items-center">
+                            <img src={'/multipools/SPI.svg'} alt="Spi" className="w-5 h-5" />
+                            SPI
+                        </Link>
+                    </div>
+
+                    <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] mb-[0.5rem]" />
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="https://dune.com/badconfig/arcanum" className="text-white inline-flex gap-2 items-center">
+                            <img src={'/dune.svg'} alt="Spi" className="w-4 h-4" />
+                            Dune
+                        </Link>
+                    </div>
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="https://twitter.com/0xArcanum" className="text-white inline-flex gap-2 items-center">
+                            <img src={'/x.svg'} alt="Spi" className="w-4 h-4" />
+                            Twitter
+                        </Link>
+                    </div>
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
+                        <Link to="https://discord.gg/nqJfDgtx82" className="text-white inline-flex gap-2 items-center">
+                            <img src={'/discord.svg'} alt="Spi" className="w-4 h-4" />
+                            Discord
+                        </Link>
+                    </div>
+
+
+
+                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2 inline-flex gap-2 items-center" onClick={() => {
                         setIsMenuOpen(false);
 
                         setTimeout(() => {
                             window.location.href = "https://docs.arcanum.to/overview/about";
                         }, 300);
                     }}>
+                        <img src={'/docs.svg'} alt="Spi" className="w-4 h-4" />
                         DOCS
                     </div>
+
+                    <div className="w-3/4">
+
+                    </div>
+                </div>
+                <div className="z-40 w-1/4 h-full bg-transparent" onClick={() => setIsMenuOpen(false)}>
                 </div>
             </div>
             <div className="hidden xl:block">
-                    <img className="w-8 h-8" src={getSVG("logo")} alt="Logo" />
+                <img className="w-8 h-8" src={getSVG("logo")} alt="Logo" />
             </div>
             <NavigationMenu className={"hidden xl:block"}>
                 <NavigationMenuList>
                     <NavigationMenuItem>
-                        <NavigationMenuLink href='/spi' className={navigationMenuTriggerStyle()}>
+                        <Link to='/spi' className={navigationMenuTriggerStyle()}>
                             Sharpe Portfolio Index
-                        </NavigationMenuLink>
+                        </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                        <NavigationMenuLink href='/arbi' className={navigationMenuTriggerStyle()}>
+                        <Link to='/arbi' className={navigationMenuTriggerStyle()}>
                             Arbitrum Index
-                        </NavigationMenuLink>
+                        </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                         <NavigationMenuLink className={navigationMenuTriggerStyle()}>

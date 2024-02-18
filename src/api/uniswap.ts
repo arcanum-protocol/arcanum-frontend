@@ -191,11 +191,9 @@ async function getAmountOut(route: Route<Token | Ether, Token>, amountIn: BigNum
         ),
         TradeType.EXACT_INPUT,
         {
-            useQuoterV2: false,
+            useQuoterV2: true,
         }
     );
-
-    console.log("calldata", amountIn.toFixed(0), calldata, value);
 
     const { data } = await _publicClient.call({
         to: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
@@ -268,6 +266,19 @@ async function getDecimals({ addresses }: { addresses?: Array<Address> }) {
 async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, multipoolAddress: Address) {
     if (amountIn == undefined) {
         throw new Error("AmountIn is undefined");
+    }
+
+    // filter out shares with 0
+    shares.forEach((value, key) => {
+        if (value.isEqualTo(0)) {
+            shares.delete(key);
+        }
+    });
+
+    console.log("shares", shares);
+
+    if (shares.values().next().value == new BigNumber(0)) {
+        throw new Error("Shares is empty");
     }
 
     const decimals = await getDecimals({ addresses: [...shares.keys(), ...externalTokens] });
