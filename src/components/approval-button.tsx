@@ -225,7 +225,6 @@ const UniswapSwap = observer(() => {
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
     const { swap, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
-    const { setOpen } = useModal();
 
     const { data: balance, isLoading: balanceIsLoading } = useBalance({
         address: address,
