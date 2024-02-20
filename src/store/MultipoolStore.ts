@@ -334,7 +334,7 @@ class MultipoolStore {
             if (asset.address === undefined) continue;
             const rawPrice = await this.multipool.read.getPrice([asset.address]);
             const price = fromX96(rawPrice, asset.decimals);
-            
+
             runInAction(() => {
                 this.prices.set(asset.address!, new BigNumber(price.toString()));
             });
@@ -652,9 +652,10 @@ class MultipoolStore {
 
         const fpSharePricePlaceholder = await getForcePushPrice(this.multipoolId);
         const selectedAssets = this.createSelectedAssets();
-        if (selectedAssets === undefined) return;
+        if (selectedAssets === undefined) throw new Error("selectedAssets is undefined");
 
         try {
+            console.log("res");
             const res = await this.multipool.read.checkSwap(
                 [
                     fpSharePricePlaceholder,
@@ -662,16 +663,19 @@ class MultipoolStore {
                     this.isExactInput
                 ]);
 
+
             const estimates = res[1];
             const firstTokenQuantity = estimates[0];
             const secondTokenQuantity = estimates[1];
 
             const firstTokenAddress = selectedAssets[0].assetAddress;
 
+            console.log(secondTokenQuantity.toString(), firstTokenQuantity.toString());
+            
             runInAction(() => {
                 if (this.isExactInput) {
                     this.maximumSend = undefined;
-                    if (this.inputQuantity === undefined) return;
+                    if (this.inputQuantity === undefined) throw new Error("inputQuantity is undefined");
                     if (firstTokenAddress === this.inputAsset?.address) {
                         this.outputQuantity = new BigNumber(secondTokenQuantity.toString());
                         this.minimalReceive = secondTokenQuantity;
@@ -681,7 +685,7 @@ class MultipoolStore {
                     }
                 } else {
                     this.minimalReceive = undefined;
-                    if (this.outputQuantity === undefined) return;
+                    if (this.outputQuantity === undefined) throw new Error("outputQuantity is undefined");
                     if (firstTokenAddress === this.outputAsset?.address) {
                         this.inputQuantity = new BigNumber(secondTokenQuantity.toString());
                         this.maximumSend = secondTokenQuantity;
@@ -739,6 +743,7 @@ class MultipoolStore {
 
             return res;
         } catch (e) {
+            console.log(e);
             this.updateErrorMessage(e, true);
         }
     }
@@ -779,7 +784,6 @@ class MultipoolStore {
     }
 
     async swap(userAddress?: Address) {
-        console.log("swap");
         runInAction(() => {
             this.swapIsLoading = true;
         });
@@ -1180,14 +1184,16 @@ class MultipoolStore {
     }
 
     hrQuantity(direction: "Send" | "Receive"): string {
-        if (this.inputQuantity === undefined || this.outputQuantity === undefined) return "0";
         if (this.inputAsset === undefined || this.outputAsset === undefined) return "0";
 
-        const decimals = direction == "Send" ? this.inputAsset.decimals : this.outputAsset?.decimals;
-        const divider = new BigNumber(10).pow(decimals!);
+        const decimals = direction == "Send" ? this.inputAsset.decimals : this.outputAsset.decimals;
+        const divider = new BigNumber(10).pow(decimals);
 
         const quantity = direction == "Send" ? this.inputQuantity : this.outputQuantity;
-        let _val = new BigNumber(quantity!.div(divider).toFixed(12));
+
+        if (quantity === undefined) return "0";
+
+        let _val = new BigNumber(quantity.div(divider).toFixed(12));
 
         return _val.absoluteValue().decimalPlaces(12).toFormat();
     }

@@ -12,6 +12,7 @@ const errors: { [key: string]: string } = {
     "IsPaused()": "Is Paused",
     "DeviationExceedsLimit()": "Deviation Exceeds Limit",
     "TargetShareIsZero()": "Target Share Is Zero",
+    "NotEnoughQuantityToBurn()": "Insufficient Liqudity",
 }
 
 async function getForcePushPrice(multipoolId: string): Promise<{
