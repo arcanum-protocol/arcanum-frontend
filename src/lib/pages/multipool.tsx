@@ -46,7 +46,7 @@ export const MainInner = () => {
                     <TVChartContainer />
                     <IndexAssetsBreakdown />
                 </div >
-                <ActionForm className="h-fit w-full sm:w-full md:w-full lg:w-[21.4375rem]" />
+                <ActionForm className="h-fit w-[21.4375rem]" />
             </div >
         </>
     );
