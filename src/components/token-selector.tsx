@@ -44,7 +44,7 @@ interface TokenSelectorProps {
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { address } = useAccount();
     const { data: userBalance } = useBalance({ address });
-    const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares, selectedSCTab } = useStore();
+    const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares, selectedSCTab, prices } = useStore();
     const [search, setSearch] = useState("");
 
     const { data: balances } = useQuery(["balances"], async () => {
@@ -87,14 +87,14 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     }
 
     function toDollarValue(token: ExternalAsset | MultipoolAsset): BigNumber {
-        if (!balances || !token.price) {
+        if (!balances || !prices.get(token.address!)) {
             return new BigNumber(0);
         }
 
         const divisor = new BigNumber(10).pow(token.decimals);
 
         const balance = new BigNumber(balances[token.address!]).dividedBy(divisor);
-        const value = balance.multipliedBy(token.price);
+        const value = balance.multipliedBy(prices.get(token.address!) ?? new BigNumber(0));
 
         if (token.type === "external") {
             return value;
@@ -107,7 +107,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         if (address === undefined) {
             return <div className="p-2 opacity-70">{"$" + 0}</div>
         }
-        if (!balances || !token.price) {
+        if (!balances || !prices.get(token.address!)) {
             return <Skeleton className="w-[50px] h-[20px] rounded"></Skeleton>;
         }
 
