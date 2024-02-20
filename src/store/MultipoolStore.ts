@@ -655,7 +655,6 @@ class MultipoolStore {
         if (selectedAssets === undefined) throw new Error("selectedAssets is undefined");
 
         try {
-            console.log("res");
             const res = await this.multipool.read.checkSwap(
                 [
                     fpSharePricePlaceholder,
@@ -669,8 +668,6 @@ class MultipoolStore {
             const secondTokenQuantity = estimates[1];
 
             const firstTokenAddress = selectedAssets[0].assetAddress;
-
-            console.log(secondTokenQuantity.toString(), firstTokenQuantity.toString());
             
             runInAction(() => {
                 if (this.isExactInput) {
@@ -743,7 +740,6 @@ class MultipoolStore {
 
             return res;
         } catch (e) {
-            console.log(e);
             this.updateErrorMessage(e, true);
         }
     }
@@ -879,8 +875,6 @@ class MultipoolStore {
             callsBeforeUniswap.unshift(approveCall);
         }
 
-        console.log("callsBeforeUniswap", ethFee, ethValue);
-
         try {
             const gas = await this.router.estimateGas.swap([
                 this.multipool.address,
@@ -928,7 +922,6 @@ class MultipoolStore {
             this.updateErrorMessage(undefined, true);
             return request;
         } catch (e: any) {
-            console.log("e uniswap", e);
             return 1;
         }
     }
@@ -1027,7 +1020,6 @@ class MultipoolStore {
         direction: "Send" | "Receive",
         value: string | undefined
     ) {
-        console.log("setQuantity", direction, value);
         if (value === undefined) {
             this.inputQuantity = undefined;
             this.outputQuantity = undefined;

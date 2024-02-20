@@ -12,6 +12,7 @@ import { StoreProvider, useStore } from '@/contexts/StoreContext';
 import { getMultipoolMarketData } from '@/api/arcanum';
 import { useToast } from '@/components/ui/use-toast';
 import { Link, useParams } from 'react-router-dom';
+import { useEffect } from 'react';
 
 export const Admin = observer(() => {
     return (
@@ -98,12 +99,18 @@ export const Head = observer(() => {
     const { multipoolId, multipoolAddress, logo } = useStore();
     const { toast } = useToast();
 
-    const { data: multipool, isLoading: multipoolIsLoading } = useQuery(["multipool"], async () => {
+    console.log(multipoolId)
+
+    const { data: multipool, isLoading: multipoolIsLoading, refetch } = useQuery(["multipool"], async () => {
         return await getMultipoolMarketData(multipoolId);
     }, {
         refetchInterval: 15000,
         retry: true,
     });
+
+    useEffect(() => {
+        refetch();
+    }, [multipoolId]);
 
     function getColor(change: string | undefined): string {
         if (change == undefined) {
