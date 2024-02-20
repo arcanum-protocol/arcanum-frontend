@@ -189,12 +189,12 @@ const UniswapSwap = observer(() => {
     const { config } = usePrepareContractWrite(swapAction);
     const { write } = useContractWrite(config);
 
-    if (!address) {
-        return <ConnectWalletButton />
-    }
-
     if (exchangeError && !swapIsLoading) {
         return <ErrorButton errorMessage={exchangeError} />
+    }
+
+    if (!address) {
+        return <ConnectWalletButton />
     }
 
     if (allowanceIsLoading || isLoading || swapIsLoading) {
@@ -268,12 +268,12 @@ const ArcanumSwap = observer(() => {
         write();
     }
 
-    if (!address) {
-        return <ConnectWalletButton />
-    }
-
     if (exchangeError && !swapIsLoading) {
         return <ErrorButton errorMessage={exchangeError} />
+    }
+
+    if (!address) {
+        return <ConnectWalletButton />
     }
 
     if (swapActionIsLoading || balanceIsLoading || allowanceIsLoading || swapIsLoading) {
