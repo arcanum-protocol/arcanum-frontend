@@ -161,7 +161,7 @@ export const IndexAssetsBreakdown = observer(() => {
                             const idealShare = fetchedAsset.idealShare ?? new BigNumber(0);
                             const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);
 
-                            const Deviation = idealShare.minus(currentShare);
+                            const Deviation = idealShare.minus(currentShare).multipliedBy(-1);
                             const color = Deviation.isLessThan(0) ? "text-red-400" : "text-green-400";
 
                             const balance = fetchedAsset.multipoolQuantity;
@@ -180,7 +180,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                             <div className={`${idealShare.isEqualTo(0) ? "line-through" : ""}`}>{fetchedAsset.symbol}</div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{idealShare.toFixed(4)}%</TableCell>
+                                    <TableCell>{idealShare.decimalPlaces(4).toFormat()}%</TableCell>
                                     {
                                         isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
                                     }
