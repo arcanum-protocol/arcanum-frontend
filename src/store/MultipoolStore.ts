@@ -1031,9 +1031,23 @@ class MultipoolStore {
             return;
         }
 
-        const decimals = direction == "Send" ? this.inputAsset?.decimals : this.outputAsset?.decimals;
-        const divider = new BigNumber(10).pow(decimals!);
-        const quantity = new BigNumber(value).times(divider);
+        if (this.inputAsset === undefined || this.outputAsset === undefined) return;
+
+        const quantityBG = new BigNumber(value);
+
+        const decimals = direction == "Send" ? this.inputAsset.decimals : this.outputAsset.decimals;
+
+        // so here we have idiot check, WBTC has 6 decimals, but user might input 0.0000001, so we need to prevent this
+        const dp = quantityBG.decimalPlaces();
+        if (dp != null) {
+            if (dp > decimals) {
+                this.exchangeError = `Too many decimal places ${direction}`;
+                return;
+            }
+        }
+
+        const divider = new BigNumber(10).pow(decimals);
+        const quantity = quantityBG.times(divider);
 
         if (direction == "Send") {
             this.inputQuantity = quantity;
