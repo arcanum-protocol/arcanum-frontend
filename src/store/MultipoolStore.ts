@@ -136,6 +136,11 @@ class MultipoolStore {
     }
 
     setSlippage(value: number) {
+        if (value == 0) {
+            this.slippage = 0.5;
+            return;
+        } 
+        
         this.slippage = value;
     }
 
