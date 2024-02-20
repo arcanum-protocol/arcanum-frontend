@@ -182,11 +182,11 @@ export const IndexAssetsBreakdown = observer(() => {
                                     </TableCell>
                                     <TableCell>{idealShare.decimalPlaces(4).toFormat()}%</TableCell>
                                     {
-                                        isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.toFixed(4)}%</TableCell>
+                                        isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.decimalPlaces(4).toFormat()}%</TableCell>
                                     }
                                     <TableCell>
                                         <p className={`${colorPrice} transition-colors duration-1000`}>
-                                            {price.toFixed(4)}$
+                                            {price.decimalPlaces(4).toFormat()}$
                                         </p>
                                     </TableCell>
                                     <TableCell>
