@@ -76,46 +76,46 @@ function Navbar() {
                         <img src={getSVG("logo")} alt="Logo" className="w-10" />
                     </div>
 
-                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="/arbi" className="text-white inline-flex gap-2 items-center ">
+                    <Link to="/arbi" className="w-full hover:bg-[#2D2D2D]/90 rounded ">
+                        <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => setIsMenuOpen(false)}>
                             <img src={'/multipools/ARBI.svg'} alt="Arbi" className="w-5 h-5" />
                             ARBI
-                        </Link>
-                    </div>
+                        </div>
+                    </Link>
 
-                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="/spi" className="text-white inline-flex gap-2 items-center">
+                    <Link to="/spi" className="w-full hover:bg-[#2D2D2D]/90 rounded">
+                        <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => setIsMenuOpen(false)}>
                             <img src={'/multipools/SPI.svg'} alt="Spi" className="w-5 h-5" />
                             SPI
-                        </Link>
-                    </div>
+                        </div>
+                    </Link>
 
-                    <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] mb-[0.5rem]" />
+                    <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] my-[0.5rem]" />
 
-                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="https://dune.com/badconfig/arcanum" className="text-white inline-flex gap-2 items-center">
+                    <Link to="https://dune.com/badconfig/arcanum" className="w-full hover:bg-[#2D2D2D]/90 rounded">
+                        <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => setIsMenuOpen(false)}>
                             <img src={'/dune.svg'} alt="Spi" className="w-4 h-4" />
                             Dune
-                        </Link>
-                    </div>
+                        </div>
+                    </Link>
 
-                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="https://twitter.com/0xArcanum" className="text-white inline-flex gap-2 items-center">
+                    <Link to="https://twitter.com/0xArcanum" className="w-full hover:bg-[#2D2D2D]/90 rounded">
+                        <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => setIsMenuOpen(false)}>
                             <img src={'/x.svg'} alt="Spi" className="w-4 h-4" />
                             Twitter
-                        </Link>
-                    </div>
+                        </div>
+                    </Link>
 
-                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2" onClick={() => setIsMenuOpen(false)}>
-                        <Link to="https://discord.gg/nqJfDgtx82" className="text-white inline-flex gap-2 items-center">
+                    <Link to="https://discord.gg/nqJfDgtx82" className="w-full hover:bg-[#2D2D2D]/90 rounded">
+                        <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => setIsMenuOpen(false)}>
                             <img src={'/discord.svg'} alt="Spi" className="w-4 h-4" />
                             Discord
-                        </Link>
-                    </div>
+                        </div>
+                    </Link>
 
 
 
-                    <div className="w-full text-left text-base md:text-xl py-2 hover:bg-[#2D2D2D]/90 rounded px-2 inline-flex gap-2 items-center" onClick={() => {
+                    <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => {
                         setIsMenuOpen(false);
 
                         setTimeout(() => {
