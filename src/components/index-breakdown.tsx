@@ -156,17 +156,40 @@ export const IndexAssetsBreakdown = observer(() => {
                             }
 
                             const _etherPrice = new BigNumber(etherPrice.toString());
-                            const price = getPrices.get(fetchedAsset.address)!.multipliedBy(_etherPrice);
 
-                            const idealShare = fetchedAsset.idealShare ?? new BigNumber(0);
-                            const currentShare = shares.get(fetchedAsset.address!) ?? new BigNumber(0);
+                            const rawPrice = getPrices.get(fetchedAsset.address);
+
+                            const idealShare = fetchedAsset.idealShare;
+                            const currentShare = shares.get(fetchedAsset.address);
+
+                            if (idealShare == undefined || currentShare == undefined || priceChangeColor == undefined || rawPrice == undefined) {
+                                return (
+                                    <TableRow key={fetchedAsset.address}>
+                                        <TableCell className="text-left">
+                                            <div className="flex flex-row items-center gap-2">
+                                                <Avatar className="w-5 h-5">
+                                                    <AvatarImage src={fetchedAsset.logo == null ? undefined : fetchedAsset.logo} />
+                                                    <AvatarFallback>{fetchedAsset.symbol}</AvatarFallback>
+                                                </Avatar>
+                                                <div>{fetchedAsset.symbol}</div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell> <Skeleton className="rounded w-16 h-4" /> </TableCell>
+                                        <TableCell> <Skeleton className="rounded w-16 h-4" /> </TableCell>
+                                        <TableCell> <Skeleton className="rounded w-16 h-4" /> </TableCell>
+                                        <TableCell> <Skeleton className="rounded w-16 h-4" /> </TableCell>
+                                        <TableCell> <Skeleton className="rounded w-16 h-4" /> </TableCell>
+                                        <TableCell> <Skeleton className="rounded w-16 h-4" /> </TableCell>
+                                    </TableRow>
+                                );
+                            }
 
                             const Deviation = idealShare.minus(currentShare).multipliedBy(-1);
                             const color = Deviation.isLessThan(0) ? "text-red-400" : "text-green-400";
 
                             const balance = fetchedAsset.multipoolQuantity;
 
-                            const priceChangeColorClass = priceChangeColor?.get(fetchedAsset.address);
+                            const priceChangeColorClass = priceChangeColor.get(fetchedAsset.address);
                             const colorPrice = getNewColor(priceChangeColorClass);
 
                             return (
@@ -181,13 +204,15 @@ export const IndexAssetsBreakdown = observer(() => {
                                         </div>
                                     </TableCell>
                                     <TableCell>{idealShare.decimalPlaces(4).toFormat()}%</TableCell>
-                                    {
-                                        isLoading ? <TableCell className="text-center"><Skeleton className="rounded w-16 h-4" /></TableCell> : <TableCell>{currentShare.decimalPlaces(4).toFormat()}%</TableCell>
-                                    }
+                                    <TableCell className="text-center">
+                                        {
+                                            isLoading ? <Skeleton className="rounded w-16 h-4" /> : currentShare.decimalPlaces(4).toFormat() + "%"
+                                        }
+                                    </TableCell>
                                     <TableCell>
-                                        <p className={`${colorPrice} transition-colors duration-1000`}>
-                                            {price.decimalPlaces(4).toFormat()}$
-                                        </p>
+                                        {
+                                            rawPrice ? <p className={`${colorPrice} transition-colors duration-1000`}>{rawPrice.multipliedBy(_etherPrice).decimalPlaces(4).toFormat()}$</p> : <Skeleton className="rounded w-16 h-4" />
+                                        }
                                     </TableCell>
                                     <TableCell>
                                         <TooltipProvider>
