@@ -1,8 +1,8 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { Address, useAccount, useBalance, useContractWrite, usePrepareContractWrite, useQuery, useSignTypedData } from "wagmi";
+import { useAccount, useBalance, useSimulateContract, useSignTypedData, useWriteContract } from "wagmi";
 import ERC20 from "@/abi/ERC20";
-import { useStore } from "@/contexts/StoreContext";
+import { useMultipoolStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
 import { fromBigNumber } from "@/lib/utils";
 import { useEffect } from "react";
@@ -10,6 +10,8 @@ import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
 import { useModal } from "connectkit";
 import { useAllowence } from "@/hooks/useAllowence";
+import { Address } from "viem";
+import { useQuery } from "@tanstack/react-query";
 
 export const ConnectWallet = () => {
     const { setOpen } = useModal();
@@ -22,7 +24,7 @@ export const ConnectWallet = () => {
 };
 
 export const InteractionWithApprovalButton = observer(() => {
-    const { swapType } = useStore();
+    const { swapType } = useMultipoolStore();
 
     if (swapType === ActionType.ARCANUM) {
         return <ArcanumSwap />
@@ -72,19 +74,19 @@ function ConnectWalletButton() {
 }
 
 function ApprovalButton({ approveTo }: { approveTo: Address }) {
-    const { inputAsset } = useStore();
+    const { inputAsset } = useMultipoolStore();
 
-    const { config: approvalConfig } = usePrepareContractWrite({
+    const { data: approvalConfig } = useSimulateContract({
         address: inputAsset?.address,
         abi: ERC20,
         functionName: "approve",
         args: [approveTo, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")]
     });
-    const { write: approve } = useContractWrite(approvalConfig);
+    const { writeContract } = useWriteContract();
 
     return (
         <div className="w-full">
-            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-green-300 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={approve}>
+            <Button className="w-full border bg-transparent rounded-md text-slate-50 border-green-300 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => writeContract(approvalConfig!.request)}>
                 <p style={{ margin: "10px" }}>Approve</p>
             </Button>
         </div >
@@ -93,13 +95,11 @@ function ApprovalButton({ approveTo }: { approveTo: Address }) {
 
 const BebopSwap = observer(() => {
     const { address } = useAccount();
-    const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError, swapIsLoading } = useStore();
+    const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError, swapIsLoading } = useMultipoolStore();
 
-    const { data: swapData, refetch } = useQuery(["swap"], async () => {
+    const { data: swapData, refetch } = useQuery({queryKey: ["swap"], queryFn: async () => {
         return await checkSwapBebop(address);
-    }, {
-        refetchInterval: 3000,
-    });
+    }});
 
     useEffect(() => {
         refetch();
@@ -111,7 +111,7 @@ const BebopSwap = observer(() => {
     const types = swapData?.PARAM_TYPES;
     const message = toObject(swapData?.toSign);
 
-    const { signTypedDataAsync } = useSignTypedData({ domain, types, primaryType: 'JamOrder', message: message });
+    const { signTypedData } = useSignTypedData({ domain, types, primaryType: 'JamOrder', message: message });
 
     if (exchangeError && !swapIsLoading) {
         return <ErrorButton errorMessage={exchangeError} />
@@ -126,7 +126,9 @@ const BebopSwap = observer(() => {
     }
 
     async function CallSwap() {
-        const signedData = await signTypedDataAsync();
+        const signedData = signTypedData({
+            types, primaryType: 'JamOrder', message, domain
+        });
         await submitOrder({ quoteId: swapData!.orderId, signature: signedData! });
     }
 
@@ -153,7 +155,7 @@ const BebopSwap = observer(() => {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
+    const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useMultipoolStore();
 
     const inputQuantityBigInt = BigInt(inputQuantity?.toFixed(0) || "0");
 
@@ -186,7 +188,7 @@ const UniswapSwap = observer(() => {
         refetch();
     }, [inputQuantity]);
 
-    const { config } = usePrepareContractWrite(swapAction);
+    const { data } = useSimulateContract(swapAction);
     const { write } = useContractWrite(config);
 
     if (exchangeError && !swapIsLoading) {
@@ -224,7 +226,7 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useStore();
+    const { swap, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useMultipoolStore();
 
     const { data: balance, isLoading: balanceIsLoading } = useBalance({
         address: address,
@@ -259,7 +261,7 @@ const ArcanumSwap = observer(() => {
         refetch();
     }, [outputQuantity]);
 
-    const { config } = usePrepareContractWrite(swapAction!);
+    const { data } = useSimulateContract(swapAction!);
     const { write } = useContractWrite(config);
 
     async function CallSwap() {

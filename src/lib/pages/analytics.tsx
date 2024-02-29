@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import { StoreProvider, useStore } from "@/contexts/StoreContext";
+import { StoreProvider, useMultipoolStore } from "@/contexts/StoreContext";
 import { MultipoolStore } from "@/store/MultipoolStore";
 import BigNumber from "bignumber.js";
 import { observer } from "mobx-react-lite";
@@ -14,7 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toJS } from "mobx";
 
 export const Head = observer(() => {
-    const { multipoolId, multipoolAddress, assets, setTokens, setEtherPrice, assetsIsLoading, etherPrice, getPrices, setPrices } = useStore();
+    const { multipoolId, multipoolAddress, assets, setTokens, setEtherPrice, assetsIsLoading, etherPrice, getPrices, setPrices } = useMultipoolStore();
     const { toast } = useToast();
 
     const { data: multipool, isLoading: multipoolIsLoading } = useQuery(["multipool"], async () => {
@@ -94,7 +94,7 @@ export const Head = observer(() => {
 });
 
 const AssetsTable = observer(() => {
-    const { assets, assetsIsLoading, currentShares, etherPrice, getPriceFeeds, getPrices } = useStore();
+    const { assets, assetsIsLoading, currentShares, etherPrice, getPriceFeeds, getPrices } = useMultipoolStore();
 
     const { data: priceFeeds, isLoading: priceFeedsIsLoading } = useQuery(["assets"], async () => {
         return await getPriceFeeds();

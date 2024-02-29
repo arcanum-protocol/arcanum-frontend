@@ -7,7 +7,7 @@ import {
     type ChartingLibraryFeatureset
 } from '../lib/charting_library';
 import { observer } from 'mobx-react-lite';
-import { useStore } from '@/contexts/StoreContext';
+import { useMultipoolStore } from '@/contexts/StoreContext';
 
 export const SUPPORTED_RESOLUTIONS = { 1: "1m", 3: "3m", 5: "5m", 15: "15m", 30: "30m", 60: "1h", 720: "12h", "1D": "1d" };
 
@@ -79,7 +79,7 @@ export interface ChartContainerProps {
 }
 
 const TVChartContainer = observer(() => {
-    const { multipoolId, datafeedUrl } = useStore();
+    const { multipoolId, datafeedUrl } = useMultipoolStore();
     const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
 
     useEffect(() => {

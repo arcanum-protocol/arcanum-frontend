@@ -9,10 +9,11 @@ import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "./lib/pages/analytics";
 import { Farms } from "./lib/pages/farm";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiConfig } from "wagmi";
+import { WagmiProvider  } from "wagmi";
 import { ConnectKitProvider } from "connectkit";
 import { config } from "./config";
 import { ThemeProvider } from "./contexts/ThemeProvider";
+import { FarmsAdmin } from "./lib/pages/farmsadmin";
 
 
 function ErrorBoundary() {
@@ -91,6 +92,11 @@ const router = createBrowserRouter([
                 path: "/farms",
                 element: <Farms />,
             }
+            ,
+            {
+                path: "/farmsadmin",
+                element: <FarmsAdmin />,
+            }
         ]
     },
 
@@ -100,7 +106,7 @@ const client = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <QueryClientProvider client={client}>
-        <WagmiConfig config={config}>
+        <WagmiProvider  config={config}>
             <ConnectKitProvider
                 theme="midnight"
                 customTheme={{
@@ -131,6 +137,6 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
                     <RouterProvider router={router} />
                 </ThemeProvider>
             </ConnectKitProvider>
-        </WagmiConfig>
+        </WagmiProvider >
     </QueryClientProvider>
 );

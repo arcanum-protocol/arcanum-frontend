@@ -21,8 +21,6 @@ export enum ActionType {
 }
 
 class MultipoolStore {
-    private publicClient = publicClient({ chainId: 42161 });
-
     // multipool related data
     logo: string | undefined;
     chainId: number | undefined;
@@ -33,12 +31,12 @@ class MultipoolStore {
     multipool = getContract({
         address: undefined as any,
         abi: multipoolABI,
-        publicClient: this.publicClient,
+        client: publicClient,
     });
     router = getContract({
         address: undefined as any,
         abi: routerABI,
-        publicClient: this.publicClient,
+        client: publicClient,
     });
 
     fees: {
@@ -106,13 +104,13 @@ class MultipoolStore {
                 this.multipool = getContract({
                     address: multipool.address as Address,
                     abi: multipoolABI,
-                    publicClient: this.publicClient,
+                    client: publicClient,
                 });
 
                 this.router = getContract({
                     address: multipool.router as Address,
                     abi: routerABI,
-                    publicClient: this.publicClient,
+                    client: publicClient,
                 });
 
                 this.logo = multipool.logo;
@@ -120,8 +118,6 @@ class MultipoolStore {
                 this.name = multipool.name;
                 this.multipoolIsLoading = false;
             });
-
-            await this.getFees();
         })();
 
 
@@ -170,7 +166,7 @@ class MultipoolStore {
             abi: multipoolABI,
         } as const;
 
-        const result = await this.publicClient?.multicall({
+        const result = await publicClient?.multicall({
             contracts: this.assets.map((asset) => {
                 return {
                     ...multipool,
@@ -239,25 +235,6 @@ class MultipoolStore {
         });
     }
 
-    async getFees() {
-        if (this.multipool.address === undefined) return;
-        const rawFees: [bigint, bigint, bigint, bigint, bigint, Address] = await this.multipool.read.getFeeParams() as [bigint, bigint, bigint, bigint, bigint, Address];
-
-        runInAction(() => {
-            const deviationParam = new BigNumber((rawFees[0]).toString());
-            const deviationLimit = new BigNumber((rawFees[1]).toString());
-            const depegBaseFee = new BigNumber((rawFees[2]).toString());
-            const baseFee = new BigNumber((rawFees[3]).toString());
-
-            this.fees = {
-                deviationParam: deviationParam,
-                deviationLimit: deviationLimit,
-                depegBaseFee: depegBaseFee,
-                baseFee: baseFee,
-            };
-        });
-    }
-
     async setTokens() {
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         const { multipool: { assets } } = await getMultipool(this.multipoolId);
@@ -271,7 +248,7 @@ class MultipoolStore {
             abi: multipoolABI,
         } as const;
 
-        const result = await this.publicClient.multicall({
+        const result = await publicClient.multicall({
             contracts: assets.map(({ address }) => {
                 return [{
                     ...multipoolContract,
@@ -379,7 +356,7 @@ class MultipoolStore {
             functionName: "getPrice",
         } as const;
 
-        const prices = await this.publicClient.multicall({
+        const prices = await publicClient.multicall({
             contracts: addresses.map(({ address }) => {
                 return {
                     ...getPriceCall,
@@ -733,7 +710,7 @@ class MultipoolStore {
                         }
                     );
 
-                    const gasPrice = await this.publicClient?.getGasPrice();
+                    const gasPrice = await publicClient?.getGasPrice();
 
                     runInAction(() => {
                         this.transactionCost = gas * gasPrice;
@@ -901,7 +878,7 @@ class MultipoolStore {
                 }
             );
 
-            const gasPrice = await this.publicClient?.getGasPrice();
+            const gasPrice = await publicClient?.getGasPrice();
             this.updateGas(gas, gasPrice!);
 
             const { request } = await this.router.simulate.swap([
