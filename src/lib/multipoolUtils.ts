@@ -84,4 +84,31 @@ async function getExternalAssets() {
     return assets;
 }
 
-export { getForcePushPrice, parseError, getExternalAssets }
+async function getAssetPrice(testasset: Address) {
+    const testnetPlaceHolder: { [name: string]: string } = {
+        "0x680DF6ED32ba0eff7D8F12CC47518F00Fcfd7358": "0x912CE59144191C1204E64559FE8253a0e49E6548",
+        "0xB412C223e21E04F1eee7A03f86A6264282dff80D": "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
+    };
+
+    const _asset = testnetPlaceHolder[testasset] || testasset;
+
+    const responce = await axios.get(`https://api.bebop.xyz/arbitrum/v2/tokens?active_only=true`);
+    const data: { [name: string]: BebopToken } = await responce.data.tokens;
+    const assets = Object.values(data).map((token: BebopToken) => {
+        return {
+            name: token.name,
+            symbol: token.ticker,
+            address: token.chainInfo[0].contractAddress,
+            decimals: token.chainInfo[0].decimals,
+            logoURI: token.iconUrl,
+            price: token.priceUsd
+        };
+    });
+
+    return {
+        price: assets.filter((asset) => (asset.address) == (_asset))[0].price,
+        decimals: assets.filter((asset) => (asset.address) == (_asset))[0].decimals
+    };
+}
+
+export { getForcePushPrice, parseError, getExternalAssets, getAssetPrice }

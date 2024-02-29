@@ -12,15 +12,23 @@ import {
 import { FarmsStore } from "@/store/FarmsStore";
 import { StoreProvider, useFarmsStore } from "@/contexts/StoreContext";
 import { observer } from "mobx-react-lite";
-import { Address } from "viem";
 import type { Farm as FarmType } from "@/store/FarmsStore";
 import { useToken } from "@/hooks/useToken";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 import BigNumber from "bignumber.js";
 import ERC20 from "@/abi/ERC20";
 import { readContract } from "@wagmi/core";
 import { config } from "@/config";
+import { Address } from "viem";
+import { getArbitrumPrice, getAssetPrice } from "../multipoolUtils";
+
+// from rewards per block to APY
+const apyFromRPB = (rpb: bigint, price: number, _decimals: number) => {
+    const decimals = BigNumber(10).pow(_decimals);
+    const apy = BigNumber(rpb.toString()).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(decimals);
+    return apy.toFixed(2);
+} 
 
 const toContractBigint = (value: string) => {
     const bn = BigNumber(value).multipliedBy(BigNumber(10).pow(18));
@@ -31,7 +39,15 @@ const toContractBigint = (value: string) => {
 }
 
 const fromContractBigint = (value: BigInt) => {
-    return new BigNumber(value.toString()).dividedBy(BigNumber(10).pow(18)).toFormat(2);
+    const data = new BigNumber(value.toString()).dividedBy(BigNumber(10).pow(18));
+    if (data.isZero()) {
+        return "0";
+    } 
+    if (data.isLessThan(0.01)) {
+        return ">0.01";
+    } else {
+        return data.toFixed(2);
+    }
 }
 
 function Deposit({ id, address, icon, name }: { id: number, address: Address, icon: string, name: string }) {
@@ -167,8 +183,8 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     )
 }
 
-function Withdraw({ address, icon, name }: { address: Address, icon: string, name: string }) {
-    const { mpIdToPrice } = useFarmsStore();
+function Withdraw({ id, address, icon, name }: { id: number, address: Address, icon: string, name: string }) {
+    const { mpIdToPrice, FarmsConatractInstance } = useFarmsStore();
 
     const [input, setInput] = useState<string>('');
 
@@ -188,6 +204,7 @@ function Withdraw({ address, icon, name }: { address: Address, icon: string, nam
 
     const lowAddress = address.toLocaleLowerCase() as Address;
     const { data, isLoading } = useToken(lowAddress);
+    const { writeContractAsync } = useWriteContract();
 
     if (isLoading || !data) {
         return (
@@ -231,8 +248,19 @@ function Withdraw({ address, icon, name }: { address: Address, icon: string, nam
             </div>
 
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => {
-                    // FarmsConatractInstance.simulate.withdraw([]);
+                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                    await writeContractAsync({
+                        address: FarmsConatractInstance.address,
+                        abi: FarmsConatractInstance.abi,
+                        functionName: "withdraw",
+                        args: [
+                            BigInt(id),
+                            toContractBigint(input),
+                            true,
+                            "0x0000000000000000000000000000000000000000" as Address,
+                            "0x0000000000000000000000000000000000000000" as Address,
+                        ],
+                    })
                 }}>
                     <p style={{ margin: "10px" }}>Unstake</p>
                 </Button>
@@ -241,7 +269,10 @@ function Withdraw({ address, icon, name }: { address: Address, icon: string, nam
     )
 }
 
-function Claim({ address }: { address: Address }) {
+function Claim({ id, address }: { id: number, address: Address }) {
+    const { FarmsConatractInstance } = useFarmsStore();
+    const { writeContractAsync } = useWriteContract();
+
     return (
         <div className="w-full flex flex-col mt-2 gap-2">
             <div className="flex items-center gap-1">
@@ -264,16 +295,29 @@ function Claim({ address }: { address: Address }) {
                 </TooltipProvider> */}
             </div>
 
-            <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={() => { }}>
+            <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                await writeContractAsync({
+                    address: FarmsConatractInstance.address,
+                    abi: FarmsConatractInstance.abi,
+                    functionName: "withdraw",
+                    args: [
+                        BigInt(id),
+                        BigInt(0),
+                        true,
+                        "0x0000000000000000000000000000000000000000" as Address,
+                        "0x0000000000000000000000000000000000000000" as Address,
+                    ],
+                })
+            }}>
                 <p style={{ margin: "10px" }}>Claim</p>
             </Button>
         </div >
     )
 }
 
-const Farm = observer(({ id, address }: { id: number, address: Address }) => {
-    const { addressToIds, FarmsConatractInstance } = useFarmsStore();
-    const {address: userAddress} = useAccount();
+const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }: { id: number, address: Address, tvl: bigint, apy: bigint, rewardAddress: Address }) => {
+    const { addressToIds, FarmsConatractInstance, mpIdToPrice } = useFarmsStore();
+    const { address: userAddress } = useAccount();
 
     const lowAddress = address.toLocaleLowerCase() as Address;
     const rngName = addressToIds.get(lowAddress) || "Unknown";
@@ -284,18 +328,31 @@ const Farm = observer(({ id, address }: { id: number, address: Address }) => {
     const [open, setOpen] = useState<boolean>(false);
     const [tab, setTabPrivate] = useState<'stake' | 'unstake' | 'claim'>('stake');
 
+    const { data: price } = useQuery({
+        queryKey: ['price', id],
+        queryFn: async () => {
+            const arbPrice = await getAssetPrice(rewardAddress);
+            return arbPrice;
+        },
+        refetchInterval: 10000,
+        initialData: {
+            price: 0,
+            decimals: 18,
+        }
+    });
+
     const { data: staked } = useQuery({
         queryKey: ['staked', id, userAddress],
         queryFn: async () => {
-            if (!userAddress) {
-                return {
-                    amount: 0n,
-                    rd: 0n,
-                    accRewards: 0n,
-                };
+            if (userAddress) {
+                const staked = await FarmsConatractInstance.read.getUser([BigInt(id), userAddress]);
+                return staked;
             }
-            const staked = await FarmsConatractInstance.read.getUser([BigInt(id), userAddress]);
-            return staked;
+            return {
+                amount: 0n,
+                rd: 0n,
+                accRewards: 0n,
+            };
         },
         initialData: {
             amount: 0n,
@@ -308,6 +365,9 @@ const Farm = observer(({ id, address }: { id: number, address: Address }) => {
     const setTab = (value: 'stake' | 'unstake' | 'claim') => {
         setTabPrivate(value);
     }
+
+    const tvl = BigNumber(tvlRaw.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 0).dividedBy(BigNumber(10).pow(18)).toFixed(2);
+    const apy = apyFromRPB(apyRaw, price.price, price.decimals);
 
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out">
@@ -329,10 +389,10 @@ const Farm = observer(({ id, address }: { id: number, address: Address }) => {
 
                     <div className="flex flex-row w-full justify-between items-center">
                         <div className="text-base">APY:</div>
-                        <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">30%</div>
+                        <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">{apy}%</div>
 
                         <div className="text-base">TVL:</div>
-                        <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">13.37M</div>
+                        <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">{tvl.toString()}$</div>
                     </div>
 
                 </div>
@@ -409,13 +469,11 @@ function FarmContainer() {
         return <div>Loading...</div>
     }
 
-    console.log("farms", farms);
-
     return (
         <>
             {
                 farms.map((farm) => {
-                    return <Farm id={farm.id} address={farm.lockAsset} />
+                    return <Farm id={farm.id} address={farm.lockAsset} tvl={farm.lockAssetTotalNumber} apy={farm.rpb} rewardAddress={farm.rewardAsset} key={farm.id} />
                 })
             }
         </>
