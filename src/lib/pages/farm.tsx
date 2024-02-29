@@ -21,7 +21,7 @@ import ERC20 from "@/abi/ERC20";
 import { readContract } from "@wagmi/core";
 import { config } from "@/config";
 import { Address } from "viem";
-import { getArbitrumPrice, getAssetPrice } from "../multipoolUtils";
+import { getAssetPrice } from "../multipoolUtils";
 
 // from rewards per block to APY
 const apyFromRPB = (rpb: bigint, price: number, _decimals: number) => {

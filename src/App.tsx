@@ -149,12 +149,9 @@ function Navbar() {
                         </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <Link to='/farms' className={navigationMenuTriggerStyle()}>
                             Farming
-                            <div className="text-[10px] border rounded ml-2 px-2">
-                                coming soon
-                            </div>
-                        </NavigationMenuLink>
+                        </Link>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
                         <NavigationMenuTrigger>Socials</NavigationMenuTrigger>
