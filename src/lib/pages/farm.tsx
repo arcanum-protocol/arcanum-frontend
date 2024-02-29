@@ -24,9 +24,11 @@ import { Address } from "viem";
 import { getAssetPrice } from "../multipoolUtils";
 
 // from rewards per block to APY
-const apyFromRPB = (rpb: bigint, price: number, _decimals: number) => {
+const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) => {
     const decimals = BigNumber(10).pow(_decimals);
-    const apy = BigNumber(rpb.toString()).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(decimals);
+    const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
+
+    const apy = BigNumber(rpb.toString()).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(decimals).dividedBy(deposited);
     return apy.toFixed(2);
 } 
 
@@ -367,7 +369,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     }
 
     const tvl = BigNumber(tvlRaw.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 0).dividedBy(BigNumber(10).pow(18)).toFixed(2);
-    const apy = apyFromRPB(apyRaw, price.price, price.decimals);
+    const apy = apyFromRPB(apyRaw, price.price, price.decimals, tvlRaw);
 
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out">
