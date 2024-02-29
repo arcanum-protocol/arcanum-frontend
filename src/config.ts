@@ -10,8 +10,8 @@ const customTestnet = {
     name: 'anvil',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
-        public: { http: ['http://81.163.22.190:8545'] },
-        default: { http: ['http://81.163.22.190:8545'] },
+        public: { http: ['https://81.163.22.190:8545'] },
+        default: { http: ['https://81.163.22.190:8545'] },
     },
 } as const satisfies Chain;
 
