@@ -28,34 +28,34 @@ export const TradePaneInner = observer(() => {
         retry: true,
     });
 
-    return (
-        <div className="flex flex-col justify-center gap-2 mt-2">
-            <div className="flex flex-col gap-4 items-center">
-                {
-                    isLoading || assetsIsLoading ?
-                        <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
-                        <TokenQuantityInput text={"Send"} />
-                }
+return (
+    <div className="flex flex-col justify-center gap-2 mt-2">
+        <div className="flex flex-col gap-4 items-center">
+            {
+                isLoading || assetsIsLoading ?
+                    <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
+                    <TokenQuantityInput text={"Send"} />
+            }
 
-                <div onClick={swapAssets}
-                    className="my-[-2rem] z-10 bg-[#0c0a09] border border-[#2b2b2b] p-2 rounded">
-                    <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
-                    </svg>
-                </div>
+            <div onClick={swapAssets}
+                className="my-[-2rem] z-10 bg-[#0c0a09] border border-[#2b2b2b] p-2 rounded">
+                <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                </svg>
+            </div>
 
-                {
-                    isLoading || assetsIsLoading ?
-                        <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
-                        <TokenQuantityInput text={"Receive"} />
-                }
-            </div>
-            <div className="flex flex-col items-center gap-2">
-                <TransactionParamsSelector />
-                <InteractionWithApprovalButton />
-            </div>
+            {
+                isLoading || assetsIsLoading ?
+                    <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
+                    <TokenQuantityInput text={"Receive"} />
+            }
         </div>
-    )
+        <div className="flex flex-col items-center gap-2">
+            <TransactionParamsSelector />
+            <InteractionWithApprovalButton />
+        </div>
+    </div>
+)
 });
 
 interface TokenQuantityInputProps {
