@@ -10,8 +10,8 @@ const customTestnet = {
     name: 'anvil',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: {
-        public: { http: ['https://api.arcanum.to/testnet'] },
-        default: { http: ['https://api.arcanum.to/testnet'] },
+        public: { http: ['https://testnet.arcanum.to'] },
+        default: { http: ['https://testnet.arcanum.to'] },
     },
 } as const satisfies Chain;
 
