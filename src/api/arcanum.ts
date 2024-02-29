@@ -67,7 +67,7 @@ interface RootFarm {
 }
 
 async function fetchFarms() {
-    const farms = await axios.get(`http://localhost:5173/api/farms.yaml`);
+    const farms = await axios.get(`https://app.arcanum.to/api/farms.yaml`);
     // parse farms
     const data = yaml.parse(farms.data);
 
