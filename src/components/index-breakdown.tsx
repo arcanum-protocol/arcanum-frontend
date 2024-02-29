@@ -2,7 +2,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { observer } from "mobx-react-lite";
 import { Skeleton } from "./ui/skeleton";
-import { useStore } from "@/contexts/StoreContext";
+import { useMultipoolStore } from "@/contexts/StoreContext";
 import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
@@ -58,53 +58,57 @@ function getNewColor(direction: "increase" | "decrease" | "none" | undefined) {
 }
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assetsIsLoading, assets, setTokens, setExternalAssets, currentShares, etherPrice, setEtherPrice, getPrices, setPrices } = useStore();
+    const { assetsIsLoading, assets, setTokens, setExternalAssets, currentShares, etherPrice, setEtherPrice, getPrices, setPrices } = useMultipoolStore();
     const [priceChangeColor, setPriceChangeColor] = useState<Map<Address, "increase" | "decrease" | "none"> | undefined>(undefined);
 
-    const { isLoading } = useQuery(["assets"], async () => {
-        await Promise.all([setTokens(), setExternalAssets()]);
+    const { isLoading } = useQuery({
+        queryKey: ["assets"],
+        queryFn: async () => {
+            await Promise.all([setTokens(), setExternalAssets()]);
 
-        return 1;
-    }, {
+            return 1;
+        },
         retry: true,
         refetchOnWindowFocus: false,
         refetchInterval: 1000,
         enabled: assetsIsLoading,
     });
 
-    useQuery(["etherPrice"], async () => {
-        const previousPrices: Map<Address, BigNumber> = new Map();
-        getPrices.forEach((value, key) => {
-            previousPrices.set(key, value);
-        });
+    useQuery({
+        queryKey: ["etherPrice"],
+        queryFn: async () => {
+            const previousPrices: Map<Address, BigNumber> = new Map();
+            getPrices.forEach((value, key) => {
+                previousPrices.set(key, value);
+            });
 
-        await setEtherPrice();
-        await setPrices();
+            await setEtherPrice();
+            await setPrices();
 
-        const newPrices: Map<Address, BigNumber> = new Map();
-        getPrices.forEach((value, key) => {
-            newPrices.set(key, value);
-        });
+            const newPrices: Map<Address, BigNumber> = new Map();
+            getPrices.forEach((value, key) => {
+                newPrices.set(key, value);
+            });
 
-        const priceChangeColor: Map<Address, "increase" | "decrease" | "none"> = new Map();
+            const priceChangeColor: Map<Address, "increase" | "decrease" | "none"> = new Map();
 
-        newPrices.forEach((value, key) => {
-            const previousPrice = previousPrices.get(key);
-            if (previousPrice != undefined) {
-                if (value.isGreaterThan(previousPrice)) {
-                    priceChangeColor.set(key, 'increase');
-                } else if (value.isLessThan(previousPrice)) {
-                    priceChangeColor.set(key, 'decrease');
-                } else {
-                    priceChangeColor.set(key, "none");
+            newPrices.forEach((value, key) => {
+                const previousPrice = previousPrices.get(key);
+                if (previousPrice != undefined) {
+                    if (value.isGreaterThan(previousPrice)) {
+                        priceChangeColor.set(key, 'increase');
+                    } else if (value.isLessThan(previousPrice)) {
+                        priceChangeColor.set(key, 'decrease');
+                    } else {
+                        priceChangeColor.set(key, "none");
+                    }
                 }
-            }
-        });
+            });
 
-        setPriceChangeColor(priceChangeColor);
+            setPriceChangeColor(priceChangeColor);
 
-        return 1;
-    }, {
+            return 1;
+        },
         refetchInterval: 1000,
         retry: true,
         refetchOnWindowFocus: false,

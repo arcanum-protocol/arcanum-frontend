@@ -6,7 +6,7 @@ import yaml from 'yamljs';
 
 // once-call
 async function getMultipool(multipoolId: string) {
-    const staticDataResponce = await axios.get(`https://app.arcanum.to/api/${multipoolId}.yaml`);
+    const staticDataResponce = await axios.get(`https://app.arcanum.to/api/${multipoolId.toLocaleLowerCase()}.yaml`);
     const data = yaml.parse(staticDataResponce.data);
 
     const { name, address, router_address, logo, assets } = data;
@@ -62,12 +62,38 @@ async function getSignedPrice(multipoolId: string) {
     return BigNumber(data.sharePrice);
 }
 
-async function fetchFarms() {
-    const farms = await axios.get(`https://app.arcanum.to/api/farms.yaml`);
-    // parse farms
-    const data = yaml.parse(farms.data);
-    return data;
+interface RootFarm {
+    address: string;
 }
 
-export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice, fetchFarms };
+async function fetchFarms() {
+    const farms = await axios.get(`http://localhost:5173/api/farms.yaml`);
+    // parse farms
+    const data = yaml.parse(farms.data);
 
+    return data as RootFarm;
+}
+
+// array of mp ids
+async function getETFsPrice(mps: string[]) {
+    const addressToPrice: Map<Address, number> = new Map();
+
+    for (const mp of mps) {
+        const { multipool } = await getMultipool(mp);
+        const price = await getMultipoolMarketData(mp);
+
+        addressToPrice.set(multipool.address.toLowerCase() as Address, price.price);
+        if (multipool.address.toLowerCase() == "0x4810e5a7741ea5fdbb658eda632ddfac3b19e3c6") { // delete this, just a ploaceholder for farming test
+            addressToPrice.set("0x961fad7932e95018bac25ee3c7459c7002480671" as Address, price.price);
+        }
+        if (multipool.address.toLowerCase() == "0xbb5b3d9f6b57077b4545ea9879ee7fd0bdb08db0") {
+            addressToPrice.set("0xa67554edfa8be9bf28d2086bdc1eaf5ac27bd008" as Address, price.price);
+        }
+    }
+
+
+    return addressToPrice;
+}
+
+export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice, fetchFarms, getETFsPrice };
+export type { RootFarm };

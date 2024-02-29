@@ -8,7 +8,7 @@ import TVChartContainer from "@/components/tv-chart";
 import { TokenSelector } from "@/components/token-selector";
 import { AdminPannel } from './admin';
 import { useQuery } from '@tanstack/react-query';
-import { StoreProvider, useStore } from '@/contexts/StoreContext';
+import { StoreProvider, useMultipoolStore } from '@/contexts/StoreContext';
 import { getMultipoolMarketData } from '@/api/arcanum';
 import { useToast } from '@/components/ui/use-toast';
 import { Link, useParams } from 'react-router-dom';
@@ -24,7 +24,6 @@ export const Admin = observer(() => {
 
 export const Multipool = () => {
     const { id } = useParams();
-    console.log(id);
     const store = new MultipoolStore(id ?? "arbi");
 
     if (store == null) {
@@ -58,7 +57,7 @@ interface ActionFormProps {
 }
 
 export const ActionForm = observer(({ className }: ActionFormProps) => {
-    const { selectedTab, setSelectedTabWrapper } = useStore();
+    const { selectedTab, setSelectedTabWrapper } = useMultipoolStore();
 
     return (
         <div>
@@ -96,14 +95,16 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
 });
 
 export const Head = observer(() => {
-    const { multipoolId, multipoolAddress, logo } = useStore();
+    const { multipoolId, multipoolAddress, logo } = useMultipoolStore();
     const { toast } = useToast();
 
     console.log(multipoolId)
 
-    const { data: multipool, isLoading: multipoolIsLoading, refetch } = useQuery(["multipool"], async () => {
-        return await getMultipoolMarketData(multipoolId);
-    }, {
+    const { data: multipool, isLoading: multipoolIsLoading, refetch } = useQuery({
+        queryKey: ["multipool"],
+        queryFn: async () => {
+            return await getMultipoolMarketData(multipoolId);
+        },
         refetchInterval: 15000,
         retry: true,
     });

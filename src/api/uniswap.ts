@@ -14,8 +14,6 @@ import { CurrencyAmount, Ether, Percent, TradeType } from '@uniswap/sdk-core';
 import { Token } from '@uniswap/sdk-core';
 import ERC20 from "@/abi/ERC20";
 
-const _publicClient = publicClient({ chainId: 42161 });
-
 const poolsAddress = [
     "0x2f5e87c9312fa29aed5c179e456625d79015299c",   // WBTC/ETH
     "0xc6f780497a95e246eb9449f5e4770916dcd6396a",   // ARB/ETH
@@ -82,7 +80,7 @@ async function getAllPools() {
             }
         ])];
 
-    const rawResult = await _publicClient.multicall({
+    const rawResult = await publicClient.multicall({
         contracts: contracts.flat(),
     });
     const decimals = await getDecimals({});
@@ -203,7 +201,7 @@ async function getAmountOut(route: Route<Token | Ether, Token>, amountIn: BigNum
         }
     );
 
-    const { data } = await _publicClient.call({
+    const { data } = await publicClient.call({
         to: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
         data: calldata as Address,
     })
@@ -242,7 +240,7 @@ async function getDecimals({ addresses }: { addresses?: Array<Address> }) {
         }
         throw new Error("Addresses is undefined");
     }
-    const _decimals = await _publicClient.multicall({
+    const _decimals = await publicClient.multicall({
         contracts: addresses.map((address) => {
             return {
                 address: address as Address,

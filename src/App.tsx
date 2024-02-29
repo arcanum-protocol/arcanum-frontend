@@ -1,4 +1,4 @@
-import { useNetwork } from "wagmi";
+import { useConfig } from "wagmi";
 import {
     Avatar,
     ChainIcon,
@@ -49,14 +49,14 @@ function App() {
 }
 
 function Navbar() {
-    const { chain } = useNetwork();
+    const { chains } = useConfig();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     function getChainIcon() {
-        if (!chain) {
+        if (!chains[0]) {
             return <div />;
         }
-        return <ChainIcon id={chain?.id} unsupported={chain?.unsupported} size={35} />;
+        return <ChainIcon id={chains[0]?.id} size={35} />;
     }
 
     return (

@@ -1,34 +1,30 @@
-import { configureChains } from '@wagmi/core'
 import { createConfig } from "wagmi";
 import { getDefaultConfig } from "connectkit";
 import { arbitrum } from 'wagmi/chains';
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { createAlchemyWeb3 } from "@alch/alchemy-web3";
+import { Chain, createPublicClient, http } from 'viem';
+import { injected } from "@wagmi/core";
 
-
-export const chains = [arbitrum];
-export const { publicClient } = configureChains(chains, [
-    alchemyProvider({
-        apiKey: "MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_",
-    }),
-    jsonRpcProvider({
-        rpc: (chain) => {
-            if (chain.id !== 42161) {
-                return null;
-            }
-            return { http: "https://arbitrum.llamarpc.com" };
-        }
-    }),
-])
+const customTestnet = {
+    id: 31337,
+    name: 'anvil',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: {
+        public: { http: ['http://81.163.22.190:8545'] },
+        default: { http: ['http://81.163.22.190:8545'] },
+    },
+} as const satisfies Chain;
 
 export const config = createConfig(
     getDefaultConfig({
-        publicClient,
-        alchemyId: "MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_",
         walletConnectProjectId: "1d63d7e43fd1d5ea177bdb4a8939ade4",
+        connectors: [injected()],
 
-        chains: chains,
+        chains: [customTestnet, arbitrum],
+        transports: {
+            [customTestnet.id]: http(),
+            [arbitrum.id]: http(),
+        },
 
         // Required
         appName: "ARCANUM",
@@ -40,5 +36,10 @@ export const config = createConfig(
         appIcon: "https://arcanum.to/logo.png",
     }),
 );
+
+export const publicClient = createPublicClient({
+    chain: customTestnet,
+    transport: http()
+});
 
 export const alchemyClient = createAlchemyWeb3("https://arb-mainnet.g.alchemy.com/v2/MERXmvJOqhiBs4LYV_rOFMueneDC3Sq_").alchemy;

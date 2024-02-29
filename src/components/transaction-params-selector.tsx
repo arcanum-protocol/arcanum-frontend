@@ -1,7 +1,7 @@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
 import { Separator } from "@radix-ui/react-separator";
-import { useStore } from "@/contexts/StoreContext";
+import { useMultipoolStore } from "@/contexts/StoreContext";
 import { observer } from "mobx-react-lite";
 import BigNumber from "bignumber.js";
 import { ActionType } from "@/store/MultipoolStore";
@@ -23,7 +23,7 @@ export function TransactionParamsSelector() {
 }
 
 const NetworkFee = observer(() => {
-    const { transactionCost, etherPrice } = useStore();
+    const { transactionCost, etherPrice } = useMultipoolStore();
 
     if (transactionCost == undefined) {
         return (
@@ -70,7 +70,7 @@ const NetworkFee = observer(() => {
 });
 
 const Fee = observer(() => {
-    const { inputQuantity, fee: _fee, etherPrice } = useStore();
+    const { inputQuantity, fee: _fee, etherPrice } = useMultipoolStore();
 
     if (!inputQuantity || !_fee) {
         return (
@@ -126,7 +126,7 @@ const Fee = observer(() => {
 });
 
 const ExchangeInfo = observer(() => {
-    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice, getItemPrice } = useStore();
+    const { maximumSend, minimalReceive, inputAsset, outputAsset, etherPrice, getItemPrice } = useMultipoolStore();
 
     if (minimalReceive) {
         const bgMinimalReceive = new BigNumber(minimalReceive.toString());
@@ -226,7 +226,7 @@ const ExchangeInfo = observer(() => {
 });
 
 export const SlippageSelector = observer(() => {
-    const { slippage, setSlippage, swapType } = useStore();
+    const { slippage, setSlippage, swapType } = useMultipoolStore();
 
     const disabled = swapType == ActionType.UNISWAP || swapType == ActionType.BEBOP;
 

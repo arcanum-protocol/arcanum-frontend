@@ -7,7 +7,7 @@ import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
-import { useStore } from "@/contexts/StoreContext";
+import { useMultipoolStore } from "@/contexts/StoreContext";
 import { publicClient } from "@/config";
 import { useAccount, useBalance } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
@@ -44,7 +44,7 @@ interface TokenSelectorProps {
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { address } = useAccount();
     const { data: userBalance } = useBalance({ address });
-    const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares, selectedSCTab, prices } = useStore();
+    const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares, selectedSCTab, prices } = useMultipoolStore();
     const [search, setSearch] = useState("");
 
     const { data: balances } = useQuery(["balances"], async () => {
