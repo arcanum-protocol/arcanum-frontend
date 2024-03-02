@@ -45,29 +45,30 @@ const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) 
 }
 
 // from rewards per block to user APY based on its investment
-const projectedAPY = (rpb: bigint, price: number, _decimals: number, tvl: bigint, userStake: bigint, totalStake: bigint) => {
+const projectedAPY = (rpb: bigint, _decimals: number, tvl: bigint, userStake: bigint) => {
     const decimals = BigNumber(10).pow(_decimals);
     const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
 
-    const userDeposited = BigNumber(userStake.toString()).dividedBy(decimals);
-    const totalDeposited = BigNumber(totalStake.toString()).dividedBy(decimals);
+    const apy = BigNumber(rpb.toString()).dividedBy(decimals).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
 
-    const apy = BigNumber(rpb.toString()).dividedBy(decimals).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
-    const userApy = apy.multipliedBy(userDeposited).dividedBy(totalDeposited);
-    if (userApy.isGreaterThan(100000)) {
+    const user = BigNumber(userStake.toString()).dividedBy(deposited);  
+    const userApy = apy.multipliedBy(user).dividedBy(decimals);
+
+    if (userApy.isZero()) {
         return {
-            day: userApy.dividedBy(365).toFixed(2),
-            week: userApy.dividedBy(52).toFixed(2),
-            month: userApy.dividedBy(12).toFixed(2),
-            year: userApy.toFixed(2),
-        }
+            day: 0,
+            week: 0,
+            month: 0,
+            year: 0,
+        };
     }
+
     return {
         day: userApy.dividedBy(365).toFixed(2),
         week: userApy.dividedBy(52).toFixed(2),
         month: userApy.dividedBy(12).toFixed(2),
         year: userApy.toFixed(2),
-    }
+    };
 }
 
 const toContractBigint = (value: string) => {
@@ -397,7 +398,10 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
         queryKey: ['price', id],
         queryFn: async () => {
             const arbPrice = await getAssetPrice(rewardAddress);
-            return arbPrice;
+            return {
+                price: arbPrice.price || 0,
+                decimals: arbPrice.decimals || 18,
+            }
         },
         refetchInterval: 10000,
         initialData: {
@@ -433,7 +437,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
 
     const tvl = BigNumber(tvlRaw.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 0).dividedBy(BigNumber(10).pow(18)).toFixed(2);
     const apy = apyFromRPB(apyRaw, price.price, price.decimals, tvlRaw);
-    const userApy = projectedAPY(apyRaw, price.price, price.decimals, tvlRaw, staked?.amount || 0n, tvlRaw);
+    const userApy = projectedAPY(apyRaw, price.decimals, tvlRaw, staked?.amount || 0n);
 
     function displayApy() {
         switch (selectedTimeSpan) {
