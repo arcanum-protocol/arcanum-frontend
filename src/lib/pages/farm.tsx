@@ -23,6 +23,7 @@ import { config } from "@/config";
 import { Address } from "viem";
 import { getAssetPrice } from "../multipoolUtils";
 import { useModal } from "connectkit";
+import { toHumanReadable } from "../format-number";
 
 export const ConnectWallet = () => {
     const { setOpen } = useModal();
@@ -438,13 +439,13 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     function displayApy() {
         switch (selectedTimeSpan) {
             case 'day':
-                return userApy.day;
+                return toHumanReadable(userApy.day);
             case 'week':
-                return userApy.week;
+                return toHumanReadable(userApy.week);
             case 'month':
-                return userApy.month;
+                return toHumanReadable(userApy.month);
             case 'year':
-                return userApy.year;
+                return toHumanReadable(userApy.year);
         }
     }
 
