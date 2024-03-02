@@ -43,6 +43,33 @@ const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) 
     return apy.toFixed(2);
 }
 
+// from rewards per block to user APY based on its investment
+const projectedAPY = (rpb: bigint, price: number, _decimals: number, tvl: bigint, userStake: bigint, totalStake: bigint) => {
+    const decimals = BigNumber(10).pow(_decimals);
+    const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
+
+    const userDeposited = BigNumber(userStake.toString()).dividedBy(decimals);
+    const totalDeposited = BigNumber(totalStake.toString()).dividedBy(decimals);
+
+    const apy = BigNumber(rpb.toString()).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
+    console.log(apy.toString());
+    const userApy = apy.multipliedBy(userDeposited).dividedBy(totalDeposited);
+    if (userApy.isGreaterThan(100000)) {
+        return {
+            day: userApy.dividedBy(365).toFixed(2),
+            week: userApy.dividedBy(52).toFixed(2),
+            month: userApy.dividedBy(12).toFixed(2),
+            year: userApy.toFixed(2),
+        }
+    }
+    return {
+        day: userApy.dividedBy(365).toFixed(2),
+        week: userApy.dividedBy(52).toFixed(2),
+        month: userApy.dividedBy(12).toFixed(2),
+        year: userApy.toFixed(2),
+    }
+}
+
 const toContractBigint = (value: string) => {
     const bn = BigNumber(value).multipliedBy(BigNumber(10).pow(18));
     if (bn.isNaN()) {
@@ -138,7 +165,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     return (
         <>
             <div className="flex flex-col items-center rounded border border-[#292524] mt-2 p-2">
-                <div className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left w-[95%]">
+                <div className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 text-left w-[95%]">
                     Deposit:
                 </div>
 
@@ -346,8 +373,25 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
 
     const icon = `/multipools/${name}.svg`;
 
-    const [open, setOpen] = useState<boolean>(false);
     const [tab, setTabPrivate] = useState<'stake' | 'unstake' | 'claim'>('stake');
+    const [selectedTimeSpan, nextTimeSpan] = useState<'day' | 'week' | 'month' | 'year' | 'all' | 'max'>('day');
+
+    function next() {
+        switch (selectedTimeSpan) {
+            case 'day':
+                nextTimeSpan('week');
+                break;
+            case 'week':
+                nextTimeSpan('month');
+                break;
+            case 'month':
+                nextTimeSpan('year');
+                break;
+            case 'year':
+                nextTimeSpan('day');
+                break;
+        }
+    }
 
     const { data: price } = useQuery({
         queryKey: ['price', id],
@@ -389,6 +433,20 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
 
     const tvl = BigNumber(tvlRaw.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 0).dividedBy(BigNumber(10).pow(18)).toFixed(2);
     const apy = apyFromRPB(apyRaw, price.price, price.decimals, tvlRaw);
+    const userApy = projectedAPY(apyRaw, price.price, price.decimals, tvlRaw, staked?.amount || 0n, tvlRaw);
+
+    function displayApy() {
+        switch (selectedTimeSpan) {
+            case 'day':
+                return userApy.day;
+            case 'week':
+                return userApy.week;
+            case 'month':
+                return userApy.month;
+            case 'year':
+                return userApy.year;
+        }
+    }
 
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-[300px]">
@@ -425,7 +483,11 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                     </div>
                     <div className="flex flex-row justify-between">
                         <div className="text-base">Unclaimed:</div>
-                        <div className="text-base inline-flex">{fromContractBigint(staked.accRewards)} $ARB<img className='w-3' src="/brands/arbitrum.svg" /></div>
+                        <div className="text-base inline-flex">{fromContractBigint(staked.accRewards)} $ARB</div>
+                    </div>
+                    <div className="flex flex-row select-none justify-between">
+                        <div className="text-base">Rewards:</div>
+                        <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} $ARB</div>
                     </div>
                 </div>
 
@@ -453,7 +515,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                         </TabsContent>
                     </Tabs>
                 </div>
-            
+
             </div>
         </div>
     )
