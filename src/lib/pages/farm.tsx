@@ -96,6 +96,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     const { address: userAddress } = useAccount();
 
     const [input, setInput] = useState<string>('');
+    const [insufficientBalance, setInsufficientBalance] = useState<boolean>(false);
 
     function handleInput(e: any) {
         const text = e.target.value;
@@ -109,6 +110,19 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
 
         const value = text.replace(",", ".");
         setInput(value);
+
+        if (value === "") {
+            setInsufficientBalance(false);
+            return;
+        }
+
+        console.log(Number(value), Number(data.balanceFormatted), Number(value) > Number(data.balanceFormatted));
+
+        if (Number(value) > Number(data.balanceFormatted)) {
+            setInsufficientBalance(true);
+        } else {
+            setInsufficientBalance(false);
+        }
     }
 
     const lowAddress = address.toLocaleLowerCase() as Address;
@@ -163,17 +177,19 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     const _price = mpIdToPrice.get(lowAddress) || 0;
     const dollarValue = (Number(input) * _price).toFixed(4);
 
+    console.log("insufficientBalance", insufficientBalance);
+
     return (
         <>
-            <div className="flex flex-col items-center rounded border border-[#292524] mt-2 p-2">
+            <div className={`flex flex-col items-center rounded border mt-2 p-2`}>
                 <div className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 text-left w-[95%]">
                     Deposit:
                 </div>
 
-                <div className="flex flex-row flex-start items-center justify-between w-full gap-1">
+                <div className={`flex flex-row flex-start items-center justify-between w-full gap-1`}>
 
                     <div className={'flex flex-row items-center justify-between w-full'}>
-                        <input className="w-full text-2xl h-10 rounded p-2 focus:outline-none focus:border-blue-500 bg-transparent"
+                        <input className={`w-full text-2xl h-10 rounded p-2 focus:outline-none focus:border-blue-500 bg-transparent`}
                             placeholder="0" value={input} onChange={handleInput} />
                     </div>
 
@@ -195,7 +211,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
 
             <div className="w-full">
                 {userAddress ?
-                    <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                    <Button className={`w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent ${(insufficientBalance ? "border-[#ff0000]" : "border-[#292524]")}`} disabled={insufficientBalance} onClick={async () => {
                         try {
                             if (data.allowance ?? 0n < toContractBigint(input)) {
                                 await writeContractAsync({
@@ -225,11 +241,12 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     )
 }
 
-function Withdraw({ id, address, icon, name }: { id: number, address: Address, icon: string, name: string }) {
+function Withdraw({ id, address, icon, name, staked }: { id: number, address: Address, icon: string, name: string, staked: BigNumber }) {
     const { mpIdToPrice, FarmsConatractInstance } = useFarmsStore();
     const { address: userAddress } = useAccount();
 
     const [input, setInput] = useState<string>('');
+    const [insufficientStake, setInsufficientStake] = useState<boolean>(false);
 
     function handleInput(e: any) {
         const text = e.target.value;
@@ -243,6 +260,17 @@ function Withdraw({ id, address, icon, name }: { id: number, address: Address, i
 
         const value = text.replace(",", ".");
         setInput(value);
+
+        if (value === "") {
+            setInsufficientStake(false);
+            return;
+        }
+
+        if (staked.isLessThan(BigNumber(value).multipliedBy(BigNumber(10).pow(18)))) {
+            setInsufficientStake(true);
+        } else {
+            setInsufficientStake(false);
+        }
     }
 
     const lowAddress = address.toLocaleLowerCase() as Address;
@@ -292,7 +320,7 @@ function Withdraw({ id, address, icon, name }: { id: number, address: Address, i
 
             <div className="w-full">
                 {userAddress ?
-                    <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                    <Button className={`w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent ${(insufficientStake ? "border-[#ff0000]" : "border-[#292524]")}`} disabled={insufficientStake} onClick={async () => {
                         await writeContractAsync({
                             address: FarmsConatractInstance.address,
                             abi: FarmsConatractInstance.abi,
@@ -513,7 +541,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                         </TabsContent>
                         <TabsContent className="flex flex-col gap-2" value='unstake'>
 
-                            <Withdraw id={id} address={address} icon={icon} name={name} />
+                            <Withdraw id={id} address={address} icon={icon} name={name} staked={BigNumber((staked?.amount || 0n).toString())} />
 
                         </TabsContent>
                         <TabsContent className="flex flex-col gap-2" value='claim'>
