@@ -22,6 +22,17 @@ import { readContract } from "@wagmi/core";
 import { config } from "@/config";
 import { Address } from "viem";
 import { getAssetPrice } from "../multipoolUtils";
+import { useModal } from "connectkit";
+
+export const ConnectWallet = () => {
+    const { setOpen } = useModal();
+
+    return (
+        <button onClick={() => setOpen(true)} className="w-full border h-9 bg-transparent rounded-md text-slate-50 border-white-300 hover:border-green-500 hover:bg-transparent">
+            Connect Wallet
+        </button>
+    );
+};
 
 // from rewards per block to APY
 const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) => {
@@ -30,7 +41,7 @@ const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) 
 
     const apy = BigNumber(rpb.toString()).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(decimals).dividedBy(deposited);
     return apy.toFixed(2);
-} 
+}
 
 const toContractBigint = (value: string) => {
     const bn = BigNumber(value).multipliedBy(BigNumber(10).pow(18));
@@ -44,7 +55,7 @@ const fromContractBigint = (value: BigInt) => {
     const data = new BigNumber(value.toString()).dividedBy(BigNumber(10).pow(18));
     if (data.isZero()) {
         return "0";
-    } 
+    }
     if (data.isLessThan(0.01)) {
         return ">0.01";
     } else {
@@ -154,32 +165,33 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
                 </div>
             </div>
 
-
             <div className="w-full">
-                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
-                    try {
-                        if (data.allowance ?? 0n < toContractBigint(input)) {
-                            await writeContractAsync({
-                                address: FarmsConatractInstance.address,
-                                abi: FarmsConatractInstance.abi,
-                                functionName: "deposit",
-                                args: [BigInt(id), toContractBigint(input)],
-                            })
-                        } else {
-                            await writeContractAsync({
-                                address: address,
-                                abi: ERC20,
-                                functionName: "approve",
-                                args: [FarmsConatractInstance.address, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")],
-                            })
-                            await checkAllowance();
+                {userAddress ?
+                    <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                        try {
+                            if (data.allowance ?? 0n < toContractBigint(input)) {
+                                await writeContractAsync({
+                                    address: FarmsConatractInstance.address,
+                                    abi: FarmsConatractInstance.abi,
+                                    functionName: "deposit",
+                                    args: [BigInt(id), toContractBigint(input)],
+                                })
+                            } else {
+                                await writeContractAsync({
+                                    address: address,
+                                    abi: ERC20,
+                                    functionName: "approve",
+                                    args: [FarmsConatractInstance.address, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")],
+                                })
+                                await checkAllowance();
+                            }
+                        } catch (e) {
+                            console.log(e);
                         }
-                    } catch (e) {
-                        console.log(e);
-                    }
-                }}>
-                    <p style={{ margin: "10px" }}>Stake</p>
-                </Button>
+                    }}>
+                        <p style={{ margin: "10px" }}>{data.allowance ?? 0n < toContractBigint(input) ? "Stake" : "Approve"}</p>
+                    </Button>
+                    : <ConnectWallet />}
             </div >
         </>
     )
@@ -187,6 +199,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
 
 function Withdraw({ id, address, icon, name }: { id: number, address: Address, icon: string, name: string }) {
     const { mpIdToPrice, FarmsConatractInstance } = useFarmsStore();
+    const { address: userAddress } = useAccount();
 
     const [input, setInput] = useState<string>('');
 
@@ -250,6 +263,7 @@ function Withdraw({ id, address, icon, name }: { id: number, address: Address, i
             </div>
 
             <div className="w-full">
+                {userAddress ? 
                 <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
                     await writeContractAsync({
                         address: FarmsConatractInstance.address,
@@ -266,6 +280,7 @@ function Withdraw({ id, address, icon, name }: { id: number, address: Address, i
                 }}>
                     <p style={{ margin: "10px" }}>Unstake</p>
                 </Button>
+                : <ConnectWallet />}
             </div >
         </>
     )
@@ -274,7 +289,8 @@ function Withdraw({ id, address, icon, name }: { id: number, address: Address, i
 function Claim({ id, address }: { id: number, address: Address }) {
     const { FarmsConatractInstance } = useFarmsStore();
     const { writeContractAsync } = useWriteContract();
-
+    const { address: userAddress } = useAccount();
+    
     return (
         <div className="w-full flex flex-col mt-2 gap-2">
             <div className="flex items-center gap-1">
@@ -297,6 +313,8 @@ function Claim({ id, address }: { id: number, address: Address }) {
                 </TooltipProvider> */}
             </div>
 
+            {userAddress ? 
+
             <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
                 await writeContractAsync({
                     address: FarmsConatractInstance.address,
@@ -313,6 +331,7 @@ function Claim({ id, address }: { id: number, address: Address }) {
             }}>
                 <p style={{ margin: "10px" }}>Claim</p>
             </Button>
+            : <ConnectWallet />}
         </div >
     )
 }
