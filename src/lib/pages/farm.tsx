@@ -51,7 +51,7 @@ const projectedAPY = (rpb: bigint, _decimals: number, tvl: bigint, userStake: bi
 
     const apy = BigNumber(rpb.toString()).dividedBy(decimals).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
 
-    const user = BigNumber(userStake.toString()).dividedBy(deposited);  
+    const user = BigNumber(userStake.toString()).dividedBy(deposited);
     const userApy = apy.multipliedBy(user).dividedBy(decimals);
 
     if (userApy.isZero()) {
@@ -471,11 +471,15 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                 <div className="w-full border p-2 rounded mt-4">
 
                     <div className="flex flex-row w-full justify-between items-center">
-                        <div className="text-base">APY:</div>
-                        <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">{apy}%</div>
+                        <div className="flex flex-row gap-2 items-center">
+                            <div className="text-base">APY:</div>
+                            <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">{apy}%</div>
+                        </div>
 
-                        <div className="text-base">TVL:</div>
-                        <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">{tvl.toString()}$</div>
+                        <div className="flex flex-row gap-2 items-center">
+                            <div className="text-base">TVL:</div>
+                            <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">{tvl.toString()}$</div>
+                        </div>
                     </div>
 
                 </div>
