@@ -1,4 +1,7 @@
 export function toHumanReadable(number: any, decPlaces: number = 2): string {
+    if (number == 0) {
+        return "-";
+    }
     if (number < 0.01) {
         return ">0.01";
     }
