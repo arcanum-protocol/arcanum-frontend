@@ -54,7 +54,9 @@ const projectedAPY = (rpb: bigint, _decimals: number, tvl: bigint, userStake: bi
     const user = BigNumber(userStake.toString()).dividedBy(deposited);
     const userApy = apy.multipliedBy(user).dividedBy(decimals);
 
-    if (userApy.isZero()) {
+    console.log("userApy", userApy.toString());
+
+    if (userApy.isZero() || userApy.isNaN()) {
         return {
             day: 0,
             week: 0,
@@ -480,6 +482,8 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
         }
     }
 
+    console.log("displayApy()", displayApy(), userApy);
+
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-[300px]">
             <div className="flex flex-col border rounded bg-[#0c0a09] px-2 py-2 items-center gap-1">
@@ -523,7 +527,11 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                     </div>
                     <div className="flex flex-row select-none justify-between">
                         <div className="text-base">Rewards:</div>
-                        <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} $ARB/{selectedTimeSpan}</div>
+                        {
+                            displayApy() === "-" ?
+                                <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer" onClick={() => next()}>-</div>
+                                : <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} $ARB/{selectedTimeSpan}</div>
+                        }
                     </div>
                 </div>
 
