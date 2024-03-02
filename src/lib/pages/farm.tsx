@@ -391,7 +391,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     const apy = apyFromRPB(apyRaw, price.price, price.decimals, tvlRaw);
 
     return (
-        <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out">
+        <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-[300px]">
             <div className="flex flex-col border rounded bg-[#0c0a09] px-2 py-2 items-center gap-1">
                 <div className="flex flex-row justify-between w-full">
                     <Avatar className="w-12 h-12">
@@ -510,11 +510,11 @@ function Farms() {
     return (
         <StoreProvider store={farmsStore}>
             <div className="flex flex-col gap-2">
-                <div className="flex flex-col items-center bg-[#0c0a09] rounded border border-[#292524] p-4">
+                <div className="w-full flex flex-col items-center bg-[#0c0a09] rounded border border-[#292524] p-4">
                     <div className="text-3xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">🌱FARMS🌱</div>
                     <div className="text-gray-300 text-xl">EARN REWARDS BY STAKING YOUR ETF</div>
                 </div>
-                <div className="grid grid-cols-4 gap-1 text-gray-300">
+                <div className="flex flex-row w-full justify-center gap-1 text-gray-300">
                     <FarmContainer />
                 </div>
             </div>
