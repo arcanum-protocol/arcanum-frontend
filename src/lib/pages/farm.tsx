@@ -40,7 +40,7 @@ const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) 
     const decimals = BigNumber(10).pow(_decimals);
     const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
 
-    const apy = BigNumber(rpb.toString()).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(decimals).dividedBy(deposited);
+    const apy = BigNumber(rpb.toString()).dividedBy(decimals).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
     return apy.toFixed(2);
 }
 
@@ -52,8 +52,7 @@ const projectedAPY = (rpb: bigint, price: number, _decimals: number, tvl: bigint
     const userDeposited = BigNumber(userStake.toString()).dividedBy(decimals);
     const totalDeposited = BigNumber(totalStake.toString()).dividedBy(decimals);
 
-    const apy = BigNumber(rpb.toString()).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
-    console.log(apy.toString());
+    const apy = BigNumber(rpb.toString()).dividedBy(decimals).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
     const userApy = apy.multipliedBy(userDeposited).dividedBy(totalDeposited);
     if (userApy.isGreaterThan(100000)) {
         return {
