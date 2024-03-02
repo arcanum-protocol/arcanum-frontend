@@ -263,24 +263,24 @@ function Withdraw({ id, address, icon, name }: { id: number, address: Address, i
             </div>
 
             <div className="w-full">
-                {userAddress ? 
-                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
-                    await writeContractAsync({
-                        address: FarmsConatractInstance.address,
-                        abi: FarmsConatractInstance.abi,
-                        functionName: "withdraw",
-                        args: [
-                            BigInt(id),
-                            toContractBigint(input),
-                            true,
-                            "0x0000000000000000000000000000000000000000" as Address,
-                            "0x0000000000000000000000000000000000000000" as Address,
-                        ],
-                    })
-                }}>
-                    <p style={{ margin: "10px" }}>Unstake</p>
-                </Button>
-                : <ConnectWallet />}
+                {userAddress ?
+                    <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                        await writeContractAsync({
+                            address: FarmsConatractInstance.address,
+                            abi: FarmsConatractInstance.abi,
+                            functionName: "withdraw",
+                            args: [
+                                BigInt(id),
+                                toContractBigint(input),
+                                true,
+                                "0x0000000000000000000000000000000000000000" as Address,
+                                "0x0000000000000000000000000000000000000000" as Address,
+                            ],
+                        })
+                    }}>
+                        <p style={{ margin: "10px" }}>Unstake</p>
+                    </Button>
+                    : <ConnectWallet />}
             </div >
         </>
     )
@@ -290,7 +290,7 @@ function Claim({ id, address }: { id: number, address: Address }) {
     const { FarmsConatractInstance } = useFarmsStore();
     const { writeContractAsync } = useWriteContract();
     const { address: userAddress } = useAccount();
-    
+
     return (
         <div className="w-full flex flex-col mt-2 gap-2">
             <div className="flex items-center gap-1">
@@ -313,25 +313,25 @@ function Claim({ id, address }: { id: number, address: Address }) {
                 </TooltipProvider> */}
             </div>
 
-            {userAddress ? 
+            {userAddress ?
 
-            <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
-                await writeContractAsync({
-                    address: FarmsConatractInstance.address,
-                    abi: FarmsConatractInstance.abi,
-                    functionName: "withdraw",
-                    args: [
-                        BigInt(id),
-                        BigInt(0),
-                        true,
-                        "0x0000000000000000000000000000000000000000" as Address,
-                        "0x0000000000000000000000000000000000000000" as Address,
-                    ],
-                })
-            }}>
-                <p style={{ margin: "10px" }}>Claim</p>
-            </Button>
-            : <ConnectWallet />}
+                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                    await writeContractAsync({
+                        address: FarmsConatractInstance.address,
+                        abi: FarmsConatractInstance.abi,
+                        functionName: "withdraw",
+                        args: [
+                            BigInt(id),
+                            BigInt(0),
+                            true,
+                            "0x0000000000000000000000000000000000000000" as Address,
+                            "0x0000000000000000000000000000000000000000" as Address,
+                        ],
+                    })
+                }}>
+                    <p style={{ margin: "10px" }}>Claim</p>
+                </Button>
+                : <ConnectWallet />}
         </div >
     )
 }
@@ -418,51 +418,42 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
 
                 </div>
 
-                {
-                    open ? (
-                        <>
-                            <div className="border rounded p-2 w-full">
-                                <div className="flex flex-row justify-between">
-                                    <div className="text-base">Staked:</div>
-                                    <div className="text-base">{fromContractBigint(staked?.amount)} ${name}</div>
-                                </div>
-                                <div className="flex flex-row justify-between">
-                                    <div className="text-base">Unclaimed:</div>
-                                    <div className="text-base inline-flex">{fromContractBigint(staked.accRewards)} $ARB<img className='w-3' src="/brands/arbitrum.svg" /></div>
-                                </div>
-                            </div>
+                <div className="border rounded p-2 w-full">
+                    <div className="flex flex-row justify-between">
+                        <div className="text-base">Staked:</div>
+                        <div className="text-base">{fromContractBigint(staked?.amount)} ${name}</div>
+                    </div>
+                    <div className="flex flex-row justify-between">
+                        <div className="text-base">Unclaimed:</div>
+                        <div className="text-base inline-flex">{fromContractBigint(staked.accRewards)} $ARB<img className='w-3' src="/brands/arbitrum.svg" /></div>
+                    </div>
+                </div>
 
-                            <div className="border rounded p-2 w-full">
-                                <Tabs value={tab} className="w-full" onValueChange={(value) => setTab(value)}>
-                                    <TabsList className="grid w-full grid-cols-3">
-                                        <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='stake'>Stake</TabsTrigger>
-                                        <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='unstake'>Unstake</TabsTrigger>
-                                        <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='claim'>Claim</TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent className="flex flex-col gap-2" value='stake'>
+                <div className="border rounded p-2 w-full">
+                    <Tabs value={tab} className="w-full" onValueChange={(value) => setTab(value)}>
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='stake'>Stake</TabsTrigger>
+                            <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='unstake'>Unstake</TabsTrigger>
+                            <TabsTrigger className="rounded py-[0.325rem] mx-[0.125rem]" value='claim'>Claim</TabsTrigger>
+                        </TabsList>
+                        <TabsContent className="flex flex-col gap-2" value='stake'>
 
-                                        <Deposit id={id} address={address} icon={icon} name={name} />
+                            <Deposit id={id} address={address} icon={icon} name={name} />
 
-                                    </TabsContent>
-                                    <TabsContent className="flex flex-col gap-2" value='unstake'>
+                        </TabsContent>
+                        <TabsContent className="flex flex-col gap-2" value='unstake'>
 
-                                        <Withdraw id={id} address={address} icon={icon} name={name} />
+                            <Withdraw id={id} address={address} icon={icon} name={name} />
 
-                                    </TabsContent>
-                                    <TabsContent className="flex flex-col gap-2" value='claim'>
+                        </TabsContent>
+                        <TabsContent className="flex flex-col gap-2" value='claim'>
 
-                                        <Claim id={id} address={address} />
+                            <Claim id={id} address={address} />
 
-                                    </TabsContent>
-                                </Tabs>
-                            </div>
-                        </>
-                    ) : <></>
-                }
-
-                <div className={`w-full p-1 hover:bg-[#292524] rounded cursor-pointer transition`} onClick={() => setOpen(!open)}>
-                    <svg open={open} className={`open:rotate-180`} width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3.85355 2.14645C3.65829 1.95118 3.34171 1.95118 3.14645 2.14645C2.95118 2.34171 2.95118 2.65829 3.14645 2.85355L7.14645 6.85355C7.34171 7.04882 7.65829 7.04882 7.85355 6.85355L11.8536 2.85355C12.0488 2.65829 12.0488 2.34171 11.8536 2.14645C11.6583 1.95118 11.3417 1.95118 11.1464 2.14645L7.5 5.79289L3.85355 2.14645ZM3.85355 8.14645C3.65829 7.95118 3.34171 7.95118 3.14645 8.14645C2.95118 8.34171 2.95118 8.65829 3.14645 8.85355L7.14645 12.8536C7.34171 13.0488 7.65829 13.0488 7.85355 12.8536L11.8536 8.85355C12.0488 8.65829 12.0488 8.34171 11.8536 8.14645C11.6583 7.95118 11.3417 7.95118 11.1464 8.14645L7.5 11.7929L3.85355 8.14645Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
-                </div >
+                        </TabsContent>
+                    </Tabs>
+                </div>
+            
             </div>
         </div>
     )
