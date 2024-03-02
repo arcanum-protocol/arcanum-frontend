@@ -64,10 +64,10 @@ const projectedAPY = (rpb: bigint, _decimals: number, tvl: bigint, userStake: bi
     }
 
     return {
-        day: userApy.dividedBy(365).toFixed(2),
-        week: userApy.dividedBy(52).toFixed(2),
-        month: userApy.dividedBy(12).toFixed(2),
-        year: userApy.toFixed(2),
+        day: userApy.dividedBy(365),
+        week: userApy.dividedBy(52),
+        month: userApy.dividedBy(12),
+        year: userApy,
     };
 }
 
