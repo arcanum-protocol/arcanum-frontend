@@ -487,7 +487,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                     </div>
                     <div className="flex flex-row select-none justify-between">
                         <div className="text-base">Rewards:</div>
-                        <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} $ARB</div>
+                        <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} $ARB/{selectedTimeSpan}</div>
                     </div>
                 </div>
 
