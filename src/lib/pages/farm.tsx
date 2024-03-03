@@ -15,7 +15,7 @@ import { observer } from "mobx-react-lite";
 import type { Farm as FarmType } from "@/store/FarmsStore";
 import { useToken } from "@/hooks/useToken";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useReadContract, useWriteContract } from "wagmi";
 import BigNumber from "bignumber.js";
 import ERC20 from "@/abi/ERC20";
 import { readContract } from "@wagmi/core";
@@ -49,10 +49,13 @@ export const ConnectWallet = () => {
 
 // from rewards per block to APY
 const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) => {
+    if (price === 0) {
+        price = 2;
+    }
     const decimals = BigNumber(10).pow(_decimals);
     const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
     const rawApy = BigNumber(rpb.toString()).dividedBy(decimals);
-
+    
     const apy = rawApy.multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
     return apy.toFixed(2);
 }
@@ -224,6 +227,9 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
                 {userAddress ?
                     <Button className={`w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent ${(insufficientBalance ? "border-[#ff0000]" : "border-[#292524]")}`} disabled={insufficientBalance} onClick={async () => {
                         try {
+                            if (input === "") {
+                                return;
+                            }
                             if (data.allowance ?? 0n < toContractBigint(input)) {
                                 await writeContractAsync({
                                     address: FarmsConatractInstance.address,
@@ -332,6 +338,9 @@ function Withdraw({ id, address, icon, name, staked }: { id: number, address: Ad
             <div className="w-full">
                 {userAddress ?
                     <Button className={`w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent ${(insufficientStake ? "border-[#ff0000]" : "border-[#292524]")}`} disabled={insufficientStake} onClick={async () => {
+                        if (input === "") {
+                            return;
+                        }
                         await writeContractAsync({
                             address: FarmsConatractInstance.address,
                             abi: FarmsConatractInstance.abi,
@@ -358,6 +367,13 @@ function Claim({ id, address }: { id: number, address: Address }) {
     const { writeContractAsync } = useWriteContract();
     const { address: userAddress } = useAccount();
 
+    const {data: amountToClaim} = useReadContract({
+        address: FarmsConatractInstance.address,
+        abi: FarmsConatractInstance.abi,
+        functionName: "getUser",
+        args: [BigInt(id), userAddress],
+    });
+
     return (
         <div className="w-full flex flex-col mt-2 gap-2">
             <div className="flex items-center gap-1">
@@ -383,6 +399,9 @@ function Claim({ id, address }: { id: number, address: Address }) {
             {userAddress ?
 
                 <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                    if (amountToClaim?.accRewards === 0n) {
+                        return;
+                    }
                     await writeContractAsync({
                         address: FarmsConatractInstance.address,
                         abi: FarmsConatractInstance.abi,
