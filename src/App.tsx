@@ -1,4 +1,4 @@
-import { useConfig, useSwitchChain } from "wagmi";
+import { useChainId, useConfig, useSwitchChain } from "wagmi";
 import {
     Avatar,
     ChainIcon,
@@ -29,6 +29,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { config } from "./config";
+import { injected } from "@wagmi/core";
 
 
 const ConnectWallet = () => {
@@ -59,7 +60,11 @@ function App() {
 }
 
 function Navbar() {
-    const { chains, switchChain } = useSwitchChain({ config })
+    const chainId = useChainId();
+    const { chains, switchChain } = useSwitchChain();
+    
+    const currentChain = chains.find((chain) => chain.id === chainId);
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     function getChainIcon() {
@@ -68,17 +73,19 @@ function Navbar() {
         }
 
         return (
-            <Select>
+            <Select onValueChange={(value) => {
+                switchChain({ chainId: parseInt(value) });
+            }}>
                 <SelectTrigger className="rounded gap-2">
-                    <ChainIcon id={chains[0]?.id} size={25} />
-                    {chains[0]?.name}
+                    <ChainIcon id={currentChain?.id} size={25} />
+                    {currentChain?.name}
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
                         {
                             chains.map((chain) => {
                                 return (
-                                    <SelectItem value={chain.name} onClick={() => {console.log(chain.id); switchChain({ chainId: chain.id })}}>
+                                    <SelectItem value={chain.id.toString()}>
                                         <div className="flex gap-2">
                                             <ChainIcon id={chain.id} size={25} />
                                             {chain.name}
@@ -87,11 +94,6 @@ function Navbar() {
                                 );
                             })
                         }
-                        {/* <SelectItem value="apple">Apple</SelectItem>
-                        <SelectItem value="banana">Banana</SelectItem>
-                        <SelectItem value="blueberry">Blueberry</SelectItem>
-                        <SelectItem value="grapes">Grapes</SelectItem>
-                        <SelectItem value="pineapple">Pineapple</SelectItem> */}
                     </SelectGroup>
                 </SelectContent>
             </Select>
@@ -244,7 +246,7 @@ function Navbar() {
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
-            <div className="flex flex-row justify-center items-center gap-3">
+            <div className="flex flex-row justify-center items-center gap-3 w-[300px]">
                 {getChainIcon()}
                 <ConnectWallet />
             </div>
