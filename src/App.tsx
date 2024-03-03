@@ -24,12 +24,8 @@ import {
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-import { config } from "./config";
-import { injected } from "@wagmi/core";
+} from "@/components/ui/select";
 
 
 const ConnectWallet = () => {
@@ -38,7 +34,7 @@ const ConnectWallet = () => {
             {({ isConnected, show, truncatedAddress, address }) => {
                 return (
                     <>
-                        <button onClick={show} className="flex w-full border h-9 rounded bg-[#0c0a09] px-2 gap-2 items-center justify-center">
+                        <button onClick={show} className="flex border h-9 rounded bg-[#0c0a09] px-2 gap-2 items-center justify-center w-1/2">
                             {address ? <Avatar address={address} size={24} /> : <></>}
                             {isConnected ? truncatedAddress : "Connect Wallet"}
                         </button>
@@ -76,7 +72,7 @@ function Navbar() {
             <Select onValueChange={(value) => {
                 switchChain({ chainId: parseInt(value) });
             }}>
-                <SelectTrigger className="rounded gap-2">
+                <SelectTrigger className="rounded gap-2 w-2/3">
                     <ChainIcon id={currentChain?.id} size={25} />
                     {currentChain?.name}
                 </SelectTrigger>
@@ -246,7 +242,7 @@ function Navbar() {
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
-            <div className="flex flex-row justify-center items-center gap-3 w-[300px]">
+            <div className="flex flex-row justify-center items-center gap-3 w-[350px]">
                 {getChainIcon()}
                 <ConnectWallet />
             </div>
