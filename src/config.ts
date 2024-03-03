@@ -37,7 +37,12 @@ export const config = createConfig(
     }),
 );
 
-export const publicClient = createPublicClient({
+export const arbitrumPublicClient = createPublicClient({
+    chain: arbitrum,
+    transport: http()
+});
+
+export const customTestnetPublicClient = createPublicClient({
     chain: customTestnet,
     transport: http()
 });

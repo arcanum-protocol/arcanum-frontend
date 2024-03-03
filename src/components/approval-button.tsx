@@ -97,9 +97,11 @@ const BebopSwap = observer(() => {
     const { address } = useAccount();
     const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError, swapIsLoading } = useMultipoolStore();
 
-    const { data: swapData, refetch } = useQuery({queryKey: ["swap"], queryFn: async () => {
-        return await checkSwapBebop(address);
-    }});
+    const { data: swapData, refetch } = useQuery({
+        queryKey: ["swap"], queryFn: async () => {
+            return await checkSwapBebop(address);
+        }
+    });
 
     useEffect(() => {
         refetch();
@@ -167,19 +169,21 @@ const UniswapSwap = observer(() => {
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
-    const { data: swapAction, isLoading, refetch } = useQuery(["swap"], async () => {
-        if (balance && inputQuantity) {
-            if (balance.value < inputQuantityBigInt) {
-                updateErrorMessage("Insufficient Balance", false);
-            } else {
-                updateErrorMessage(undefined, false);
+    const { data: swapAction, isLoading, refetch } = useQuery({
+        queryKey: ["swap"],
+        queryFn: async () => {
+            if (balance && inputQuantity) {
+                if (balance.value < inputQuantityBigInt) {
+                    updateErrorMessage("Insufficient Balance", false);
+                } else {
+                    updateErrorMessage(undefined, false);
+                }
             }
-        }
 
-        if (inputQuantity === undefined) return 1;
+            if (inputQuantity === undefined) return 1;
 
-        return await swap(address);
-    }, {
+            return await swap(address);
+        },
         refetchInterval: 10000,
         enabled: inputQuantity !== undefined && !inputQuantity.isZero()
     });
@@ -188,8 +192,8 @@ const UniswapSwap = observer(() => {
         refetch();
     }, [inputQuantity]);
 
-    const { data } = useSimulateContract(swapAction);
-    const { write } = useContractWrite(config);
+    const { data: config } = useSimulateContract(swapAction);
+    const { writeContract } = useWriteContract();
 
     if (exchangeError && !swapIsLoading) {
         return <ErrorButton errorMessage={exchangeError} />
@@ -212,7 +216,7 @@ const UniswapSwap = observer(() => {
     }
 
     async function CallSwap() {
-        write!();
+        writeContract(config);
     }
 
     return (
@@ -237,17 +241,19 @@ const ArcanumSwap = observer(() => {
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
-    const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery(["swap"], async () => {
-        const data = await swap(address);
+    const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery({
+        queryKey: ["swap"],
+        queryFn: async () => {
+            const data = await swap(address);
 
-        if (balance && inputQuantity) {
-            if (balance.value < inputQuantityBigInt) {
-                updateErrorMessage("Insufficient Balance", false);
+            if (balance && inputQuantity) {
+                if (balance.value < inputQuantityBigInt) {
+                    updateErrorMessage("Insufficient Balance", false);
+                }
             }
-        }
 
-        return data;
-    }, {
+            return data;
+        },
         refetchInterval: 15000
     });
 
@@ -262,12 +268,12 @@ const ArcanumSwap = observer(() => {
     }, [outputQuantity]);
 
     const { data } = useSimulateContract(swapAction!);
-    const { write } = useContractWrite(config);
+    const { writeContract } = useWriteContract();
 
     async function CallSwap() {
         refetch();
         if (write === undefined) return;
-        write();
+        writeContract(data);
     }
 
     if (exchangeError && !swapIsLoading) {

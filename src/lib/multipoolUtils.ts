@@ -106,6 +106,7 @@ async function getAssetPrice(testasset: Address) {
     });
 
     return {
+        name: assets.filter((asset) => (asset.address) == (_asset))[0].symbol,
         price: assets.filter((asset) => (asset.address) == (_asset))[0].price,
         decimals: assets.filter((asset) => (asset.address) == (_asset))[0].decimals
     };

@@ -1,4 +1,4 @@
-import { useConfig } from "wagmi";
+import { useConfig, useSwitchChain } from "wagmi";
 import {
     Avatar,
     ChainIcon,
@@ -19,6 +19,16 @@ import "../app/globals.css";
 import { useState } from "react";
 import { Toaster } from "./components/ui/toaster";
 import { Separator } from "@radix-ui/react-separator";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { config } from "./config";
 
 
 const ConnectWallet = () => {
@@ -49,13 +59,44 @@ function App() {
 }
 
 function Navbar() {
-    const { chains } = useConfig();
+    const { chains, switchChain } = useSwitchChain({ config })
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     function getChainIcon() {
         if (!chains[0]) {
             return <div />;
         }
+
+        return (
+            <Select>
+                <SelectTrigger className="rounded gap-2">
+                    <ChainIcon id={chains[0]?.id} size={25} />
+                    {chains[0]?.name}
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectGroup>
+                        {
+                            chains.map((chain) => {
+                                return (
+                                    <SelectItem value={chain.name} onClick={() => {console.log(chain.id); switchChain({ chainId: chain.id })}}>
+                                        <div className="flex gap-2">
+                                            <ChainIcon id={chain.id} size={25} />
+                                            {chain.name}
+                                        </div>
+                                    </SelectItem>
+                                );
+                            })
+                        }
+                        {/* <SelectItem value="apple">Apple</SelectItem>
+                        <SelectItem value="banana">Banana</SelectItem>
+                        <SelectItem value="blueberry">Blueberry</SelectItem>
+                        <SelectItem value="grapes">Grapes</SelectItem>
+                        <SelectItem value="pineapple">Pineapple</SelectItem> */}
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
+        );
+
         return <ChainIcon id={chains[0]?.id} size={35} />;
     }
 

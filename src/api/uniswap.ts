@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { Address, decodeAbiParameters } from "viem";
-import { publicClient } from "@/config";
+import { arbitrumPublicClient } from "@/config";
 import UniswapV3 from '../abi/UniswapV3';
 import {
     Pool,
@@ -80,7 +80,7 @@ async function getAllPools() {
             }
         ])];
 
-    const rawResult = await publicClient.multicall({
+    const rawResult = await arbitrumPublicClient.multicall({
         contracts: contracts.flat(),
     });
     const decimals = await getDecimals({});
@@ -201,7 +201,7 @@ async function getAmountOut(route: Route<Token | Ether, Token>, amountIn: BigNum
         }
     );
 
-    const { data } = await publicClient.call({
+    const { data } = await arbitrumPublicClient.call({
         to: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
         data: calldata as Address,
     })
@@ -240,7 +240,7 @@ async function getDecimals({ addresses }: { addresses?: Array<Address> }) {
         }
         throw new Error("Addresses is undefined");
     }
-    const _decimals = await publicClient.multicall({
+    const _decimals = await arbitrumPublicClient.multicall({
         contracts: addresses.map((address) => {
             return {
                 address: address as Address,
@@ -260,7 +260,7 @@ async function getDecimals({ addresses }: { addresses?: Array<Address> }) {
         if (decimal == undefined) {
             throw new Error("Decimals is not a number");
         }
-        decimals.set(address.toString().toLocaleLowerCase() as Address, decimal);
+        decimals.set(address.toString().toLocaleLowerCase() as Address, Number(decimal));
     }
 
     decimals.set("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLocaleLowerCase() as Address, 18);
