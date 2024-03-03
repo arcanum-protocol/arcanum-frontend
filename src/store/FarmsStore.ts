@@ -1,6 +1,6 @@
 import FARM from "@/abi/FARM";
 import { getETFsPrice } from "@/api/arcanum";
-import { publicClient } from "@/config";
+import { customTestnetPublicClient } from "@/config";
 import { makeAutoObservable, runInAction } from "mobx";
 import { Address, getContract } from "viem";
 
@@ -20,7 +20,7 @@ class FarmsStore {
     FarmsConatractInstance = getContract({
         address: undefined as any,
         abi: FARM,
-        client: publicClient
+        client: customTestnetPublicClient
     });
 
     addressToIds = new Map<Address, string>([
@@ -37,7 +37,7 @@ class FarmsStore {
         this.FarmsConatractInstance = getContract({
             address: farmAddress,
             abi: FARM,
-            client: publicClient
+            client: customTestnetPublicClient
         });
 
         this.getFarmsPrice();

@@ -8,7 +8,7 @@ import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useMultipoolStore } from "@/contexts/StoreContext";
-import { publicClient } from "@/config";
+import { arbitrumPublicClient } from "@/config";
 import { useAccount, useBalance } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
@@ -47,29 +47,31 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares, selectedSCTab, prices } = useMultipoolStore();
     const [search, setSearch] = useState("");
 
-    const { data: balances } = useQuery(["balances"], async () => {
-        const addresses = [...assets, ...externalAssets];
+    const { data: balances } = useQuery({
+        queryKey: ["balances"],
+        queryFn: async () => {
+            const addresses = [...assets, ...externalAssets];
 
-        const results = await publicClient({ chainId: 42161 }).multicall({
-            contracts: addresses.map((asset) => {
-                return {
-                    address: asset.address!,
-                    abi: ERC20,
-                    functionName: "balanceOf",
-                    args: [address],
-                };
-            }),
-        });
+            const results = await arbitrumPublicClient.multicall({
+                contracts: addresses.map((asset) => {
+                    return {
+                        address: asset.address!,
+                        abi: ERC20,
+                        functionName: "balanceOf",
+                        args: [address],
+                    };
+                }),
+            });
 
-        const balances: { [address: string]: BigNumber } = {};
-        for (let i = 0; i < results.length; i++) {
-            if (results[i].status !== "success") continue;
-            balances[addresses[i].address!] = new BigNumber((results[i].result as bigint).toString());
-        }
-        balances["0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"] = new BigNumber(userBalance?.value.toString() || 0);
+            const balances: { [address: string]: BigNumber } = {};
+            for (let i = 0; i < results.length; i++) {
+                if (results[i].status !== "success") continue;
+                balances[addresses[i].address!] = new BigNumber((results[i].result as bigint).toString());
+            }
+            balances["0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"] = new BigNumber(userBalance?.value.toString() || 0);
 
-        return balances;
-    }, {
+            return balances;
+        },
         refetchInterval: 15000,
         retry: true,
         enabled: address !== undefined,

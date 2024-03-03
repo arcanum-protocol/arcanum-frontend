@@ -24,6 +24,18 @@ import { Address } from "viem";
 import { getAssetPrice } from "../multipoolUtils";
 import { useModal } from "connectkit";
 import { toHumanReadable } from "../format-number";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+
+const Content: { [key: string]: string } = {
+    "ARBI": "Arbitrum Ecosystem Index ($ARBI) is a token that contains Arbitum's DeFi protocol tokens. Currently it is managed manually but with liquidity grow it will be managed either as market cap weighted or revenue weighted ETF.",
+    "SPI": "Sharpe Portfolio Index includes largest crypto assets weighted via Black-Litterman model.",
+};
 
 export const ConnectWallet = () => {
     const { setOpen } = useModal();
@@ -39,8 +51,9 @@ export const ConnectWallet = () => {
 const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) => {
     const decimals = BigNumber(10).pow(_decimals);
     const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
+    const rawApy = BigNumber(rpb.toString()).dividedBy(decimals);
 
-    const apy = BigNumber(rpb.toString()).dividedBy(decimals).multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
+    const apy = rawApy.multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
     return apy.toFixed(2);
 }
 
@@ -48,13 +61,13 @@ const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) 
 const projectedAPY = (rpb: bigint, _decimals: number, tvl: bigint, userStake: bigint) => {
     const decimals = BigNumber(10).pow(_decimals);
     const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
+    const rawApy = BigNumber(rpb.toString()).dividedBy(decimals);
+    const userStakeFormatted = BigNumber(userStake.toString()).dividedBy(decimals);
 
-    const apy = BigNumber(rpb.toString()).dividedBy(decimals).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
+    const apy = rawApy.multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
 
-    const user = BigNumber(userStake.toString()).dividedBy(deposited);
-    const userApy = apy.multipliedBy(user).dividedBy(decimals);
-
-    console.log("userApy", userApy.toString());
+    const userShare = userStakeFormatted.dividedBy(deposited);
+    const userApy = apy.multipliedBy(userShare);
 
     if (userApy.isZero() || userApy.isNaN()) {
         return {
@@ -118,8 +131,6 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
             return;
         }
 
-        console.log(Number(value), Number(data.balanceFormatted), Number(value) > Number(data.balanceFormatted));
-
         if (Number(value) > Number(data.balanceFormatted)) {
             setInsufficientBalance(true);
         } else {
@@ -179,8 +190,6 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     const _price = mpIdToPrice.get(lowAddress) || 0;
     const dollarValue = (Number(input) * _price).toFixed(4);
 
-    console.log("insufficientBalance", insufficientBalance);
-
     return (
         <>
             <div className={`flex flex-col items-center rounded border mt-2 p-2`}>
@@ -232,7 +241,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
                                 await checkAllowance();
                             }
                         } catch (e) {
-                            console.log(e);
+                            console.log(e)
                         }
                     }}>
                         <p style={{ margin: "10px" }}>{data.allowance ?? 0n < toContractBigint(input) ? "Stake" : "Approve"}</p>
@@ -429,12 +438,14 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
         queryFn: async () => {
             const arbPrice = await getAssetPrice(rewardAddress);
             return {
+                name: arbPrice.name,
                 price: arbPrice.price || 0,
                 decimals: arbPrice.decimals || 18,
             }
         },
         refetchInterval: 10000,
         initialData: {
+            name: "ARB",
             price: 0,
             decimals: 18,
         }
@@ -482,8 +493,6 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
         }
     }
 
-    console.log("displayApy()", displayApy(), userApy);
-
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-[300px]">
             <div className="flex flex-col border rounded bg-[#0c0a09] px-2 py-2 items-center gap-1">
@@ -495,9 +504,18 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                     <div className="flex flex-col items-center justify-center">
                         <div className="text-gray-300 text-2xl font-bold">${name}</div>
                     </div>
-                    <div className="px-4 py-4 h-5">
-                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.49991 0.876892C3.84222 0.876892 0.877075 3.84204 0.877075 7.49972C0.877075 11.1574 3.84222 14.1226 7.49991 14.1226C11.1576 14.1226 14.1227 11.1574 14.1227 7.49972C14.1227 3.84204 11.1576 0.876892 7.49991 0.876892ZM1.82707 7.49972C1.82707 4.36671 4.36689 1.82689 7.49991 1.82689C10.6329 1.82689 13.1727 4.36671 13.1727 7.49972C13.1727 10.6327 10.6329 13.1726 7.49991 13.1726C4.36689 13.1726 1.82707 10.6327 1.82707 7.49972ZM8.24992 4.49999C8.24992 4.9142 7.91413 5.24999 7.49992 5.24999C7.08571 5.24999 6.74992 4.9142 6.74992 4.49999C6.74992 4.08577 7.08571 3.74999 7.49992 3.74999C7.91413 3.74999 8.24992 4.08577 8.24992 4.49999ZM6.00003 5.99999H6.50003H7.50003C7.77618 5.99999 8.00003 6.22384 8.00003 6.49999V9.99999H8.50003H9.00003V11H8.50003H7.50003H6.50003H6.00003V9.99999H6.50003H7.00003V6.99999H6.50003H6.00003V5.99999Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
-                    </div>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div className="px-4 py-3 h-5">
+                                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.49991 0.876892C3.84222 0.876892 0.877075 3.84204 0.877075 7.49972C0.877075 11.1574 3.84222 14.1226 7.49991 14.1226C11.1576 14.1226 14.1227 11.1574 14.1227 7.49972C14.1227 3.84204 11.1576 0.876892 7.49991 0.876892ZM1.82707 7.49972C1.82707 4.36671 4.36689 1.82689 7.49991 1.82689C10.6329 1.82689 13.1727 4.36671 13.1727 7.49972C13.1727 10.6327 10.6329 13.1726 7.49991 13.1726C4.36689 13.1726 1.82707 10.6327 1.82707 7.49972ZM8.24992 4.49999C8.24992 4.9142 7.91413 5.24999 7.49992 5.24999C7.08571 5.24999 6.74992 4.9142 6.74992 4.49999C6.74992 4.08577 7.08571 3.74999 7.49992 3.74999C7.91413 3.74999 8.24992 4.08577 8.24992 4.49999ZM6.00003 5.99999H6.50003H7.50003C7.77618 5.99999 8.00003 6.22384 8.00003 6.49999V9.99999H8.50003H9.00003V11H8.50003H7.50003H6.50003H6.00003V9.99999H6.50003H7.00003V6.99999H6.50003H6.00003V5.99999Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                <p>{Content[name]}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
                 </div>
 
                 <div className="w-full border p-2 rounded mt-4">
@@ -523,14 +541,14 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                     </div>
                     <div className="flex flex-row justify-between">
                         <div className="text-base">Unclaimed:</div>
-                        <div className="text-base inline-flex">{fromContractBigint(staked.accRewards)} $ARB</div>
+                        <div className="text-base inline-flex">{fromContractBigint(staked.accRewards)} {price.name}</div>
                     </div>
                     <div className="flex flex-row select-none justify-between">
                         <div className="text-base">Rewards:</div>
                         {
                             displayApy() === "-" ?
                                 <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer" onClick={() => next()}>-</div>
-                                : <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} $ARB/{selectedTimeSpan}</div>
+                                : <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} ${price.name}/{selectedTimeSpan}</div>
                         }
                     </div>
                 </div>
@@ -573,6 +591,9 @@ function FarmContainer() {
             const farms: FarmType[] = [];
             for (let i = 0; i < 30; i++) {
                 const farm = await FarmsConatractInstance.read.getPool([BigInt(i)]);
+                if (farm.rpb === 0n) {
+                    break;
+                }
                 if (farm.lockAsset === "0x0000000000000000000000000000000000000000") {
                     break;
                 }
@@ -617,7 +638,6 @@ function Farms() {
         <StoreProvider store={farmsStore}>
             <div className="flex flex-col gap-2">
                 <div className="w-full flex flex-col items-center bg-[#0c0a09] rounded border border-[#292524] p-4">
-                    <div className="text-3xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">🌱FARMS🌱</div>
                     <div className="text-gray-300 text-xl">EARN REWARDS BY STAKING YOUR ETF</div>
                 </div>
                 <div className="flex flex-row w-full justify-center gap-1 text-gray-300">

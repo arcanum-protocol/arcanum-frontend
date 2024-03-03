@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { publicClient } from "@/config";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Address, getContract } from "viem";
-import { useWriteContract } from "wagmi";
+import { usePublicClient, useWriteContract } from "wagmi";
 
 function truncateAddress(address: Address) {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -27,9 +26,14 @@ function FarmsAdmin() {
 }
 
 function Pools() {
+    const publicClient = usePublicClient();
+    
     const { data, isLoading } = useQuery({
         queryKey: ["pools"],
         queryFn: async () => {
+            if (!publicClient) {
+                return;
+            }
             const contract = getContract({ abi: FARM, address: "0x573377794733fb86c7383DeB3502D6C5E1EDa947", client: publicClient });
             const pools: {
                 lockAsset: `0x${string}`;
@@ -50,7 +54,8 @@ function Pools() {
             }
 
             return pools;
-        }
+        },
+        initialData: [],
     });
 
     if (isLoading) {

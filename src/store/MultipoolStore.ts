@@ -1,7 +1,7 @@
 import { Address, decodeAbiParameters, getContract, encodeAbiParameters } from 'viem';
 import { makeAutoObservable, runInAction, when } from 'mobx';
 import { ExternalAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsset';
-import { publicClient } from '@/config';
+import { arbitrumPublicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
 import { fromX96 } from '@/lib/utils';
@@ -31,12 +31,12 @@ class MultipoolStore {
     multipool = getContract({
         address: undefined as any,
         abi: multipoolABI,
-        client: publicClient,
+        client: arbitrumPublicClient,
     });
     router = getContract({
         address: undefined as any,
         abi: routerABI,
-        client: publicClient,
+        client: arbitrumPublicClient,
     });
 
     fees: {
@@ -104,13 +104,13 @@ class MultipoolStore {
                 this.multipool = getContract({
                     address: multipool.address as Address,
                     abi: multipoolABI,
-                    client: publicClient,
+                    client: arbitrumPublicClient,
                 });
 
                 this.router = getContract({
                     address: multipool.router as Address,
                     abi: routerABI,
-                    client: publicClient,
+                    client: arbitrumPublicClient,
                 });
 
                 this.logo = multipool.logo;
@@ -166,7 +166,7 @@ class MultipoolStore {
             abi: multipoolABI,
         } as const;
 
-        const result = await publicClient?.multicall({
+        const result = await arbitrumPublicClient?.multicall({
             contracts: this.assets.map((asset) => {
                 return {
                     ...multipool,
@@ -248,7 +248,7 @@ class MultipoolStore {
             abi: multipoolABI,
         } as const;
 
-        const result = await publicClient.multicall({
+        const result = await arbitrumPublicClient.multicall({
             contracts: assets.map(({ address }) => {
                 return [{
                     ...multipoolContract,
@@ -356,7 +356,7 @@ class MultipoolStore {
             functionName: "getPrice",
         } as const;
 
-        const prices = await publicClient.multicall({
+        const prices = await arbitrumPublicClient.multicall({
             contracts: addresses.map(({ address }) => {
                 return {
                     ...getPriceCall,
@@ -710,7 +710,7 @@ class MultipoolStore {
                         }
                     );
 
-                    const gasPrice = await publicClient?.getGasPrice();
+                    const gasPrice = await arbitrumPublicClient?.getGasPrice();
 
                     runInAction(() => {
                         this.transactionCost = gas * gasPrice;
@@ -878,7 +878,7 @@ class MultipoolStore {
                 }
             );
 
-            const gasPrice = await publicClient?.getGasPrice();
+            const gasPrice = await arbitrumPublicClient?.getGasPrice();
             this.updateGas(gas, gasPrice!);
 
             const { request } = await this.router.simulate.swap([

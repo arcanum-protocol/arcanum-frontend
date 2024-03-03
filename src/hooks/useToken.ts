@@ -1,13 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { Address, createPublicClient, getContract, http } from 'viem';
-import { mainnet } from 'viem/chains';
+import { Address, PublicClient, getContract } from 'viem';
 import { BigNumber } from 'bignumber.js';
-import { useAccount } from 'wagmi';
-import { publicClient } from '@/config';
+import { useAccount, usePublicClient } from 'wagmi';
 import ERC20 from '@/abi/ERC20';
 
 // Define the fetch function with account check
-async function fetchTokenDetails(tokenAddress: Address, userAddress?: Address) {
+async function fetchTokenDetails(tokenAddress: Address, publicClient: PublicClient, userAddress?: Address) {
     const contract = getContract({
         address: tokenAddress,
         abi: ERC20,
@@ -40,10 +38,11 @@ async function fetchTokenDetails(tokenAddress: Address, userAddress?: Address) {
 // Updated useToken hook to handle no account scenario
 const useToken = (tokenAddress: Address) => {
     const { address: userAddress } = useAccount();
+    const client = usePublicClient();
 
     const { data, error, isLoading } = useQuery({
         queryKey: ['tokenDetails'],
-        queryFn: async () => fetchTokenDetails(tokenAddress, userAddress),
+        queryFn: async () => fetchTokenDetails(tokenAddress, client, userAddress),
         enabled: !!tokenAddress, // Query is enabled if tokenAddress is provided, independent of userAddress
     });
 
