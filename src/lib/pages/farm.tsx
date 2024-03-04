@@ -55,7 +55,7 @@ const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) 
     const decimals = BigNumber(10).pow(_decimals);
     const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
     const rawApy = BigNumber(rpb.toString()).dividedBy(decimals);
-    
+
     const apy = rawApy.multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
     return apy.toFixed(2);
 }
@@ -367,7 +367,7 @@ function Claim({ id, address }: { id: number, address: Address }) {
     const { writeContractAsync } = useWriteContract();
     const { address: userAddress } = useAccount();
 
-    const {data: amountToClaim} = useReadContract({
+    const { data: amountToClaim } = useReadContract({
         address: FarmsConatractInstance.address,
         abi: FarmsConatractInstance.abi,
         functionName: "getUser",
@@ -499,6 +499,11 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     const apy = apyFromRPB(apyRaw, price.price, price.decimals, tvlRaw);
     const userApy = projectedAPY(apyRaw, price.decimals, tvlRaw, staked?.amount || 0n);
 
+    const stakedValue = {
+        realValue: staked?.amount.toString(),
+        dollarValue: BigNumber(staked?.amount.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 0).dividedBy(BigNumber(10).pow(18)).toFixed(2),
+    };
+
     function displayApy() {
         switch (selectedTimeSpan) {
             case 'day':
@@ -509,6 +514,13 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                 return toHumanReadable(userApy.month);
             case 'year':
                 return toHumanReadable(userApy.year);
+        }
+    }
+
+    const [stakedTooltip, privateSetStakedTooltip] = useState(false);
+    function setStakedTooltip(value: boolean) {
+        if (userAddress) {
+            privateSetStakedTooltip(value);
         }
     }
 
@@ -556,7 +568,17 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                 <div className="border rounded p-2 w-full">
                     <div className="flex flex-row justify-between">
                         <div className="text-base">Staked:</div>
-                        <div className="text-base">{fromContractBigint(staked?.amount)} ${name}</div>
+                        <TooltipProvider>
+                            <Tooltip open={stakedTooltip} onOpenChange={setStakedTooltip}>
+                                <TooltipTrigger>
+                                    <div className="text-base underline decoration-dotted">{fromContractBigint(staked?.amount)} ${name}</div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                    <p>{stakedValue.dollarValue} $</p>
+                                    <p>{stakedValue.realValue} {name}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </div>
                     <div className="flex flex-row justify-between">
                         <div className="text-base">Unclaimed:</div>
@@ -567,7 +589,17 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                         {
                             displayApy() === "-" ?
                                 <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer" onClick={() => next()}>-</div>
-                                : <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} ${price.name}/{selectedTimeSpan}</div>
+                                :
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} ${price.name}/{selectedTimeSpan}</div>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                            <p>{(Number(displayApy()) * price.price).toFixed(3)}$ {selectedTimeSpan}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                         }
                     </div>
                 </div>
