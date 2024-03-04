@@ -543,7 +543,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     }
 
     return (
-        <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-[300px]">
+        <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-full sm:w-[300px]">
             <div className="flex flex-col border rounded bg-[#0c0a09] px-2 py-2 items-center gap-1">
                 <div className="flex flex-row justify-between w-full">
                     <Avatar className="w-12 h-12">
@@ -734,7 +734,7 @@ function Farms() {
                 <div className="w-full flex flex-col items-center bg-[#0c0a09] rounded border border-[#292524] p-4">
                     <div className="text-gray-300 text-xl">EARN REWARDS BY STAKING YOUR ETF</div>
                 </div>
-                <div className="flex flex-row w-full justify-center gap-1 text-gray-300">
+                <div className="flex items-center lg:flex-row flex-col w-full justify-center gap-1 text-gray-300">
                     <FarmContainer />
                 </div>
             </div>
