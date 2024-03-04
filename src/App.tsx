@@ -34,7 +34,7 @@ const ConnectWallet = () => {
             {({ isConnected, show, truncatedAddress, address }) => {
                 return (
                     <>
-                        <button onClick={show} className="flex border h-9 rounded bg-[#0c0a09] px-2 gap-2 items-center justify-center w-1/2">
+                        <button onClick={show} className="flex border h-9 rounded bg-[#0c0a09] px-2 gap-2 items-center justify-center">
                             {address ? <Avatar address={address} size={24} /> : <></>}
                             {isConnected ? truncatedAddress : "Connect Wallet"}
                         </button>
@@ -63,7 +63,7 @@ function Navbar() {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    function getChainIcon() {
+    function ArcanumChainIcon() {
         if (!chains[0]) {
             return <div />;
         }
@@ -72,9 +72,9 @@ function Navbar() {
             <Select onValueChange={(value) => {
                 switchChain({ chainId: parseInt(value) });
             }}>
-                <SelectTrigger className="rounded gap-2 w-2/3">
+                <SelectTrigger className="w-full rounded gap-2">
                     <ChainIcon id={currentChain?.id} size={25} />
-                    {currentChain?.name}
+                    <p className="text-[0px] sm:text-base">{currentChain?.name}</p>
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
@@ -84,7 +84,7 @@ function Navbar() {
                                     <SelectItem value={chain.id.toString()}>
                                         <div className="flex gap-2">
                                             <ChainIcon id={chain.id} size={25} />
-                                            {chain.name}
+                                            <p>{chain.name}</p>
                                         </div>
                                     </SelectItem>
                                 );
@@ -94,8 +94,6 @@ function Navbar() {
                 </SelectContent>
             </Select>
         );
-
-        return <ChainIcon id={chains[0]?.id} size={35} />;
     }
 
     return (
@@ -242,8 +240,8 @@ function Navbar() {
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
-            <div className="flex flex-row justify-center items-center gap-3 w-[350px]">
-                {getChainIcon()}
+            <div className="flex flex-row justify-center items-center gap-3">
+                <ArcanumChainIcon />
                 <ConnectWallet />
             </div>
         </div>
