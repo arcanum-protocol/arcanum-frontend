@@ -37,6 +37,12 @@ const Content: { [key: string]: string } = {
     "SPI": "Sharpe Portfolio Index includes largest crypto assets weighted via Black-Litterman model.",
 };
 
+function getClaimedRewards(rewards: bigint, price: number, decimals: number) {
+    const decimalsBN = BigNumber(10).pow(decimals);
+    const rewardsBN = BigNumber(rewards.toString()).dividedBy(decimalsBN);
+    return rewardsBN.multipliedBy(price).toFixed(2);
+}
+
 export const ConnectWallet = () => {
     const { setOpen } = useModal();
 
@@ -524,6 +530,13 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
         }
     }
 
+    const [unclaimed, privateSetUnclaimed] = useState(false);
+    function setUnclaimed(value: boolean) {
+        if (userAddress) {
+            privateSetUnclaimed(value);
+        }
+    }
+
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-[300px]">
             <div className="flex flex-col border rounded bg-[#0c0a09] px-2 py-2 items-center gap-1">
@@ -582,7 +595,16 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                     </div>
                     <div className="flex flex-row justify-between">
                         <div className="text-base">Unclaimed:</div>
-                        <div className="text-base inline-flex">{fromContractBigint(staked.accRewards)} {price.name}</div>
+                        <TooltipProvider>
+                            <Tooltip open={unclaimed} onOpenChange={setUnclaimed}>
+                                <TooltipTrigger>
+                                    <div className="text-base underline decoration-dotted">{fromContractBigint(staked?.accRewards)} {price.name}</div>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
+                                    <p>{getClaimedRewards(staked?.accRewards, price.price, 18)}$</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                     </div>
                     <div className="flex flex-row select-none justify-between">
                         <div className="text-base">Rewards:</div>
