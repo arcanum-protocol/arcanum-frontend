@@ -562,6 +562,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                                     duration: 3000,
                                     isClosable: true,
                                 });
+                                navigator.clipboard.writeText(FarmsConatractInstance.address);
                             }
                         }>
                             <div className="text-xs">{truncateAddress(FarmsConatractInstance.address)}</div>
