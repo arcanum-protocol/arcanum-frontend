@@ -511,7 +511,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     const userApy = projectedAPY(apyRaw, price.decimals, tvlRaw, staked?.amount || 0n);
 
     const stakedValue = {
-        realValue: staked?.amount.toString(),
+        realValue: staked?.amount,
         dollarValue: BigNumber(staked?.amount.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 0).dividedBy(BigNumber(10).pow(18)).toFixed(2),
     };
 
@@ -607,7 +607,6 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                                 </TooltipTrigger>
                                 <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
                                     <p>{stakedValue.dollarValue} $</p>
-                                    <p>{BigNumber(stakedValue.realValue).dividedBy(BigNumber(10).pow(price.decimals)).decimalPlaces(price.decimals).toString()} {name}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
