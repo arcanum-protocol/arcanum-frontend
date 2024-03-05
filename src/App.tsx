@@ -82,7 +82,7 @@ function Navbar() {
                             chains.map((chain) => {
                                 return (
                                     <SelectItem value={chain.id.toString()}>
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 items-center">
                                             <ChainIcon id={chain.id} size={25} />
                                             <p>{chain.name}</p>
                                         </div>
