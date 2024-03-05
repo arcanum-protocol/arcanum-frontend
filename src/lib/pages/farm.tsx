@@ -196,7 +196,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     if (isLoading || !data) {
         return (
             <>
-                <Skeleton className="mt-2 w-full h-32" />
+                <Skeleton className="mt-2 w-full h-[142px]" />
             </>
         )
     }
@@ -308,7 +308,7 @@ function Withdraw({ id, address, icon, name, staked }: { id: number, address: Ad
     if (isLoading || !data) {
         return (
             <>
-                <Skeleton className="mt-2 w-full h-32" />
+                <Skeleton className="mt-2 w-full h-[134px]" />
             </>
         )
     }
@@ -387,7 +387,7 @@ function Claim({ id, address }: { id: number, address: Address }) {
 
     return (
         <div className="w-full flex flex-col mt-2 gap-2">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 h-[90px]">
                 {/* <Checkbox id="compound" />
                 <label
                     htmlFor="compound"
@@ -558,9 +558,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                                 toast({
                                     title: "Address copied",
                                     description: "Farm contract address copied to clipboard",
-                                    status: "success",
-                                    duration: 3000,
-                                    isClosable: true,
+                                    duration: 3000
                                 });
                                 navigator.clipboard.writeText(FarmsConatractInstance.address);
                             }
@@ -605,11 +603,11 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                         <TooltipProvider>
                             <Tooltip open={stakedTooltip} onOpenChange={setStakedTooltip}>
                                 <TooltipTrigger>
-                                    <div className="text-base underline decoration-dotted">{fromContractBigint(staked?.amount)} ${name}</div>
+                                    <div onClick={() => setStakedTooltip(!stakedTooltip)} className="text-base underline decoration-dotted">{fromContractBigint(staked?.amount)} {name}</div>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
                                     <p>{stakedValue.dollarValue} $</p>
-                                    <p>{stakedValue.realValue} {name}</p>
+                                    <p>{BigNumber(stakedValue.realValue).dividedBy(BigNumber(10).pow(price.decimals)).decimalPlaces(price.decimals).toString()} {name}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -619,7 +617,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                         <TooltipProvider>
                             <Tooltip open={unclaimed} onOpenChange={setUnclaimed}>
                                 <TooltipTrigger>
-                                    <div className="text-base underline decoration-dotted">{fromContractBigint(staked?.accRewards)} {price.name}</div>
+                                    <div onClick={() => setUnclaimed(!unclaimed)} className="text-base underline decoration-dotted">{fromContractBigint(staked?.accRewards)} {price.name}</div>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
                                     <p>{getClaimedRewards(staked?.accRewards, price.price, 18)}$</p>
@@ -636,7 +634,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger>
-                                            <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} ${price.name}/{selectedTimeSpan}</div>
+                                            <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} {price.name}/{selectedTimeSpan}</div>
                                         </TooltipTrigger>
                                         <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
                                             <p>{(Number(displayApy()) * price.price).toFixed(3)}$ {selectedTimeSpan}</p>
@@ -734,7 +732,7 @@ function Farms() {
                 <div className="w-full flex flex-col items-center bg-[#0c0a09] rounded border border-[#292524] p-4">
                     <div className="text-gray-300 text-xl">EARN REWARDS BY STAKING YOUR ETF</div>
                 </div>
-                <div className="flex items-center lg:flex-row flex-col w-full justify-center gap-1 text-gray-300">
+                <div className="flex lg:flex-row flex-col w-full lg:justify-center  gap-1 text-gray-300">
                     <FarmContainer />
                 </div>
             </div>
