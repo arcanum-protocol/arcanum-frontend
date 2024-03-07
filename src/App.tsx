@@ -58,7 +58,7 @@ function App() {
 function Navbar() {
     const chainId = useChainId();
     const { chains, switchChain } = useSwitchChain();
-    
+
     const currentChain = chains.find((chain) => chain.id === chainId);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -129,6 +129,15 @@ function Navbar() {
 
                     <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] my-[0.5rem]" />
 
+                    <Link to='/farms' className="w-full hover:bg-[#2D2D2D]/90 rounded">
+                        <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => setIsMenuOpen(false)}>
+                            <div className="grayscale">🌿</div>
+                            Farming
+                        </div>
+                    </Link>
+
+                    <Separator orientation="horizontal" className="w-full h-[1px] bg-[#2b2b2b] my-[0.5rem]" />
+
                     <Link to="https://dune.com/badconfig/arcanum" className="w-full hover:bg-[#2D2D2D]/90 rounded">
                         <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => setIsMenuOpen(false)}>
                             <img src={'/dune.svg'} alt="Spi" className="w-4 h-4" />
@@ -149,8 +158,6 @@ function Navbar() {
                             Discord
                         </div>
                     </Link>
-
-
 
                     <div className="w-full text-left text-base md:text-xl py-2 px-2 inline-flex gap-2 items-center" onClick={() => {
                         setIsMenuOpen(false);
