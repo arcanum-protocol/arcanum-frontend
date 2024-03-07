@@ -34,7 +34,7 @@ const ConnectWallet = () => {
             {({ isConnected, show, truncatedAddress, address }) => {
                 return (
                     <>
-                        <button onClick={show} className="flex border h-9 rounded bg-[#0c0a09] px-2 gap-2 items-center justify-center">
+                        <button onClick={show} className="flex border h-9 rounded bg-[#0c0a09] px-2 gap-2 items-center justify-center whitespace-nowrap">
                             {address ? <Avatar address={address} size={24} /> : <></>}
                             {isConnected ? truncatedAddress : "Connect Wallet"}
                         </button>
