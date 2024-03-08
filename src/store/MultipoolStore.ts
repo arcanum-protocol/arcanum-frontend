@@ -135,8 +135,8 @@ class MultipoolStore {
         if (value == 0) {
             this.slippage = 0.5;
             return;
-        } 
-        
+        }
+
         this.slippage = value;
     }
 
@@ -650,7 +650,7 @@ class MultipoolStore {
             const secondTokenQuantity = estimates[1];
 
             const firstTokenAddress = selectedAssets[0].assetAddress;
-            
+
             runInAction(() => {
                 if (this.isExactInput) {
                     this.maximumSend = undefined;
@@ -795,10 +795,11 @@ class MultipoolStore {
         }
     }
 
-    async swapUniswap(userAddress: Address) {
-        runInAction(() => this.calls = [])
-        if (this.multipool.address === undefined) return;
-        if (this.router === undefined) return;
+    async swapUniswap(userAddress?: Address) {
+        runInAction(() => this.calls = []);
+
+        if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
+        if (this.router === undefined) throw new Error("Router is undefined");
 
         const isExactInput = this.mainInput === "in" ? true : false;
         const forsePushPrice = await getForcePushPrice(this.multipoolId);
@@ -807,7 +808,7 @@ class MultipoolStore {
         if (feeData === undefined) throw new Error("feeData is undefined");
 
         const selectedAssets = this.createSelectedAssets(this.slippage);
-        if (selectedAssets === undefined) return;
+        if (selectedAssets === undefined) throw new Error("selectedAssets is undefined");
 
         // remove input asset from selected assets
         const _selectedAssets = selectedAssets.filter((asset) => asset.assetAddress !== this.inputAsset?.address);
@@ -817,7 +818,7 @@ class MultipoolStore {
         const ethFee = BigInt(ethFeeBG);
 
         const callsTransfer = this.encodeForcePushArgs;
-        if (callsTransfer === undefined) return;
+        if (callsTransfer === undefined) throw new Error("callsTransfer is undefined");
 
         const callsBeforeUniswap = this.calls.map((call) => {
             const data = encodeAbiParameters([{ name: "target", type: "address" }, { name: "ethValue", type: "uint256" }, { name: "targetData", type: "bytes" }], [call.to as Address, 0n, call.data as Address]);
@@ -857,6 +858,13 @@ class MultipoolStore {
             callsBeforeUniswap.unshift(approveCall);
         }
 
+        if (!userAddress) {
+            return {
+                request: undefined,
+                value: 0n
+            };
+        }
+
         try {
             const gas = await this.router.estimateGas.swap([
                 this.multipool.address,
@@ -879,32 +887,56 @@ class MultipoolStore {
             );
 
             const gasPrice = await arbitrumPublicClient?.getGasPrice();
-            this.updateGas(gas, gasPrice!);
+            this.updateGas(gas, gasPrice);
 
-            const { request } = await this.router.simulate.swap([
-                this.multipool.address,
+            const request: [
+                Address,
                 {
-                    forcePushArgs: forsePushPrice,
-                    assetsToSwap: _selectedAssets,
-                    isExactInput: isExactInput,
-                    receiverAddress: userAddress,
+                    forcePushArgs: {
+                        contractAddress: `0x${string}`;
+                        timestamp: bigint;
+                        sharePrice: bigint;
+                        signatures: `0x${string}`[];
+                    },
+                    assetsToSwap: {
+                        assetAddress: `0x${string}`;
+                        amount: bigint;
+                    }[],
+                    isExactInput: boolean,
+                    receiverAddress: Address,
                     refundEthToReceiver: true,
-                    refundAddress: userAddress,
-                    ethValue: ethFee
+                    refundAddress: Address,
+                    ethValue: bigint
                 },
-                callsBeforeUniswap,
-                []
-            ],
                 {
-                    account: userAddress,
-                    value: ethValue
-                }
-            );
+                    callType: number;
+                    data: `0x${string}`;
+                }[], []
+            ] = [
+                    this.multipool.address,
+                    {
+                        forcePushArgs: forsePushPrice,
+                        assetsToSwap: _selectedAssets,
+                        isExactInput: isExactInput,
+                        receiverAddress: userAddress,
+                        refundEthToReceiver: true,
+                        refundAddress: userAddress,
+                        ethValue: ethFee
+                    },
+                    callsBeforeUniswap,
+                    []
+                ];
 
             this.updateErrorMessage(undefined, true);
-            return request;
+            return {
+                request: request,
+                value: ethValue
+            };
         } catch (e: any) {
-            return 1;
+            return {
+                request: undefined,
+                value: 0n
+            };
         }
     }
 
@@ -915,8 +947,8 @@ class MultipoolStore {
     }
 
     async swapMultipool(userAddress?: Address) {
-        if (this.multipool.address === undefined) return;
-        if (this.router === undefined) return;
+        if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
+        if (this.router === undefined) throw new Error("Router is undefined");
 
         const isExactInput = this.mainInput === "in" ? true : false;
         const forsePushPrice = await getForcePushPrice(this.multipoolId);
@@ -925,45 +957,72 @@ class MultipoolStore {
         if (feeData === undefined) throw new Error("feeData is undefined");
 
         const selectedAssets = this.createSelectedAssets(this.slippage);
-        if (selectedAssets === undefined) return;
+        if (selectedAssets === undefined) throw new Error("selectedAssets is undefined");
 
         const ethFee = feeData[0] < 0n ? 0n : feeData[0];
 
         const callsTransfer = this.encodeForcePushArgs;
-        if (callsTransfer === undefined) return;
+        if (callsTransfer === undefined) throw new Error("callsTransfer is undefined");
 
         const callsBeforeArcanum = [{ callType: 0, data: callsTransfer }];
 
+        if (!userAddress) {
+            return {
+                request: undefined,
+                value: 0n
+            };
+        }
+
         try {
-
-            if (!userAddress) {
-                return 1;
-            }
-
-            const { request } = await this.router.simulate.swap([
-                this.multipool.address,
+            const request: [
+                Address,
                 {
-                    forcePushArgs: forsePushPrice,
-                    assetsToSwap: selectedAssets,
-                    isExactInput: isExactInput,
-                    receiverAddress: userAddress,
+                    forcePushArgs: {
+                        contractAddress: `0x${string}`;
+                        timestamp: bigint;
+                        sharePrice: bigint;
+                        signatures: `0x${string}`[];
+                    },
+                    assetsToSwap: {
+                        assetAddress: `0x${string}`;
+                        amount: bigint;
+                    }[],
+                    isExactInput: boolean,
+                    receiverAddress: Address,
                     refundEthToReceiver: false,
-                    refundAddress: userAddress,
-                    ethValue: ethFee
+                    refundAddress: Address,
+                    ethValue: bigint
                 },
-                callsBeforeArcanum,
-                []
-            ],
                 {
-                    account: userAddress,
-                    value: ethFee
-                }
-            );
+                    callType: number;
+                    data: `0x${string}`;
+                }[],
+                []
+            ] = [
+                    this.multipool.address,
+                    {
+                        forcePushArgs: forsePushPrice,
+                        assetsToSwap: selectedAssets,
+                        isExactInput: isExactInput,
+                        receiverAddress: userAddress,
+                        refundEthToReceiver: false,
+                        refundAddress: userAddress,
+                        ethValue: ethFee
+                    },
+                    callsBeforeArcanum,
+                    []
+                ];
 
-            return request;
+            return {
+                request: request,
+                value: ethFee
+            };
         } catch (e: any) {
             this.updateErrorMessage(e, true);
-            return 1;
+            return {
+                request: undefined,
+                value: 0n
+            };
         }
     }
 

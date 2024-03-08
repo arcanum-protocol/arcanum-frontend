@@ -12,6 +12,7 @@ import { useModal } from "connectkit";
 import { useAllowence } from "@/hooks/useAllowence";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
+import { useToken } from "@/hooks/useToken";
 
 export const ConnectWallet = () => {
     const { setOpen } = useModal();
@@ -25,6 +26,8 @@ export const ConnectWallet = () => {
 
 export const InteractionWithApprovalButton = observer(() => {
     const { swapType } = useMultipoolStore();
+
+    console.log("swapType", swapType);
 
     if (swapType === ActionType.ARCANUM) {
         return <ArcanumSwap />
@@ -157,13 +160,12 @@ const BebopSwap = observer(() => {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useMultipoolStore();
+    const { swapUniswap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useMultipoolStore();
 
     const inputQuantityBigInt = BigInt(inputQuantity?.toFixed(0) || "0");
 
-    const { data: balance } = useBalance({
+    const { data: token } = useToken({
         address: address,
-        token: inputAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : inputAsset?.address,
         watch: true,
     });
 
@@ -172,28 +174,52 @@ const UniswapSwap = observer(() => {
     const { data: swapAction, isLoading, refetch } = useQuery({
         queryKey: ["swap"],
         queryFn: async () => {
-            if (balance && inputQuantity) {
-                if (balance.value < inputQuantityBigInt) {
+            if (token && inputQuantity) {
+                if (token.balanceRaw < inputQuantityBigInt) {
                     updateErrorMessage("Insufficient Balance", false);
                 } else {
                     updateErrorMessage(undefined, false);
                 }
             }
 
-            if (inputQuantity === undefined) return 1;
+            if (inputQuantity === undefined) {
+                return {
+                    request: undefined,
+                    value: 0n
+                }
+            }
 
-            return await swap(address);
+            return await swapUniswap(address);
         },
         refetchInterval: 10000,
-        enabled: inputQuantity !== undefined && !inputQuantity.isZero()
+        enabled: inputQuantity !== undefined && !inputQuantity.isZero(),
+        initialData: {
+            request: undefined,
+            value: 0n
+        }
     });
 
     useEffect(() => {
         refetch();
     }, [inputQuantity]);
 
-    const { data: config } = useSimulateContract(swapAction);
+    const { error } = useSimulateContract({
+        abi: router.abi,
+        address: router.address,
+        functionName: "swap",
+        args: swapAction.request
+    });
     const { writeContract } = useWriteContract();
+    
+    function CallSwap() {
+        if (swapAction.request === undefined) return;
+        writeContract({
+            abi: router.abi,
+            address: router.address,
+            functionName: "swap",
+            args: swapAction.request
+        });
+    }
 
     if (exchangeError && !swapIsLoading) {
         return <ErrorButton errorMessage={exchangeError} />
@@ -215,10 +241,6 @@ const UniswapSwap = observer(() => {
         return <DefaultButton />
     }
 
-    async function CallSwap() {
-        writeContract(config);
-    }
-
     return (
         <div className="w-full">
             <Button className="w-full border bg-transparent rounded-md border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={CallSwap}>
@@ -230,12 +252,11 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { swap, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useMultipoolStore();
+    const { swapMultipool, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useMultipoolStore();
 
-    const { data: balance, isLoading: balanceIsLoading } = useBalance({
-        address: address,
-        token: inputAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : inputAsset?.address,
-        watch: true,
+    const { data: tokenData, isLoading: balanceIsLoading } = useToken({
+        address: inputAsset?.address,
+        watch: true
     });
     const inputQuantityBigInt = BigInt(inputQuantity?.toFixed(0) || "0");
 
@@ -244,17 +265,21 @@ const ArcanumSwap = observer(() => {
     const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery({
         queryKey: ["swap"],
         queryFn: async () => {
-            const data = await swap(address);
+            const data = await swapMultipool(address);
 
-            if (balance && inputQuantity) {
-                if (balance.value < inputQuantityBigInt) {
+            if (tokenData?.balanceRaw && inputQuantity) {
+                if (tokenData?.balanceRaw < inputQuantityBigInt) {
                     updateErrorMessage("Insufficient Balance", false);
                 }
             }
 
             return data;
         },
-        refetchInterval: 15000
+        refetchInterval: 15000,
+        initialData: {
+            request: undefined,
+            value: 0n
+        }
     });
 
     useEffect(() => {
@@ -267,13 +292,24 @@ const ArcanumSwap = observer(() => {
         refetch();
     }, [outputQuantity]);
 
-    const { data } = useSimulateContract(swapAction!);
+    const { error } = useSimulateContract({
+        abi: router.abi,
+        address: router.address,
+        functionName: "swap",
+        args: swapAction.request
+    });
+
     const { writeContract } = useWriteContract();
 
-    async function CallSwap() {
+    function CallSwap() {
         refetch();
-        if (write === undefined) return;
-        writeContract(data);
+        if (swapAction.request === undefined) return;
+        writeContract({
+            abi: router.abi,
+            address: router.address,
+            functionName: "swap",
+            args: swapAction.request
+        });
     }
 
     if (exchangeError && !swapIsLoading) {
