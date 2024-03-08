@@ -75,7 +75,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
     function dollarValue() {
         if (theAsset?.type === 'external') {
-            return new BigNumber(quantity).multipliedBy(getItemPrice(text)).toFixed(4);
+            return new BigNumber(quantity.replace(',', "")).multipliedBy(getItemPrice(text)).toFixed(4);
         }
         return new BigNumber(quantity.replace(',', "")).multipliedBy(getItemPrice(text)).multipliedBy(etherPrice).toFixed(4);
     }
