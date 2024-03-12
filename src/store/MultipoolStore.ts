@@ -804,7 +804,7 @@ class MultipoolStore {
         const isExactInput = this.mainInput === "in" ? true : false;
         const forsePushPrice = await getForcePushPrice(this.multipoolId);
 
-        const feeData = await this.checkSwap(userAddress) as readonly [bigint, readonly bigint[]];
+        const feeData = await this.checkSwapUniswap() as readonly [bigint, readonly bigint[]];
         if (feeData === undefined) throw new Error("feeData is undefined");
 
         const selectedAssets = this.createSelectedAssets(this.slippage);
