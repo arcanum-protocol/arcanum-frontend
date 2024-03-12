@@ -795,11 +795,11 @@ class MultipoolStore {
         }
     }
 
-    async swapUniswap(userAddress?: Address) {
-        runInAction(() => this.calls = []);
-
+    async swapUniswap(userAddress: Address | undefined) {
+        runInAction(() => this.calls = [])
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
+        if (userAddress === undefined) throw new Error("User address is undefined");
 
         const isExactInput = this.mainInput === "in" ? true : false;
         const forsePushPrice = await getForcePushPrice(this.multipoolId);
@@ -858,13 +858,6 @@ class MultipoolStore {
             callsBeforeUniswap.unshift(approveCall);
         }
 
-        if (!userAddress) {
-            return {
-                request: undefined,
-                value: 0n
-            };
-        }
-
         try {
             const gas = await this.router.estimateGas.swap([
                 this.multipool.address,
@@ -886,57 +879,34 @@ class MultipoolStore {
                 }
             );
 
-            const gasPrice = await arbitrumPublicClient?.getGasPrice();
+            const gasPrice = await arbitrumPublicClient.getGasPrice();
             this.updateGas(gas, gasPrice);
 
-            const request: [
-                Address,
+            const { request } = await this.router.simulate.swap([
+                this.multipool.address,
                 {
-                    forcePushArgs: {
-                        contractAddress: `0x${string}`;
-                        timestamp: bigint;
-                        sharePrice: bigint;
-                        signatures: `0x${string}`[];
-                    },
-                    assetsToSwap: {
-                        assetAddress: `0x${string}`;
-                        amount: bigint;
-                    }[],
-                    isExactInput: boolean,
-                    receiverAddress: Address,
+                    forcePushArgs: forsePushPrice,
+                    assetsToSwap: _selectedAssets,
+                    isExactInput: isExactInput,
+                    receiverAddress: userAddress,
                     refundEthToReceiver: true,
-                    refundAddress: Address,
-                    ethValue: bigint
+                    refundAddress: userAddress,
+                    ethValue: ethFee
                 },
+                callsBeforeUniswap,
+                []
+            ],
                 {
-                    callType: number;
-                    data: `0x${string}`;
-                }[], []
-            ] = [
-                    this.multipool.address,
-                    {
-                        forcePushArgs: forsePushPrice,
-                        assetsToSwap: _selectedAssets,
-                        isExactInput: isExactInput,
-                        receiverAddress: userAddress,
-                        refundEthToReceiver: true,
-                        refundAddress: userAddress,
-                        ethValue: ethFee
-                    },
-                    callsBeforeUniswap,
-                    []
-                ];
+                    account: userAddress,
+                    value: ethValue
+                }
+            );
 
             this.updateErrorMessage(undefined, true);
-            return {
-                request: request,
-                value: ethValue
-            };
+            return request;
         } catch (e: any) {
-            return {
-                request: undefined,
-                value: 0n
-            };
+            console.log(e);
+            return undefined;
         }
     }
 

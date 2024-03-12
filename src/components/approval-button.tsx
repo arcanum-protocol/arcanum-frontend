@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { useAccount, useBalance, useSimulateContract, useSignTypedData, useWriteContract } from "wagmi";
+import { useAccount, useBalance, useSimulateContract, useSignTypedData, useWriteContract, usePublicClient } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useMultipoolStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -13,6 +13,7 @@ import { useAllowence } from "@/hooks/useAllowence";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { useToken } from "@/hooks/useToken";
+import { getPublicClient } from "@wagmi/core";
 
 export const ConnectWallet = () => {
     const { setOpen } = useModal();
@@ -26,8 +27,6 @@ export const ConnectWallet = () => {
 
 export const InteractionWithApprovalButton = observer(() => {
     const { swapType } = useMultipoolStore();
-
-    console.log("swapType", swapType);
 
     if (swapType === ActionType.ARCANUM) {
         return <ArcanumSwap />
@@ -165,13 +164,13 @@ const UniswapSwap = observer(() => {
     const inputQuantityBigInt = BigInt(inputQuantity?.toFixed(0) || "0");
 
     const { data: token } = useToken({
-        address: address,
+        address: inputAsset?.address,
         watch: true,
     });
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
-    const { data: swapAction, isLoading, refetch } = useQuery({
+    const { data: swapAction, error, refetch } = useQuery({
         queryKey: ["swap"],
         queryFn: async () => {
             if (token && inputQuantity) {
@@ -199,26 +198,22 @@ const UniswapSwap = observer(() => {
         }
     });
 
+    console.log("error", error);
+
     useEffect(() => {
         refetch();
     }, [inputQuantity]);
 
-    const { error } = useSimulateContract({
-        abi: router.abi,
-        address: router.address,
-        functionName: "swap",
-        args: swapAction.request
-    });
     const { writeContract } = useWriteContract();
-    
-    function CallSwap() {
-        if (swapAction.request === undefined) return;
-        writeContract({
-            abi: router.abi,
-            address: router.address,
-            functionName: "swap",
-            args: swapAction.request
-        });
+
+    async function CallSwap() {
+        if (swapAction === undefined) {
+            updateErrorMessage("Internal Error", false);
+            return;
+        }
+
+        if (swapAction === undefined) return;
+        writeContract(swapAction);
     }
 
     if (exchangeError && !swapIsLoading) {
@@ -229,7 +224,7 @@ const UniswapSwap = observer(() => {
         return <ConnectWalletButton />
     }
 
-    if (allowanceIsLoading || isLoading || swapIsLoading) {
+    if (allowanceIsLoading || !swapAction || swapIsLoading) {
         return <LoadingButton />
     }
 
