@@ -281,7 +281,11 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         }
     });
 
-    console.log("shares", shares);
+    for (const [address, amount] of shares.entries()) {
+        if (amount.isLessThanOrEqualTo(0)) {
+            throw new Error("Amount is less than or equal to 0");
+        }
+    }
 
     if (shares.values().next().value == new BigNumber(0)) {
         throw new Error("Shares is empty");
@@ -321,7 +325,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
         outs.set(address, amountOut);
 
         const options: SwapOptions = {
-            slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
+            slippageTolerance: new Percent(70, 10_000), // 50 bips, or 0.50%
             deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
             recipient: multipoolAddress,
         }
@@ -335,6 +339,7 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
             asset: address,
             amountOut: amountOut,
         };
+        console.log(tx.asset, tx.amountOut.toString());
 
         callDatas.push(tx);
     }
