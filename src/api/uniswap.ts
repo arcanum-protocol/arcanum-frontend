@@ -269,7 +269,7 @@ async function getDecimals({ addresses }: { addresses?: Array<Address> }) {
     return cacheDecimals;
 }
 
-async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, multipoolAddress: Address) {
+async function Create(targetShares: Map<Address, BigNumber>, shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, multipoolAddress: Address) {
     if (amountIn == undefined) {
         throw new Error("AmountIn is undefined");
     }
@@ -289,6 +289,13 @@ async function Create(shares: Map<Address, BigNumber>, inputAsset: Address, amou
 
     if (shares.values().next().value == new BigNumber(0)) {
         throw new Error("Shares is empty");
+    }
+
+    // move shares to targetShares
+    for (const [address, amount] of targetShares.entries()) {
+        if (shares.has(address)) {
+            shares.set(address, amount);
+        }
     }
 
     const decimals = await getDecimals({ addresses: [...shares.keys(), ...externalTokens] });

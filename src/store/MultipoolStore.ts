@@ -492,6 +492,7 @@ class MultipoolStore {
     }
 
     updateErrorMessage(e: any | undefined, parse?: boolean) {
+        console.log(e);
         runInAction(() => {
             if (e === undefined) {
                 this.exchangeError = undefined;
@@ -535,7 +536,14 @@ class MultipoolStore {
 
     private async checkSwapUniswap() {
         if (this.inputQuantity === undefined) return;
-        const calls = await Create(this.currentShares.data, this.inputAsset!.address!, this.inputQuantity, this.multipool.address);
+        const targetShares: Map<Address, BigNumber> = new Map<Address, BigNumber>();
+
+        for (const asset of this.assets) {
+            if (asset.address === undefined) continue;
+            targetShares.set(asset.address, asset.idealShare!);
+        }
+
+        const calls = await Create(targetShares, this.currentShares.data, this.inputAsset!.address!, this.inputQuantity, this.multipool.address);
         if (calls === undefined) return;
 
         try {
