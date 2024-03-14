@@ -17,14 +17,16 @@ export const Head = observer(() => {
     const { multipoolId, multipoolAddress, assets, setTokens, setEtherPrice, assetsIsLoading, etherPrice, getPrices, setPrices } = useMultipoolStore();
     const { toast } = useToast();
 
-    const { data: multipool, isLoading: multipoolIsLoading } = useQuery(["multipool"], async () => {
-        await setEtherPrice();
-        await setTokens();
-        await setPrices();
-        const mp = await getMultipoolMarketData(multipoolId);
+    const { data: multipool, isLoading: multipoolIsLoading } = useQuery({
+        queryKey: ["multipool"],
+        queryFn: async () => {
+            await setEtherPrice();
+            await setTokens();
+            await setPrices();
+            const mp = await getMultipoolMarketData(multipoolId);
 
-        return mp;
-    }, {
+            return mp;
+        },
         retry: true,
         refetchInterval: 1000,
         enabled: assetsIsLoading
@@ -96,8 +98,11 @@ export const Head = observer(() => {
 const AssetsTable = observer(() => {
     const { assets, assetsIsLoading, currentShares, etherPrice, getPriceFeeds, getPrices } = useMultipoolStore();
 
-    const { data: priceFeeds, isLoading: priceFeedsIsLoading } = useQuery(["assets"], async () => {
-        return await getPriceFeeds();
+    const { data: priceFeeds, isLoading: priceFeedsIsLoading } = useQuery({
+        queryKey: ["assets"],
+        queryFn: async () => {
+            return await getPriceFeeds();
+        }
     });
 
     if (assetsIsLoading) {
