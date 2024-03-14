@@ -302,10 +302,10 @@ function Withdraw({ id, address, icon, name, staked }: { id: number, address: Ad
     }
 
     const lowAddress = address.toLocaleLowerCase() as Address;
-    const { data, isLoading } = useToken(lowAddress);
+    const { data } = useToken({ address: lowAddress, watch: true });
     const { writeContractAsync } = useWriteContract();
 
-    if (isLoading || !data) {
+    if (!data) {
         return (
             <>
                 <Skeleton className="mt-2 w-full h-[134px]" />
