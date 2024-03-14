@@ -585,7 +585,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
 
                     <div className="flex flex-row w-full justify-between items-center">
                         <div className="flex flex-row gap-2 items-center">
-                            <div className="text-base">APY:</div>
+                            <div className="text-base">APR:</div>
                             <div className="text-xl bg-gradient-to-r from-blue-700 to-green-400 text-transparent bg-clip-text animate-gradient">{apy}%</div>
                         </div>
 
