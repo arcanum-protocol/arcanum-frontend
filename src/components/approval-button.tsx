@@ -269,6 +269,7 @@ const ArcanumSwap = observer(() => {
             return data;
         },
         refetchInterval: 15000,
+        enabled: inputQuantityBigInt > 0n,
         initialData: {
             request: undefined,
             value: 0n

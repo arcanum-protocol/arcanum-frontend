@@ -8,7 +8,6 @@ import { observer } from "mobx-react-lite";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useMultipoolStore } from "@/contexts/StoreContext";
-import { arbitrumPublicClient } from "@/config";
 import { useAccount, useBalance, usePublicClient } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
