@@ -68,7 +68,7 @@ function Navbar() {
             return <div />;
         }
 
-        const env = process.env.ENVIRONMENT ? process.env.ENVIRONMENT : "develop";
+        const env = import.meta.env.ENVIRONMENT ? import.meta.env.ENVIRONMENT : "develop";
         let _chains = [chains[0], ...chains];
 
         if (env === "production") {
