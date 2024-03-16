@@ -68,6 +68,13 @@ function Navbar() {
             return <div />;
         }
 
+        const env = process.env.ENVIRONMENT ? process.env.ENVIRONMENT : "develop";
+        let _chains = [chains[0], ...chains];
+
+        if (env === "production") {
+            _chains = chains.filter((chain) => chain.id !== 31337);
+        }
+
         return (
             <Select onValueChange={(value) => {
                 switchChain({ chainId: parseInt(value) });
@@ -79,7 +86,7 @@ function Navbar() {
                 <SelectContent>
                     <SelectGroup>
                         {
-                            chains.map((chain) => {
+                            _chains.map((chain) => {
                                 return (
                                     <SelectItem value={chain.id.toString()}>
                                         <div className="flex gap-2 items-center">
