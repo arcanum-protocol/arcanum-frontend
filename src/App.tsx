@@ -162,7 +162,7 @@ function Navbar() {
             }
         }, [konamiCode]);
 
-        if (isEntered || cookies['is-admin'] === true) {
+        if (isEntered || cookies['is-admin']) {
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
