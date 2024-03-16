@@ -492,14 +492,12 @@ class MultipoolStore {
     }
 
     updateErrorMessage(e: any | undefined, parse?: boolean) {
-        console.log(e);
         runInAction(() => {
             if (e === undefined) {
                 this.exchangeError = undefined;
                 return;
             }
             this.exchangeError = parseError(e, parse);
-            this.swapIsLoading = false;
         });
     }
 
@@ -583,6 +581,8 @@ class MultipoolStore {
                 this.selectedAssets = selectedAssets;
                 this.fee = responce[0];
                 this.minimalReceive = ArcanumETF;
+
+                this.swapIsLoading = false;
             });
 
             return responce;
@@ -789,9 +789,6 @@ class MultipoolStore {
         }
         if (this.swapType === ActionType.UNISWAP) {
             const data = await this.swapUniswap(userAddress);
-            runInAction(() => {
-                this.swapIsLoading = false;
-            });
             return data;
         }
         if (this.swapType === ActionType.BEBOP) {
@@ -804,7 +801,10 @@ class MultipoolStore {
     }
 
     async swapUniswap(userAddress: Address | undefined) {
-        runInAction(() => this.calls = [])
+        runInAction(() => {
+            this.calls = [];
+            this.swapIsLoading = true;
+        });
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
         if (userAddress === undefined) throw new Error("User address is undefined");
@@ -913,7 +913,6 @@ class MultipoolStore {
             this.updateErrorMessage(undefined, true);
             return request;
         } catch (e: any) {
-            console.log(e);
             return undefined;
         }
     }

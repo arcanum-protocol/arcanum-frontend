@@ -207,10 +207,10 @@ export const IndexAssetsBreakdown = observer(() => {
                                             <div className={`${idealShare.isEqualTo(0) ? "line-through" : ""}`}>{fetchedAsset.symbol}</div>
                                         </div>
                                     </TableCell>
-                                    <TableCell>{idealShare.decimalPlaces(4).toFormat()}%</TableCell>
-                                    <TableCell className="text-center">
+                                    <TableCell className="tabular-nums">{idealShare.toFixed(4)}%</TableCell>
+                                    <TableCell className="tabular-nums text-center">
                                         {
-                                            isLoading ? <Skeleton className="rounded w-16 h-4" /> : currentShare.decimalPlaces(4).toFormat() + "%"
+                                            isLoading ? <Skeleton className="rounded w-16 h-4" /> : currentShare.toFixed(4) + "%"
                                         }
                                     </TableCell>
                                     <TableCell>
@@ -234,7 +234,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                             </Tooltip>
                                         </TooltipProvider>
                                     </TableCell>
-                                    <TableCell className={color}>{Deviation.toFixed(3)} %</TableCell>
+                                    <TableCell className={color}>{Deviation.toFixed(4)} %</TableCell>
                                     <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, etherPrice)}</TableCell>
                                 </TableRow>
                             )

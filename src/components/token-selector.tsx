@@ -9,11 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 import { useMultipoolStore } from "@/contexts/StoreContext";
 import { arbitrumPublicClient } from "@/config";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, usePublicClient } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { NeonText } from "./ui/sine-wave-text";
 import ERC20 from "@/abi/ERC20";
+import { toast } from "./ui/use-toast";
 
 
 function MultipoolTokenTooltip() {
@@ -43,16 +44,21 @@ interface TokenSelectorProps {
 
 const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     const { address } = useAccount();
-    const { data: userBalance } = useBalance({ address });
+    const { data: userBalance } = useBalance({ address: address });
+    const publicClient = usePublicClient();
     const { assets, externalAssets, setSelectedTabWrapper, setInputAsset, setOutputAsset, inputAsset, outputAsset, etherPrice, currentShares: _currentShares, selectedSCTab, prices } = useMultipoolStore();
     const [search, setSearch] = useState("");
 
-    const { data: balances } = useQuery({
+    const { data: balances, isLoading, error } = useQuery({
         queryKey: ["balances"],
         queryFn: async () => {
             const addresses = [...assets, ...externalAssets];
 
-            const results = await arbitrumPublicClient.multicall({
+            if (publicClient === undefined) {
+                throw new Error("Chain not supported.");
+            }
+
+            const results = await publicClient.multicall({
                 contracts: addresses.map((asset) => {
                     return {
                         address: asset.address!,
@@ -76,6 +82,19 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         retry: true,
         enabled: address !== undefined,
     });
+
+    if (balances) {
+        const balancesKeys = Object.keys(balances);
+        console.log(balancesKeys.map((key) => {return {key: key, balance: balances[key].toString()}}));
+    }
+
+    if (error) {
+        toast({
+            title: "Error fetching balances",
+            description: error.message,
+            status: "error",
+        });
+    }
 
     const setToken = action === "set-token-in" ? setInputAsset : setOutputAsset;
     const oppositeToken = action === "set-token-in" ? outputAsset : inputAsset;
@@ -109,7 +128,13 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         if (address === undefined) {
             return <div className="p-2 opacity-70">{"$" + 0}</div>
         }
-        if (!balances || !prices.get(token.address!)) {
+        if (token.address === undefined) {
+            return <Skeleton className="w-[50px] h-[20px] rounded"></Skeleton>;
+        }
+        if (!balances || !prices.get(token.address)) {
+            return <Skeleton className="w-[50px] h-[20px] rounded"></Skeleton>;
+        }
+        if (isLoading) {
             return <Skeleton className="w-[50px] h-[20px] rounded"></Skeleton>;
         }
 
@@ -187,7 +212,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
                             } onClick={() => { setToken(asset); setSelectedTabWrapper("back") }}>
                                 <div className="flex flex-row justify-between items-center gap-2 m-2">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src={asset.logo || undefined} alt="Logo" />
+                                        <AvatarImage src={asset.logo} alt="Logo" />
                                         <AvatarFallback>{"?"}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col text-start">

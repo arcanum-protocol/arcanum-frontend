@@ -17,7 +17,7 @@ export const TradePaneInner = observer(() => {
     const { multipoolId, swapAssets, updateMPPrice, assetsIsLoading } = useMultipoolStore();
 
     const { isLoading } = useQuery({
-        queryKey: ["assets"], 
+        queryKey: ["assets"],
         queryFn: async () => {
             const price = await getSignedPrice(multipoolId);
             updateMPPrice(price);
@@ -28,34 +28,34 @@ export const TradePaneInner = observer(() => {
         retry: true,
     });
 
-return (
-    <div className="flex flex-col justify-center gap-2 mt-2">
-        <div className="flex flex-col gap-4 items-center">
-            {
-                isLoading || assetsIsLoading ?
-                    <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
-                    <TokenQuantityInput text={"Send"} />
-            }
+    return (
+        <div className="flex flex-col justify-center gap-2 mt-2">
+            <div className="flex flex-col gap-4 items-center">
+                {
+                    isLoading || assetsIsLoading ?
+                        <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
+                        <TokenQuantityInput text={"Send"} />
+                }
 
-            <div onClick={swapAssets}
-                className="my-[-2rem] z-10 bg-[#0c0a09] border border-[#2b2b2b] p-2 rounded">
-                <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
-                </svg>
+                <div onClick={swapAssets}
+                    className="my-[-2rem] z-10 bg-[#0c0a09] border border-[#2b2b2b] p-2 rounded">
+                    <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                    </svg>
+                </div>
+
+                {
+                    isLoading || assetsIsLoading ?
+                        <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
+                        <TokenQuantityInput text={"Receive"} />
+                }
             </div>
-
-            {
-                isLoading || assetsIsLoading ?
-                    <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
-                    <TokenQuantityInput text={"Receive"} />
-            }
+            <div className="flex flex-col items-center gap-2">
+                <TransactionParamsSelector />
+                <InteractionWithApprovalButton />
+            </div>
         </div>
-        <div className="flex flex-col items-center gap-2">
-            <TransactionParamsSelector />
-            <InteractionWithApprovalButton />
-        </div>
-    </div>
-)
+    )
 });
 
 interface TokenQuantityInputProps {
@@ -107,9 +107,9 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                 <Skeleton className="rounded w-1 h-0.5" />
             );
         }
-        
+
         const realTokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(balance.decimals));
-        
+
         // if its eth we need to left something for gas, so we substract 0.01
         if (theAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
             const tokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(balance.decimals)).minus(0.01);
@@ -156,6 +156,8 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     };
 
     const overrideText = text === "Send" ? "You pay" : "You receive";
+
+    console.log("swapIsLoading", swapIsLoading);
 
     return (
         <div className="flex flex-col justify-between items-start h-full p-3 rounded-md border bg-[#0c0a09] w-full">

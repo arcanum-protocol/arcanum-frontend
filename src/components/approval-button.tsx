@@ -170,7 +170,7 @@ const UniswapSwap = observer(() => {
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
-    const { data: swapAction, error, refetch } = useQuery({
+    const { data: swapAction, refetch } = useQuery({
         queryKey: ["swap"],
         queryFn: async () => {
             if (token && inputQuantity) {
@@ -197,8 +197,6 @@ const UniswapSwap = observer(() => {
             value: 0n
         }
     });
-
-    console.log("error", error);
 
     useEffect(() => {
         refetch();
