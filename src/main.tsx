@@ -14,6 +14,7 @@ import { ConnectKitProvider } from "connectkit";
 import { config } from "./config";
 import { ThemeProvider } from "./contexts/ThemeProvider";
 import { FarmsAdmin } from "./lib/pages/farmsadmin";
+import Accounts from "./lib/pages/admin/accounts";
 
 
 function ErrorBoundary() {
@@ -91,11 +92,14 @@ const router = createBrowserRouter([
             {
                 path: "/farms",
                 element: <Farms />,
-            }
-            ,
+            },
             {
                 path: "/farmsadmin",
                 element: <FarmsAdmin />,
+            },
+            {
+                path: "/admin/accounts",
+                element: <Accounts />,
             }
         ]
     },

@@ -157,8 +157,6 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
 
     const overrideText = text === "Send" ? "You pay" : "You receive";
 
-    console.log("swapIsLoading", swapIsLoading);
-
     return (
         <div className="flex flex-col justify-between items-start h-full p-3 rounded-md border bg-[#0c0a09] w-full">
             <p className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light">{overrideText} </p>

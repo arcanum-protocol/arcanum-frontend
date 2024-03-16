@@ -1,4 +1,22 @@
-import { useChainId, useConfig, useSwitchChain } from "wagmi";
+import { useChainId, useSwitchChain } from "wagmi";
+import {
+    Cloud,
+    CreditCard,
+    Github,
+    Keyboard,
+    LifeBuoy,
+    LogOut,
+    Mail,
+    MessageSquare,
+    Plus,
+    PlusCircle,
+    Settings,
+    User,
+    UserPlus,
+    Users,
+} from "lucide-react";
+import { useCookies } from "react-cookie";
+
 import {
     Avatar,
     ChainIcon,
@@ -16,7 +34,7 @@ import {
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import "../app/globals.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "./components/ui/toaster";
 import { Separator } from "@radix-ui/react-separator";
 import {
@@ -26,6 +44,8 @@ import {
     SelectItem,
     SelectTrigger,
 } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
+import { useToast } from "./components/ui/use-toast";
 
 
 const ConnectWallet = () => {
@@ -55,51 +75,193 @@ function App() {
     );
 }
 
-function Navbar() {
+function ArcanumChainIcon() {
     const chainId = useChainId();
     const { chains, switchChain } = useSwitchChain();
 
     const currentChain = chains.find((chain) => chain.id === chainId);
 
+    if (!chains[0]) {
+        return <div />;
+    }
+
+    const env = import.meta.env.ENVIRONMENT ? import.meta.env.ENVIRONMENT : "develop";
+    let _chains = [...chains];
+
+    if (env === "production") {
+        _chains = chains.filter((chain) => chain.id !== 31337);
+    }
+
+    return (
+        <Select onValueChange={(value) => {
+            switchChain({ chainId: parseInt(value) });
+        }}>
+            <SelectTrigger className="w-full rounded gap-2">
+                <ChainIcon id={currentChain?.id} size={25} />
+                <p className="text-[0px] sm:text-base">{currentChain?.name}</p>
+            </SelectTrigger>
+            <SelectContent>
+                <SelectGroup>
+                    {
+                        _chains.map((chain) => {
+                            return (
+                                <SelectItem value={chain.id.toString()}>
+                                    <div className="flex gap-2 items-center">
+                                        <ChainIcon id={chain.id} size={25} />
+                                        <p>{chain.name}</p>
+                                    </div>
+                                </SelectItem>
+                            );
+                        })
+                    }
+                </SelectGroup>
+            </SelectContent>
+        </Select>
+    );
+}
+
+function Navbar() {
+    const [cookies, setCookie] = useCookies(['is-admin']);
+    const { toast } = useToast();
+
+    console.log(cookies);
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isEntered, setIsEntered] = useState(false);
+    const [konamiCode, setKonamiCode] = useState<string>("");
 
-    function ArcanumChainIcon() {
-        if (!chains[0]) {
-            return <div />;
-        }
+    // here we sub for key inputs and wait for konami code
 
-        const env = import.meta.env.ENVIRONMENT ? import.meta.env.ENVIRONMENT : "develop";
-        let _chains = [chains[0], ...chains];
+    function ArcanumIcon() {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const key = event.key.toLowerCase();
+            setKonamiCode((prev) => prev.concat(key));
+        };
 
-        if (env === "production") {
-            _chains = chains.filter((chain) => chain.id !== 31337);
+        useEffect(() => {
+            window.addEventListener('keydown', handleKeyDown);
+
+            return () => {
+                window.removeEventListener('keydown', handleKeyDown);
+            };
+        }, []);
+
+        useEffect(() => {
+            const konamiSequence = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+            const konamiCodeLength = konamiSequence.join('').length;
+            const isKonamiCode = konamiCode.slice(-konamiCodeLength).toLowerCase() === konamiSequence.join('');
+
+            if (isKonamiCode) {
+                toast({
+                    title: "Konami Code",
+                    description: "You've entered the Konami Code!",
+                });
+                setIsEntered(true);
+                // write cookie
+                setCookie('is-admin', "true", { path: '/' });
+            }
+        }, [konamiCode]);
+
+        if (isEntered || cookies['is-admin'] === true) {
+            return (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <div>
+                            <img src={getSVG("logo")} alt="Logo" className="w-8" />
+                        </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                        <Link to="/admin/accounts">
+                            <DropdownMenuItem>
+                                <User className="mr-2 h-4 w-4" />
+                                Accounts
+                            </DropdownMenuItem>
+                        </Link>
+
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem>
+                                <User className="mr-2 h-4 w-4" />
+                                <span>Profile</span>
+                                <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <CreditCard className="mr-2 h-4 w-4" />
+                                <span>Billing</span>
+                                <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Settings className="mr-2 h-4 w-4" />
+                                <span>Settings</span>
+                                <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Keyboard className="mr-2 h-4 w-4" />
+                                <span>Keyboard shortcuts</span>
+                                <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem>
+                                <Users className="mr-2 h-4 w-4" />
+                                <span>Team</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger>
+                                    <UserPlus className="mr-2 h-4 w-4" />
+                                    <span>Invite users</span>
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                        <DropdownMenuItem>
+                                            <Mail className="mr-2 h-4 w-4" />
+                                            <span>Email</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <MessageSquare className="mr-2 h-4 w-4" />
+                                            <span>Message</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem>
+                                            <PlusCircle className="mr-2 h-4 w-4" />
+                                            <span>More...</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                            </DropdownMenuSub>
+                            <DropdownMenuItem>
+                                <Plus className="mr-2 h-4 w-4" />
+                                <span>New Team</span>
+                                <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                            <Github className="mr-2 h-4 w-4" />
+                            <span>GitHub</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <LifeBuoy className="mr-2 h-4 w-4" />
+                            <span>Support</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem disabled>
+                            <Cloud className="mr-2 h-4 w-4" />
+                            <span>API</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Log out</span>
+                            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            );
         }
 
         return (
-            <Select onValueChange={(value) => {
-                switchChain({ chainId: parseInt(value) });
-            }}>
-                <SelectTrigger className="w-full rounded gap-2">
-                    <ChainIcon id={currentChain?.id} size={25} />
-                    <p className="text-[0px] sm:text-base">{currentChain?.name}</p>
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectGroup>
-                        {
-                            _chains.map((chain) => {
-                                return (
-                                    <SelectItem value={chain.id.toString()}>
-                                        <div className="flex gap-2 items-center">
-                                            <ChainIcon id={chain.id} size={25} />
-                                            <p>{chain.name}</p>
-                                        </div>
-                                    </SelectItem>
-                                );
-                            })
-                        }
-                    </SelectGroup>
-                </SelectContent>
-            </Select>
+            <img src={getSVG("logo")} alt="Logo" className="w-8" />
         );
     }
 
@@ -117,7 +279,7 @@ function Navbar() {
                         <div className="w-6 h-6" onClick={() => setIsMenuOpen(false)}>
                             <svg width="24" height="24" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
                         </div>
-                        <img src={getSVG("logo")} alt="Logo" className="w-10" />
+                        <ArcanumIcon />
                     </div>
 
                     <Link to="/arbi" className="w-full hover:bg-[#2D2D2D]/90 rounded ">
@@ -185,7 +347,7 @@ function Navbar() {
                 </div>
             </div>
             <div className="hidden xl:block">
-                <img className="w-8 h-8" src={getSVG("logo")} alt="Logo" />
+                <ArcanumIcon />
             </div>
             <NavigationMenu className={"hidden xl:block"}>
                 <NavigationMenuList>
