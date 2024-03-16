@@ -183,7 +183,6 @@ function createRoute(pools: Array<Pool>, inputToken: Token | Ether, outputToken:
     }); 
 
     const route = new Route(poolsUsed, inputToken, outputToken);
-    console.log("route", route);
 
     return route;
 }
@@ -346,7 +345,6 @@ async function Create(targetShares: Map<Address, BigNumber>, shares: Map<Address
             asset: address,
             amountOut: amountOut,
         };
-        console.log(tx.asset, tx.amountOut.toString());
 
         callDatas.push(tx);
     }
