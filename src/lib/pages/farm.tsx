@@ -15,7 +15,7 @@ import { observer } from "mobx-react-lite";
 import type { Farm as FarmType } from "@/store/FarmsStore";
 import { useToken } from "@/hooks/useToken";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccount, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useReadContract, useWriteContract } from "wagmi";
 import BigNumber from "bignumber.js";
 import ERC20 from "@/abi/ERC20";
 import { readContract } from "@wagmi/core";
@@ -693,6 +693,7 @@ function FarmContainer() {
 }
 
 function Farms() {
+    const id = useChainId();
     const { data, isLoading, error } = useQuery({ queryKey: ['farms'], queryFn: () => fetchFarms() });
 
     if (isLoading || !data) {
@@ -703,9 +704,9 @@ function Farms() {
         return <div>Error...</div>
     }
 
-    const farmAddress = data.address;
+    const farmAddress = data.farms[id].address as Address;
 
-    const farmsStore = new FarmsStore(farmAddress as Address);
+    const farmsStore = new FarmsStore(farmAddress);
 
     return (
         <StoreProvider store={farmsStore}>

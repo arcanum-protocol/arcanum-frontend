@@ -17,7 +17,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 
 function truncateAddress(address: Address) {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;

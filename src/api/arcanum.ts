@@ -62,7 +62,11 @@ async function getSignedPrice(multipoolId: string) {
     return BigNumber(data.sharePrice);
 }
 
-interface RootFarm {
+export interface RootFarm {
+    farms: { [key: string]: Farm };
+}
+
+export interface Farm {
     address: string;
 }
 
