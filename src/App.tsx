@@ -73,7 +73,9 @@ function ArcanumChainIcon() {
         return <div />;
     }
 
-    const env = import.meta.env.ENVIRONMENT ?? "localhost";
+    const env = import.meta.env.ENVIRONMENT;
+    console.log(import.meta.env, import.meta.env.ENVIRONMENT);
+
     let _chains = [...chains];
 
     if (env === "production") {
