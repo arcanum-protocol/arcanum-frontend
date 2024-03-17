@@ -9,5 +9,8 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    define: {
+      __APP_ENV__: process.env.ENVIRONMENT,
+    },
   },
 })
