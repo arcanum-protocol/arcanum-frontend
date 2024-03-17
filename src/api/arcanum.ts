@@ -100,4 +100,3 @@ async function getETFsPrice(mps: string[]) {
 }
 
 export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice, fetchFarms, getETFsPrice };
-export type { RootFarm };
