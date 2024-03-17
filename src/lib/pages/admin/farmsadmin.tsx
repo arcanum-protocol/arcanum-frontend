@@ -4,9 +4,20 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
+import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { Address, getContract } from "viem";
 import { usePublicClient, useWriteContract } from "wagmi";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 function truncateAddress(address: Address) {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -15,19 +26,19 @@ function truncateAddress(address: Address) {
 function FarmsAdmin() {
 
     return (
-        <>
-            <h1>Farms Admin</h1>
-            <div className="bg-[#0c0a09] border rounded p-4 flex flex-row gap-3">
+        <div className="bg-[#0c0a09] border rounded p-4">
+            <h1 className="mb-4">Farms Admin</h1>
+            <div className="flex flex-row gap-3">
                 <Pools />
                 <AddPool />
             </div>
-        </>
+        </div>
     );
 }
 
 function Pools() {
     const publicClient = usePublicClient();
-    
+
     const { data, isLoading } = useQuery({
         queryKey: ["pools"],
         queryFn: async () => {
@@ -91,13 +102,38 @@ function Pools() {
                             <TableRow key={index}>
                                 <TableCell>{truncateAddress(pool.lockAsset)}</TableCell>
                                 <TableCell>{truncateAddress(pool.rewardAsset)}</TableCell>
-                                <TableCell>{pool.rpb.toString()}</TableCell>
+                                <TableCell>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <div className="flex flex-row gap-1 items-center justify-center hover:opacity-55 cursor-pointer">
+                                                {pool.rpb.toString()}
+                                                <Pencil size={10} />
+                                            </div>
+                                        </DialogTrigger>
+                                        <DialogContent className="bg-[#0c0a09] rounded sm:max-w-[425px]">
+                                            <DialogHeader>
+                                                <DialogTitle>Edit RPB Value</DialogTitle>
+                                                <DialogDescription>
+                                                    Edit the RPB value for the pool.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="grid gap-4 py-4">
+                                                <Input className="w-full" />
+                                            </div>
+                                            <DialogFooter>
+                                                <Button onClick={() => {
+                                                    
+                                                }}>Submit</Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </div>
-        </div>
+        </div >
     );
 }
 
@@ -119,11 +155,11 @@ function AddPool() {
     return (
         <div className="bg-[#0c0a09] border rounded p-4 flex flex-col gap-2 w-1/3">
             <h1>Add Pool</h1>
-            <div className="flex flex-row">
+            <div className="flex flex-row items-center">
                 <label className="w-1/3">Lock Asset</label>
                 <Input className="w-2/3" type="text" value={lockAsset} onChange={(e) => setLockAsset(e.target.value)} />
             </div>
-            <div className="flex flex-row">
+            <div className="flex flex-row items-center">
                 <label className="w-1/3">Reward Asset</label>
                 <Input className="w-2/3" type="text" value={rewardAsset} onChange={(e) => setRewardAsset(e.target.value)} />
             </div>

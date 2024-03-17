@@ -13,7 +13,7 @@ import { WagmiProvider  } from "wagmi";
 import { ConnectKitProvider } from "connectkit";
 import { config } from "./config";
 import { ThemeProvider } from "./contexts/ThemeProvider";
-import { FarmsAdmin } from "./lib/pages/farmsadmin";
+import { FarmsAdmin } from "./lib/pages/admin/farmsadmin";
 import Accounts from "./lib/pages/admin/accounts";
 
 
@@ -94,11 +94,15 @@ const router = createBrowserRouter([
                 element: <Farms />,
             },
             {
-                path: "/farmsadmin",
+                path: "/admin/farmsadmin",
                 element: <FarmsAdmin />,
             },
             {
                 path: "/admin/accounts",
+                element: <Accounts />,
+            },
+            {
+                path: "/admin/etf",
                 element: <Accounts />,
             }
         ]
