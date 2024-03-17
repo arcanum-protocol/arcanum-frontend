@@ -12,7 +12,7 @@ export default defineConfig(() => {
       },
     },
     define: {
-      ENVIRONMENT: process.env.ENVIRONMENT || "localhost",
+      __APP_ENV__: process.env.VITE_ENVIRONMENT,
     },
   }
 })
