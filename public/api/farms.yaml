@@ -1,1 +1,5 @@
-"address": "0x573377794733fb86c7383DeB3502D6C5E1EDa947"
+"farms":
+  31337: 
+    "address": "0x573377794733fb86c7383DeB3502D6C5E1EDa947"
+  42161:
+    "address": "0x"

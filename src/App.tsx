@@ -112,8 +112,6 @@ function Navbar() {
     const [cookies, setCookie] = useCookies(['is-admin']);
     const { toast } = useToast();
 
-    console.log(cookies);
-
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isEntered, setIsEntered] = useState(false);
     const [konamiCode, setKonamiCode] = useState<string>("");
@@ -137,7 +135,7 @@ function Navbar() {
         useEffect(() => {
             const konamiSequence = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
             const konamiCodeLength = konamiSequence.join('').length;
-            const isKonamiCode = konamiCode.slice(-konamiCodeLength).toLowerCase() === konamiSequence.join('');
+            let isKonamiCode = konamiCode.slice(-konamiCodeLength).toLowerCase() === konamiSequence.join('');
 
             if (isKonamiCode) {
                 toast({
@@ -147,6 +145,10 @@ function Navbar() {
                 setIsEntered(true);
                 // write cookie
                 setCookie('is-admin', "true", { path: '/' });
+                
+                // dont need to call this anymore
+                setKonamiCode("");
+                window.removeEventListener('keydown', handleKeyDown);
             }
         }, [konamiCode]);
 
