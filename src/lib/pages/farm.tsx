@@ -696,12 +696,22 @@ function Farms() {
     const id = useChainId();
     const { data, isLoading, error } = useQuery({ queryKey: ['farms'], queryFn: () => fetchFarms() });
 
-    if (isLoading || !data) {
+    console.log(data)
+
+    if (isLoading) {
         return <div>Loading...</div>
     }
 
     if (error) {
         return <div>Error...</div>
+    }
+
+    if (data.farms[id].address == "0x") {
+        return (
+            <div>
+                Wait for updates...
+            </div>
+        )
     }
 
     const farmAddress = data.farms[id].address as Address;
@@ -714,7 +724,7 @@ function Farms() {
                 <div className="w-full justify-center flex flex-col items-center bg-[#0c0a09] rounded border border-[#292524] h-[73.6px]">
                     <div className="text-gray-300 text-xl">EARN REWARDS BY STAKING YOUR ETF</div>
                 </div>
-                <div className="flex lg:flex-row flex-col w-full lg:justify-center  gap-1 text-gray-300">
+                <div className="flex lg:flex-row flex-col w-full lg:justify-center gap-1 text-gray-300">
                     <FarmContainer />
                 </div>
             </div>
