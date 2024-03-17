@@ -145,7 +145,7 @@ function Navbar() {
                 setIsEntered(true);
                 // write cookie
                 setCookie('is-admin', "true", { path: '/' });
-                
+
                 // dont need to call this anymore
                 setKonamiCode("");
                 window.removeEventListener('keydown', handleKeyDown);
@@ -183,6 +183,9 @@ function Navbar() {
                                 </DropdownMenuItem>
                             </Link>
                         </DropdownMenuGroup>
+                        <DropdownMenuItem>
+                            <span>ENV {import.meta.env.ENVIRONMENT ?? "localhost"}</span>
+                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             );
