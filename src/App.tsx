@@ -186,7 +186,7 @@ function Navbar() {
                             </Link>
                         </DropdownMenuGroup>
                         <DropdownMenuItem>
-                            <span>ENV {import.meta.env.ENVIRONMENT ?? "localhost"}</span>
+                            <span>ENV {import.meta.env.VITE_ENVIRONMENT}</span>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
