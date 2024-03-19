@@ -84,7 +84,6 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
 
     if (balances) {
         const balancesKeys = Object.keys(balances);
-        console.log(balancesKeys.map((key) => {return {key: key, balance: balances[key].toString()}}));
     }
 
     if (error) {

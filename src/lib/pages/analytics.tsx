@@ -23,7 +23,7 @@ export const Head = observer(() => {
             await setEtherPrice();
             await setTokens();
             await setPrices();
-            const mp = await getMultipoolMarketData(multipoolId);
+            const mp = await getMultipoolMarketData(multipoolAddress);
 
             return mp;
         },

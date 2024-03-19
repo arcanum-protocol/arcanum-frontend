@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 import { observer } from "mobx-react-lite";
-import { useAccount, useBalance, useSimulateContract, useSignTypedData, useWriteContract, usePublicClient } from "wagmi";
+import { useAccount, useSimulateContract, useSignTypedData, useWriteContract } from "wagmi";
 import ERC20 from "@/abi/ERC20";
 import { useMultipoolStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
@@ -13,7 +13,8 @@ import { useAllowence } from "@/hooks/useAllowence";
 import { Address } from "viem";
 import { useQuery } from "@tanstack/react-query";
 import { useToken } from "@/hooks/useToken";
-import { getPublicClient } from "@wagmi/core";
+import { toast } from "./ui/use-toast";
+import { truncateAddress } from "@/store/StoresUtils";
 
 export const ConnectWallet = () => {
     const { setOpen } = useModal();
@@ -159,59 +160,63 @@ const BebopSwap = observer(() => {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swapUniswap, inputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useMultipoolStore();
-
-    const inputQuantityBigInt = BigInt(inputQuantity?.toFixed(0) || "0");
-
-    const { data: token } = useToken({
-        address: inputAsset?.address,
-        watch: true,
-    });
+    const { swapUniswap, inputQuantity, inputAsset, router, exchangeError, swapIsLoading } = useMultipoolStore();
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
-    const { data: swapAction, refetch } = useQuery({
+    const { data: swapAction, refetch, error } = useQuery({
         queryKey: ["swap"],
         queryFn: async () => {
-            if (token && inputQuantity) {
-                if (token.balanceRaw < inputQuantityBigInt) {
-                    updateErrorMessage("Insufficient Balance", false);
-                } else {
-                    updateErrorMessage(undefined, false);
-                }
-            }
-
-            if (inputQuantity === undefined) {
-                return {
-                    request: undefined,
-                    value: 0n
-                }
-            }
-
             return await swapUniswap(address);
         },
         refetchInterval: 10000,
-        enabled: inputQuantity !== undefined && !inputQuantity.isZero(),
-        initialData: {
-            request: undefined,
-            value: 0n
-        }
+        enabled: inputQuantity !== undefined && !inputQuantity.isZero()
     });
+
+    console.log(error);
 
     useEffect(() => {
         refetch();
     }, [inputQuantity]);
 
-    const { writeContract } = useWriteContract();
+    const { writeContract } = useWriteContract({
+        mutation: {
+            onSuccess: (txHash) => {
+                toast({
+                    title: 'Transaction Sent',
+                    description: `Transaction Sent: ${truncateAddress(txHash)}`
+                });
+            },
+            onError: (error) => {
+                if (error.message.includes("User rejected the request.")) {
+                    toast({
+                        title: 'Error',
+                        description: "User rejected the request."
+                    });
 
-    async function CallSwap() {
-        if (swapAction === undefined) {
-            updateErrorMessage("Internal Error", false);
-            return;
+                    return;
+                }
+
+                toast({
+                    title: 'Error',
+                    description: error.message.split("Contract Call")[0]
+                });
+            }
         }
+    });
 
-        if (swapAction === undefined) return;
-        writeContract(swapAction);
+    function CallSwap() {
+        console.log({
+            args: swapAction.request,
+            value: swapAction.value.value
+        })
+        writeContract({
+            abi: router.abi,
+            address: router.address,
+            functionName: "swap",
+            args: swapAction.request,
+            value: swapAction.value.value,
+        });
     }
 
     if (exchangeError && !swapIsLoading) {
@@ -226,12 +231,12 @@ const UniswapSwap = observer(() => {
         return <LoadingButton />
     }
 
-    if (allowance! < fromBigNumber(inputQuantity!)) {
-        return <ApprovalButton approveTo={"0x36ebe888dc501e3a764f1c4910b13aaf8efd0583"} />
-    }
-
     if (inputQuantity === undefined || inputAsset === undefined) {
         return <DefaultButton />
+    }
+
+    if (allowance < fromBigNumber(inputQuantity)) {
+        return <ApprovalButton approveTo={"0x36ebe888dc501e3a764f1c4910b13aaf8efd0583"} />
     }
 
     return (
@@ -245,7 +250,7 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { swapMultipool, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, updateErrorMessage, swapIsLoading } = useMultipoolStore();
+    const { swapMultipool, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, swapIsLoading } = useMultipoolStore();
 
     const { data: tokenData, isLoading: balanceIsLoading } = useToken({
         address: inputAsset?.address,
@@ -262,7 +267,7 @@ const ArcanumSwap = observer(() => {
 
             if (tokenData?.balanceRaw && inputQuantity) {
                 if (tokenData?.balanceRaw < inputQuantityBigInt) {
-                    updateErrorMessage("Insufficient Balance", false);
+                    throw new Error("Insufficient Balance");
                 }
             }
 
@@ -276,6 +281,7 @@ const ArcanumSwap = observer(() => {
         }
     });
 
+
     useEffect(() => {
         if (mainInput === 'out') return;
         refetch();
@@ -286,28 +292,46 @@ const ArcanumSwap = observer(() => {
         refetch();
     }, [outputQuantity]);
 
-    const { error } = useSimulateContract({
-        abi: router.abi,
-        address: router.address,
-        functionName: "swap",
-        args: swapAction.request
+    const { writeContract } = useWriteContract({
+        mutation: {
+            onSuccess: (txHash) => {
+                toast({
+                    title: 'Transaction Sent',
+                    description: `Transaction Sent: ${truncateAddress(txHash)}`
+                });
+            },
+            onError: (error) => {
+                if (error.message.includes("User rejected the request.")) {
+                    toast({
+                        title: 'Error',
+                        description: "User rejected the request."
+                    });
+
+                    return;
+                }
+
+                toast({
+                    title: 'Error',
+                    description: error.message.split("Contract Call")[0]
+                });
+            }
+        }    
     });
 
-    const { writeContract } = useWriteContract();
-
     function CallSwap() {
-        refetch();
         if (swapAction.request === undefined) return;
+
         writeContract({
             abi: router.abi,
             address: router.address,
             functionName: "swap",
-            args: swapAction.request
+            args: swapAction.request,
+            value: swapAction.request[1].ethValue,
         });
     }
 
     if (exchangeError && !swapIsLoading) {
-        return <ErrorButton errorMessage={exchangeError} />
+        return <ErrorButton errorMessage={(exchangeError)} />
     }
 
     if (!address) {

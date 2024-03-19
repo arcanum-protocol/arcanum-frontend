@@ -13,6 +13,7 @@ import { getMultipoolMarketData } from '@/api/arcanum';
 import { useToast } from '@/components/ui/use-toast';
 import { Link, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { Address } from 'viem';
 
 export const Admin = observer(() => {
     return (
@@ -24,9 +25,10 @@ export const Admin = observer(() => {
 
 export const Multipool = () => {
     const { id } = useParams();
+
     const store = new MultipoolStore(id ?? "arbi");
 
-    if (store == null) {
+    if (!store) {
         return <></>;
     }
 
@@ -95,23 +97,29 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
 });
 
 export const Head = observer(() => {
-    const { multipoolId, multipoolAddress, logo } = useMultipoolStore();
-    const { toast } = useToast();
+    const { multipoolId, multipool: _mp, logo } = useMultipoolStore();
 
-    console.log(multipoolId)
+    const multipoolAddress = _mp?.address as Address;
+    console.log("HEAD", multipoolAddress);
+    const { toast } = useToast();
 
     const { data: multipool, isLoading: multipoolIsLoading, refetch } = useQuery({
         queryKey: ["multipool"],
         queryFn: async () => {
-            return await getMultipoolMarketData(multipoolId);
+            if (!multipoolAddress) {
+                throw new Error("No multipool address provided");
+            }
+            return await getMultipoolMarketData(multipoolAddress);
         },
         refetchInterval: 15000,
-        retry: true,
+        retry: () => { return multipoolAddress != undefined },
     });
+
+    console.log("HEAD", multipoolAddress, multipool);
 
     useEffect(() => {
         refetch();
-    }, [multipoolId]);
+    }, [multipoolAddress]);
 
     function getColor(change: string | undefined): string {
         if (change == undefined) {

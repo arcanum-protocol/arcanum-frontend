@@ -48,6 +48,14 @@ const externalTokens: Array<Address> = [
     "0x6694340fc020c5E6B96567843da2df01b2CE1eb6"
 ];
 
+export interface Calls {
+    data: string;
+    to: string;
+    value: string;
+    asset: Address;
+    amountOut: BigNumber;
+}
+
 async function getAllPools() {
     const pools: Array<Pool> = [];
 
@@ -280,7 +288,7 @@ async function Create(targetShares: Map<Address, BigNumber>, shares: Map<Address
         }
     });
 
-    for (const [address, amount] of shares.entries()) {
+    for (const [_, amount] of shares.entries()) {
         if (amount.isLessThanOrEqualTo(0)) {
             throw new Error("Amount is less than or equal to 0");
         }
@@ -306,13 +314,7 @@ async function Create(targetShares: Map<Address, BigNumber>, shares: Map<Address
     }
     const inputToken = inputAsset.toLocaleLowerCase() != "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLocaleLowerCase() ? new Token(42161, inputAsset, inputDecimals) : new Token(42161, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", inputDecimals);
 
-    const callDatas: Array<{
-        data: string;
-        to: string;
-        value: string;
-        asset: Address;
-        amountOut: BigNumber;
-    }> = [];
+    const callDatas: Array<Calls> = [];
     const outs: Map<Address, BigNumber> = new Map();
 
     for (const [address, amount] of shares.entries()) {
@@ -325,7 +327,7 @@ async function Create(targetShares: Map<Address, BigNumber>, shares: Map<Address
         const swapRoute = createRoute(pools, inputToken, outputToken);
 
         const amountInShare = amountIn.multipliedBy(amount).dividedBy(100);
-        const { amountOut, ethValue } = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
+        const { amountOut } = await getAmountOut(swapRoute, amountInShare.multipliedBy(0.995));
         const trade = createTrade(swapRoute, amountInShare, amountOut);
 
         outs.set(address, amountOut);

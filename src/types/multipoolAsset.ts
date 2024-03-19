@@ -6,7 +6,7 @@ interface BaseAsset {
     symbol: string;
     decimals: number;
     logo: string | undefined;
-    address: Address | undefined;
+    address: Address;
     type: "solid" | "multipool" | "external";
 }
 
