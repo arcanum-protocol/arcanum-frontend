@@ -79,13 +79,15 @@ export interface ChartContainerProps {
 }
 
 const TVChartContainer = observer(() => {
-    const { multipoolId, datafeedUrl } = useMultipoolStore();
+    const { multipoolAddress, datafeedUrl } = useMultipoolStore();
     const chartContainerRef = useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
 
     useEffect(() => {
+        if (!multipoolAddress) return;
+
         const widgetOptions: ChartingLibraryWidgetOptions = {
             theme: "dark",
-            symbol: multipoolId as string,
+            symbol: multipoolAddress as string,
             datafeed: new (window as any).Datafeeds.UDFCompatibleDatafeed(datafeedUrl),
             interval: '15' as ResolutionString,
             container: chartContainerRef.current,
@@ -154,7 +156,7 @@ const TVChartContainer = observer(() => {
         return () => {
             tvWidget.remove();
         };
-    });
+    }, [multipoolAddress]);
 
     return (
         <div

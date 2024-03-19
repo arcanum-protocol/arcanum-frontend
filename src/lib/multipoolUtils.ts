@@ -15,13 +15,13 @@ const errors: { [key: string]: string } = {
     "NotEnoughQuantityToBurn()": "Insufficient Liqudity",
 }
 
-async function getForcePushPrice(multipoolId: string): Promise<{
+async function getForcePushPrice(multipoolAddress: Address): Promise<{
     contractAddress: Address,
     timestamp: bigint,
     sharePrice: bigint,
     signatures: Address[]
 }> {
-    const responce = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${multipoolId}`);
+    const responce = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_address=${multipoolAddress}`);
     const data = await responce.data;
 
     if (String(data) == "null") {

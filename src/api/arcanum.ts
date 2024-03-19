@@ -6,7 +6,7 @@ import yaml from 'yamljs';
 
 // once-call
 async function getMultipool(multipoolId: string) {
-    const staticDataResponce = await axios.get(`https://app.arcanum.to/api/${multipoolId.toLocaleLowerCase()}.yaml`);
+    const staticDataResponce = await axios.get(`https://app.arcanum.to/api/${multipoolId}.yaml`);
     const data = yaml.parse(staticDataResponce.data);
 
     const { name, address, router_address, logo, assets } = data;
@@ -34,8 +34,8 @@ async function getMultipool(multipoolId: string) {
 }
 
 // continiously-call
-async function getMultipoolMarketData(multipoolId: string) {
-    const responce = await axios.get(`https://api.arcanum.to/api/stats?multipool_id=${multipoolId}`);
+async function getMultipoolMarketData(multipoolAddress: Address) {
+    const responce = await axios.get(`https://api.arcanum.to/api/tv/stats?multipool_id=${multipoolAddress}`);
     const data = await responce.data;
 
     return {
@@ -55,8 +55,8 @@ async function getEtherPrice() {
 }
 
 // continiously-call
-async function getSignedPrice(multipoolId: string) {
-    const responce = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_id=${multipoolId}`);
+async function getSignedPrice(multipoolAddress: Address) {
+    const responce = await axios.get(`https://api.arcanum.to/oracle/v1/signed_price?multipool_address=${multipoolAddress}`);
     const data = await responce.data;
 
     return BigNumber(data.sharePrice);
@@ -84,7 +84,7 @@ async function getETFsPrice(mps: string[]) {
 
     for (const mp of mps) {
         const { multipool } = await getMultipool(mp);
-        const price = await getMultipoolMarketData(mp);
+        const price = await getMultipoolMarketData(multipool.address);
 
         addressToPrice.set(multipool.address.toLowerCase() as Address, price.price);
         if (multipool.address.toLowerCase() == "0x4810e5a7741ea5fdbb658eda632ddfac3b19e3c6") { // delete this, just a ploaceholder for farming test
