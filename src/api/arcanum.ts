@@ -28,7 +28,7 @@ async function getMultipool(multipoolId: string) {
             address: address as Address,
             router: router_address as Address,
             logo: logo as string,
-            assets: assetsStaticData,
+            assets: assetsStaticData
         }
     }
 }
