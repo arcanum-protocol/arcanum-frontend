@@ -34,7 +34,6 @@ import {
 } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./components/ui/dropdown-menu";
 import { useToast } from "./components/ui/use-toast";
-import { fromX96 } from "./lib/utils";
 
 
 const ConnectWallet = () => {

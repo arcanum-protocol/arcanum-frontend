@@ -206,16 +206,22 @@ const UniswapSwap = observer(() => {
     });
 
     function CallSwap() {
-        console.log({
-            args: swapAction.request,
-            value: swapAction.value.value
-        })
-        writeContract({
-            abi: router.abi,
-            address: router.address,
-            functionName: "swap",
-            args: swapAction.request,
-            value: swapAction.value.value,
+        const _swap = swapAction;
+
+        if (_swap) {
+            writeContract({
+                abi: router.abi,
+                address: router.address,
+                functionName: "swap",
+                args: swapAction.request,
+                value: swapAction.value.value,
+            });
+            
+            return;
+        }
+        toast({
+            title: 'Error',
+            description: "No Swap Action"
         });
     }
 
