@@ -59,6 +59,7 @@ export const defaultChartProps = {
     custom_css_url: "/tradingview-chart.css",
     loading_screen: { backgroundColor: "rgba(12, 10, 9, 0.8)", foregroundColor: "rgba(12, 10, 9, 0.8)" },
     favorites: { 3: "3m", },
+    
 };
 
 export interface ChartContainerProps {
@@ -120,6 +121,7 @@ const TVChartContainer = observer(() => {
                 "use_localstorage_for_settings",
                 "right_bar_stays_on_scroll",
                 "symbol_info",
+                "legend_widget"
             ].concat(disabledFeaturesOnMobile) as ChartingLibraryFeatureset[],
             user_id: defaultChartProps.userId,
             custom_css_url: '/tradingview-chart.css',
@@ -128,9 +130,8 @@ const TVChartContainer = observer(() => {
             //overrides: defaultChartProps.overrides,
             overrides: {
                 "mainSeriesProperties.style": 2,
-                "mainSeriesProperties.statusViewStyle.symbolTextSource": null,
+                "mainSeriesProperties.statusViewStyle.lastValueVisible": false,
                 ...defaultChartProps.overrides,
-                
             },
             favorites: {
                 ...defaultChartProps.favorites, intervals: ["15", "720", "1D"] as ResolutionString[],
