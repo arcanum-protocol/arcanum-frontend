@@ -104,8 +104,8 @@ const TVChartContainer = observer(() => {
             ],
             client_id: defaultChartProps.clientId,
             disabled_features: [
-                "volume_force_overlay",
                 "study_symbol_ticker_description",
+                "volume_force_overlay",
                 "show_logo_on_all_charts",
                 "caption_buttons_text_if_possible",
                 "create_volume_indicator_by_default",
@@ -128,6 +128,7 @@ const TVChartContainer = observer(() => {
             //overrides: defaultChartProps.overrides,
             overrides: {
                 "mainSeriesProperties.style": 2,
+                "mainSeriesProperties.statusViewStyle.symbolTextSource": null,
                 ...defaultChartProps.overrides,
                 
             },
