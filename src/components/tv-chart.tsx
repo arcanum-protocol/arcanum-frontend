@@ -105,6 +105,7 @@ const TVChartContainer = observer(() => {
             client_id: defaultChartProps.clientId,
             disabled_features: [
                 "volume_force_overlay",
+                "study_symbol_ticker_description",
                 "show_logo_on_all_charts",
                 "caption_buttons_text_if_possible",
                 "create_volume_indicator_by_default",
@@ -137,21 +138,21 @@ const TVChartContainer = observer(() => {
 
         const tvWidget = new widget(widgetOptions);
 
-        tvWidget.onChartReady(() => {
-            tvWidget.headerReady().then(() => {
-                const button = tvWidget.createButton();
-                button.setAttribute('title', 'Click to show a notification popup');
-                button.classList.add('apply-common-tooltip');
-                button.addEventListener('click', () => tvWidget.showNoticeDialog({
-                    title: 'Notification',
-                    body: 'TradingView Charting Library API works correctly',
-                    callback: () => {
-                        console.log('Noticed!');
-                    },
-                }));
-                button.innerHTML = 'Check API';
-            });
-        });
+        //tvWidget.onChartReady(() => {
+        //    tvWidget.headerReady().then(() => {
+        //        const button = tvWidget.createButton();
+        //        button.setAttribute('title', 'Click to show a notification popup');
+        //        button.classList.add('apply-common-tooltip');
+        //        button.addEventListener('click', () => tvWidget.showNoticeDialog({
+        //            title: 'Notification',
+        //            body: 'TradingView Charting Library API works correctly',
+        //            callback: () => {
+        //                console.log('Noticed!');
+        //            },
+        //        }));
+        //        button.innerHTML = 'Check API';
+        //    });
+        //});
 
         return () => {
             tvWidget.remove();
