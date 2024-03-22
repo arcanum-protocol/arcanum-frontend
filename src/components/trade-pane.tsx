@@ -7,10 +7,11 @@ import { Skeleton } from "./ui/skeleton";
 import { Button } from './ui/button';
 import { observer } from 'mobx-react-lite';
 import { useState } from "react";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount } from "wagmi";
 import { useMultipoolStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
 import { getSignedPrice } from "@/api/arcanum";
+import { useToken } from "@/hooks/useToken";
 
 
 export const TradePaneInner = observer(() => {
@@ -76,18 +77,22 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
     const isThisMainInput = text === "Send" ? mainInput === "in" : mainInput === "out";
 
     function dollarValue() {
+        const reg = new RegExp(",", "g");
+        const qnt = quantity.replace(reg, "");
+        const price = getItemPrice(text);
+
         if (theAsset?.type === 'external') {
-            return new BigNumber(quantity.replace(',', "")).multipliedBy(getItemPrice(text)).toFixed(4);
+            console.log("quantity", quantity, qnt, BigNumber(qnt).toString(), BigNumber(qnt).multipliedBy(price).toString());
+            return BigNumber(qnt).multipliedBy(price).toFixed(4);
         }
-        return new BigNumber(quantity.replace(',', "")).multipliedBy(getItemPrice(text)).multipliedBy(etherPrice).toFixed(4);
+
+        return BigNumber(qnt).multipliedBy(price).multipliedBy(etherPrice).toFixed(4);
     }
 
     function getBalance(): JSX.Element {
-        const { data: balance, isLoading } = useBalance({
-            address: address,
-            token: theAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" ? undefined : theAsset?.address,
+        const { data: balance, isLoading } = useToken({
+            address: theAsset?.address,
             watch: true,
-            enabled: address !== undefined,
         });
 
         if (address === undefined) {
@@ -108,18 +113,22 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             );
         }
 
-        const realTokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(balance.decimals));
+        const realTokenBalance = balance.balanceFormatted;
 
         // if its eth we need to left something for gas, so we substract 0.01
         if (theAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
-            const tokenBalance = new BigNumber(balance.value.toString()).dividedBy(new BigNumber(10).pow(balance.decimals)).minus(0.01);
+            const tokenBalance = new BigNumber(realTokenBalance).minus(0.01);
             return (
-                <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => handleInputChange(tokenBalance.toFixed(), "balance")}>{realTokenBalance.toFixed(4)}</div>
+                <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => handleInputChange(tokenBalance.toFixed(), "balance")}>
+                    {Number(realTokenBalance).toFixed(4)}
+                </div>
             );
         }
 
         return (
-            <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => handleInputChange(realTokenBalance.toFixed(), "balance")}>{realTokenBalance.toFixed(4)}</div>
+            <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => handleInputChange(realTokenBalance, "balance")}>
+                {Number(realTokenBalance).toFixed(4)}
+            </div>
         );
     }
 
