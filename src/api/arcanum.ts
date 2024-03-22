@@ -23,13 +23,11 @@ async function getMultipool(multipoolId: string) {
     });
 
     return {
-        multipool: {
-            name: name as string,
-            address: address as Address,
-            router: router_address as Address,
-            logo: logo as string,
-            assets: assetsStaticData
-        }
+        name: name as string,
+        address: address as Address,
+        router: router_address as Address,
+        logo: logo as string,
+        assets: assetsStaticData
     }
 }
 

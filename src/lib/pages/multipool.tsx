@@ -9,10 +9,16 @@ import { TokenSelector } from "@/components/token-selector";
 import { AdminPannel } from './admin';
 import { useQuery } from '@tanstack/react-query';
 import { StoreProvider, useMultipoolStore } from '@/contexts/StoreContext';
-import { getMultipoolMarketData } from '@/api/arcanum';
+import { getEtherPrice, getMultipool, getMultipoolMarketData } from '@/api/arcanum';
 import { useToast } from '@/components/ui/use-toast';
 import { Link, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import { fromX96 } from '../utils';
+import BigNumber from 'bignumber.js';
+import { usePublicClient } from 'wagmi';
+import ETF from '@/abi/ETF';
+import { toJS } from 'mobx';
+import { MultipoolAsset } from '@/types/multipoolAsset';
 import { Address } from 'viem';
 
 export const Admin = observer(() => {
@@ -25,21 +31,156 @@ export const Admin = observer(() => {
 
 export const Multipool = () => {
     const { id } = useParams();
+    const { data: multipool, refetch } = useQuery({
+        queryKey: ["base_multipool"],
+        queryFn: async () => {
+            const multipool = await getMultipool(id ?? "arbi");
 
-    const store = new MultipoolStore(id ?? "arbi");
+            const mp = new MultipoolStore(id ?? "arbi", multipool);
+            return mp;
+        },
+        refetchOnWindowFocus: false,
+    });
 
-    if (!store) {
+    useEffect(() => {
+        refetch();
+    }, [id]);
+
+    if (!multipool) {
         return <></>;
     }
 
     return (
-        <StoreProvider store={store}>
+        <StoreProvider store={multipool}>
             <MainInner />
         </StoreProvider>
     )
 };
 
-export const MainInner = () => {
+export const MainInner = observer(() => {
+    const { multipoolAddress, multipool, assets, assetsIsLoading, setPrices, setEtherPrice, setTokens } = useMultipoolStore();
+    const publicClient = usePublicClient();
+
+    const { refetch } = useQuery({
+        queryKey: ["multipool-assets"],
+        queryFn: async () => {
+            if (!publicClient) throw new Error("Public client not initialized");
+
+            const _assets: MultipoolAsset[] = [];
+            const _totalTargetShares = await multipool.read.totalTargetShares();
+            const totalTargetShares = new BigNumber(_totalTargetShares.toString());
+
+            const multipoolContract = {
+                address: multipool.address as Address,
+                abi: ETF,
+                functionName: "getAsset",
+            } as const;
+
+            const result = await publicClient.multicall({
+                contracts: assets.map(({ address }) => {
+                    return {
+                        ...multipoolContract,
+                        args: [address]
+                    }
+                })
+            });
+
+            for (let i = 0; i < assets.length; i++) {
+                const token = assets[i];
+                const tokenAddress = token.address as Address;
+
+                if (result[i].status == "failure") {
+                    continue;
+                }
+                const _asset = result[i].result!;
+
+                const asset = {
+                    quantity: new BigNumber(_asset.quantity.toString()),
+                    targetShare: new BigNumber(_asset.targetShare.toString()),
+                    collectedCashbacks: new BigNumber(_asset.collectedCashbacks.toString()),
+                };
+
+                const idealShare = asset.targetShare.dividedBy(totalTargetShares).multipliedBy(100);
+                const quantity = asset.quantity;
+
+                _assets.push({
+                    symbol: token.symbol,
+                    decimals: token.decimals,
+                    logo: token.logo,
+                    address: tokenAddress,
+                    type: "multipool",
+                    multipoolAddress: multipool.address,
+                    idealShare: idealShare,
+                    collectedCashbacks: asset.collectedCashbacks,
+                    multipoolQuantity: quantity,
+                });
+            }
+
+            setTokens(_assets);
+            return _assets;
+        },
+        refetchOnWindowFocus: false,
+        initialData: []
+    });
+
+    useEffect(() => {
+        refetch();
+    }, [multipool]);
+
+    const { refetch: updatePrice } = useQuery({
+        queryKey: ["price-updater"],
+        queryFn: async () => {
+            const prices: Record<string, BigNumber> = {};
+
+            if (!publicClient) {
+                throw new Error("Public client not initialized");
+            }
+
+            const result = await publicClient.multicall({
+                contracts: assets.map(({ address }) => {
+                    return {
+                        address: multipool.address,
+                        abi: ETF,
+                        functionName: "getPrice",
+                        args: [address]
+                    };
+                })
+            });
+
+            for (const [index, asset] of assets.entries()) {
+                const rawPrice = result[index];
+                if (rawPrice.status == "failure") {
+                    continue;
+                }
+                const price = fromX96(rawPrice.result as bigint, asset.decimals);
+
+                prices[asset.address] = price;
+            }
+
+            setPrices(prices);
+            return prices;
+        },
+        refetchInterval: 2000,
+        enabled: assetsIsLoading
+    });
+
+
+    const { refetch: updateEtherPrice } = useQuery({
+        queryKey: ["ether-price"],
+        queryFn: async () => {
+            const etherPrice = await getEtherPrice();
+
+            setEtherPrice(etherPrice);
+            return etherPrice;
+        },
+        refetchInterval: 15000,
+    });
+
+    useEffect(() => {
+        updatePrice();
+        updateEtherPrice();
+    }, [multipoolAddress]);
+
     return (
         <>
             <div className='flex flex-col min-w-full mt-0.5 gap-2 items-center xl:flex-row xl:items-stretch'>
@@ -52,7 +193,7 @@ export const MainInner = () => {
             </div >
         </>
     );
-};
+});
 
 interface ActionFormProps {
     className?: string;
@@ -97,14 +238,11 @@ export const ActionForm = observer(({ className }: ActionFormProps) => {
 });
 
 export const Head = observer(() => {
-    const { multipoolId, multipool: _mp, logo } = useMultipoolStore();
-
-    const multipoolAddress = _mp?.address as Address;
-    console.log("HEAD", multipoolAddress);
+    const { multipoolId, multipoolIsLoading: _mpLoading, multipoolAddress, logo } = useMultipoolStore();
     const { toast } = useToast();
 
-    const { data: multipool, isLoading: multipoolIsLoading, refetch } = useQuery({
-        queryKey: ["multipool"],
+    const { data: multipool } = useQuery({
+        queryKey: ["multipoolMarketData"],
         queryFn: async () => {
             if (!multipoolAddress) {
                 throw new Error("No multipool address provided");
@@ -114,12 +252,6 @@ export const Head = observer(() => {
         refetchInterval: 15000,
         retry: () => { return multipoolAddress != undefined },
     });
-
-    console.log("HEAD", multipoolAddress, multipool);
-
-    useEffect(() => {
-        refetch();
-    }, [multipoolAddress]);
 
     function getColor(change: string | undefined): string {
         if (change == undefined) {
@@ -135,7 +267,7 @@ export const Head = observer(() => {
         }
     }
 
-    if (multipoolIsLoading) {
+    if (!multipool) {
         // skeleton
         return (
             <div className='flex w-full rounded-2xl p-1 justify-between items-center bg-[#0c0a09] border border-[#292524]'>
@@ -164,13 +296,13 @@ export const Head = observer(() => {
         );
     }
 
-    const change = multipool?.change24h?.toFixed(4);
-    const high = multipool?.high24h?.toFixed(4);
-    const low = multipool?.low24h?.toFixed(4);
-    const price = multipool?.price?.toFixed(4);
+    const change = multipool.change24h.toFixed(4);
+    const high = multipool.high24h.toFixed(4);
+    const low = multipool.low24h.toFixed(4);
+    const price = multipool.price.toFixed(4);
 
     function copyToClipboard() {
-        navigator.clipboard.writeText(multipoolAddress || "");
+        navigator.clipboard.writeText(multipoolAddress);
         toast({
             title: "Copied to clipboard!",
             description: "The multipool address has been copied to your clipboard",
@@ -185,7 +317,7 @@ export const Head = observer(() => {
                     <img src={`/multipools/${multipoolId}_eclipse.svg`} alt="Logo" className='w-10 h-10' />
                     <div>
                         <div className='text-[#fff] p-0 text-2xl flex flex-row items-center gap-1'>
-                            {multipoolId.toLocaleUpperCase() || ""}
+                            {multipoolId.toUpperCase()}
                             <div className='cursor-pointer'>
                                 <Link to={`/analytics/${multipoolId}`}>
                                     <svg width="15" height="15" viewBox="0 0 15 15" fill="blue" xmlns="http://www.w3.org/2000/svg"><path d="M3 2C2.44772 2 2 2.44772 2 3V12C2 12.5523 2.44772 13 3 13H12C12.5523 13 13 12.5523 13 12V8.5C13 8.22386 12.7761 8 12.5 8C12.2239 8 12 8.22386 12 8.5V12H3V3L6.5 3C6.77614 3 7 2.77614 7 2.5C7 2.22386 6.77614 2 6.5 2H3ZM12.8536 2.14645C12.9015 2.19439 12.9377 2.24964 12.9621 2.30861C12.9861 2.36669 12.9996 2.4303 13 2.497L13 2.5V2.50049V5.5C13 5.77614 12.7761 6 12.5 6C12.2239 6 12 5.77614 12 5.5V3.70711L6.85355 8.85355C6.65829 9.04882 6.34171 9.04882 6.14645 8.85355C5.95118 8.65829 5.95118 8.34171 6.14645 8.14645L11.2929 3H9.5C9.22386 3 9 2.77614 9 2.5C9 2.22386 9.22386 2 9.5 2H12.4999H12.5C12.5678 2 12.6324 2.01349 12.6914 2.03794C12.7504 2.06234 12.8056 2.09851 12.8536 2.14645Z" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"></path></svg>

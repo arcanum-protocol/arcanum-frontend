@@ -6,8 +6,7 @@ import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
 import { fromX96 } from '@/lib/utils';
 import BigNumber from 'bignumber.js';
-import { getEtherPrice, getMultipool } from '@/api/arcanum';
-import { getExternalAssets, getForcePushPrice, parseError } from '@/lib/multipoolUtils';
+import { getForcePushPrice, parseError } from '@/lib/multipoolUtils';
 import { JAMQuote, PARAM_DOMAIN, PARAM_TYPES } from '@/api/bebop';
 import { BebopQuoteResponce } from '@/types/bebop';
 import { Calls, Create } from '@/api/uniswap';
@@ -79,54 +78,46 @@ class MultipoolStore {
     orderId: string | undefined;
 
     selectedAssets: { assetAddress: `0x${string}`; amount: bigint; }[] = [];
-    // calls: {
-    //     data: string;
-    //     to: string;
-    //     value: string;
-    //     asset: Address;
-    //     amountOut: BigNumber;
-    // }[] = [];
 
-    prices: Map<Address, BigNumber> = new Map<Address, BigNumber>();
+    prices: Record<Address, BigNumber> = {};
 
     swapIsLoading: boolean = false;
     multipoolIsLoading: boolean = true;
     assetsIsLoading: boolean = true;
     pricesIsLoading: boolean = true;
 
-    constructor(mp_id: string) {
+    constructor(mp_id: string, multipool: {
+        name: string;
+        address: `0x${string}`;
+        router: `0x${string}`;
+        logo: string;
+        assets: MultipoolAsset[];
+    }) {
         this.multipoolId = mp_id;
 
-        (async () => {
-            const { multipool } = await getMultipool(mp_id);
+        this.multipool = getContract({
+            address: multipool.address as Address,
+            abi: multipoolABI,
+            client: arbitrumPublicClient,
+        });
 
-            runInAction(() => {
-                this.multipool = getContract({
-                    address: multipool.address as Address,
-                    abi: multipoolABI,
-                    client: arbitrumPublicClient,
-                });
+        this.router = getContract({
+            address: multipool.router as Address,
+            abi: routerABI,
+            client: arbitrumPublicClient,
+        });
 
-                this.router = getContract({
-                    address: multipool.router as Address,
-                    abi: routerABI,
-                    client: arbitrumPublicClient,
-                });
-
-                this.logo = multipool.logo;
-                this.assets = multipool.assets;
-                this.name = multipool.name;
-                this.multipoolIsLoading = false;
-            });
-        })();
+        this.logo = multipool.logo;
+        this.assets = multipool.assets;
+        this.name = multipool.name;
 
         setInterval(async () => {
             this.updateMPTotalSupply();
-            await this.updatePricesUniswap();
         }, 30000);
 
         this.setSelectedTabWrapper("mint");
 
+        this.multipoolIsLoading = false;
         makeAutoObservable(this, {}, { autoBind: true });
     }
 
@@ -190,26 +181,9 @@ class MultipoolStore {
         return feedInfosMap;
     }
 
-    async setExternalAssets() {
-        const assets = await getExternalAssets();
-
-        const externalAssets = assets.map((asset) => {
-            return {
-                symbol: asset.symbol,
-                decimals: asset.decimals,
-                logo: asset.logoURI,
-                address: asset.address,
-                type: "external",
-            } as ExternalAsset;
-        });
-
-        const exPrices: Map<Address, BigNumber> = new Map<Address, BigNumber>();
-
+    setExternalAssets(externalAssets: ExternalAsset[]) {
         runInAction(() => {
             this.externalAssets = externalAssets;
-            for (const [address, price] of exPrices) {
-                exPrices.set(address, price);
-            }
         });
     }
 
@@ -217,8 +191,9 @@ class MultipoolStore {
         this.price = price;
     }
 
-    async setEtherPrice() {
-        const etherPrice = await getEtherPrice();
+    setEtherPrice(etherPrice: number | undefined) {
+        if (etherPrice === undefined) return;
+
         runInAction(() => {
             this.etherPrice = etherPrice;
         });
@@ -234,165 +209,25 @@ class MultipoolStore {
         });
     }
 
-    async setTokens() {
-        if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
-        const { multipool: { assets } } = await getMultipool(this.multipoolId);
-
-        const _assets: MultipoolAsset[] = [];
-        const _totalTargetShares = await this.multipool.read.totalTargetShares();
-        const totalTargetShares = new BigNumber(_totalTargetShares.toString());
-
-        const multipoolContract = {
-            address: this.multipool.address as Address,
-            abi: multipoolABI,
-        } as const;
-
-        const result = await arbitrumPublicClient.multicall({
-            contracts: assets.map(({ address }) => {
-                return [{
-                    ...multipoolContract,
-                    functionName: "getAsset",
-                    args: [address]
-                }, {
-                    ...multipoolContract,
-                    functionName: "getPrice",
-                    args: [address]
-                }]
-            }).flat()
-        });
-
-        const mpAssetsPrices = new Map<Address, BigNumber>();
-
-        for (let i = 0; i < assets.length; i++) {
-            const token = assets[i];
-
-            if (token.address?.toString() === this.multipool.address.toString()) continue;
-            const tokenAddress = token.address as Address;
-
-            if (tokenAddress == null) continue;
-            const _asset = result[(i * 2)].result as any;
-
-            const asset = {
-                quantity: new BigNumber(_asset.quantity.toString()),
-                targetShare: new BigNumber(_asset.targetShare.toString()),
-                collectedCashbacks: new BigNumber(_asset.collectedCashbacks.toString()),
-            };
-
-            const chainPrice = result[(i * 2) + 1].result as bigint;
-
-            const idealShare = asset.targetShare.dividedBy(totalTargetShares).multipliedBy(100);
-            const quantity = asset.quantity;
-
-            const price = fromX96(chainPrice, token.decimals);
-
-            _assets.push({
-                symbol: token.symbol,
-                decimals: token.decimals,
-                logo: token.logo,
-                address: tokenAddress,
-                type: "multipool",
-                multipoolAddress: this.multipool.address,
-                idealShare: idealShare,
-                collectedCashbacks: asset.collectedCashbacks,
-                multipoolQuantity: quantity,
-            });
-
-            mpAssetsPrices.set(tokenAddress, price);
-        }
+    setTokens(_assets: MultipoolAsset[]) {
+        if (_assets.length === 0) return;
 
         runInAction(() => {
             this.assets = _assets;
             this.assetsIsLoading = false;
             this.setAction("mint");
-            mpAssetsPrices.forEach((price, address) => {
-                this.prices.set(address, price);
-            });
         });
+
+        return _assets;
     }
 
-    async setPrices() {
-        for (const asset of this.assets) {
-            if (asset.address === undefined) continue;
-            const rawPrice = await this.multipool.read.getPrice([asset.address]);
-            const price = fromX96(rawPrice, asset.decimals);
+    setPrices(_prices: Record<Address, BigNumber> | undefined) {
+        if (_prices === undefined) return;
+        runInAction(() => {
+            this.prices = _prices;
+        });
 
-            runInAction(() => {
-                this.prices.set(asset.address!, new BigNumber(price.toString()));
-            });
-        }
-
-        const exPrices: Map<Address, BigNumber> = (await getExternalAssets()).reduce((map, asset) => {
-            map.set(asset.address! as Address, new BigNumber(asset.price));
-            return map;
-        }, new Map<Address, BigNumber>());
-
-        for (const asset of this.externalAssets) {
-            if (asset.address == undefined) continue;
-
-            runInAction(() => {
-                this.prices.set(asset.address!, exPrices.get(asset.address!)!);
-            });
-        }
-    }
-
-    get getPrices() {
         return this.prices;
-    }
-
-    async updatePricesUniswap() {
-        const addresses: { address: string, decimals: number }[] = this.assets.filter(asset => asset.type == "multipool").map((asset: any) => {
-            return {
-                address: asset.address,
-                decimals: asset.decimals
-            }
-        });
-
-        const addressToPrice = new Map<string, BigNumber>();
-
-        const getPriceCall = {
-            address: this.multipool.address,
-            abi: multipoolABI,
-            functionName: "getPrice",
-        } as const;
-
-        const prices = await arbitrumPublicClient.multicall({
-            contracts: addresses.map(({ address }) => {
-                return {
-                    ...getPriceCall,
-                    args: [address]
-                }
-            })
-        });
-
-        for (const [index, result] of prices.entries()) {
-            const price = result.result as bigint;
-            const { address, decimals } = addresses[index];
-
-            addressToPrice.set(address, fromX96(price, decimals)!);
-        }
-
-        runInAction(() => {
-            this.assets = this.assets.map((asset) => {
-                if (asset.address === this.multipool.address.toString()) return asset;
-                return {
-                    ...asset,
-                    price: addressToPrice.get(asset.address!)!
-                };
-            });
-        });
-    }
-
-    updatePrice(tokens: Map<string, BigNumber>) {
-        runInAction(() => {
-            this.externalAssets = this.externalAssets.map((asset) => {
-                // if this asset in not in the map, return it
-                if (!tokens.has(asset.address!)) return asset;
-                return {
-                    ...asset,
-                    price: tokens.get(asset.address!)!
-                };
-            });
-        });
     }
 
     private uniswapCreateSelectedAssets(calls: Calls[]) {
@@ -607,7 +442,6 @@ class MultipoolStore {
 
             prices.set(this.inputAsset!.address!, JAMRequest.sellPrice);
             prices.set(this.outputAsset!.address!, JAMRequest.buyPrice);
-            this.updatePrice(prices);
 
             runInAction(() => {
                 if (this.outputQuantity !== JAMRequest.buyAmounts) {
@@ -760,61 +594,56 @@ class MultipoolStore {
         if (this.inputAsset === undefined) throw new Error("Input asset is undefined");
         if (this.inputAsset.address === undefined) throw new Error("Input asset address is undefined");
 
-        const inputAsset = this.inputAsset;
-
+        const isExactInput = this.mainInput === "in" ? true : false;
         const forsePushPrice = await getForcePushPrice(this.multipoolAddress);
 
-        const uniswapSwapData = await this.checkSwapUniswap();
-        if (uniswapSwapData === undefined) throw new Error("uniswapSwapData is undefined");
+        const feeData = await this.checkSwapUniswap();
+        if (feeData === undefined) throw new Error("feeData is undefined");
 
-        const selectedAssets = this.uniswapCreateSelectedAssets(uniswapSwapData.calls);
-        if (selectedAssets === undefined) throw new Error("selectedAssets is undefined");
+        const selectedAssets = this.uniswapCreateSelectedAssets(feeData.calls);
+        if (selectedAssets === undefined) return;
 
         // remove input asset from selected assets
-        const _selectedAssets = selectedAssets.filter((asset) => asset.assetAddress !== inputAsset.address);
+        const _selectedAssets = selectedAssets.filter((asset) => asset.assetAddress !== this.inputAsset?.address);
+        
+        const _ethFee = feeData.fee < 0n ? 0n : feeData.fee;
+        const ethFeeBG = new BigNumber(_ethFee.toString()).multipliedBy(1.01).toFixed(0);
+        const ethFee = BigInt(ethFeeBG);
 
-        // add 1% to fee
-        const ethFee = uniswapSwapData.fee;
-        const ethFeeBG = new BigNumber(ethFee.toString()).multipliedBy(1.01);
-
-        const callsTransfer = this.encodeForcePushArgs;
-        if (callsTransfer === undefined) throw new Error("callsTransfer is undefined");
-
-        const callsBeforeUniswap = uniswapSwapData.calls.map((call) => {
-            const data = encodeAbiParameters(
-                [{ name: "target", type: "address" }, { name: "ethValue", type: "uint256" }, { name: "targetData", type: "bytes" }],
-                [call.to as Address, 0n, call.data as Address]);
-
+        const callsBeforeUniswap = feeData.calls.map((call) => {
+            const data = encodeAbiParameters([{ name: "target", type: "address" }, { name: "ethValue", type: "uint256" }, { name: "targetData", type: "bytes" }], 
+            [call.to as Address, 0n, call.data as Address]);
+            
             return {
                 callType: 2,
                 data: data,
             }
         });
-
-        const ethValueBG = ethFeeBG.plus(this.inputQuantity);
-        const ethValue = fromBigNumberBigInt(ethValueBG);
-        const uniswapRouter = uniswapSwapData.calls[0].to;
-
-        if (isETH(this.inputAsset)) {
-            const wrapCall = createWrapCall(true, ethValueBG);
-            callsBeforeUniswap.unshift(wrapCall);
-
-            const approveCall = createApproveCall("0x82aF49447D8a07e3bd95BD0d56f35241523fBab1" as Address, uniswapRouter as Address, this.inputQuantity); // todo: get weth address from contract
-            callsBeforeUniswap.unshift(approveCall);
-        } else {
+        
+        const ethValue = ethFee + BigInt(this.inputQuantity.multipliedBy(1.01).toFixed(0)!);
+        const uniswapRouter = feeData.calls[0].to;
+        
+        if (!isETH(this.inputAsset)) {
             const approveCall = createApproveCall(this.inputAsset.address, uniswapRouter as Address, this.inputQuantity);
             callsBeforeUniswap.unshift(approveCall);
 
             // add call to transfer tokens to router as first call
+            const callsTransfer = this.encodeForcePushArgs;
             callsBeforeUniswap.unshift(callsTransfer);
+        } else {
+            const wrapCall = createWrapCall(true, this.inputQuantity);
+            callsBeforeUniswap.unshift(wrapCall);
+
+            const approveCall = createApproveCall("0x82aF49447D8a07e3bd95BD0d56f35241523fBab1" as Address, uniswapRouter as Address, this.inputQuantity.multipliedBy(1.01));
+            callsBeforeUniswap.unshift(approveCall);
         }
 
         const request = [
-            this.multipool.address as Address,
+            this.multipool.address,
             {
                 forcePushArgs: forsePushPrice,
                 assetsToSwap: _selectedAssets,
-                isExactInput: this.isExactInput,
+                isExactInput: isExactInput,
                 receiverAddress: userAddress,
                 refundEthToReceiver: true,
                 refundAddress: userAddress,
@@ -829,16 +658,16 @@ class MultipoolStore {
             value: ethValue
         } as const;
 
-        await this.router.simulate.swap(request, value);
-        const gasPrice = await arbitrumPublicClient.getGasPrice();
-
         const gas = await this.router.estimateGas.swap(request, value);
 
-        this.updateGas(gas, gasPrice);
+        const gasPrice = await arbitrumPublicClient?.getGasPrice();
+        this.updateGas(gas, gasPrice!);
+
+        await this.router.simulate.swap(request, value);
 
         return {
             request: request,
-            value: value
+            value: ethValue
         };
     }
 
@@ -851,12 +680,11 @@ class MultipoolStore {
 
         const feeData = await this.checkSwapMultipool(userAddress);
         if (feeData === undefined) throw new Error("feeData is undefined");
-        
+
         const selectedAssets = this.createSelectedAssets(this.slippage);
         if (selectedAssets === undefined) throw new Error("selectedAssets is undefined");
-        
+
         const ethFee = feeData.fee < 0n ? 0n : feeData.fee;
-        console.log("ethFee", feeData);
 
         const callsTransfer = this.encodeForcePushArgs;
         if (callsTransfer === undefined) throw new Error("callsTransfer is undefined");
@@ -1051,22 +879,21 @@ class MultipoolStore {
                 isLoading: true
             };
         }
-        const multipoolAssets = this.assets.filter((asset) => asset != undefined).filter((asset) => asset.type === "multipool") as MultipoolAsset[];
-        if (multipoolAssets.some((asset) => this.prices.get(asset.address!) === undefined || asset.multipoolQuantity === undefined)) {
+        if (this.assets.some((asset) => this.prices[asset.address] === undefined || asset.multipoolQuantity === undefined)) {
             return {
                 data: new Map<Address, BigNumber>(),
                 isLoading: true
             };
         }
 
-        const totalDollarValue = multipoolAssets.reduce((acc, asset) => {
-            return acc.plus(this.prices.get(asset.address!)!.multipliedBy(asset.multipoolQuantity.dividedBy(10 ** asset.decimals)));
+        const totalDollarValue = this.assets.reduce((acc, asset) => {
+            return acc.plus(this.prices[asset.address]!.multipliedBy(asset.multipoolQuantity.dividedBy(10 ** asset.decimals)));
         }, new BigNumber(0)).multipliedBy(this.etherPrice);
 
         const addressToShare = new Map<Address, BigNumber>();
 
-        for (const asset of multipoolAssets) {
-            if (this.prices.get(asset.address!)!.isEqualTo(0)) {
+        for (const asset of this.assets) {
+            if (this.prices[asset.address]!.isEqualTo(0)) {
                 addressToShare.set(asset.address!, BigNumber(0));
                 continue;
             }
@@ -1075,7 +902,7 @@ class MultipoolStore {
                 continue;
             }
 
-            const assetValue = this.prices.get(asset.address!)!.multipliedBy(asset.multipoolQuantity).dividedBy(10 ** asset.decimals).multipliedBy(this.etherPrice);
+            const assetValue = this.prices[asset.address]!.multipliedBy(asset.multipoolQuantity).dividedBy(10 ** asset.decimals).multipliedBy(this.etherPrice);
 
             const share = new BigNumber(assetValue).dividedBy(totalDollarValue).multipliedBy(100);
 
@@ -1089,7 +916,7 @@ class MultipoolStore {
     }
 
     getItemPrice(direction: "Send" | "Receive"): BigNumber {
-        if (this.multipool.address === undefined) return BigNumber(0);
+        if (this.multipool.address === undefined || this.assetsIsLoading) return BigNumber(0);
 
         const thisPrice = direction == "Send" ? this.inputAsset?.address : this.outputAsset?.address;
 
@@ -1101,9 +928,9 @@ class MultipoolStore {
         const asset = [...this.assets, ...this.externalAssets].find((asset) => asset.address === thisPrice) as MultipoolAsset | ExternalAsset;
 
         if (asset === undefined) return BigNumber(0);
-        if (this.prices.get(asset.address!) === undefined) return BigNumber(0);
+        if (this.prices[asset.address] === undefined) return BigNumber(0);
 
-        return this.prices.get(asset.address!)!;
+        return this.prices[asset.address]!;
     }
 
     hrQuantity(direction: "Send" | "Receive"): string {

@@ -10,7 +10,9 @@ interface BaseAsset {
     type: "solid" | "multipool" | "external";
 }
 
-interface ExternalAsset extends BaseAsset {}
+interface ExternalAsset extends BaseAsset {
+    price: BigNumber;
+}
 
 interface SolidAssetSpecific {
     routerAddress: string;
