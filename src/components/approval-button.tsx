@@ -101,7 +101,7 @@ const BebopSwap = observer(() => {
     const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError, swapIsLoading } = useMultipoolStore();
 
     const { data: swapData, refetch } = useQuery({
-        queryKey: ["swap"], queryFn: async () => {
+        queryKey: ["bebop-swap"], queryFn: async () => {
             return await checkSwapBebop(address);
         }
     });
@@ -164,16 +164,14 @@ const UniswapSwap = observer(() => {
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
-    const { data: swapAction, refetch, error } = useQuery({
-        queryKey: ["swap"],
+    const { data: swapAction, refetch } = useQuery({
+        queryKey: ["uniswap-swap"],
         queryFn: async () => {
             return await swapUniswap(address);
         },
         refetchInterval: 10000,
         enabled: inputQuantity !== undefined && !inputQuantity.isZero()
     });
-
-    console.log(error);
 
     useEffect(() => {
         refetch();
@@ -206,17 +204,15 @@ const UniswapSwap = observer(() => {
     });
 
     function CallSwap() {
-        const _swap = swapAction;
-
-        if (_swap) {
+        if (swapAction) {
             writeContract({
                 abi: router.abi,
                 address: router.address,
                 functionName: "swap",
                 args: swapAction.request,
-                value: swapAction.value.value,
+                value: swapAction.value,
             });
-            
+
             return;
         }
         toast({
@@ -233,12 +229,12 @@ const UniswapSwap = observer(() => {
         return <ConnectWalletButton />
     }
 
-    if (allowanceIsLoading || !swapAction || swapIsLoading) {
-        return <LoadingButton />
-    }
-
     if (inputQuantity === undefined || inputAsset === undefined) {
         return <DefaultButton />
+    }
+
+    if (allowanceIsLoading || !swapAction || swapIsLoading) {
+        return <LoadingButton />
     }
 
     if (allowance < fromBigNumber(inputQuantity)) {
@@ -267,7 +263,7 @@ const ArcanumSwap = observer(() => {
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
     const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery({
-        queryKey: ["swap"],
+        queryKey: ["arcanum-swap"],
         queryFn: async () => {
             const data = await swapMultipool(address);
 
@@ -286,7 +282,6 @@ const ArcanumSwap = observer(() => {
             value: 0n
         }
     });
-
 
     useEffect(() => {
         if (mainInput === 'out') return;
@@ -321,7 +316,7 @@ const ArcanumSwap = observer(() => {
                     description: error.message.split("Contract Call")[0]
                 });
             }
-        }    
+        }
     });
 
     function CallSwap() {

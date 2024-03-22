@@ -33,3 +33,29 @@ export function fromBigNumber(value: BigNumber | undefined): bigint {
   if (value === undefined) return BigInt(0);
   return BigInt(value.toFixed(0));
 }
+
+export function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
+  const subsrint = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"];
+  const _decimals = new BigNumber(10).pow(decimals);
+  if (number.isEqualTo(0)) {
+      return "0";
+  }
+  if (number.dividedBy(_decimals).isLessThan(0.001)) {
+      const _number = number.dividedBy(_decimals).toFixed();
+      const numberWithout_zerodotzero = _number.substring(3, _number.length);
+
+      // regex to remove trailing zeros
+      const numberWithoutTrailingZeros = numberWithout_zerodotzero.replace(/^0+(?=\d)/, '');
+      const trailingZerosCount = numberWithout_zerodotzero.length - numberWithoutTrailingZeros.length;
+      // replase the zeros with the subscript
+      const numberWithSubscript = trailingZerosCount.toString().split("").map((char) => subsrint[parseInt(char)]).join("");
+
+      return `0.0${numberWithSubscript}${numberWithoutTrailingZeros}`;
+  } else {
+      const _decimals = new BigNumber(10).pow(decimals);
+      const _number = new BigNumber(number.toString());
+
+      const value = _number.dividedBy(_decimals);
+      return value.toFixed(3);
+  }
+}

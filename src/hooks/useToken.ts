@@ -86,7 +86,6 @@ const useToken = ({
         queryKey: ['tokenDetails', address],
         queryFn: () => fetchTokenDetails(address, client, userAddress),
         enabled: !!address, // Query is enabled if tokenAddress is provided, independent of userAddress
-        refetchOnWindowFocus: watch,
         refetchInterval: watch ? 10000 : false,
     });
 

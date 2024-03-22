@@ -20,8 +20,8 @@ function fromBigIntBigNumber(value: bigint): BigNumber {
 
 function createApproveCall(token: Address, target: Address, amount: BigNumber) {
     const data = encodeAbiParameters(
-        [{ name: "token", type: "address" }, { name: "target", type: "address" }, { name: "amount", type: "uint256" }],
-        [token, target, fromBigNumberBigInt(amount)]
+        [{ name: "token", type: "address" },    { name: "target", type: "address" },    { name: "amount", type: "uint256" }],
+        [token,                                 target,                                 fromBigNumberBigInt(amount)]
     );
     return {
         callType: 1,
@@ -30,10 +30,9 @@ function createApproveCall(token: Address, target: Address, amount: BigNumber) {
 }
 
 function createWrapCall(wrap: boolean = true, ethValue: BigNumber) {
-    const amount = ethValue.multipliedBy(1.01);
     const wrapData = encodeAbiParameters(
-        [{ name: "weth", type: "address" }, { name: "wrap", type: "bool" }, { name: "ethValue", type: "uint256" }],
-        ["0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", wrap, fromBigNumberBigInt(amount)]
+        [{ name: "weth", type: "address" },             { name: "wrap", type: "bool" }, { name: "ethValue", type: "uint256" }],
+        ["0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",  wrap,                           fromBigNumberBigInt(ethValue)]
     );
     return {
         callType: 3,

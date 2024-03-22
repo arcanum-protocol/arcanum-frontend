@@ -16,8 +16,6 @@ import { getSignedPrice } from "@/api/arcanum";
 export const TradePaneInner = observer(() => {
     const { multipoolAddress, swapAssets, updateMPPrice, assetsIsLoading } = useMultipoolStore();
 
-    console.log("multipoolAddress", multipoolAddress);
-
     const { isLoading } = useQuery({
         queryKey: ["assets"],
         queryFn: async () => {

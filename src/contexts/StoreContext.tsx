@@ -34,14 +34,6 @@ export function StoreProvider({ children, store, ...props }: StoreProviderProps)
     );
 }
 
-// export function useMultipoolStore() {
-//     const context = useContext(StoreProviderContext);
-//     if (context === undefined) {
-//         throw new Error('useMultipoolStore must be used within a StoreProvider');
-//     }
-//     return context.store!;
-// }
-
 export function useMultipoolStore() {
     const context = useContext(StoreProviderContext);
     if (context === undefined) {

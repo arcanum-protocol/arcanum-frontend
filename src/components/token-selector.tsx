@@ -82,15 +82,10 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         enabled: address !== undefined,
     });
 
-    if (balances) {
-        const balancesKeys = Object.keys(balances);
-    }
-
     if (error) {
         toast({
             title: "Error fetching balances",
             description: error.message,
-            status: "error",
         });
     }
 
@@ -106,14 +101,14 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
     }
 
     function toDollarValue(token: ExternalAsset | MultipoolAsset): BigNumber {
-        if (!balances || !prices.get(token.address!)) {
+        if (!balances || !prices[token.address]) {
             return new BigNumber(0);
         }
 
         const divisor = new BigNumber(10).pow(token.decimals);
 
         const balance = new BigNumber(balances[token.address!]).dividedBy(divisor);
-        const value = balance.multipliedBy(prices.get(token.address!) ?? new BigNumber(0));
+        const value = balance.multipliedBy(prices[token.address]) ?? new BigNumber(0);
 
         if (token.type === "external") {
             return value;
@@ -129,7 +124,7 @@ const TokenSelector = observer(({ action }: TokenSelectorProps) => {
         if (token.address === undefined) {
             return <Skeleton className="w-[50px] h-[20px] rounded"></Skeleton>;
         }
-        if (!balances || !prices.get(token.address)) {
+        if (!balances || !prices[token.address]) {
             return <Skeleton className="w-[50px] h-[20px] rounded"></Skeleton>;
         }
         if (isLoading) {
