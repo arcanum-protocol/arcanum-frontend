@@ -8,9 +8,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Address } from "viem";
 import { tohumanReadableQuantity } from "@/lib/utils";
-import { getExternalAssets } from "@/lib/multipoolUtils";
+import { getAssetPrice, getExternalAssets } from "@/lib/multipoolUtils";
 import { ExternalAsset } from "@/types/multipoolAsset";
 import { useState } from "react";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import { getAssetInfo } from "@/api/arcanum";
 
 export function tohumanReadableCashback(number: BigNumber, etherPrice: number | undefined, decimals = 18) {
     if (etherPrice === undefined) {
@@ -29,6 +31,23 @@ export function tohumanReadableCashback(number: BigNumber, etherPrice: number | 
 }
 
 function PfP({ logo, symbol, idealShare }: { logo: string | undefined, symbol: string, idealShare: BigNumber | undefined }) {
+    const { data: tokenInfo } = useQuery({
+        queryKey: ["token-profile", symbol],
+        queryFn: async () => {
+            const tokenInfo = await getAssetInfo(symbol);
+            return tokenInfo;
+        },
+        enabled: !!idealShare,
+        initialData: {
+            name: symbol,
+            description: "",
+            website: "",
+            twitter: "",
+            logo: logo,
+        },
+        staleTime: Infinity
+    });
+
     if (!idealShare) {
         return (
             <TableCell>
@@ -39,13 +58,31 @@ function PfP({ logo, symbol, idealShare }: { logo: string | undefined, symbol: s
 
     return (
         <TableCell>
-            <div className="flex flex-row items-center gap-2">
-                <Avatar className="w-5 h-5">
-                    <AvatarImage src={logo} />
-                    <AvatarFallback>{symbol}</AvatarFallback>
-                </Avatar>
-                <div className={`${idealShare.isEqualTo(0) ? "line-through" : ""}`}>{symbol}</div>
-            </div>
+            <HoverCard>
+                <HoverCardTrigger asChild>
+                    <div className="flex items-center space-x-2 hover:cursor-pointer hover:bg-[#1a1a1a] hover:shadow-lg rounded-lg p-2 w-16 h-4">
+                        <Avatar className="w-5 h-5">
+                            <AvatarImage src={logo} />
+                            <AvatarFallback>{symbol}</AvatarFallback>
+                        </Avatar>
+                        <div className={`${idealShare.isEqualTo(0) ? "line-through" : ""}`}>{symbol}</div>
+                    </div>
+                </HoverCardTrigger>
+                <HoverCardContent>
+                    <div className="flex flex-col items-center">
+                        <Avatar className="w-8 h-8">
+                            <AvatarImage src={logo} />
+                            <AvatarFallback>{symbol}</AvatarFallback>
+                        </Avatar>
+                        <div className="text-lg font-bold">{tokenInfo.name}</div>
+                        <div className="text-sm">{tokenInfo.description}</div>
+                        <div className="flex items-center space-x-2">
+                            <a href={tokenInfo.website} target="_blank" rel="noreferrer" className="text-blue-500">Website</a>
+                            <a href={tokenInfo.twitter} target="_blank" rel="noreferrer" className="text-blue-500">Twitter</a>
+                        </div>
+                    </div>
+                </HoverCardContent>
+            </HoverCard>
         </TableCell>
     );
 }
@@ -264,23 +301,20 @@ function Deviation({ idealShare, currentShares, token }: {
 }
 
 export const IndexAssetsBreakdown = observer(() => {
-    const { assetsIsLoading, assets, setExternalAssets, currentShares, prices, etherPrice } = useMultipoolStore();
+    const { assetsIsLoading, assets, setExternalAssets, setPrices, currentShares, prices, etherPrice } = useMultipoolStore();
 
-    const { isLoading: tokensLoading } = useQuery({
+    const { data, isLoading: tokensLoading, error } = useQuery({
         queryKey: ["external-assets"],
         queryFn: async () => {
-            const assets = await getExternalAssets();
+            const externalAssets = await getExternalAssets();
 
-            const externalAssets = assets.map((asset) => {
-                return {
-                    symbol: asset.symbol,
-                    decimals: asset.decimals,
-                    logo: asset.logoURI,
-                    address: asset.address,
-                    type: "external",
-                } as ExternalAsset;
-            });
+            const prices: Record<Address, BigNumber> = {};
+            for (const asset of externalAssets) {
+                prices[asset.address] = asset.price;
+            }
+
             setExternalAssets(externalAssets);
+            setPrices(prices);
 
             return externalAssets;
         },
@@ -288,7 +322,6 @@ export const IndexAssetsBreakdown = observer(() => {
         enabled: assetsIsLoading,
         initialData: []
     });
-
 
     if (assetsIsLoading || tokensLoading) {
         return (

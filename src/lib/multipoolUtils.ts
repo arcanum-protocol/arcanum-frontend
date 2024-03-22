@@ -1,5 +1,7 @@
+import { ExternalAsset } from "@/types/multipoolAsset";
 import { BebopToken } from "@/types/tokenlist";
 import axios from "axios";
+import BigNumber from "bignumber.js";
 import { Address } from "viem";
 
 const errors: { [key: string]: string } = {
@@ -66,18 +68,18 @@ function parseError(e: any, parse?: boolean): string | undefined {
     }
 }
 
-async function getExternalAssets() {
+async function getExternalAssets(): Promise<ExternalAsset[]> {
     const InchResponce = await axios.get(`https://api.bebop.xyz/arbitrum/v2/tokens?active_only=true`);
     const data: { [name: string]: BebopToken } = await InchResponce.data.tokens;
     
-    const assets = Object.values(data).filter((token: BebopToken) => token.priceUsd).map((token: BebopToken) => {
+    const assets: ExternalAsset[] = Object.keys(data).map((token: string) => {
         return {
-            name: token.name,
-            symbol: token.ticker,
-            address: token.chainInfo[0].contractAddress,
-            decimals: token.chainInfo[0].decimals,
-            logoURI: token.iconUrl,
-            price: token.priceUsd
+            symbol: data[token].ticker,
+            decimals: data[token].chainInfo[0].decimals,
+            logo: data[token].iconUrl,
+            address: data[token].chainInfo[0].contractAddress as Address,
+            type: "external",
+            price: new BigNumber(data[token].priceUsd)
         };
     });
 

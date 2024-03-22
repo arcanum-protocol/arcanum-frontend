@@ -1,3 +1,4 @@
+import { TokenProfile } from '@/types/arcanum';
 import { MultipoolAsset } from '@/types/multipoolAsset';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
@@ -29,6 +30,16 @@ async function getMultipool(multipoolId: string) {
         logo: logo as string,
         assets: assetsStaticData
     }
+}
+
+async function getAssetInfo(assetName: string): Promise<TokenProfile> {
+    const name = assetName.toLowerCase();
+    const responce = await fetch(`/api/profiles/${name}.yaml`);
+
+    const data = await responce.text();
+    const parsedData = yaml.parse(data);
+
+    return parsedData;
 }
 
 // continiously-call
@@ -81,7 +92,7 @@ async function getETFsPrice(mps: string[]) {
     const addressToPrice: Map<Address, number> = new Map();
 
     for (const mp of mps) {
-        const { multipool } = await getMultipool(mp);
+        const multipool = await getMultipool(mp);
         const price = await getMultipoolMarketData(multipool.address);
 
         addressToPrice.set(multipool.address.toLowerCase() as Address, price.price);
@@ -97,4 +108,4 @@ async function getETFsPrice(mps: string[]) {
     return addressToPrice;
 }
 
-export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice, fetchFarms, getETFsPrice };
+export { getMultipool, getMultipoolMarketData, getEtherPrice, getSignedPrice, fetchFarms, getETFsPrice, getAssetInfo };

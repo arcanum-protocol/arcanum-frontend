@@ -16,7 +16,6 @@ interface ExternalAsset extends BaseAsset {
 
 interface SolidAssetSpecific {
     routerAddress: string;
-    totalSupply: BigNumber;
     chainId: number;
 }
 

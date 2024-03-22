@@ -111,10 +111,6 @@ class MultipoolStore {
         this.assets = multipool.assets;
         this.name = multipool.name;
 
-        setInterval(async () => {
-            this.updateMPTotalSupply();
-        }, 30000);
-
         this.setSelectedTabWrapper("mint");
 
         this.multipoolIsLoading = false;
@@ -130,6 +126,10 @@ class MultipoolStore {
         this.slippage = value;
     }
 
+    get isExactInput() {
+        return this.mainInput === "in" ? true : false;
+    }
+
     get multipoolAddress(): Address {
         return this.multipool.address;
     }
@@ -142,7 +142,6 @@ class MultipoolStore {
             address: this.multipool.address,
             type: "solid",
             routerAddress: this.router.address,
-            totalSupply: this.totalSupply,
             chainId: this.chainId,
             price: this.price,
         } as SolidAsset;
@@ -199,16 +198,6 @@ class MultipoolStore {
         });
     }
 
-    updateMPTotalSupply() {
-        if (this.multipool.address === undefined) return;
-
-        this.multipool.read.totalSupply().then((totalSupply) => {
-            runInAction(() => {
-                this.totalSupply = new BigNumber(totalSupply.toString());
-            });
-        });
-    }
-
     setTokens(_assets: MultipoolAsset[]) {
         if (_assets.length === 0) return;
 
@@ -224,7 +213,9 @@ class MultipoolStore {
     setPrices(_prices: Record<Address, BigNumber> | undefined) {
         if (_prices === undefined) return;
         runInAction(() => {
-            this.prices = _prices;
+            for (const [address, price] of Object.entries(_prices)) {
+                this.prices[address as Address] = price;
+            }
         });
 
         return this.prices;
@@ -920,17 +911,17 @@ class MultipoolStore {
 
         const thisPrice = direction == "Send" ? this.inputAsset?.address : this.outputAsset?.address;
 
+        if (thisPrice === undefined) return BigNumber(0);
+
         // check if address is multipool address
         if (thisPrice === this.multipool.address.toString()) {
             const bigintPrice = BigInt(this.price?.toFixed() ?? "0");
             return fromX96(bigintPrice, 18) ?? BigNumber(0);
         }
-        const asset = [...this.assets, ...this.externalAssets].find((asset) => asset.address === thisPrice) as MultipoolAsset | ExternalAsset;
 
-        if (asset === undefined) return BigNumber(0);
-        if (this.prices[asset.address] === undefined) return BigNumber(0);
+        if (this.prices[thisPrice] === undefined) return BigNumber(0);
 
-        return this.prices[asset.address]!;
+        return this.prices[thisPrice];
     }
 
     hrQuantity(direction: "Send" | "Receive"): string {
@@ -960,10 +951,6 @@ class MultipoolStore {
         runInAction(() => {
             this.transactionCost = gas * gasPrice;
         });
-    }
-
-    get isExactInput() {
-        return this.mainInput === "in" ? true : false;
     }
 }
 
