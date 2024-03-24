@@ -123,10 +123,6 @@ export const MainInner = observer(() => {
         initialData: []
     });
 
-    useEffect(() => {
-        refetch();
-    }, [multipool]);
-
     const { refetch: updatePrice } = useQuery({
         queryKey: ["price-updater"],
         queryFn: async () => {
@@ -164,7 +160,6 @@ export const MainInner = observer(() => {
         enabled: assetsIsLoading
     });
 
-
     const { refetch: updateEtherPrice } = useQuery({
         queryKey: ["ether-price"],
         queryFn: async () => {
@@ -177,6 +172,7 @@ export const MainInner = observer(() => {
     });
 
     useEffect(() => {
+        refetch();
         updatePrice();
         updateEtherPrice();
     }, [multipoolAddress]);
@@ -241,7 +237,7 @@ export const Head = observer(() => {
     const { multipoolId, multipoolIsLoading: _mpLoading, multipoolAddress, logo } = useMultipoolStore();
     const { toast } = useToast();
 
-    const { data: multipool } = useQuery({
+    const { data: multipool, refetch } = useQuery({
         queryKey: ["multipoolMarketData"],
         queryFn: async () => {
             if (!multipoolAddress) {
@@ -252,6 +248,10 @@ export const Head = observer(() => {
         refetchInterval: 15000,
         retry: () => { return multipoolAddress != undefined },
     });
+
+    useEffect(() => {
+        refetch();
+    }, [multipoolAddress]);
 
     function getColor(change: string | undefined): string {
         if (change == undefined) {
