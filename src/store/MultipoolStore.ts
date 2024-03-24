@@ -581,7 +581,7 @@ class MultipoolStore {
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
         if (userAddress === undefined) throw new Error("User address is undefined");
-        if (!this.inputQuantity) return;
+        if (!this.inputQuantity) throw new Error("Input quantity is undefined");
         if (this.inputAsset === undefined) throw new Error("Input asset is undefined");
         if (this.inputAsset.address === undefined) throw new Error("Input asset address is undefined");
 
@@ -592,28 +592,28 @@ class MultipoolStore {
         if (feeData === undefined) throw new Error("feeData is undefined");
 
         const selectedAssets = this.uniswapCreateSelectedAssets(feeData.calls);
-        if (selectedAssets === undefined) return;
+        if (selectedAssets === undefined) throw new Error("selectedAssets is undefined");
 
         // remove input asset from selected assets
         const _selectedAssets = selectedAssets.filter((asset) => asset.assetAddress !== this.inputAsset?.address);
-        
+
         const _ethFee = feeData.fee < 0n ? 0n : feeData.fee;
         const ethFeeBG = new BigNumber(_ethFee.toString()).multipliedBy(1.01).toFixed(0);
         const ethFee = BigInt(ethFeeBG);
 
         const callsBeforeUniswap = feeData.calls.map((call) => {
-            const data = encodeAbiParameters([{ name: "target", type: "address" }, { name: "ethValue", type: "uint256" }, { name: "targetData", type: "bytes" }], 
-            [call.to as Address, 0n, call.data as Address]);
-            
+            const data = encodeAbiParameters([{ name: "target", type: "address" }, { name: "ethValue", type: "uint256" }, { name: "targetData", type: "bytes" }],
+                [call.to as Address, 0n, call.data as Address]);
+
             return {
                 callType: 2,
                 data: data,
             }
         });
-        
-        const ethValue = ethFee + BigInt(this.inputQuantity.multipliedBy(1.01).toFixed(0)!);
+
+        const ethValue = ethFee + BigInt(this.inputQuantity.multipliedBy(1.005).toFixed(0)!);
         const uniswapRouter = feeData.calls[0].to;
-        
+
         if (!isETH(this.inputAsset)) {
             const approveCall = createApproveCall(this.inputAsset.address, uniswapRouter as Address, this.inputQuantity);
             callsBeforeUniswap.unshift(approveCall);
@@ -650,11 +650,10 @@ class MultipoolStore {
         } as const;
 
         const gas = await this.router.estimateGas.swap(request, value);
-
         const gasPrice = await arbitrumPublicClient?.getGasPrice();
-        this.updateGas(gas, gasPrice!);
-
         await this.router.simulate.swap(request, value);
+
+        this.updateGas(gas, gasPrice!);
 
         return {
             request: request,
