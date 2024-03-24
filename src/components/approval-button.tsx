@@ -101,7 +101,8 @@ const BebopSwap = observer(() => {
     const { checkSwapBebop, inputQuantity, inputAsset, transactionCost, exchangeError, swapIsLoading } = useMultipoolStore();
 
     const { data: swapData, refetch } = useQuery({
-        queryKey: ["bebop-swap"], queryFn: async () => {
+        queryKey: ["bebop-swap"],
+        queryFn: async () => {
             return await checkSwapBebop(address);
         }
     });
@@ -164,13 +165,22 @@ const UniswapSwap = observer(() => {
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
-    const { data: swapAction, refetch } = useQuery({
+    const { data: swapAction, refetch, failureReason } = useQuery({
         queryKey: ["uniswap-swap"],
         queryFn: async () => {
-            return await swapUniswap(address);
+            if (inputQuantity) {
+                return await swapUniswap(address);
+            } else {
+                return {
+                    request: undefined,
+                    value: 0
+                }
+            }
         },
-        refetchInterval: 10000,
-        enabled: inputQuantity !== undefined && !inputQuantity.isZero()
+        refetchInterval: 30000,
+        staleTime: 9000,
+        enabled: false,
+        retry: true,
     });
 
     useEffect(() => {
@@ -205,6 +215,11 @@ const UniswapSwap = observer(() => {
 
     function CallSwap() {
         if (swapAction) {
+            toast({
+                title: 'Transaction being prepared',
+                description: "Please wait for the transaction to be prepared."
+            });
+
             writeContract({
                 abi: router.abi,
                 address: router.address,
@@ -221,8 +236,19 @@ const UniswapSwap = observer(() => {
         });
     }
 
-    if (exchangeError && !swapIsLoading) {
-        return <ErrorButton errorMessage={exchangeError} />
+    if (failureReason) {
+        const Error = () => {
+            console.log(failureReason.message);
+            if (failureReason.message.includes("transfer amount exceeds balance")) {
+                return "Insufficient Balance";
+            }
+            if (failureReason.message.includes("CallFailed")) {
+                return "Call Failed";
+            } else {
+                return failureReason.message;
+            }
+        }
+        return <ErrorButton errorMessage={Error()} />
     }
 
     if (!address) {
@@ -280,7 +306,8 @@ const ArcanumSwap = observer(() => {
         initialData: {
             request: undefined,
             value: 0n
-        }
+        },
+        retry: true,
     });
 
     useEffect(() => {

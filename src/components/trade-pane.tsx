@@ -82,7 +82,6 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         const price = getItemPrice(text);
 
         if (theAsset?.type === 'external') {
-            console.log("quantity", quantity, qnt, BigNumber(qnt).toString(), BigNumber(qnt).multipliedBy(price).toString());
             return BigNumber(qnt).multipliedBy(price).toFixed(4);
         }
 

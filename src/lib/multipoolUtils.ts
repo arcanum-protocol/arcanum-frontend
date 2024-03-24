@@ -51,7 +51,7 @@ function parseError(e: any, parse?: boolean): string | undefined {
         return (e as string).toString();
     }
     let errorString: string = (e as Error).toString();
-    
+
     if (errorString == "Error: Amount too small") return "Amount too small";
     if (errorString.includes("transfer amount exceeds balance")) return "Insufficient Balance";
 
@@ -71,17 +71,19 @@ function parseError(e: any, parse?: boolean): string | undefined {
 async function getExternalAssets(): Promise<ExternalAsset[]> {
     const InchResponce = await axios.get(`https://api.bebop.xyz/arbitrum/v2/tokens?active_only=true`);
     const data: { [name: string]: BebopToken } = await InchResponce.data.tokens;
-    
-    const assets: ExternalAsset[] = Object.keys(data).map((token: string) => {
-        return {
-            symbol: data[token].ticker,
-            decimals: data[token].chainInfo[0].decimals,
-            logo: data[token].iconUrl,
-            address: data[token].chainInfo[0].contractAddress as Address,
-            type: "external",
-            price: new BigNumber(data[token].priceUsd)
-        };
-    });
+
+    const assets: ExternalAsset[] = Object.keys(data)
+        .filter((token: string) => data[token].priceUsd != undefined)
+        .map((token: string) => {
+            return {
+                symbol: data[token].ticker,
+                decimals: data[token].chainInfo[0].decimals,
+                logo: data[token].iconUrl,
+                address: data[token].chainInfo[0].contractAddress as Address,
+                type: "external",
+                price: new BigNumber(data[token].priceUsd)
+            };
+        });
 
     return assets;
 }
