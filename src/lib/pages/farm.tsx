@@ -75,9 +75,7 @@ const projectedAPY = (rpb: bigint, _decimals: number, tvl: bigint, userStake: bi
     const userStakeFormatted = BigNumber(userStake.toString()).dividedBy(decimals);
 
     const apy = rawApy.multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
-
-    const userShare = userStakeFormatted.dividedBy(deposited);
-    const userApy = apy.multipliedBy(userShare);
+    const userApy = apy.multipliedBy(userStakeFormatted);
 
     if (userApy.isZero() || userApy.isNaN()) {
         return {
