@@ -379,7 +379,7 @@ function Claim({ id, address }: { id: number, address: Address }) {
 
     return (
         <div className="w-full flex flex-col mt-2 gap-2">
-            <div className="flex items-center gap-1 h-[90px]">
+            <div className="flex items-center gap-1 h-[46px]">
             </div>
 
             {userAddress ?
@@ -394,7 +394,36 @@ function Claim({ id, address }: { id: number, address: Address }) {
                     if (amountToClaim.rd === 0n) {
                         return;
                     }
-                    
+
+                    await writeContractAsync({
+                        address: FarmsConatractInstance.address,
+                        abi: FarmsConatractInstance.abi,
+                        functionName: "withdraw",
+                        args: [
+                            BigInt(id),
+                            BigInt(0),
+                            true,
+                        ],
+                    })
+                }}>
+                    <p style={{ margin: "10px" }}>Compound</p>
+                </Button>
+                : <ConnectWallet />
+            }
+
+            {userAddress ?
+
+                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                    if (!userAddress) {
+                        return;
+                    }
+                    if (!amountToClaim) {
+                        return;
+                    }
+                    if (amountToClaim.rd === 0n) {
+                        return;
+                    }
+
                     await writeContractAsync({
                         address: FarmsConatractInstance.address,
                         abi: FarmsConatractInstance.abi,
@@ -408,7 +437,8 @@ function Claim({ id, address }: { id: number, address: Address }) {
                 }}>
                     <p style={{ margin: "10px" }}>Claim</p>
                 </Button>
-                : <ConnectWallet />}
+                : <ConnectWallet />
+            }
         </div >
     )
 }
@@ -470,27 +500,27 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
         queryKey: ['staked', id, userAddress],
         queryFn: async () => {
             if (userAddress) {
-                return await FarmsConatractInstance.read.getUser([BigInt(id), userAddress]);
+                return {
+                    amount: (await FarmsConatractInstance.read.getUser([BigInt(id), userAddress])).amount,
+                    rd: (await FarmsConatractInstance.read.availableRewards([BigInt(id), userAddress]))[0],
+                }
             }
             return {
                 amount: 0n,
                 rd: 0n,
-                accRewards: 0n,
             };
         },
         initialData: {
             amount: 0n,
             rd: 0n,
-            accRewards: 0n,
-        },
-        refetchInterval: 10000,
+        }
     });
 
     const setTab = (value: 'stake' | 'unstake' | 'claim') => {
         setTabPrivate(value);
     }
 
-    const tvl = BigNumber(tvlRaw.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 0).dividedBy(BigNumber(10).pow(18)).toFixed(2);
+    const tvl = BigNumber(tvlRaw.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 1).dividedBy(BigNumber(10).pow(18)).toFixed(2);
     const apy = apyFromRPB(apyRaw, price.decimals, tvlRaw);
     const userApy = projectedAPY(apyRaw, price.decimals, tvlRaw, staked?.amount || 0n);
 
@@ -521,8 +551,6 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     function setUnclaimed(value: boolean) {
         privateSetUnclaimed(value);
     }
-
-    console.log(id, staked.rd);
 
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-full sm:w-[300px]">
