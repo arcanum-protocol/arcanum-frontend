@@ -621,6 +621,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                             </Tooltip>
                         </TooltipProvider>
                     </div>
+
                     <div className="flex flex-row justify-between">
                         <div className="text-base">Unclaimed:</div>
                         <TooltipProvider>
@@ -634,6 +635,14 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                             </Tooltip>
                         </TooltipProvider>
                     </div>
+
+                    <div className="flex flex-row select-none justify-between">
+                        <div className="text-base">Unclaimed Points:</div>
+                        {
+                            0
+                        }
+                    </div>
+
                     <div className="flex flex-row select-none justify-between">
                         <div className="text-base">Rewards:</div>
                         {
