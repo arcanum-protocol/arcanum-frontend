@@ -246,7 +246,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
                                     address: FarmsConatractInstance.address,
                                     abi: FarmsConatractInstance.abi,
                                     functionName: "deposit",
-                                    args: [BigInt(id), toContractBigint(input)],
+                                    args: [BigInt(id), toContractBigint(input), false],
                                 })
                             } else {
                                 await writeContractAsync({
@@ -360,8 +360,6 @@ function Withdraw({ id, address, icon, name, staked }: { id: number, address: Ad
                                 BigInt(id),
                                 toContractBigint(input),
                                 true,
-                                "0x0000000000000000000000000000000000000000" as Address,
-                                "0x0000000000000000000000000000000000000000" as Address,
                             ],
                         })
                     }}>
@@ -393,7 +391,7 @@ function Claim({ id, address }: { id: number, address: Address }) {
             {userAddress ?
 
                 <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
-                    if (amountToClaim?.accRewards === 0n) {
+                    if (amountToClaim?.rd === 0n) {
                         return;
                     }
                     await writeContractAsync({
@@ -404,8 +402,6 @@ function Claim({ id, address }: { id: number, address: Address }) {
                             BigInt(id),
                             BigInt(0),
                             true,
-                            "0x0000000000000000000000000000000000000000" as Address,
-                            "0x0000000000000000000000000000000000000000" as Address,
                         ],
                     })
                 }}>
@@ -598,10 +594,10 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                         <TooltipProvider>
                             <Tooltip open={unclaimed} onOpenChange={setUnclaimed}>
                                 <TooltipTrigger>
-                                    <div onClick={() => setUnclaimed(!unclaimed)} className="text-base underline decoration-dotted">{fromContractBigint(staked?.accRewards)} {price.name}</div>
+                                    <div onClick={() => setUnclaimed(!unclaimed)} className="text-base underline decoration-dotted">{fromContractBigint(staked?.rd)} {price.name}</div>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
-                                    <p>{getClaimedRewards(staked?.accRewards, price.price, 18)}$</p>
+                                    <p>{getClaimedRewards(staked?.rd, price.price, 18)}$</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -694,7 +690,17 @@ function FarmContainer() {
 
 function Farms() {
     const id = useChainId();
-    const { data, isLoading, error } = useQuery({ queryKey: ['farms'], queryFn: () => fetchFarms() });
+    const { data, isLoading, error } = useQuery({ 
+        queryKey: ['farms'], 
+        queryFn: () => fetchFarms(),
+        initialData: {
+            farms: {
+                1: {
+                    address: "0x",
+                }
+            }
+        }
+    });
 
     console.log(data)
 
@@ -706,7 +712,7 @@ function Farms() {
         return <div>Error...</div>
     }
 
-    if (data.farms[id].address == "0x") {
+    if (data.farms[id] == undefined) {
         return (
             <div>
                 Wait for updates...

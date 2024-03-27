@@ -80,9 +80,12 @@ export interface Farm {
 }
 
 async function fetchFarms() {
-    const farms = await axios.get(`https://app.arcanum.to/api/farms.yaml`);
+    const farms = await fetch(`/api/farms.yaml`);
+    const blob = await farms.blob();
+    const text = await blob.text();
+    
     // parse farms
-    const data = yaml.parse(farms.data);
+    const data = yaml.parse(text);
 
     return data as RootFarm;
 }

@@ -17,6 +17,11 @@ export default [
         "name": "rewardAsset",
         "type": "address",
         "internalType": "address"
+      },
+      {
+        "name": "rewardAsset2",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -39,7 +44,12 @@ export default [
     ],
     "outputs": [
       {
-        "name": "rewards",
+        "name": "reward",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "reward2",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -59,6 +69,11 @@ export default [
         "name": "depositAmount",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "compoundRewards",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "outputs": [],
@@ -96,6 +111,11 @@ export default [
             "internalType": "address"
           },
           {
+            "name": "rewardAsset2",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
             "name": "rpb",
             "type": "uint256",
             "internalType": "uint256"
@@ -107,6 +127,21 @@ export default [
           },
           {
             "name": "availableRewards",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "rpb2",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "arps2",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "availableRewards2",
             "type": "uint256",
             "internalType": "uint256"
           },
@@ -152,7 +187,7 @@ export default [
             "internalType": "uint256"
           },
           {
-            "name": "accRewards",
+            "name": "rd2",
             "type": "uint256",
             "internalType": "uint256"
           }
@@ -278,6 +313,29 @@ export default [
   },
   {
     "type": "function",
+    "name": "updateDistribution2",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "rewardsDelta",
+        "type": "int256",
+        "internalType": "int256"
+      },
+      {
+        "name": "newRpb",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "upgradeTo",
     "inputs": [
       {
@@ -322,19 +380,9 @@ export default [
         "internalType": "uint256"
       },
       {
-        "name": "claimRewards",
+        "name": "compoundRewards",
         "type": "bool",
         "internalType": "bool"
-      },
-      {
-        "name": "callback",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "callbackData",
-        "type": "bytes",
-        "internalType": "bytes"
       }
     ],
     "outputs": [],
@@ -482,14 +530,8 @@ export default [
   },
   {
     "type": "error",
-    "name": "CallbackFailed",
-    "inputs": [
-      {
-        "name": "reason",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ]
+    "name": "CantCompound",
+    "inputs": []
   },
   {
     "type": "error",
