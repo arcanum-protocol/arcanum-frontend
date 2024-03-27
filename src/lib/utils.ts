@@ -59,3 +59,10 @@ export function tohumanReadableQuantity(number: BigNumber, decimals = 18) {
       return value.toFixed(3);
   }
 }
+
+export function parseError(error: any) {
+  const strError = error.toString();
+  if (strError.includes("DeviationExceedsLimit")) {
+    return "DeviationExceedsLimit";
+  }
+}

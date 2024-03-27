@@ -28,10 +28,6 @@ const poolsAddress = [
     "0x4d834a9b910e6392460ebcfb59f8eef27d5c19ff",   // PREMIA/ETH
     "0xdbaeb7f0dfe3a0aafd798ccecb5b22e708f7852c",   // PENDLE/ETH
     "0x35218a1cbac5bbc3e57fd9bd38219d37571b3537",   // wstETH/ETH
-    "0x681C2a4D924223563DbE35Da64E9a0f6A4967FAe",   // BTC.b/ETH
-    "0x468b88941e7Cc0B88c1869d68ab6b570bCEF62Ff",  // LINK/ETH
-    "0x809e6D99967164f4e212bf96953712F609E1E22b",  // JOE/ETH
-    "0xa8BD646F72Ea828Ccbc40Fa2976866884f883409",  // STG/ETH
 ];
 
 const externalTokens: Array<Address> = [
@@ -45,7 +41,8 @@ const externalTokens: Array<Address> = [
     "0x2297aEbD383787A160DD0d9F71508148769342E3",
     "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4",
     "0x371c7ec6D8039ff7933a2AA28EB827Ffe1F52f07",
-    "0x6694340fc020c5E6B96567843da2df01b2CE1eb6"
+    "0x6694340fc020c5E6B96567843da2df01b2CE1eb6",
+    "0x5979D7b546E38E414F7E9822514be443A4800529"
 ];
 
 export interface Calls {
@@ -54,6 +51,7 @@ export interface Calls {
     value: string;
     asset: Address;
     amountOut: BigNumber;
+    note: string;
 }
 
 async function getAllPools() {
@@ -91,7 +89,9 @@ async function getAllPools() {
     const rawResult = await arbitrumPublicClient.multicall({
         contracts: contracts.flat(),
     });
-    const decimals = await getDecimals({});
+    const decimals = await getDecimals({
+        addresses: externalTokens,
+    });
 
     for (let i = 0; i < rawResult.length; i = i + 5) {
         const token0 = rawResult[i].status === "success" ? rawResult[i + 0].result as Address : undefined;
@@ -135,6 +135,10 @@ async function getAllPools() {
     return pools;
 }
 
+function Same(a: Address | string, b: Address | string): boolean {
+    return a.toLocaleLowerCase() === b.toLocaleLowerCase();
+} 
+
 function createRoute(pools: Array<Pool>, inputToken: Token | Ether, outputToken: Token) {
     if (inputToken.equals(outputToken)) {
         throw new Error("Input token equals output token");
@@ -143,6 +147,21 @@ function createRoute(pools: Array<Pool>, inputToken: Token | Ether, outputToken:
     if (inputToken.isNative) {
         const pool = pools.find(pool => {
             return pool.token0.equals(outputToken) || pool.token1.equals(outputToken);
+        });
+
+        if (!pool) {
+            throw new Error("Pool not found");
+        }
+
+        const route = new Route([pool], inputToken, outputToken);
+
+        return route;
+    }
+
+    // easy case for weth as output
+    if (outputToken.address.toLocaleLowerCase() === ("0x82aF49447D8a07e3bd95BD0d56f35241523fBab1".toLocaleLowerCase())) {
+        const pool = pools.find(pool => {
+            return pool.token0.equals(inputToken) || pool.token1.equals(inputToken);
         });
 
         if (!pool) {
@@ -172,10 +191,10 @@ function createRoute(pools: Array<Pool>, inputToken: Token | Ether, outputToken:
     // so we need to filter them
     const poolsUsed = pools.filter(pool => {
         return (
-            pool.token0.equals(inputToken) ||
-            pool.token1.equals(inputToken) ||
-            pool.token0.equals(outputToken) ||
-            pool.token1.equals(outputToken)
+            Same(pool.token0.address, inputToken.address) ||
+            Same(pool.token1.address, inputToken.address) ||
+            Same(pool.token0.address, outputToken.address) ||
+            Same(pool.token1.address, outputToken.address)
         );
     });
 
@@ -276,6 +295,45 @@ async function getDecimals({ addresses }: { addresses?: Array<Address> }) {
     return cacheDecimals;
 }
 
+async function swapToCalldata(inputAsset: Address, outputAsset: Address, inputAmount: BigNumber, multipoolAddress: Address): Promise<Calls> {
+    const decimals = await getDecimals({ addresses: [inputAsset, outputAsset] });
+    const pools = await getAllPools();
+
+    const inputDecimals = decimals.get(inputAsset.toLocaleLowerCase() as Address);
+    if (!inputDecimals) {
+        throw new Error("Decimals not found");
+    }
+    const inputToken = inputAsset.toLocaleLowerCase() != "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE".toLocaleLowerCase() ? new Token(42161, inputAsset, inputDecimals) : new Token(42161, "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", inputDecimals);
+
+    const outputDecimals = decimals.get(outputAsset.toLocaleLowerCase() as Address);
+    if (!outputDecimals) {
+        throw new Error("Decimals not found");
+    }
+    const outputToken = new Token(42161, outputAsset, outputDecimals);
+
+    const swapRoute = createRoute(pools, inputToken, outputToken);
+
+    const { amountOut } = await getAmountOut(swapRoute, inputAmount.multipliedBy(0.995));
+    const trade = createTrade(swapRoute, inputAmount, amountOut);
+
+    const options: SwapOptions = {
+        slippageTolerance: new Percent(70, 10_000), // 50 bips, or 0.50%
+        deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
+        recipient: multipoolAddress,
+    }
+
+    const methodParameters = SwapRouter.swapCallParameters([trade], options);
+
+    return {
+        data: methodParameters.calldata,
+        to: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+        value: methodParameters.value,
+        asset: outputAsset,
+        amountOut: amountOut,
+        note: `Swap ${inputAmount.toString()} ${inputToken.symbol} to ${amountOut.toString()} ${outputToken.symbol}`,
+    };
+}
+
 async function Create(targetShares: Map<Address, BigNumber>, shares: Map<Address, BigNumber>, inputAsset: Address, amountIn: BigNumber, multipoolAddress: Address) {
     if (amountIn == undefined) {
         throw new Error("AmountIn is undefined");
@@ -346,6 +404,7 @@ async function Create(targetShares: Map<Address, BigNumber>, shares: Map<Address
             value: methodParameters.value,
             asset: address,
             amountOut: amountOut,
+            note: `Swap ${amountInShare.toString()} ${inputToken.symbol} to ${amountOut.toString()} ${outputToken.symbol}`,
         };
 
         callDatas.push(tx);
@@ -357,4 +416,4 @@ async function Create(targetShares: Map<Address, BigNumber>, shares: Map<Address
     }
 }
 
-export { Create }
+export { Create, swapToCalldata }
