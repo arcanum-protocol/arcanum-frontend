@@ -26,8 +26,8 @@ class FarmsStore {
     addressToIds = new Map<Address, string>([
         ["0x4810e5a7741ea5fdbb658eda632ddfac3b19e3c6", "arbi"],
         ["0xbb5b3d9f6b57077b4545ea9879ee7fd0bdb08db0", "spi"],
-        ["0x961fad7932e95018bac25ee3c7459c7002480671", "arbi"],
-        ["0xa67554edfa8be9bf28d2086bdc1eaf5ac27bd008", "spi"],
+        ["0xc13a9dfea919248974113c901badc87e15e3f2b4", "arbi"],
+        ["0xc3222af6b11ffb337abf8d8b0f2755409d734157", "spi"],
     ]);
 
     mpIdToPrice: Map<Address, number> = new Map();
