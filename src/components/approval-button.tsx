@@ -4,7 +4,7 @@ import { useAccount, useSimulateContract, useSignTypedData, useWriteContract } f
 import ERC20 from "@/abi/ERC20";
 import { useMultipoolStore } from "@/contexts/StoreContext";
 import { ActionType } from "@/store/MultipoolStore";
-import { fromBigNumber } from "@/lib/utils";
+import { fromBigNumber, parseError } from "@/lib/utils";
 import { useEffect } from "react";
 import { toObject } from "@/types/bebop";
 import { submitOrder } from "@/api/bebop";
@@ -161,7 +161,7 @@ const BebopSwap = observer(() => {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swapUniswap, inputQuantity, inputAsset, router, exchangeError, swapIsLoading } = useMultipoolStore();
+    const { swapUniswap, inputQuantity, inputAsset, router, swapIsLoading } = useMultipoolStore();
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
@@ -278,7 +278,7 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { swapMultipool, mainInput, inputQuantity, outputQuantity, inputAsset, router, exchangeError, swapIsLoading } = useMultipoolStore();
+    const { uniswapFromMultipool, swapMultipool, mainInput, inputQuantity, outputQuantity, inputAsset, router, swapIsLoading } = useMultipoolStore();
 
     const { data: tokenData, isLoading: balanceIsLoading } = useToken({
         address: inputAsset?.address,
@@ -288,21 +288,32 @@ const ArcanumSwap = observer(() => {
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
-    const { data: swapAction, isLoading: swapActionIsLoading, refetch } = useQuery({
+    const { data: swapAction, isLoading: swapActionIsLoading, refetch, failureReason } = useQuery({
         queryKey: ["arcanum-swap"],
         queryFn: async () => {
-            const data = await swapMultipool(address);
+            if (!inputQuantity && mainInput === 'in') {
+                throw new Error("No Swap Action");
+            }
+            if (!outputQuantity && mainInput === 'out') {
+                throw new Error("No Swap Action");
+            }
+
+            try {
+                return await swapMultipool(address);
+            } catch (error) {
+                if (parseError(error) === "DeviationExceedsLimit") {
+                    return await uniswapFromMultipool(address);
+                }
+            }
 
             if (tokenData?.balanceRaw && inputQuantity) {
                 if (tokenData?.balanceRaw < inputQuantityBigInt) {
                     throw new Error("Insufficient Balance");
                 }
             }
-
-            return data;
         },
         refetchInterval: 15000,
-        enabled: inputQuantityBigInt > 0n,
+        enabled: false,
         initialData: {
             request: undefined,
             value: 0n
@@ -347,19 +358,36 @@ const ArcanumSwap = observer(() => {
     });
 
     function CallSwap() {
-        if (swapAction.request === undefined) return;
-
-        writeContract({
-            abi: router.abi,
-            address: router.address,
-            functionName: "swap",
-            args: swapAction.request,
-            value: swapAction.request[1].ethValue,
-        });
+        if (swapAction) {
+            writeContract({
+                abi: router.abi,
+                address: router.address,
+                functionName: "swap",
+                args: swapAction.request,
+                value: swapAction.value,
+            });
+        }
     }
 
-    if (exchangeError && !swapIsLoading) {
-        return <ErrorButton errorMessage={(exchangeError)} />
+    if (failureReason) {
+        if (failureReason.message.includes("No Swap Action")) {
+            return <DefaultButton />
+        }
+        const Error = () => {
+            console.log(failureReason.message);
+            if (failureReason.message.includes("DeviationExceedsLimit")) {
+                return "Deviation Exceeds Limit";
+            }
+            if (failureReason.message.includes("transfer amount exceeds balance")) {
+                return "Insufficient Balance";
+            }
+            if (failureReason.message.includes("CallFailed")) {
+                return "Call Failed";
+            } else {
+                return failureReason.message;
+            }
+        }
+        return <ErrorButton errorMessage={Error()} />
     }
 
     if (!address) {
