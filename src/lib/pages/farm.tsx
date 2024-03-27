@@ -230,7 +230,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
 
             <div className="w-full">
                 {userAddress ?
-                    <Button className={`w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent ${(insufficientBalance ? "border-[#ff0000]" : "border-[#292524]")}`} disabled={insufficientBalance} onClick={async () => {
+                    <Button className={`w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent ${(insufficientBalance ? "border-[#ff0000]" : "border-[#292524]")}`} disabled={insufficientBalance || (data.allowance ?? 0n) == 0n} onClick={async () => {
                         try {
                             if (input === "") {
                                 return;
@@ -255,7 +255,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
                             console.log(e)
                         }
                     }}>
-                        <p style={{ margin: "10px" }}>{data.allowance ?? 0n < toContractBigint(input) ? "Stake" : "Approve"}</p>
+                        <p style={{ margin: "10px" }}>{data.allowance ?? 0n < toContractBigint(input) ? "Stake" : "Enter Amount"}</p>
                     </Button>
                     : <ConnectWallet />}
             </div >
