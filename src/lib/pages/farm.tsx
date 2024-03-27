@@ -359,7 +359,7 @@ function Withdraw({ id, address, icon, name, staked }: { id: number, address: Ad
                             args: [
                                 BigInt(id),
                                 toContractBigint(input),
-                                true,
+                                false,
                             ],
                         })
                     }}>
@@ -391,16 +391,23 @@ function Claim({ id, address }: { id: number, address: Address }) {
             {userAddress ?
 
                 <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
-                    if (amountToClaim?.rd === 0n) {
+                    if (!userAddress) {
                         return;
                     }
+                    if (!amountToClaim) {
+                        return;
+                    }
+                    if (amountToClaim.rd === 0n) {
+                        return;
+                    }
+                    console.log(amountToClaim.rd)
                     await writeContractAsync({
                         address: FarmsConatractInstance.address,
                         abi: FarmsConatractInstance.abi,
                         functionName: "withdraw",
                         args: [
                             BigInt(id),
-                            BigInt(0),
+                            BigInt(amountToClaim.rd),
                             true,
                         ],
                     })
@@ -515,16 +522,12 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
 
     const [stakedTooltip, privateSetStakedTooltip] = useState(false);
     function setStakedTooltip(value: boolean) {
-        if (userAddress) {
-            privateSetStakedTooltip(value);
-        }
+        privateSetStakedTooltip(value);
     }
 
     const [unclaimed, privateSetUnclaimed] = useState(false);
     function setUnclaimed(value: boolean) {
-        if (userAddress) {
-            privateSetUnclaimed(value);
-        }
+        privateSetUnclaimed(value);
     }
 
     return (
@@ -697,8 +700,8 @@ function FarmContainer() {
 
 function Farms() {
     const id = useChainId();
-    const { data, isLoading, error } = useQuery({ 
-        queryKey: ['farms'], 
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['farms'],
         queryFn: () => fetchFarms(),
         initialData: {
             farms: {
