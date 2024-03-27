@@ -42,8 +42,18 @@ const Content: { [key: string]: string } = {
 };
 
 function getClaimedRewards(rewards: bigint, decimals: number) {
+    console.log(rewards, decimals);
+    if (rewards === 0n) {
+        return "0";
+    }
     const decimalsBN = BigNumber(10).pow(decimals);
     const rewardsBN = BigNumber(rewards.toString()).dividedBy(decimalsBN);
+    if (rewardsBN.isZero()) {
+        return "0";
+    }
+    if (rewardsBN.isNaN()) {
+        return "0";
+    }
     return rewardsBN.toFixed(2);
 }
 
@@ -502,19 +512,21 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
             if (userAddress) {
                 return {
                     amount: (await FarmsConatractInstance.read.getUser([BigInt(id), userAddress])).amount,
-                    rd: (await FarmsConatractInstance.read.availableRewards([BigInt(id), userAddress]))[0],
+                    rd: await FarmsConatractInstance.read.availableRewards([BigInt(id), userAddress]),
                 }
             }
             return {
                 amount: 0n,
-                rd: 0n,
+                rd: [0n, 0n],
             };
         },
         initialData: {
             amount: 0n,
-            rd: 0n,
+            rd: [0n, 0n],
         }
     });
+
+    console.log("staked", staked);
 
     const setTab = (value: 'stake' | 'unstake' | 'claim') => {
         setTabPrivate(value);
@@ -551,6 +563,8 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     function setUnclaimed(value: boolean) {
         privateSetUnclaimed(value);
     }
+
+    console.log("0+1", getClaimedRewards(0n, 18));
 
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-full sm:w-[300px]">
@@ -627,10 +641,10 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                         <TooltipProvider>
                             <Tooltip open={unclaimed} onOpenChange={setUnclaimed}>
                                 <TooltipTrigger>
-                                    <div onClick={() => setUnclaimed(!unclaimed)} className="text-base underline decoration-dotted">{fromContractBigint(staked?.rd)} {price.name}</div>
+                                    <div onClick={() => setUnclaimed(!unclaimed)} className="text-base underline decoration-dotted">{fromContractBigint(staked?.rd[0])} {price.name}</div>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
-                                    <p>{getClaimedRewards(staked?.rd, 18)}$</p>
+                                    <p>{getClaimedRewards(staked?.rd[0], 18)}$</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -639,7 +653,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                     <div className="flex flex-row select-none justify-between">
                         <div className="text-base">Unclaimed Points:</div>
                         {
-                            0
+                            getClaimedRewards(staked?.rd[1], 18)
                         }
                     </div>
 
@@ -742,8 +756,6 @@ function Farms() {
             }
         }
     });
-
-    console.log(data)
 
     if (isLoading) {
         return <div>Loading...</div>
