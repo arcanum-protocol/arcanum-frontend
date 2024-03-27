@@ -476,17 +476,20 @@ class MultipoolStore {
             amount: BigInt("-1000000000000000000")
         });
 
+        const inputAssetCurrentShare = this.currentShares.data.get(this.inputAsset.address);
+        if (inputAssetCurrentShare === undefined) throw new Error("Input asset current share is undefined");
+
         for (const asset of this.assets) {
             if (asset.address === undefined) throw new Error("Asset address is undefined");
             if (asset.idealShare === undefined) throw new Error("Ideal share is undefined");
-            targetShares[asset.address] = asset.idealShare.multipliedBy(0.95);
+            targetShares[asset.address] = asset.idealShare;
         }
 
         // So-o-o, for example for $SPI we have BTC, USDT, wstETH, and we want to use Uniswap for mint swaps, BUT we want it from WBTC
         // and here is deal - we left target share % of those WBTC tokens, then swap unused WBTC to WETH, and then swap WETH to USDT, wstETH
 
         // amount that will be just simply transfered to Multipool
-        const leftInputAssetPersent = targetShares[this.inputAsset.address];
+        const leftInputAssetPersent = inputAssetCurrentShare.minus(targetShares[this.inputAsset.address]);
 
         // remove input asset from target shares
         delete targetShares[this.inputAsset.address];
