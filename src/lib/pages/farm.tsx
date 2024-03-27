@@ -15,7 +15,7 @@ import { observer } from "mobx-react-lite";
 import type { Farm as FarmType } from "@/store/FarmsStore";
 import { useToken } from "@/hooks/useToken";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccount, useChainId, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useChainId, usePublicClient, useReadContract, useWriteContract } from "wagmi";
 import BigNumber from "bignumber.js";
 import ERC20 from "@/abi/ERC20";
 import { readContract } from "@wagmi/core";
@@ -414,6 +414,7 @@ function Claim({ id, address }: { id: number, address: Address }) {
 
 const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }: { id: number, address: Address, tvl: bigint, apy: bigint, rewardAddress: Address }) => {
     const { addressToIds, FarmsConatractInstance, mpIdToPrice } = useFarmsStore();
+    const publicClient = usePublicClient();
     const { address: userAddress } = useAccount();
 
     const lowAddress = address.toLocaleLowerCase() as Address;
@@ -445,11 +446,17 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     const { data: price } = useQuery({
         queryKey: ['price', id],
         queryFn: async () => {
-            const arbPrice = await getAssetPrice(rewardAddress);
+            const tokenName = await publicClient?.readContract({
+                address: rewardAddress,
+                abi: ERC20,
+                functionName: "name",
+            });
+
+            // const arbPrice = await getAssetPrice(rewardAddress);
             return {
-                name: arbPrice.name,
-                price: arbPrice.price,
-                decimals: arbPrice.decimals,
+                name: tokenName?.toUpperCase(),
+                price: 1,
+                decimals: 18,
             }
         },
         refetchInterval: 10000,
