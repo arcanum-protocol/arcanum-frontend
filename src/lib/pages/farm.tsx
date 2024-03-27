@@ -316,7 +316,7 @@ function Withdraw({ id, address, icon, name, staked }: { id: number, address: Ad
         <>
             <div className="flex flex-col items-center rounded border border-[#292524] mt-2 p-2">
                 <div className="leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left w-[95%]">
-                    Withdrawn:
+                    Withdraw:
                 </div>
 
                 <div className="flex flex-row flex-start items-center justify-between w-full gap-1">
@@ -396,7 +396,7 @@ function Claim({ id, address }: { id: number, address: Address }) {
                     if (amountToClaim.rd === 0n) {
                         return;
                     }
-                    console.log("amountToClaim.rd", amountToClaim.rd)
+                    
                     await writeContractAsync({
                         address: FarmsConatractInstance.address,
                         abi: FarmsConatractInstance.abi,

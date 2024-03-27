@@ -58,7 +58,7 @@ async function fetchTokenDetails(tokenAddress: Address | undefined, publicClient
         let balanceFormatted = '0'; // Default formatted balance
         if (userAddress) {
             balanceRaw = await contract.read.balanceOf([userAddress]);
-            balanceFormatted = new BigNumber(balanceRaw.toString()).dividedBy(new BigNumber(10).pow(decimals)).toString();
+            balanceFormatted = new BigNumber(balanceRaw.toString()).dividedBy(new BigNumber(10).pow(decimals)).toFormat(4);
         }
 
         return {
