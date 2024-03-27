@@ -21,7 +21,6 @@ import ERC20 from "@/abi/ERC20";
 import { readContract } from "@wagmi/core";
 import { config } from "@/config";
 import { Address } from "viem";
-import { getAssetPrice } from "../multipoolUtils";
 import { useModal } from "connectkit";
 import { toHumanReadable } from "../format-number";
 import {
@@ -42,10 +41,10 @@ const Content: { [key: string]: string } = {
     "SPI": "Sharpe Portfolio Index includes largest crypto assets weighted via Black-Litterman model.",
 };
 
-function getClaimedRewards(rewards: bigint, price: number, decimals: number) {
+function getClaimedRewards(rewards: bigint, decimals: number) {
     const decimalsBN = BigNumber(10).pow(decimals);
     const rewardsBN = BigNumber(rewards.toString()).dividedBy(decimalsBN);
-    return rewardsBN.multipliedBy(price).toFixed(2);
+    return rewardsBN.toFixed(2);
 }
 
 export const ConnectWallet = () => {
@@ -59,15 +58,12 @@ export const ConnectWallet = () => {
 };
 
 // from rewards per block to APY
-const apyFromRPB = (rpb: bigint, price: number, _decimals: number, tvl: bigint) => {
-    if (price === 0) {
-        price = 2;
-    }
+const apyFromRPB = (rpb: bigint, _decimals: number, tvl: bigint) => {
     const decimals = BigNumber(10).pow(_decimals);
     const deposited = BigNumber(tvl.toString()).dividedBy(decimals);
     const rawApy = BigNumber(rpb.toString()).dividedBy(decimals);
 
-    const apy = rawApy.multipliedBy(price).multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited);
+    const apy = rawApy.multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited).multipliedBy(100);
     return apy.toFixed(2);
 }
 
@@ -462,14 +458,12 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
             // const arbPrice = await getAssetPrice(rewardAddress);
             return {
                 name: tokenName?.toUpperCase(),
-                price: 1,
                 decimals: 18,
             }
         },
         refetchInterval: 10000,
         initialData: {
             name: "ARB",
-            price: 0,
             decimals: 18,
         }
     });
@@ -499,7 +493,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     }
 
     const tvl = BigNumber(tvlRaw.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 0).dividedBy(BigNumber(10).pow(18)).toFixed(2);
-    const apy = apyFromRPB(apyRaw, price.price, price.decimals, tvlRaw);
+    const apy = apyFromRPB(apyRaw, price.decimals, tvlRaw);
     const userApy = projectedAPY(apyRaw, price.decimals, tvlRaw, staked?.amount || 0n);
 
     const stakedValue = {
@@ -529,6 +523,8 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     function setUnclaimed(value: boolean) {
         privateSetUnclaimed(value);
     }
+
+    console.log(id, staked.rd);
 
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-full sm:w-[300px]">
@@ -607,7 +603,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                                     <div onClick={() => setUnclaimed(!unclaimed)} className="text-base underline decoration-dotted">{fromContractBigint(staked?.rd)} {price.name}</div>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
-                                    <p>{getClaimedRewards(staked?.rd, price.price, 18)}$</p>
+                                    <p>{getClaimedRewards(staked?.rd, 18)}$</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -624,7 +620,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                                             <div className="text-base hover:text-[#a1a1a1] transition ease-in-out delay-10 inline-flex cursor-pointer underline" onClick={() => next()}>{displayApy()} {price.name}/{selectedTimeSpan}</div>
                                         </TooltipTrigger>
                                         <TooltipContent side="top" align="center" className="bg-black border text-gray-300 max-w-xs font-mono">
-                                            <p>{(Number(displayApy()) * price.price).toFixed(3)}$ {selectedTimeSpan}</p>
+                                            <p>{(Number(displayApy())).toFixed(3)}$ {selectedTimeSpan}</p>
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
