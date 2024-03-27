@@ -396,15 +396,15 @@ function Claim({ id, address }: { id: number, address: Address }) {
                     if (amountToClaim.rd === 0n) {
                         return;
                     }
-                    console.log(amountToClaim.rd)
+                    console.log("amountToClaim.rd", amountToClaim.rd)
                     await writeContractAsync({
                         address: FarmsConatractInstance.address,
                         abi: FarmsConatractInstance.abi,
                         functionName: "withdraw",
                         args: [
                             BigInt(id),
-                            BigInt(amountToClaim.rd),
-                            true,
+                            BigInt(0),
+                            false,
                         ],
                     })
                 }}>
