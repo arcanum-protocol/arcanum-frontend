@@ -112,11 +112,12 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             );
         }
 
-        const realTokenBalance = balance.balanceFormatted;
+        const decimals = BigNumber(10).pow(balance.decimals);
+        const realTokenBalance = BigNumber(balance.balanceRaw.toString()).div(decimals);
 
         // if its eth we need to left something for gas, so we substract 0.01
         if (theAsset?.address == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE") {
-            const tokenBalance = new BigNumber(realTokenBalance).minus(0.01);
+            const tokenBalance = new BigNumber(realTokenBalance.toString()).minus(0.01);
             return (
                 <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => handleInputChange(tokenBalance.toFixed(), "balance")}>
                     {Number(realTokenBalance).toFixed(4)}
@@ -125,7 +126,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         }
 
         return (
-            <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => handleInputChange(realTokenBalance, "balance")}>
+            <div className={`inline-flex font-mono text-xs cursor-pointer transition-colors text-gray-500 hover:text-gray-400`} onClick={() => handleInputChange(realTokenBalance.toString(), "balance")}>
                 {Number(realTokenBalance).toFixed(4)}
             </div>
         );
