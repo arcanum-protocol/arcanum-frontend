@@ -74,6 +74,9 @@ const apyFromRPB = (rpb: bigint, _decimals: number, tvl: bigint) => {
     const rawApy = BigNumber(rpb.toString()).dividedBy(decimals);
 
     const apy = rawApy.multipliedBy(60 * 60 * 24 * 365).dividedBy(deposited).multipliedBy(100);
+    if (apy.isZero() || apy.isNaN()) {
+        return 0;
+    }
     return apy.toFixed(2);
 }
 
@@ -490,7 +493,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
             const tokenName = await publicClient?.readContract({
                 address: rewardAddress,
                 abi: ERC20,
-                functionName: "name",
+                functionName: "symbol",
             });
 
             // const arbPrice = await getAssetPrice(rewardAddress);
@@ -525,8 +528,6 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
             rd: [0n, 0n],
         }
     });
-
-    console.log("staked", staked);
 
     const setTab = (value: 'stake' | 'unstake' | 'claim') => {
         setTabPrivate(value);
@@ -563,8 +564,6 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     function setUnclaimed(value: boolean) {
         privateSetUnclaimed(value);
     }
-
-    console.log("0+1", getClaimedRewards(0n, 18));
 
     return (
         <div className="flex flex-col max-h-fit transition-height duration-500 ease-in-out w-full sm:w-[300px]">
@@ -707,17 +706,15 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
     )
 });
 
-function FarmContainer() {
+const FarmContainer = observer(() => {
     const { FarmsConatractInstance } = useFarmsStore();
 
     const { data: farms, isLoading } = useQuery({
-        queryKey: ['farmsOnChain'], queryFn: async () => {
+        queryKey: ['farmsOnChain'], 
+        queryFn: async () => {
             const farms: FarmType[] = [];
             for (let i = 0; i < 30; i++) {
                 const farm = await FarmsConatractInstance.read.getPool([BigInt(i)]);
-                if (farm.rpb === 0n) {
-                    break;
-                }
                 if (farm.lockAsset === "0x0000000000000000000000000000000000000000") {
                     break;
                 }
@@ -741,7 +738,7 @@ function FarmContainer() {
             }
         </>
     )
-}
+});
 
 function Farms() {
     const id = useChainId();
@@ -774,6 +771,8 @@ function Farms() {
     }
 
     const farmAddress = data.farms[id].address as Address;
+
+    console.log("farmAddress", farmAddress);
 
     const farmsStore = new FarmsStore(farmAddress);
 
