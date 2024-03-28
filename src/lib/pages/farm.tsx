@@ -128,6 +128,7 @@ const fromContractBigint = (value: BigInt) => {
 }
 
 function Deposit({ id, address, icon, name, updateUserData }: { id: number, address: Address, icon: string, name: string, updateUserData: () => void }) {
+    const lowAddress = address.toLocaleLowerCase() as Address;
     const { mpIdToPrice, FarmsConatractInstance } = useFarmsStore();
     const { address: userAddress } = useAccount();
     
@@ -160,16 +161,7 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
             setInsufficientBalance(false);
         }
     }
-
-    const lowAddress = address.toLocaleLowerCase() as Address;
-    const { writeContractAsync } = useWriteContract({
-        mutation: {
-            onSuccess: (txHash) => {
-                updateUserData();
-            },
-        }
-    });
-
+    
     const { data, isLoading, refetch: checkAllowance } = useQuery({
         queryKey: ['token', lowAddress],
         queryFn: async () => {
@@ -186,14 +178,14 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
                 functionName: "balanceOf",
                 args: [userAddress],
             });
-
+            
             const allowanceRaw = await readContract(config, {
                 address: lowAddress,
                 abi: ERC20,
                 functionName: "allowance",
                 args: [userAddress, FarmsConatractInstance.address],
             });
-
+            
             return {
                 balance: balanceRaw,
                 balanceFormatted: BigNumber(balanceRaw.toString()).div(decimals).toFormat(4),
@@ -205,6 +197,15 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
             balanceFormatted: "0",
             allowance: 0n,
         },
+    });
+    
+    const { writeContractAsync } = useWriteContract({
+        mutation: {
+            onSuccess: (txHash) => {
+                updateUserData();
+                checkAllowance();
+            },
+        }
     });
 
     const text = () => {
@@ -352,8 +353,6 @@ function Withdraw({ id, address, icon, name, staked, updateUserData }: { id: num
 
     const _price = mpIdToPrice.get(lowAddress) || 0;
     const dollarValue = (Number(input) * _price).toFixed(4);
-
-    console.log(input, staked.toString(), staked.div(decimals).toFixed(4), toContractBigint(input));
 
     return (
         <>
