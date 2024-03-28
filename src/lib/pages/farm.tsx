@@ -709,7 +709,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
 const FarmContainer = observer(() => {
     const { FarmsConatractInstance } = useFarmsStore();
 
-    const { data: farms, isLoading } = useQuery({
+    const { data: farms } = useQuery({
         queryKey: ['farmsOnChain'], 
         queryFn: async () => {
             const farms: FarmType[] = [];
@@ -725,8 +725,8 @@ const FarmContainer = observer(() => {
         }
     });
 
-    if (isLoading || !farms) {
-        return <div>Loading...</div>
+    if (farms === undefined) {
+        return <Skeleton className="w-[300px] h-[448px]" />
     }
 
     return (
@@ -755,7 +755,9 @@ function Farms() {
     });
 
     if (isLoading) {
-        return <div>Loading...</div>
+        return (
+            <Skeleton className="w-[300px] h-[448px]" />
+        )
     }
 
     if (error) {
