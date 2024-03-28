@@ -491,8 +491,7 @@ class MultipoolStore {
         // amount that will be just simply transfered to Multipool
         const leftInputAssetPersent = inputAssetCurrentShare.minus(targetShares[this.inputAsset.address]);
 
-        // remove input asset from target shares
-        delete targetShares[this.inputAsset.address];
+        const halfTargetShares = targetShares[this.inputAsset.address].dividedBy(2);
 
         const inputTokenToTransfer = this.inputQuantity.multipliedBy(leftInputAssetPersent).dividedBy(100); // amount of input token that will be transfered to Multipool
         const leftInputAsset = this.inputQuantity.minus(inputTokenToTransfer); // amount of input token that will be used for swaps
@@ -505,7 +504,8 @@ class MultipoolStore {
         // now we will take each other token that we need to mint, and we will calculate how much we need to swap to get it
         const swapTo: Record<Address, BigNumber> = {};
         for (const [address, share] of Object.entries(targetShares)) {
-            const amount = share.multipliedBy(leftInputAsset).dividedBy(100);
+            if (address === this.inputAsset.address) continue;
+            const amount = share.plus(halfTargetShares).multipliedBy(leftInputAsset).dividedBy(100);
 
             swapTo[address as Address] = amount;
         }
