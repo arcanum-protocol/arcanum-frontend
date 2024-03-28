@@ -200,6 +200,17 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
         },
     });
 
+    const text = () => {
+        if (data.allowance < toContractBigint(input)) {
+            return "Approve";
+        }
+        if (toContractBigint(input) === 0n) {
+            return "Enter Amount";
+        } else {
+            return "Stake";
+        }
+    }
+
     if (isLoading || !data) {
         return (
             <>
@@ -243,12 +254,12 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
 
             <div className="w-full">
                 {userAddress ?
-                    <Button className={`w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent ${(insufficientBalance ? "border-[#ff0000]" : "border-[#292524]")}`} disabled={insufficientBalance || (data.allowance ?? 0n) == 0n} onClick={async () => {
+                    <Button className={`w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent ${(insufficientBalance ? "border-[#ff0000]" : "border-[#292524]")}`} disabled={insufficientBalance} onClick={async () => {
                         try {
                             if (input === "") {
                                 return;
                             }
-                            if (data.allowance ?? 0n < toContractBigint(input)) {
+                            if (data.allowance > toContractBigint(input)) {
                                 await writeContractAsync({
                                     address: FarmsConatractInstance.address,
                                     abi: FarmsConatractInstance.abi,
@@ -268,7 +279,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
                             console.log(e)
                         }
                     }}>
-                        <p style={{ margin: "10px" }}>{data.allowance ?? 0n < toContractBigint(input) ? "Stake" : "Enter Amount"}</p>
+                        <p style={{ margin: "10px" }}>{text()}</p>
                     </Button>
                     : <ConnectWallet />}
             </div >
