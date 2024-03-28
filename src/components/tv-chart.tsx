@@ -11,8 +11,8 @@ import { useMultipoolStore } from '@/contexts/StoreContext';
 
 export const SUPPORTED_RESOLUTIONS = { 1: "1m", 3: "3m", 5: "5m", 15: "15m", 30: "30m", 60: "1h", 720: "12h", "1D": "1d" };
 
-const GREEN = "#4ADE80";
-const RED = "#F87171";
+const GREEN = "#0B9981";
+const RED = "#F23645";
 
 export const DEFAULT_PERIOD = "12h";
 
