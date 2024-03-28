@@ -130,6 +130,8 @@ const fromContractBigint = (value: BigInt) => {
 function Deposit({ id, address, icon, name, updateUserData }: { id: number, address: Address, icon: string, name: string, updateUserData: () => void }) {
     const { mpIdToPrice, FarmsConatractInstance } = useFarmsStore();
     const { address: userAddress } = useAccount();
+    
+    const decimals = BigNumber(10).pow(18);
 
     const [input, setInput] = useState<string>('');
     const [insufficientBalance, setInsufficientBalance] = useState<boolean>(false);
@@ -184,7 +186,6 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
                 functionName: "balanceOf",
                 args: [userAddress],
             });
-            const balance = fromContractBigint(balanceRaw);
 
             const allowanceRaw = await readContract(config, {
                 address: lowAddress,
@@ -194,8 +195,8 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
             });
 
             return {
-                balance,
-                balanceFormatted: balance.toString(),
+                balance: balanceRaw,
+                balanceFormatted: BigNumber(balanceRaw.toString()).div(decimals).toFormat(4),
                 allowance: allowanceRaw,
             };
         },
@@ -228,6 +229,8 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
     const _price = mpIdToPrice.get(lowAddress) || 0;
     const dollarValue = (Number(input) * _price).toFixed(4);
 
+    console.log(data, BigNumber(data.balance.toString()).div(decimals).toFormat(18));
+
     return (
         <>
             <div className={`flex flex-col items-center rounded border mt-2 p-2`}>
@@ -255,7 +258,7 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
                 <div className="flex flex-row justify-between w-[95%]">
                     <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = {dollarValue.toString()}$</div>
                     <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left cursor-pointer"
-                        onClick={() => setInput(data.balanceFormatted)}>
+                        onClick={() => setInput(BigNumber(data.balance.toString()).div(decimals).toFormat(18))}>
                             Balance: {data.balanceFormatted}</div>
                 </div>
             </div>
@@ -350,6 +353,8 @@ function Withdraw({ id, address, icon, name, staked, updateUserData }: { id: num
     const _price = mpIdToPrice.get(lowAddress) || 0;
     const dollarValue = (Number(input) * _price).toFixed(4);
 
+    console.log(input, staked.toString(), staked.div(decimals).toFixed(4), toContractBigint(input));
+
     return (
         <>
             <div className="flex flex-col items-center rounded border border-[#292524] mt-2 p-2">
@@ -377,8 +382,8 @@ function Withdraw({ id, address, icon, name, staked, updateUserData }: { id: num
                 <div className="flex flex-row justify-between w-[95%]">
                     <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = {dollarValue.toString()}$</div>
                     <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left cursor-pointer"
-                        onClick={() => setInput(staked.div(decimals).toFixed(4))}
-                        >Staked: {staked.div(decimals).toFixed(4)}</div>
+                        onClick={() => setInput(BigNumber(staked.toString()).div(decimals).toFormat(18))}>
+                        Staked: {staked.div(decimals).toFixed(4)}</div>
                 </div>
             </div>
 
@@ -759,7 +764,8 @@ const FarmContainer = observer(() => {
             }
 
             return farms;
-        }
+        },
+        refetchInterval: 5000,
     });
 
     if (farms === undefined) {
