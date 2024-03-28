@@ -207,7 +207,7 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
     });
 
     const text = () => {
-        if (data.allowance <= toContractBigint(input)) {
+        if (data.allowance < toContractBigint(input)) {
             return "Approve";
         }
         if (toContractBigint(input) === 0n) {
