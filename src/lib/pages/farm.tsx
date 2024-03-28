@@ -127,7 +127,7 @@ const fromContractBigint = (value: BigInt) => {
     }
 }
 
-function Deposit({ id, address, icon, name }: { id: number, address: Address, icon: string, name: string }) {
+function Deposit({ id, address, icon, name, updateUserData }: { id: number, address: Address, icon: string, name: string, updateUserData: () => void }) {
     const { mpIdToPrice, FarmsConatractInstance } = useFarmsStore();
     const { address: userAddress } = useAccount();
 
@@ -160,7 +160,13 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     }
 
     const lowAddress = address.toLocaleLowerCase() as Address;
-    const { writeContractAsync } = useWriteContract();
+    const { writeContractAsync } = useWriteContract({
+        mutation: {
+            onSuccess: (txHash) => {
+                updateUserData();
+            },
+        }
+    });
 
     const { data, isLoading, refetch: checkAllowance } = useQuery({
         queryKey: ['token', lowAddress],
@@ -287,7 +293,7 @@ function Deposit({ id, address, icon, name }: { id: number, address: Address, ic
     )
 }
 
-function Withdraw({ id, address, icon, name, staked }: { id: number, address: Address, icon: string, name: string, staked: BigNumber }) {
+function Withdraw({ id, address, icon, name, staked, updateUserData }: { id: number, address: Address, icon: string, name: string, staked: BigNumber, updateUserData: () => void }) {
     const { mpIdToPrice, FarmsConatractInstance } = useFarmsStore();
     const { address: userAddress } = useAccount();
 
@@ -321,7 +327,13 @@ function Withdraw({ id, address, icon, name, staked }: { id: number, address: Ad
 
     const lowAddress = address.toLocaleLowerCase() as Address;
     const { data } = useToken({ address: lowAddress, watch: true });
-    const { writeContractAsync } = useWriteContract();
+    const { writeContractAsync } = useWriteContract({
+        mutation: {
+            onSuccess: (txHash) => {
+                updateUserData();
+            },
+        }
+    });
 
     if (!data) {
         return (
@@ -389,9 +401,15 @@ function Withdraw({ id, address, icon, name, staked }: { id: number, address: Ad
     )
 }
 
-function Claim({ id, address }: { id: number, address: Address }) {
+function Claim({ id, address, updateUserData }: { id: number, address: Address, updateUserData: () => void }) {
     const { FarmsConatractInstance } = useFarmsStore();
-    const { writeContractAsync } = useWriteContract();
+    const { writeContractAsync } = useWriteContract({
+        mutation: {
+            onSuccess: (txHash) => {
+                updateUserData();
+            },
+        }
+    });
     const { address: userAddress } = useAccount();
 
     const { data: amountToClaim } = useReadContract({
@@ -520,7 +538,7 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
         }
     });
 
-    const { data: staked } = useQuery({
+    const { data: staked, refetch } = useQuery({
         queryKey: ['staked', id, userAddress],
         queryFn: async () => {
             if (userAddress) {
@@ -537,11 +555,13 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
         initialData: {
             amount: 0n,
             rd: [0n, 0n],
-        }
+        },
+        refetchInterval: 10000,
     });
 
     const setTab = (value: 'stake' | 'unstake' | 'claim') => {
         setTabPrivate(value);
+        refetch();
     }
 
     const tvl = BigNumber(tvlRaw.toString()).multipliedBy(mpIdToPrice.get(lowAddress) || 1).dividedBy(BigNumber(10).pow(18)).toFixed(2);
@@ -696,17 +716,17 @@ const Farm = observer(({ id, address, tvl: tvlRaw, apy: apyRaw, rewardAddress }:
                         </TabsList>
                         <TabsContent className="flex flex-col gap-2" value='stake'>
 
-                            <Deposit id={id} address={address} icon={icon} name={name} />
+                            <Deposit id={id} address={address} icon={icon} name={name} updateUserData={refetch} />
 
                         </TabsContent>
                         <TabsContent className="flex flex-col gap-2" value='unstake'>
 
-                            <Withdraw id={id} address={address} icon={icon} name={name} staked={BigNumber((staked?.amount || 0n).toString())} />
+                            <Withdraw id={id} address={address} icon={icon} name={name} staked={BigNumber((staked?.amount || 0n).toString())} updateUserData={refetch} />
 
                         </TabsContent>
                         <TabsContent className="flex flex-col gap-2" value='claim'>
 
-                            <Claim id={id} address={address} />
+                            <Claim id={id} address={address} updateUserData={refetch} />
 
                         </TabsContent>
                     </Tabs>
