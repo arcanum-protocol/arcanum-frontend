@@ -129,7 +129,7 @@ const TVChartContainer = observer(() => {
             autosize: true,
             //overrides: defaultChartProps.overrides,
             overrides: {
-                "mainSeriesProperties.style": 2,
+                "mainSeriesProperties.style": 1,
                 "mainSeriesProperties.statusViewStyle.lastValueVisible": false,
                 ...defaultChartProps.overrides,
             },
