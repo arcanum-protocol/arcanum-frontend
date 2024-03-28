@@ -112,7 +112,7 @@ const toContractBigint = (value: string) => {
     if (bn.isNaN()) {
         return BigInt(0);
     }
-    return BigInt(bn.toString());
+    return BigInt(bn.decimalPlaces(0).toFixed(0).toString());
 }
 
 const fromContractBigint = (value: BigInt) => {
