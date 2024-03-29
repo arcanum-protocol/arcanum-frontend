@@ -476,9 +476,6 @@ class MultipoolStore {
             amount: BigInt("-1000000000000000000")
         });
 
-        const inputAssetCurrentShare = this.currentShares.data.get(this.inputAsset.address);
-        if (inputAssetCurrentShare === undefined) throw new Error("Input asset current share is undefined");
-
         for (const asset of this.assets) {
             if (asset.address === undefined) throw new Error("Asset address is undefined");
             if (asset.idealShare === undefined) throw new Error("Ideal share is undefined");
@@ -489,11 +486,11 @@ class MultipoolStore {
         // and here is deal - we left target share % of those WBTC tokens, then swap unused WBTC to WETH, and then swap WETH to USDT, wstETH
 
         // amount that will be just simply transfered to Multipool
-        const leftInputAssetPersent = inputAssetCurrentShare.minus(targetShares[this.inputAsset.address]);
+        const halfTargetShares = targetShares[this.inputAsset.address];
 
-        const halfTargetShares = targetShares[this.inputAsset.address].dividedBy(2);
+        const totalLeftShares = Object.values(targetShares).reduce<BigNumber>((acc, share) => acc.plus(share), BigNumber(0)).minus(halfTargetShares);
 
-        const inputTokenToTransfer = this.inputQuantity.multipliedBy(leftInputAssetPersent).dividedBy(100); // amount of input token that will be transfered to Multipool
+        const inputTokenToTransfer = this.inputQuantity.multipliedBy(halfTargetShares).dividedBy(100); // amount of input token that will be transfered to Multipool
         const leftInputAsset = this.inputQuantity.minus(inputTokenToTransfer); // amount of input token that will be used for swaps
 
         selectedAssets.push({
@@ -504,25 +501,31 @@ class MultipoolStore {
         // now we will take each other token that we need to mint, and we will calculate how much we need to swap to get it
         const swapTo: Record<Address, BigNumber> = {};
         for (const [address, share] of Object.entries(targetShares)) {
+            if (share.isZero()) continue; // we don't need this token
             if (address === this.inputAsset.address) continue;
-            const amount = share.plus(halfTargetShares).multipliedBy(leftInputAsset).dividedBy(100);
-
+            const amount = share.multipliedBy(leftInputAsset).dividedBy(totalLeftShares);
+            
             swapTo[address as Address] = amount;
         }
-
+        
         // now we will create calls for each swap
         const calls: Record<Address, Calls> = {};
-
+        
         for (const [address, amount] of Object.entries(swapTo)) {
             const responce = await swapToCalldata(this.inputAsset.address, address as Address, amount, this.multipool.address);
             calls[address as Address] = responce;
-
+            
             selectedAssets.push({
                 assetAddress: address as Address,
                 amount: fromBigNumberBigInt(responce.amountOut)
             });
         }
 
+        console.log("asset", this.inputAsset.address, "inputTokenToTransfer", inputTokenToTransfer.toString());
+        for (const asset of Object.keys(swapTo)) {
+            console.log("asset", asset, "amount", swapTo[asset as Address].toString());
+        }
+        
         // now we will create calls for each swap, AND send the transfer call to Multipool with leftInputAsset
         const calldata: {
             callType: number;

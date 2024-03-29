@@ -298,19 +298,21 @@ const ArcanumSwap = observer(() => {
                 throw new Error("No Swap Action");
             }
 
+            // if (tokenData?.balanceRaw && inputQuantity) {
+            //     if (tokenData?.balanceRaw < inputQuantityBigInt) {
+            //         throw new Error("Insufficient Balance");
+            //     }
+            // }
+
             try {
                 return await swapMultipool(address);
             } catch (error) {
                 if (parseError(error) === "DeviationExceedsLimit") {
                     return await uniswapFromMultipool(address);
                 }
+                throw error;
             }
 
-            if (tokenData?.balanceRaw && inputQuantity) {
-                if (tokenData?.balanceRaw < inputQuantityBigInt) {
-                    throw new Error("Insufficient Balance");
-                }
-            }
         },
         refetchInterval: 15000,
         enabled: false,
@@ -320,6 +322,8 @@ const ArcanumSwap = observer(() => {
         },
         retry: true,
     });
+
+    console.log("failureReason", failureReason);
 
     useEffect(() => {
         if (mainInput === 'out') return;
