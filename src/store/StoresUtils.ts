@@ -11,7 +11,7 @@ function isETH(token: MultipoolAsset | ExternalAsset | SolidAsset | undefined) {
 }
 
 function fromBigNumberBigInt(value: BigNumber): bigint {
-    return BigInt(value.decimalPlaces(0).toString());
+    return BigInt(value.decimalPlaces(0).toFixed());
 }
 
 function fromBigIntBigNumber(value: bigint): BigNumber {
