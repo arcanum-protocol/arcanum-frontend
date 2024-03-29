@@ -17,7 +17,6 @@ import { fromX96 } from '../utils';
 import BigNumber from 'bignumber.js';
 import { usePublicClient } from 'wagmi';
 import ETF from '@/abi/ETF';
-import { toJS } from 'mobx';
 import { MultipoolAsset } from '@/types/multipoolAsset';
 import { Address } from 'viem';
 
@@ -31,34 +30,37 @@ export const Admin = observer(() => {
 
 export const Multipool = () => {
     const { id } = useParams();
-    const { data: multipool, refetch } = useQuery({
-        queryKey: ["base_multipool"],
-        queryFn: async () => {
-            const multipool = await getMultipool(id ?? "arbi");
+    
+    return (
+        <NestedMultipoolComponent id={id ?? "arbi"} rndNumber={Math.random().toString()} />
+    );
+};
 
-            const mp = new MultipoolStore(id ?? "arbi", multipool);
+function NestedMultipoolComponent({ id, rndNumber }: { id: string, rndNumber: string }) {
+    const { data: multipoolStore, refetch } = useQuery({
+        queryKey: ["base_multipool", rndNumber],
+        queryFn: async () => {
+            const multipool = await getMultipool(id);
+
+            const mp = new MultipoolStore(id, multipool);
             return mp;
         },
         refetchOnWindowFocus: false,
     });
 
-    useEffect(() => {
-        refetch();
-    }, [id]);
-
-    if (!multipool) {
+    if (!multipoolStore) {
         return <></>;
     }
 
     return (
-        <StoreProvider store={multipool}>
+        <StoreProvider store={multipoolStore}>
             <MainInner />
         </StoreProvider>
     )
-};
+}
 
 export const MainInner = observer(() => {
-    const { multipoolAddress, multipool, assets, assetsIsLoading, setPrices, setEtherPrice, setTokens } = useMultipoolStore();
+    const { assetsIsLoading, multipoolId, multipool, assets, setPrices, setEtherPrice, setTokens } = useMultipoolStore();
     const publicClient = usePublicClient();
 
     const { refetch } = useQuery({
@@ -175,7 +177,7 @@ export const MainInner = observer(() => {
         refetch();
         updatePrice();
         updateEtherPrice();
-    }, [multipoolAddress]);
+    }, [multipoolId]);
 
     return (
         <>

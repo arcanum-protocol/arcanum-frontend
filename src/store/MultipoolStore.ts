@@ -9,7 +9,7 @@ import BigNumber from 'bignumber.js';
 import { getForcePushPrice, parseError } from '@/lib/multipoolUtils';
 import { JAMQuote, PARAM_DOMAIN, PARAM_TYPES } from '@/api/bebop';
 import { BebopQuoteResponce } from '@/types/bebop';
-import { Calls, Create, CreateSwapFromMultipool, swapToCalldata } from '@/api/uniswap';
+import { Calls, Create, swapToCalldata } from '@/api/uniswap';
 import { createApproveCall, createTransferCall, createWrapCall, fromBigIntBigNumber, fromBigNumberBigInt, isETH, sortAssets } from './StoresUtils';
 
 export enum ActionType {

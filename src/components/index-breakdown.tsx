@@ -12,6 +12,7 @@ import { getExternalAssets } from "@/lib/multipoolUtils";
 import { useState } from "react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { getAssetInfo } from "@/api/arcanum";
+import { toJS } from "mobx";
 
 export function tohumanReadableCashback(number: BigNumber, etherPrice: number | undefined, decimals = 18) {
     if (etherPrice === undefined) {
@@ -302,7 +303,7 @@ function Deviation({ idealShare, currentShares, token }: {
 export const IndexAssetsBreakdown = observer(() => {
     const { assetsIsLoading, assets, setExternalAssets, setPrices, currentShares, prices, etherPrice } = useMultipoolStore();
 
-    const { data, isLoading: tokensLoading, error } = useQuery({
+    useQuery({
         queryKey: ["external-assets"],
         queryFn: async () => {
             const externalAssets = await getExternalAssets();
@@ -318,11 +319,10 @@ export const IndexAssetsBreakdown = observer(() => {
             return externalAssets;
         },
         refetchInterval: 15000,
-        enabled: assetsIsLoading,
         initialData: []
     });
 
-    if (assetsIsLoading || tokensLoading) {
+    if (assetsIsLoading) {
         return (
             <Skeleton className="hidden sm:table relative w-[897px] md:w-full overflow-auto rounded border h-[225.20px]">
             </Skeleton>

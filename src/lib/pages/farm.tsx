@@ -42,7 +42,6 @@ const Content: { [key: string]: string } = {
 };
 
 function getClaimedRewards(rewards: bigint, decimals: number) {
-    console.log(rewards, decimals);
     if (rewards === 0n) {
         return "0";
     }
@@ -229,8 +228,6 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
 
     const _price = mpIdToPrice.get(lowAddress) || 0;
     const dollarValue = (Number(input) * _price).toFixed(4);
-
-    console.log(data, BigNumber(data.balance.toString()).div(decimals).toFormat(18));
 
     return (
         <>
@@ -815,8 +812,6 @@ function Farms() {
     }
 
     const farmAddress = data.farms[id].address as Address;
-
-    console.log("farmAddress", farmAddress);
 
     const farmsStore = new FarmsStore(farmAddress);
 
