@@ -32,13 +32,13 @@ export const Multipool = () => {
     const { id } = useParams();
     
     return (
-        <NestedMultipoolComponent id={id ?? "arbi"} />
+        <NestedMultipoolComponent id={id ?? "arbi"} rndid={Math.floor(Math.random()*1000).toString()} />
     );
 };
 
-function NestedMultipoolComponent({ id }: { id: string }) {
+function NestedMultipoolComponent({ id, rndid }: { id: string, rndid: string }) {
     const { data: multipoolStore } = useQuery({
-        queryKey: ["base_multipool"],
+        queryKey: ["base_multipool", rndid],
         queryFn: async () => {
             const multipool = await getMultipool(id);
 
