@@ -103,13 +103,10 @@ function IdealShare({ idealShare }: { idealShare: BigNumber | undefined }) {
     );
 }
 
-function CurrentShare({ currentShares, token }: {
-    currentShares: {
-        data: Map<`0x${string}`, BigNumber>;
-        isLoading: boolean;
-    }, token: Address
-}) {
+const CurrentShare = observer(({ token }: { token: Address }) => {
+    const { currentShares } = useMultipoolStore()
     const { data: shares, isLoading } = currentShares;
+
     if (isLoading) {
         return (
             <TableCell>
@@ -141,7 +138,7 @@ function CurrentShare({ currentShares, token }: {
             <p>{share.toFixed(4)}%</p>
         </TableCell>
     );
-}
+});
 
 function PriceCell({ price, etherPrice: _etherPrice }: { price: BigNumber | undefined, etherPrice: number | undefined }) {
     const [previousPrice, _setPreviousPrice] = useState<BigNumber>(BigNumber(0));
@@ -249,13 +246,12 @@ function Balance({ symbol, balance, decimals }: { symbol: string, balance: BigNu
     );
 }
 
-function Deviation({ idealShare, currentShares, token }: {
-    idealShare: BigNumber | undefined, currentShares: {
-        data: Map<`0x${string}`, BigNumber>;
-        isLoading: boolean;
-    }, token: Address
-}) {
+const Deviation = observer(({ idealShare, token }: {
+    idealShare: BigNumber | undefined, token: Address
+}) => {
+    const { currentShares } = useMultipoolStore();
     const { data: shares, isLoading } = currentShares;
+
     if (isLoading) {
         return (
             <TableCell>
@@ -298,7 +294,7 @@ function Deviation({ idealShare, currentShares, token }: {
             <p>{deviation.toFixed(4)}%</p>
         </TableCell>
     );
-}
+});
 
 export const IndexAssetsBreakdown = observer(() => {
     const { assetsIsLoading, assets, setExternalAssets, setPrices, currentShares, prices, etherPrice } = useMultipoolStore();
@@ -362,10 +358,10 @@ export const IndexAssetsBreakdown = observer(() => {
                                     <TableRow key={fetchedAsset.address}>
                                         <PfP logo={fetchedAsset.logo} symbol={fetchedAsset.symbol} idealShare={fetchedAsset.idealShare} />
                                         <IdealShare idealShare={fetchedAsset.idealShare} />
-                                        <CurrentShare currentShares={currentShares} token={fetchedAsset.address} />
+                                        <CurrentShare token={fetchedAsset.address} />
                                         <PriceCell price={prices[fetchedAsset.address]} etherPrice={etherPrice} />
                                         <Balance symbol={fetchedAsset.symbol} balance={balance} decimals={fetchedAsset.decimals} />
-                                        <Deviation idealShare={fetchedAsset.idealShare} currentShares={currentShares} token={fetchedAsset.address} />
+                                        <Deviation idealShare={fetchedAsset.idealShare} token={fetchedAsset.address} />
                                         <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, etherPrice)}</TableCell>
                                     </TableRow>
                                 )

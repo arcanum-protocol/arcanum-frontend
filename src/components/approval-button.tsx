@@ -16,6 +16,23 @@ import { useToken } from "@/hooks/useToken";
 import { toast } from "./ui/use-toast";
 import { truncateAddress } from "@/store/StoresUtils";
 
+const ParseErrorMessage = (failureReason: any) => {
+    if (failureReason.message.includes("DeviationExceedsLimit")) {
+        return "Deviation Exceeds Limit";
+    }
+    if (failureReason.message.includes("transfer amount exceeds balance")) {
+        return "Insufficient Balance";
+    }
+    if (failureReason.message.includes("The total cost (gas * gas fee + value) of executing")) {
+        return "Insufficient Balance";
+    }
+    if (failureReason.message.includes("CallFailed")) {
+        return "Call Failed";
+    } else {
+        return failureReason.message;
+    }
+}
+
 export const ConnectWallet = () => {
     const { setOpen } = useModal();
 
@@ -237,18 +254,7 @@ const UniswapSwap = observer(() => {
     }
 
     if (failureReason) {
-        const Error = () => {
-            console.log(failureReason.message);
-            if (failureReason.message.includes("transfer amount exceeds balance")) {
-                return "Insufficient Balance";
-            }
-            if (failureReason.message.includes("CallFailed")) {
-                return "Call Failed";
-            } else {
-                return failureReason.message;
-            }
-        }
-        return <ErrorButton errorMessage={Error()} />
+        return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
     }
 
     if (!address) {
@@ -298,12 +304,6 @@ const ArcanumSwap = observer(() => {
                 throw new Error("No Swap Action");
             }
 
-            // if (tokenData?.balanceRaw && inputQuantity) {
-            //     if (tokenData?.balanceRaw < inputQuantityBigInt) {
-            //         throw new Error("Insufficient Balance");
-            //     }
-            // }
-
             try {
                 return await swapMultipool(address);
             } catch (error) {
@@ -322,8 +322,6 @@ const ArcanumSwap = observer(() => {
         },
         retry: true,
     });
-
-    console.log("failureReason", failureReason);
 
     useEffect(() => {
         if (mainInput === 'out') return;
@@ -377,21 +375,8 @@ const ArcanumSwap = observer(() => {
         if (failureReason.message.includes("No Swap Action")) {
             return <DefaultButton />
         }
-        const Error = () => {
-            console.log(failureReason.message);
-            if (failureReason.message.includes("DeviationExceedsLimit")) {
-                return "Deviation Exceeds Limit";
-            }
-            if (failureReason.message.includes("transfer amount exceeds balance")) {
-                return "Insufficient Balance";
-            }
-            if (failureReason.message.includes("CallFailed")) {
-                return "Call Failed";
-            } else {
-                return failureReason.message;
-            }
-        }
-        return <ErrorButton errorMessage={Error()} />
+        
+        return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
     }
 
     if (!address) {
