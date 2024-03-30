@@ -520,11 +520,6 @@ class MultipoolStore {
                 amount: fromBigNumberBigInt(responce.amountOut)
             });
         }
-
-        console.log("asset", this.inputAsset.address, "inputTokenToTransfer", inputTokenToTransfer.toString());
-        for (const asset of Object.keys(swapTo)) {
-            console.log("asset", asset, "amount", swapTo[asset as Address].toString());
-        }
         
         // now we will create calls for each swap, AND send the transfer call to Multipool with leftInputAsset
         const calldata: {
@@ -569,7 +564,6 @@ class MultipoolStore {
     async uniswapFromMultipool(userAddress?: Address) {
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
-        if (userAddress === undefined) throw new Error("User address is undefined");
         if (!this.inputQuantity) throw new Error("Input quantity is undefined");
         if (this.inputAsset === undefined) throw new Error("Input asset is undefined");
 
@@ -610,7 +604,13 @@ class MultipoolStore {
         const approveCall = createApproveCall(this.inputAsset.address, uniswapRouter as Address, this.inputQuantity);
         callsBeforeUniswap.unshift(approveCall);
 
-        console.log("selectedAssets", selectedAssets);
+        if (userAddress === undefined) throw new Error("User address is undefined");
+
+        // if dollar value of input is higher than 50k$ throw Error
+        const dollarValue = this.getItemPrice("Send").multipliedBy(this.etherPrice).multipliedBy(BigNumber(this.inputQuantity)).dividedBy(BigNumber(10).pow(18));
+        if (dollarValue.isGreaterThan("50000")) {
+            throw new Error("The volume is too large")
+        }
 
         const request = [
             this.multipool.address,
@@ -761,7 +761,6 @@ class MultipoolStore {
     async swapUniswap(userAddress?: Address) {
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
-        if (userAddress === undefined) throw new Error("User address is undefined");
         if (!this.inputQuantity) throw new Error("Input quantity is undefined");
         if (this.inputAsset === undefined) throw new Error("Input asset is undefined");
         if (this.inputAsset.address === undefined) throw new Error("Input asset address is undefined");
@@ -1070,26 +1069,29 @@ class MultipoolStore {
         }
 
         const totalDollarValue = this.assets.reduce((acc, asset) => {
-            return acc.plus(this.prices[asset.address]!.multipliedBy(asset.multipoolQuantity.dividedBy(10 ** asset.decimals)));
-        }, new BigNumber(0)).multipliedBy(this.etherPrice);
+            const decimals = BigNumber(10).pow(asset.decimals);
+            return acc.plus(this.prices[asset.address].multipliedBy(asset.multipoolQuantity.dividedBy(decimals)));
+        }, BigNumber(0)).multipliedBy(this.etherPrice);
 
         const addressToShare = new Map<Address, BigNumber>();
 
         for (const asset of this.assets) {
-            if (this.prices[asset.address]!.isEqualTo(0)) {
-                addressToShare.set(asset.address!, BigNumber(0));
+            const decimals = BigNumber(10).pow(asset.decimals);
+
+            if (this.prices[asset.address].isEqualTo(0)) {
+                addressToShare.set(asset.address, BigNumber(0));
                 continue;
             }
             if (asset.multipoolQuantity.isEqualTo(0)) {
-                addressToShare.set(asset.address!, BigNumber(0));
+                addressToShare.set(asset.address, BigNumber(0));
                 continue;
             }
 
-            const assetValue = this.prices[asset.address]!.multipliedBy(asset.multipoolQuantity).dividedBy(10 ** asset.decimals).multipliedBy(this.etherPrice);
+            const assetValue = this.prices[asset.address].multipliedBy(asset.multipoolQuantity).dividedBy(decimals).multipliedBy(this.etherPrice);
 
             const share = new BigNumber(assetValue).dividedBy(totalDollarValue).multipliedBy(100);
 
-            addressToShare.set(asset.address!, share);
+            addressToShare.set(asset.address, share);
         }
 
         return {
