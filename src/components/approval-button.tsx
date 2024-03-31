@@ -244,7 +244,6 @@ const UniswapSwap = observer(() => {
             value: 0n
         },
         retry: (failureCount: number, error: any) => {
-            console.log(error);
             if (error.toString().includes("Insufficient Allowance") ||
                 error.toString().includes("Insufficient Balance")) {
                 return false;
@@ -377,7 +376,7 @@ const ArcanumSwap = observer(() => {
             request: undefined,
             value: 0n
         },
-        retry: (error: any) => {
+        retry: (failureCount: number, error: any) => {
             if (error.toString().includes("Insufficient Allowance") ||
                 error.toString().includes("Insufficient Balance")) {
                 return false;
