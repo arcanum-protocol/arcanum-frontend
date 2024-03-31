@@ -1,3 +1,4 @@
+import { fromBigNumber } from "@/lib/utils";
 import { MultipoolAsset, ExternalAsset, SolidAsset } from "@/types/multipoolAsset";
 import BigNumber from "bignumber.js";
 import { Address, encodeAbiParameters } from "viem";
@@ -10,10 +11,6 @@ function isETH(token: MultipoolAsset | ExternalAsset | SolidAsset | undefined) {
     return false;
 }
 
-function fromBigNumberBigInt(value: BigNumber): bigint {
-    return BigInt(value.decimalPlaces(0).toFixed());
-}
-
 function fromBigIntBigNumber(value: bigint): BigNumber {
     return new BigNumber(value.toString());
 }
@@ -21,7 +18,7 @@ function fromBigIntBigNumber(value: bigint): BigNumber {
 function createApproveCall(token: Address, target: Address, amount: BigNumber) {
     const data = encodeAbiParameters(
         [{ name: "token", type: "address" },    { name: "target", type: "address" },    { name: "amount", type: "uint256" }],
-        [token,                                 target,                                 fromBigNumberBigInt(amount)]
+        [token,                                 target,                                 fromBigNumber(amount)]
     );
     return {
         callType: 1,
@@ -32,7 +29,7 @@ function createApproveCall(token: Address, target: Address, amount: BigNumber) {
 function createWrapCall(wrap: boolean = true, ethValue: BigNumber) {
     const wrapData = encodeAbiParameters(
         [{ name: "weth", type: "address" },             { name: "wrap", type: "bool" }, { name: "ethValue", type: "uint256" }],
-        ["0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",  wrap,                           fromBigNumberBigInt(ethValue)]
+        ["0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",  wrap,                           fromBigNumber(ethValue)]
     );
     return {
         callType: 3,
@@ -63,7 +60,7 @@ function createTransferCall(token: Address, target: Address, amount: BigNumber |
             { name: "targetOrOrigin", type: "address" },
             { name: "amount", type: "uint256" }
         ],
-        [token, target, fromBigNumberBigInt(amount)]
+        [token, target, fromBigNumber(amount)]
     );
     return {
         callType: 0,
@@ -75,4 +72,4 @@ function truncateAddress(address: Address) {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-export { isETH, createApproveCall, createWrapCall, fromBigNumberBigInt, fromBigIntBigNumber, sortAssets, createTransferCall, truncateAddress };
+export { isETH, createApproveCall, createWrapCall, fromBigIntBigNumber, sortAssets, createTransferCall, truncateAddress };

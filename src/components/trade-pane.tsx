@@ -101,10 +101,18 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         const price = getItemPrice(text);
 
         if (theAsset?.type === 'external') {
-            return BigNumber(qnt).multipliedBy(price).toFixed(4);
+            const val = BigNumber(qnt).multipliedBy(price).toFixed(4);
+            if (val === "NaN") {
+                return "0";
+            }
+            return val;
         }
 
-        return BigNumber(qnt).multipliedBy(price).multipliedBy(etherPrice).toFixed(4);
+        const val = BigNumber(qnt).multipliedBy(price).multipliedBy(etherPrice).toFixed(4);
+        if (val === "NaN") {
+            return "0";
+        }
+        return val;
     }
 
     function getBalance(): JSX.Element {
@@ -151,9 +159,11 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         );
     }
 
-    function handleInputChange(e: React.ChangeEvent<HTMLInputElement>, inputType: "balance" | "input") {
-        if (inputType === "input") {
-            setInputType("input");
+    function handleInputChange(e: React.ChangeEvent<HTMLInputElement> | string) {
+        if (typeof e === "string") {
+            setInputType("balance");
+            setQuantity(text, e);
+            return;
         }
         if (e.target.value === "") {
             setQuantity(text, undefined)
@@ -165,16 +175,10 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
             e.target.value = e.target.value.slice(0, -1);
             return;
         }
-
         const value = e.target.value.replace(",", ".");
 
         setMainInput(text);
 
-        if (inputType === "balance") {
-            setInputType("balance");
-            setQuantity(text, value);
-            return;
-        }
 
         debounce && clearTimeout(debounce);
         setDebounce(setTimeout(() => {
