@@ -4,13 +4,13 @@ import { ExternalAsset, MultipoolAsset, SolidAsset } from '@/types/multipoolAsse
 import { arbitrumPublicClient } from '@/config';
 import multipoolABI from '../abi/ETF';
 import routerABI from '../abi/ROUTER';
-import { fromX96 } from '@/lib/utils';
+import { fromBigNumber, fromX96 } from '@/lib/utils';
 import BigNumber from 'bignumber.js';
 import { getForcePushPrice, parseError } from '@/lib/multipoolUtils';
 import { JAMQuote, PARAM_DOMAIN, PARAM_TYPES } from '@/api/bebop';
 import { BebopQuoteResponce } from '@/types/bebop';
 import { Calls, Create, swapToCalldata } from '@/api/uniswap';
-import { createApproveCall, createTransferCall, createWrapCall, fromBigIntBigNumber, fromBigNumberBigInt, isETH, sortAssets } from './StoresUtils';
+import { createApproveCall, createTransferCall, createWrapCall, fromBigIntBigNumber, isETH, sortAssets } from './StoresUtils';
 
 export enum ActionType {
     BEBOP = "bebop",
@@ -119,7 +119,13 @@ class MultipoolStore {
 
     setLoading() {
         runInAction(() => {
-            this.swapIsLoading = !this.swapIsLoading;
+            this.swapIsLoading = true;
+        });
+    }
+
+    setLoadingOver() {
+        runInAction(() => {
+            this.swapIsLoading = false;
         });
     }
 
@@ -245,20 +251,20 @@ class MultipoolStore {
         const outputWithSlippage = outputQuantity.multipliedBy(slippageMultiplier);
 
         for (const call of calls) {
-            selectedAssets.set(call.asset, fromBigNumberBigInt(call.amountOut));
+            selectedAssets.set(call.asset, fromBigNumber(call.amountOut));
         }
-        selectedAssets.set(outputAssetAddress, fromBigNumberBigInt(outputWithSlippage));
+        selectedAssets.set(outputAssetAddress, fromBigNumber(outputWithSlippage));
 
         if (this.isExactInput) {
             const outputWithSlippage = outputQuantity.multipliedBy(slippageMultiplier);
 
-            selectedAssets.set(inputAssetAddress, fromBigNumberBigInt(inputQuantity));
-            selectedAssets.set(outputAssetAddress, fromBigNumberBigInt(outputWithSlippage));
+            selectedAssets.set(inputAssetAddress, fromBigNumber(inputQuantity));
+            selectedAssets.set(outputAssetAddress, fromBigNumber(outputWithSlippage));
         } else {
             const inputWithSlippage = inputQuantity.multipliedBy(slippageMultiplier);
 
-            selectedAssets.set(inputAssetAddress, fromBigNumberBigInt(inputWithSlippage));
-            selectedAssets.set(outputAssetAddress, fromBigNumberBigInt(outputQuantity));
+            selectedAssets.set(inputAssetAddress, fromBigNumber(inputWithSlippage));
+            selectedAssets.set(outputAssetAddress, fromBigNumber(outputQuantity));
         }
 
         return sortAssets(selectedAssets);
@@ -284,13 +290,13 @@ class MultipoolStore {
             if (this.isExactInput) {
                 const outputWithSlippage = outputQuantity.multipliedBy(slippageMultiplier);
 
-                selectedAssets.set(inputAssetAddress, fromBigNumberBigInt(inputQuantity));
-                selectedAssets.set(outputAssetAddress, fromBigNumberBigInt(outputWithSlippage));
+                selectedAssets.set(inputAssetAddress, fromBigNumber(inputQuantity));
+                selectedAssets.set(outputAssetAddress, fromBigNumber(outputWithSlippage));
             } else {
                 const inputWithSlippage = inputQuantity.multipliedBy(slippageMultiplier);
 
-                selectedAssets.set(inputAssetAddress, fromBigNumberBigInt(inputWithSlippage));
-                selectedAssets.set(outputAssetAddress, fromBigNumberBigInt(outputQuantity.multipliedBy(-1)));
+                selectedAssets.set(inputAssetAddress, fromBigNumber(inputWithSlippage));
+                selectedAssets.set(outputAssetAddress, fromBigNumber(outputQuantity.multipliedBy(-1)));
             }
 
             return sortAssets(selectedAssets);
@@ -299,13 +305,13 @@ class MultipoolStore {
         if (this.isExactInput) {
             if (inputQuantity === undefined) throw new Error("Input quantity is undefined");
 
-            selectedAssets.set(inputAssetAddress, fromBigNumberBigInt(inputQuantity));
+            selectedAssets.set(inputAssetAddress, fromBigNumber(inputQuantity));
             selectedAssets.set(outputAssetAddress, BigInt("-1000000000000000000"));
         } else {
             if (outputQuantity === undefined) throw new Error("Output quantity is undefined");
 
             selectedAssets.set(inputAssetAddress, BigInt("1000000000000000000"));
-            selectedAssets.set(outputAssetAddress, fromBigNumberBigInt(outputQuantity.multipliedBy(-1)));
+            selectedAssets.set(outputAssetAddress, fromBigNumber(outputQuantity.multipliedBy(-1)));
         }
 
         return sortAssets(selectedAssets);
@@ -365,7 +371,7 @@ class MultipoolStore {
 
     private async checkSwapUniswap() {
         if (this.inputAsset === undefined) throw new Error("Input asset is undefined");
-        if (this.inputQuantity === undefined) return;
+        if (fromBigNumber(this.inputQuantity) == BigInt(0)) return;
 
         const targetShares: Map<Address, BigNumber> = new Map<Address, BigNumber>();
 
@@ -381,7 +387,7 @@ class MultipoolStore {
         const selectedAssets = Array.from(calls.selectedAssets).map(([address, amount]) => {
             return {
                 assetAddress: address,
-                amount: fromBigNumberBigInt(amount)
+                amount: fromBigNumber(amount)
             }
         });
         selectedAssets.push({
@@ -414,8 +420,6 @@ class MultipoolStore {
             this.selectedAssets = selectedAssets;
             this.fee = responce[0];
             this.minimalReceive = ArcanumETF;
-
-            this.swapIsLoading = false;
         });
 
         return {
@@ -501,7 +505,7 @@ class MultipoolStore {
 
         selectedAssets.push({
             assetAddress: this.inputAsset.address,
-            amount: fromBigNumberBigInt(inputTokenToTransfer)
+            amount: fromBigNumber(inputTokenToTransfer)
         });
 
         // now we will take each other token that we need to mint, and we will calculate how much we need to swap to get it
@@ -523,7 +527,7 @@ class MultipoolStore {
             
             selectedAssets.push({
                 assetAddress: address as Address,
-                amount: fromBigNumberBigInt(responce.amountOut)
+                amount: fromBigNumber(responce.amountOut)
             });
         }
         
@@ -560,8 +564,8 @@ class MultipoolStore {
             fee: responce[0],
             calls: Object.values(calls),
             transferCalls: [
-                createTransferCall(this.inputAsset.address, this.multipool.address, fromBigNumberBigInt(inputTokenToTransfer)),
-                createTransferCall(this.inputAsset.address, this.router.address, fromBigNumberBigInt(leftInputAsset))
+                createTransferCall(this.inputAsset.address, this.multipool.address, fromBigNumber(inputTokenToTransfer)),
+                createTransferCall(this.inputAsset.address, this.router.address, fromBigNumber(leftInputAsset))
             ],
             selectedAssets: selectedAssets
         };
@@ -767,7 +771,7 @@ class MultipoolStore {
     async swapUniswap(userAddress?: Address) {
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
-        if (!this.inputQuantity) throw new Error("Input quantity is undefined");
+        if (fromBigNumber(this.inputQuantity) == BigInt(0)) throw new Error("Input quantity is undefined");
         if (this.inputAsset === undefined) throw new Error("Input asset is undefined");
         if (this.inputAsset.address === undefined) throw new Error("Input asset address is undefined");
 
@@ -856,7 +860,6 @@ class MultipoolStore {
     }
 
     async swapMultipool(userAddress?: Address) {
-        runInAction(() => { this.swapIsLoading = true; });
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
 
@@ -908,8 +911,6 @@ class MultipoolStore {
         this.updateGas(gas, gasPrice);
 
         await this.router.simulate.swap(request, value);
-
-        runInAction(() => { this.swapIsLoading = false; });
 
         return {
             request: request,

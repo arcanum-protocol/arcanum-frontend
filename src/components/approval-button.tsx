@@ -1,20 +1,20 @@
-import { Button } from "./ui/button";
-import { observer } from "mobx-react-lite";
 import { useAccount, useSimulateContract, useSignTypedData, useWriteContract } from "wagmi";
-import ERC20 from "@/abi/ERC20";
 import { useMultipoolStore } from "@/contexts/StoreContext";
-import { ActionType } from "@/store/MultipoolStore";
 import { fromBigNumber, parseError } from "@/lib/utils";
-import { useEffect } from "react";
-import { toObject } from "@/types/bebop";
-import { submitOrder } from "@/api/bebop";
-import { useModal } from "connectkit";
-import { useAllowence } from "@/hooks/useAllowence";
-import { Address } from "viem";
-import { useQuery } from "@tanstack/react-query";
-import { useToken } from "@/hooks/useToken";
-import { toast } from "./ui/use-toast";
 import { truncateAddress } from "@/store/StoresUtils";
+import { ActionType } from "@/store/MultipoolStore";
+import { useAllowence } from "@/hooks/useAllowence";
+import { useQuery } from "@tanstack/react-query";
+import { observer } from "mobx-react-lite";
+import { submitOrder } from "@/api/bebop";
+import { toObject } from "@/types/bebop";
+import { toast } from "./ui/use-toast";
+import { useModal } from "connectkit";
+import { Button } from "./ui/button";
+import { useEffect } from "react";
+import ERC20 from "@/abi/ERC20";
+import { Address } from "viem";
+
 
 const ParseErrorMessage = (failureReason: any) => {
     if (failureReason.message.includes("DeviationExceedsLimit")) {
@@ -31,9 +31,44 @@ const ParseErrorMessage = (failureReason: any) => {
     }
     if (failureReason.message.includes("CallFailed")) {
         return "Call Failed";
-    } else {
-        return failureReason.message;
     }
+    if (failureReason.message.includes("InvalidForcePushSignatureNumber")) {
+        return "Invalid Force Push Signature Number";
+    }
+    if (failureReason.message.includes("InvalidTargetShareAuthority")) {
+        return "Invalid Target Share Authority";
+    }
+    if (failureReason.message.includes("InvalidForcePushAuthority")) {
+        return "Invalid Force Push Authority";
+    }
+    if (failureReason.message.includes("ZeroAmountSupplied")) {
+        return "Zero Amount Supplied";
+    }
+    if (failureReason.message.includes("SleepageExceeded")) {
+        return "Sleepage Exceeded";
+    }
+    if (failureReason.message.includes("AssetsNotSortedOrNotUnique")) {
+        return "Assets Not Sorted Or Not Unique";
+    }
+    if (failureReason.message.includes("IsPaused")) {
+        return "Is Paused";
+    }
+    if (failureReason.message.includes("FeeExceeded")) {
+        return "Fee Exceeded";
+    }
+    if (failureReason.message.includes("NotEnoughQuantityToBurn")) {
+        return "Not Enough Quantity To Burn";
+    }
+    if (failureReason.message.includes("NoPriceOriginSet")) {
+        return "No Price Origin Set";
+    }
+    if (failureReason.message.includes("UniV3PriceFetchingReverted")) {
+        return "UniV3 Price Fetching Reverted";
+    }
+    if (failureReason.message.includes("SignaturesNotSortedOrNotUnique")) {
+        return "Signatures Not Sorted Or Not Unique";
+    }
+    return failureReason.message;
 }
 
 export const ConnectWallet = () => {
@@ -181,26 +216,42 @@ const BebopSwap = observer(() => {
 
 const UniswapSwap = observer(() => {
     const { address } = useAccount();
-    const { swapUniswap, inputQuantity, inputAsset, router, swapIsLoading } = useMultipoolStore();
+    const { setLoading, setLoadingOver, swapUniswap, inputQuantity, inputAsset, router, swapIsLoading } = useMultipoolStore();
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
     const { data: swapAction, refetch, failureReason } = useQuery({
         queryKey: ["uniswap-swap"],
         queryFn: async () => {
-            if (inputQuantity) {
+            if (!inputQuantity) {
+                throw new Error("No Swap Action");
+            }
+            setLoading();
+            try {
                 return await swapUniswap(address);
-            } else {
-                return {
-                    request: undefined,
-                    value: 0
-                }
+            } catch (error) {
+                setLoadingOver();
+                throw error;
+            } finally {
+                setLoadingOver();
             }
         },
         refetchInterval: 30000,
         staleTime: 9000,
         enabled: false,
-        retry: true,
+        initialData: {
+            request: undefined,
+            value: 0n
+        },
+        retry: (failureCount: number, error: any) => {
+            console.log(error);
+            if (error.toString().includes("Insufficient Allowance") ||
+                error.toString().includes("Insufficient Balance")) {
+                return false;
+            } else {
+                return true;
+            }
+        },
     });
 
     useEffect(() => {
@@ -257,6 +308,9 @@ const UniswapSwap = observer(() => {
     }
 
     if (failureReason) {
+        if (failureReason.message.includes("No Swap Action")) {
+            return <DefaultButton />
+        }
         return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
     }
 
@@ -287,22 +341,17 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { uniswapFromMultipool, swapMultipool, setLoading, mainInput, inputQuantity, outputQuantity, inputAsset, router, swapIsLoading } = useMultipoolStore();
-
-    const { data: tokenData, isLoading: balanceIsLoading } = useToken({
-        address: inputAsset?.address,
-        watch: true
-    });
+    const { uniswapFromMultipool, swapMultipool, setLoading, setLoadingOver, mainInput, inputQuantity, outputQuantity, inputAsset, router, swapIsLoading } = useMultipoolStore();
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
     const { data: swapAction, isLoading: swapActionIsLoading, refetch, failureReason } = useQuery({
         queryKey: ["arcanum-swap"],
         queryFn: async () => {
-            if (!inputQuantity && mainInput === 'in') {
+            if (fromBigNumber(inputQuantity) == BigInt(0) && mainInput === 'in') {
                 throw new Error("No Swap Action");
             }
-            if (!outputQuantity && mainInput === 'out') {
+            if (fromBigNumber(outputQuantity) == BigInt(0) && mainInput === 'out') {
                 throw new Error("No Swap Action");
             }
 
@@ -316,7 +365,7 @@ const ArcanumSwap = observer(() => {
                 }
                 throw error;
             } finally {
-                setLoading();
+                setLoadingOver();
             }
 
         },
@@ -329,7 +378,8 @@ const ArcanumSwap = observer(() => {
             value: 0n
         },
         retry: (error: any) => {
-            if (error.toString().includes("Insufficient Allowance")) {
+            if (error.toString().includes("Insufficient Allowance") ||
+                error.toString().includes("Insufficient Balance")) {
                 return false;
             } else {
                 return true;
@@ -384,11 +434,11 @@ const ArcanumSwap = observer(() => {
             });
         }
     }
-    
-    if (swapActionIsLoading || balanceIsLoading || allowanceIsLoading || swapIsLoading) {
+
+    if (swapActionIsLoading || allowanceIsLoading || swapIsLoading) {
         return <LoadingButton />
     }
-    
+
     if (allowance! < fromBigNumber(inputQuantity!)) {
         return <ApprovalButton approveTo={router.address} />
     }
@@ -397,7 +447,7 @@ const ArcanumSwap = observer(() => {
         if (failureReason.message.includes("No Swap Action")) {
             return <DefaultButton />
         }
-        
+
         return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
     }
 

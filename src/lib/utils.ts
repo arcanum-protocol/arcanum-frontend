@@ -30,7 +30,7 @@ export function fromX96(value: bigint | undefined, decimals = 18): BigNumber {
 }
 
 export function fromBigNumber(value: BigNumber | undefined): bigint {
-  if (value === undefined) return BigInt(0);
+  if (value === undefined || value.isNaN()) return BigInt(0);
   return BigInt(value.toFixed(0));
 }
 
