@@ -7,10 +7,16 @@ import yaml from 'yamljs';
 
 // once-call
 async function getMultipool(multipoolId: string) {
-    const staticDataResponce = await axios.get(`https://app.arcanum.to/api/${multipoolId}.yaml`);
-    const data = yaml.parse(staticDataResponce.data);
-
-    const { name, address, router_address, logo, assets } = data;
+    const staticDataResponce = await fetch(`/api/${multipoolId}.yaml`);
+    const data = await staticDataResponce.text();
+    const yamlParsed = yaml.parse(data);
+    
+    const { name, address, router_address, logo, assets } = yamlParsed;
+    
+    const newBackend = await fetch(`https://api.arcanum.to/oracle/v1/asset_list?multipool_address=${address}`);
+    const jsonData = await newBackend.json();
+    
+    const actualAddress = jsonData as Address[];
 
     const assetsStaticData: MultipoolAsset[] = assets.map((asset: any) => {
         const { symbol, decimals, address, logo } = asset;
@@ -23,12 +29,15 @@ async function getMultipool(multipoolId: string) {
         } as MultipoolAsset;
     });
 
+    // filter out assets that are not in the actual address list
+    const filteredAssets = assetsStaticData.filter((asset) => actualAddress.includes(asset.address.toLowerCase() as Address));
+
     return {
         name: name as string,
         address: address as Address,
         router: router_address as Address,
         logo: logo as string,
-        assets: assetsStaticData
+        assets: filteredAssets
     }
 }
 
