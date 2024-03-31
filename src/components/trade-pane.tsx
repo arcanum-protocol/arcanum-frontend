@@ -6,18 +6,22 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from "./ui/skeleton";
 import { Button } from './ui/button';
 import { observer } from 'mobx-react-lite';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { useMultipoolStore } from "@/contexts/StoreContext";
 import { useQuery } from "@tanstack/react-query";
 import { getSignedPrice } from "@/api/arcanum";
 import { useToken } from "@/hooks/useToken";
+import { AxiosError } from "axios";
+import { useToast } from "./ui/use-toast";
+import { ToastAction } from "./ui/toast";
 
 
 export const TradePaneInner = observer(() => {
     const { multipoolAddress, swapAssets, updateMPPrice, assetsIsLoading } = useMultipoolStore();
+    const { toast } = useToast();
 
-    const { isLoading } = useQuery({
+    const { isLoading, failureReason } = useQuery({
         queryKey: ["assets"],
         queryFn: async () => {
             const price = await getSignedPrice(multipoolAddress);
@@ -25,38 +29,53 @@ export const TradePaneInner = observer(() => {
 
             return 1;
         },
-        refetchInterval: 30000,
+        refetchInterval: 10000,
+        retryDelay: 10000,
         retry: true,
     });
 
-return (
-    <div className="flex flex-col justify-center gap-2 mt-2">
-        <div className="flex flex-col gap-4 items-center">
-            {
-                isLoading || assetsIsLoading ?
-                    <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
-                    <TokenQuantityInput text={"Send"} />
-            }
+    useEffect(() => {
+        if (failureReason instanceof AxiosError) {
+            toast({
+                title: "Error",
+                description: "Failed to fetch signed price",
+                action: <ToastAction onClick={
+                    () => {
+                        window.open("https://discord.com/invite/nqJfDgtx82", "_blank");
+                    }
+                } altText="Visit Our Discord Server for updates">Discord Server</ToastAction>,
+            });
+        }
+    }, [failureReason]);
 
-            <div onClick={swapAssets}
-                className="my-[-2rem] z-10 bg-[#0c0a09] border border-[#2b2b2b] p-2 rounded">
-                <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
-                </svg>
+    return (
+        <div className="flex flex-col justify-center gap-2 mt-2">
+            <div className="flex flex-col gap-4 items-center">
+                {
+                    isLoading || assetsIsLoading ?
+                        <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
+                        <TokenQuantityInput text={"Send"} />
+                }
+
+                <div onClick={swapAssets}
+                    className="my-[-2rem] z-10 bg-[#0c0a09] border border-[#2b2b2b] p-2 rounded">
+                    <svg className="w-[1.5rem] h-[1.5rem]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                    </svg>
+                </div>
+
+                {
+                    isLoading || assetsIsLoading ?
+                        <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
+                        <TokenQuantityInput text={"Receive"} />
+                }
             </div>
-
-            {
-                isLoading || assetsIsLoading ?
-                    <Skeleton className="rounded w-[309.4px] h-[102.4px]"></Skeleton> :
-                    <TokenQuantityInput text={"Receive"} />
-            }
+            <div className="flex flex-col items-center gap-2">
+                <TransactionParamsSelector />
+                <InteractionWithApprovalButton />
+            </div>
         </div>
-        <div className="flex flex-col items-center gap-2">
-            <TransactionParamsSelector />
-            <InteractionWithApprovalButton />
-        </div>
-    </div>
-)
+    )
 });
 
 interface TokenQuantityInputProps {
@@ -142,16 +161,12 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         }
 
         const regex = new RegExp("^[0-9]*[.,]?[0-9]*$");
-        console.log("check regex", regex.test(e));
         if (!regex.test(e.target.value)) {
-            console.log("regex failed", e);
             e.target.value = e.target.value.slice(0, -1);
-            console.log("regex failed", e);
             return;
         }
 
         const value = e.target.value.replace(",", ".");
-        console.log("value", value);
 
         setMainInput(text);
 

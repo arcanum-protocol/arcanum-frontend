@@ -287,7 +287,7 @@ const UniswapSwap = observer(() => {
 
 const ArcanumSwap = observer(() => {
     const { address } = useAccount();
-    const { uniswapFromMultipool, swapMultipool, mainInput, inputQuantity, outputQuantity, inputAsset, router, swapIsLoading } = useMultipoolStore();
+    const { uniswapFromMultipool, swapMultipool, setLoading, mainInput, inputQuantity, outputQuantity, inputAsset, router, swapIsLoading } = useMultipoolStore();
 
     const { data: tokenData, isLoading: balanceIsLoading } = useToken({
         address: inputAsset?.address,
@@ -306,6 +306,8 @@ const ArcanumSwap = observer(() => {
                 throw new Error("No Swap Action");
             }
 
+            setLoading();
+
             try {
                 return await swapMultipool(address);
             } catch (error) {
@@ -313,16 +315,26 @@ const ArcanumSwap = observer(() => {
                     return await uniswapFromMultipool(address);
                 }
                 throw error;
+            } finally {
+                setLoading();
             }
 
         },
-        refetchInterval: 15000,
+        refetchInterval: 30000,
         enabled: false,
+        refetchOnWindowFocus: false,
+        staleTime: Infinity,
         initialData: {
             request: undefined,
             value: 0n
         },
-        retry: true,
+        retry: (error: any) => {
+            if (error.toString().includes("Insufficient Allowance")) {
+                return false;
+            } else {
+                return true;
+            }
+        },
     });
 
     useEffect(() => {

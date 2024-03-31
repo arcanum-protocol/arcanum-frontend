@@ -117,6 +117,12 @@ class MultipoolStore {
         makeAutoObservable(this, {}, { autoBind: true });
     }
 
+    setLoading() {
+        runInAction(() => {
+            this.swapIsLoading = !this.swapIsLoading;
+        });
+    }
+
     setSlippage(value: number) {
         if (value == 0) {
             this.slippage = 0.5;
@@ -850,6 +856,7 @@ class MultipoolStore {
     }
 
     async swapMultipool(userAddress?: Address) {
+        runInAction(() => { this.swapIsLoading = true; });
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
 
@@ -901,6 +908,8 @@ class MultipoolStore {
         this.updateGas(gas, gasPrice);
 
         await this.router.simulate.swap(request, value);
+
+        runInAction(() => { this.swapIsLoading = false; });
 
         return {
             request: request,
