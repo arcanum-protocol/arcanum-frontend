@@ -30,9 +30,9 @@ export const Admin = observer(() => {
 
 export const Multipool = () => {
     const { id } = useParams();
-    
+
     return (
-        <NestedMultipoolComponent id={id ?? "arbi"} rndid={Math.floor(Math.random()*1000).toString()} />
+        <NestedMultipoolComponent id={id ?? "arbi"} rndid={Math.floor(Math.random() * 1000).toString()} />
     );
 };
 
