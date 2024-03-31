@@ -26,6 +26,9 @@ const ParseErrorMessage = (failureReason: any) => {
     if (failureReason.message.includes("The total cost (gas * gas fee + value) of executing")) {
         return "Insufficient Balance";
     }
+    if (failureReason.message.includes("TargetShareIsZero")) {
+        return "Target Share Is Zero"
+    }
     if (failureReason.message.includes("CallFailed")) {
         return "Call Failed";
     } else {
@@ -290,7 +293,6 @@ const ArcanumSwap = observer(() => {
         address: inputAsset?.address,
         watch: true
     });
-    const inputQuantityBigInt = BigInt(inputQuantity?.toFixed(0) || "0");
 
     const { data: allowance, isLoading: allowanceIsLoading } = useAllowence({ address: address!, tokenAddress: inputAsset?.address!, to: router.address });
 
@@ -370,6 +372,14 @@ const ArcanumSwap = observer(() => {
             });
         }
     }
+    
+    if (swapActionIsLoading || balanceIsLoading || allowanceIsLoading || swapIsLoading) {
+        return <LoadingButton />
+    }
+    
+    if (allowance! < fromBigNumber(inputQuantity!)) {
+        return <ApprovalButton approveTo={router.address} />
+    }
 
     if (failureReason) {
         if (failureReason.message.includes("No Swap Action")) {
@@ -381,14 +391,6 @@ const ArcanumSwap = observer(() => {
 
     if (!address) {
         return <ConnectWalletButton />
-    }
-
-    if (swapActionIsLoading || balanceIsLoading || allowanceIsLoading || swapIsLoading) {
-        return <LoadingButton />
-    }
-
-    if (allowance! < fromBigNumber(inputQuantity!)) {
-        return <ApprovalButton approveTo={router.address} />
     }
 
     if (inputQuantity === undefined || inputAsset === undefined) {

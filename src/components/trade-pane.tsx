@@ -132,23 +132,26 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
         );
     }
 
-    function handleInputChange(e: string, inputType: "balance" | "input") {
+    function handleInputChange(e: React.ChangeEvent<HTMLInputElement>, inputType: "balance" | "input") {
         if (inputType === "input") {
             setInputType("input");
         }
-        if (e === "") {
+        if (e.target.value === "") {
             setQuantity(text, undefined)
             return;
         }
 
         const regex = new RegExp("^[0-9]*[.,]?[0-9]*$");
-        if (!regex.test(e)) {
-            // prevent non-numeric input
-            e = e.slice(0, -1);
+        console.log("check regex", regex.test(e));
+        if (!regex.test(e.target.value)) {
+            console.log("regex failed", e);
+            e.target.value = e.target.value.slice(0, -1);
+            console.log("regex failed", e);
             return;
         }
 
-        const value = e.replace(",", ".");
+        const value = e.target.value.replace(",", ".");
+        console.log("value", value);
 
         setMainInput(text);
 
@@ -175,7 +178,7 @@ export const TokenQuantityInput = observer(({ text }: TokenQuantityInputProps) =
                         isThisMainInput ?
                             <input className="w-full text-2xl h-10 rounded-md p-2 focus:outline-none focus:border-blue-500 bg-transparent"
                                 placeholder="0"
-                                onChange={(value) => handleInputChange(value.target.value, "input")}
+                                onChange={(value) => handleInputChange(value, "input")}
                                 value={inputType == "balance" ? quantity : undefined}
                             /> :
                             swapIsLoading ?
