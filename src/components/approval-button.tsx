@@ -445,14 +445,6 @@ const ArcanumSwap = observer(() => {
         return <ConnectWalletButton />
     }
 
-    if (swapActionIsLoading || allowanceIsLoading || swapIsLoading) {
-        return <LoadingButton />
-    }
-
-    if (!failureReason && allowance! < fromBigNumber(inputQuantity!)) {
-        return <ApprovalButton approveTo={router.address} />
-    }
-
     if (failureReason) {
         if (failureReason.message.includes("No Swap Action")) {
             return <DefaultButton />
@@ -461,8 +453,16 @@ const ArcanumSwap = observer(() => {
         return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
     }
 
+    if (swapActionIsLoading || allowanceIsLoading || swapIsLoading) {
+        return <LoadingButton />
+    }
+
     if (inputQuantity === undefined || inputAsset === undefined) {
         return <DefaultButton />
+    }
+
+    if (allowance! < fromBigNumber(inputQuantity!)) {
+        return <ApprovalButton approveTo={router.address} />
     }
 
     return (
