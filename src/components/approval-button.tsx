@@ -223,7 +223,7 @@ const UniswapSwap = observer(() => {
     const { data: swapAction, refetch, failureReason } = useQuery({
         queryKey: ["uniswap-swap"],
         queryFn: async () => {
-            if (!inputQuantity) {
+            if (fromBigNumber(inputQuantity) == BigInt(0)) {
                 throw new Error("No Swap Action");
             }
             setLoading();
@@ -245,7 +245,8 @@ const UniswapSwap = observer(() => {
         },
         retry: (failureCount: number, error: any) => {
             if (error.toString().includes("Insufficient Allowance") ||
-                error.toString().includes("Insufficient Balance")) {
+                error.toString().includes("Insufficient Balance") || 
+                error.toString().includes("of executing this transaction exceeds the balance of the account")) {
                 return false;
             } else {
                 return true;
@@ -378,7 +379,8 @@ const ArcanumSwap = observer(() => {
         },
         retry: (failureCount: number, error: any) => {
             if (error.toString().includes("Insufficient Allowance") ||
-                error.toString().includes("Insufficient Balance")) {
+                error.toString().includes("Insufficient Balance") || 
+                error.toString().includes("of executing this transaction exceeds the balance of the account")) {
                 return false;
             } else {
                 return true;
@@ -438,7 +440,7 @@ const ArcanumSwap = observer(() => {
         return <LoadingButton />
     }
 
-    if (allowance! < fromBigNumber(inputQuantity!)) {
+    if (!failureReason && allowance! < fromBigNumber(inputQuantity!)) {
         return <ApprovalButton approveTo={router.address} />
     }
 
