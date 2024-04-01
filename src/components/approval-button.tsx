@@ -444,6 +444,10 @@ const ArcanumSwap = observer(() => {
         }
     }
 
+    if (swapActionIsLoading || allowanceIsLoading || swapIsLoading) {
+        return <LoadingButton />
+    }
+
     if (failureReason) {
         if (failureReason.message.includes("No Swap Action")) {
             return <DefaultButton />
@@ -454,10 +458,6 @@ const ArcanumSwap = observer(() => {
 
     if (!address) {
         return <ConnectWalletButton />
-    }
-
-    if (swapActionIsLoading || allowanceIsLoading || swapIsLoading) {
-        return <LoadingButton />
     }
 
     if (inputQuantity === undefined || inputAsset === undefined) {
