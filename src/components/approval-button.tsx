@@ -252,6 +252,7 @@ const UniswapSwap = observer(() => {
                 return true;
             }
         },
+        retryDelay: 30000
     });
 
     useEffect(() => {
@@ -386,6 +387,7 @@ const ArcanumSwap = observer(() => {
                 return true;
             }
         },
+        retryDelay: 30000
     });
 
     useEffect(() => {
