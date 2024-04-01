@@ -20,6 +20,9 @@ const ParseErrorMessage = (failureReason: any) => {
     if (failureReason.message.includes("DeviationExceedsLimit")) {
         return "Deviation Exceeds Limit";
     }
+    if (failureReason.message.includes("transfer amount exceeds allowance")) {
+        return "Insufficient Allowance";
+    }
     if (failureReason.message.includes("transfer amount exceeds balance")) {
         return "Insufficient Balance";
     }
@@ -68,7 +71,7 @@ const ParseErrorMessage = (failureReason: any) => {
     if (failureReason.message.includes("SignaturesNotSortedOrNotUnique")) {
         return "Signatures Not Sorted Or Not Unique";
     }
-    return failureReason.message;
+    return "Unknown Error";
 }
 
 export const ConnectWallet = () => {
@@ -308,15 +311,15 @@ const UniswapSwap = observer(() => {
         });
     }
 
+    if (!address) {
+        return <ConnectWalletButton />
+    }
+
     if (failureReason) {
         if (failureReason.message.includes("No Swap Action")) {
             return <DefaultButton />
         }
         return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
-    }
-
-    if (!address) {
-        return <ConnectWalletButton />
     }
 
     if (inputQuantity === undefined || inputAsset === undefined) {
@@ -438,6 +441,10 @@ const ArcanumSwap = observer(() => {
         }
     }
 
+    if (!address) {
+        return <ConnectWalletButton />
+    }
+
     if (swapActionIsLoading || allowanceIsLoading || swapIsLoading) {
         return <LoadingButton />
     }
@@ -452,10 +459,6 @@ const ArcanumSwap = observer(() => {
         }
 
         return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
-    }
-
-    if (!address) {
-        return <ConnectWalletButton />
     }
 
     if (inputQuantity === undefined || inputAsset === undefined) {
