@@ -17,6 +17,9 @@ import { Address } from "viem";
 
 
 const ParseErrorMessage = (failureReason: any) => {
+    if (failureReason.toString().includes("The volume is too large")) {
+        return "The volume is too large";
+    }
     if (failureReason.message.includes("DeviationExceedsLimit")) {
         return "Deviation Exceeds Limit";
     }
@@ -311,15 +314,15 @@ const UniswapSwap = observer(() => {
         });
     }
 
-    if (!address) {
-        return <ConnectWalletButton />
-    }
-
     if (failureReason) {
         if (failureReason.message.includes("No Swap Action")) {
             return <DefaultButton />
         }
         return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
+    }
+
+    if (!address) {
+        return <ConnectWalletButton />
     }
 
     if (inputQuantity === undefined || inputAsset === undefined) {
@@ -441,16 +444,16 @@ const ArcanumSwap = observer(() => {
         }
     }
 
-    if (!address) {
-        return <ConnectWalletButton />
-    }
-
     if (failureReason) {
         if (failureReason.message.includes("No Swap Action")) {
             return <DefaultButton />
         }
 
         return <ErrorButton errorMessage={ParseErrorMessage(failureReason)} />
+    }
+
+    if (!address) {
+        return <ConnectWalletButton />
     }
 
     if (swapActionIsLoading || allowanceIsLoading || swapIsLoading) {
