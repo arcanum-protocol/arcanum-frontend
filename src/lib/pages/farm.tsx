@@ -257,7 +257,7 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
                 <div className="flex flex-row justify-between w-[95%]">
                     <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = {toHumanReadableDollarValue(dollarValue)}$</div>
                     <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left cursor-pointer"
-                        onClick={() => setInput(BigNumber(data.balance.toString()).div(decimals).toFormat(18))}>
+                        onClick={() => setInput(BigNumber(data.balance.toString()).div(decimals).toFormat())}>
                             Balance: {data.balanceFormatted}</div>
                 </div>
             </div>
@@ -350,7 +350,7 @@ function Withdraw({ id, address, icon, name, staked, updateUserData }: { id: num
     }
 
     const _price = mpIdToPrice.get(lowAddress) || 0;
-    const dollarValue = (Number(input) * _price).toFixed(4);
+    const dollarValue = BigNumber(Number(input) * _price);
 
     return (
         <>
@@ -377,9 +377,9 @@ function Withdraw({ id, address, icon, name, staked, updateUserData }: { id: num
                 </div>
 
                 <div className="flex flex-row justify-between w-[95%]">
-                    <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = {dollarValue.toString()}$</div>
+                    <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = {toHumanReadableDollarValue(dollarValue)}$</div>
                     <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left cursor-pointer"
-                        onClick={() => setInput(BigNumber(staked.toString()).div(decimals).toFormat(18))}>
+                        onClick={() => setInput(BigNumber(staked.toString()).div(decimals).toFormat())}>
                         Staked: {staked.div(decimals).toFixed(4)}</div>
                 </div>
             </div>
