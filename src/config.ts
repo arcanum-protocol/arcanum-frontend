@@ -58,6 +58,7 @@ const productionConfig = createConfig(
     }),
 );
 
+// Export the config
 export const config = import.meta.env.VITE_ENVIRONMENT === "production" ? productionConfig : developConfig;
 
 export const arbitrumPublicClient = createPublicClient({
