@@ -11,7 +11,6 @@ import { observer } from "mobx-react-lite";
 import { useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { toJS } from "mobx";
 import { tohumanReadableQuantity } from "../utils";
 
 export const Head = observer(() => {

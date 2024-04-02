@@ -12,7 +12,6 @@ import { getExternalAssets } from "@/lib/multipoolUtils";
 import { useState } from "react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { getAssetInfo } from "@/api/arcanum";
-import { toJS } from "mobx";
 
 export function tohumanReadableCashback(number: BigNumber, etherPrice: number | undefined, decimals = 18) {
     if (etherPrice === undefined) {

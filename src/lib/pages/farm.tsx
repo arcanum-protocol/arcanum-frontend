@@ -30,6 +30,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
+import { toHumanReadableDollarValue } from "../utils";
 
 
 function truncateAddress(address: string) {
@@ -227,7 +228,7 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
     }
 
     const _price = mpIdToPrice.get(lowAddress) || 0;
-    const dollarValue = (Number(input) * _price).toFixed(4);
+    const dollarValue = BigNumber(Number(input) * _price);
 
     return (
         <>
@@ -254,7 +255,7 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
                 </div>
 
                 <div className="flex flex-row justify-between w-[95%]">
-                    <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = {dollarValue.toString()}$</div>
+                    <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left"> = {toHumanReadableDollarValue(dollarValue)}$</div>
                     <div className="text-xs leading-4 m-0 text-[13px] text-[#888888] hover:text-[#a1a1a1] transition ease-in-out delay-10 font-light text-left cursor-pointer"
                         onClick={() => setInput(BigNumber(data.balance.toString()).div(decimals).toFormat(18))}>
                             Balance: {data.balanceFormatted}</div>
@@ -426,6 +427,8 @@ function Claim({ id, address, updateUserData }: { id: number, address: Address, 
         args: [BigInt(id), userAddress],
     });
 
+    const isClaimDisabled = amountToClaim?.rd === 0n;
+
     return (
         <div className="w-full flex flex-col mt-2 gap-2">
             <div className="flex items-center gap-1 h-[46px]">
@@ -433,7 +436,7 @@ function Claim({ id, address, updateUserData }: { id: number, address: Address, 
 
             {userAddress ?
 
-                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={isClaimDisabled} onClick={async () => {
                     if (!userAddress) {
                         return;
                     }
@@ -462,7 +465,7 @@ function Claim({ id, address, updateUserData }: { id: number, address: Address, 
 
             {userAddress ?
 
-                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={false} onClick={async () => {
+                <Button className="w-full border bg-transparent rounded border-green-300 text-slate-50 hover:border-green-500 hover:bg-transparent" disabled={isClaimDisabled} onClick={async () => {
                     if (!userAddress) {
                         return;
                     }
