@@ -15,7 +15,7 @@ const customTestnet = {
     },
 } as const satisfies Chain;
 
-export const config = createConfig(
+const developConfig = createConfig(
     getDefaultConfig({
         walletConnectProjectId: "1d63d7e43fd1d5ea177bdb4a8939ade4",
         connectors: [injected()],
@@ -36,6 +36,29 @@ export const config = createConfig(
         appIcon: "https://arcanum.to/logo.png",
     }),
 );
+
+const productionConfig = createConfig(
+    getDefaultConfig({
+        walletConnectProjectId: "1d63d7e43fd1d5ea177bdb4a8939ade4",
+        connectors: [injected()],
+
+        chains: [arbitrum],
+        transports: {
+            [arbitrum.id]: http(),
+        },
+
+        // Required
+        appName: "ARCANUM",
+
+        // Optional
+        appDescription:
+            "Decentralized asset management protocol that allows to create complicated asset management portfolio and manage them in a DeFi manner.",
+        appUrl: "https://arcanum.to",
+        appIcon: "https://arcanum.to/logo.png",
+    }),
+);
+
+export const config = import.meta.env.VITE_ENVIRONMENT === "production" ? productionConfig : developConfig;
 
 export const arbitrumPublicClient = createPublicClient({
     chain: arbitrum,
