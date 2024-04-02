@@ -198,17 +198,30 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
             allowance: 0n,
         },
     });
+
+    const [isApproving, setIsApproving] = useState(false);
     
-    const { writeContractAsync } = useWriteContract({
+    const { writeContractAsync: Deposit } = useWriteContract({
         mutation: {
             onSuccess: (txHash) => {
                 updateUserData();
+            },
+        }
+    });
+    
+    const { writeContractAsync: Approve } = useWriteContract({
+        mutation: {
+            onSuccess: (txHash) => {
+                setIsApproving(false);
                 checkAllowance();
             },
         }
     });
 
     const text = () => {
+        if (isApproving) {
+            return "Approving...";
+        }
         if (data.allowance < toContractBigint(input)) {
             return "Approve";
         }
@@ -270,20 +283,20 @@ function Deposit({ id, address, icon, name, updateUserData }: { id: number, addr
                                 return;
                             }
                             if (data.allowance >= toContractBigint(input)) {
-                                await writeContractAsync({
+                                await Deposit({
                                     address: FarmsConatractInstance.address,
                                     abi: FarmsConatractInstance.abi,
                                     functionName: "deposit",
                                     args: [BigInt(id), toContractBigint(input), false],
                                 })
                             } else {
-                                await writeContractAsync({
+                                setIsApproving(true);
+                                await Approve({
                                     address: address,
                                     abi: ERC20,
                                     functionName: "approve",
                                     args: [FarmsConatractInstance.address, BigInt("115792089237316195423570985008687907853269984665640564039457584007913129639935")],
                                 })
-                                await checkAllowance();
                             }
                         } catch (e) {
                             console.log(e)
