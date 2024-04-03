@@ -28,8 +28,20 @@ export const Admin = observer(() => {
     )
 });
 
-export const Multipool = () => {
+const addressToId: Record<string, string> = {
+    "0x71b9d28384aEb0949Fe9Ee3a1d52F27034E1F976": "yield"
+};
+
+export const Multipool = ({ isAddress }: { isAddress: boolean }) => {
     const { id } = useParams();
+
+    if (isAddress) {
+        const _id = addressToId[id!];
+
+        return (
+            <NestedMultipoolComponent id={_id} rndid={Math.floor(Math.random() * 1000).toString()} />
+        );
+    }
 
     return (
         <NestedMultipoolComponent id={id ?? "arbi"} rndid={Math.floor(Math.random() * 1000).toString()} />

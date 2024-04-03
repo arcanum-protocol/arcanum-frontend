@@ -1,0 +1,25 @@
+"name": "YIELD"
+"address": "0x71b9d28384aEb0949Fe9Ee3a1d52F27034E1F976"
+"router_address": "0x36ebe888dc501e3a764f1c4910b13aaf8efd0583"
+"chain_id": 42161
+"logo": "/multipools/SPI.svg"
+"assets":
+  - "symbol": "WBTC"
+    "logo": "https://app.arcanum.to/tokens/wsteth.svg"
+    "decimals": 8
+    "address": "0x96e1301bd2536a3c56ebff8335fd892dd9bd02dc"
+
+  - "symbol": "USDT"
+    "logo": "https://app.arcanum.to/tokens/wsteth.svg"
+    "decimals": 6
+    "address": "0xe9b35c753b6ec9b5a4bbd8c385d16cdb19517185"
+
+  - "symbol": "wstETH"
+    "logo": "https://app.arcanum.to/tokens/wsteth.svg"
+    "decimals": 18
+    "address": "0xaf06c6106d3a202ad53a4584189e3dd37e4d2735"
+
+  - "symbol": "wstETH"
+    "logo": "https://app.arcanum.to/tokens/wsteth.svg"
+    "decimals": 18
+    "address": "0x51ddfa50752782089d032dd293e4650daf16f151"
