@@ -71,11 +71,15 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "/",
-                element: <Multipool />,
+                element: <Multipool isAddress={false} />,
             },
             {
                 path: "/:id",
-                element: <Multipool />,
+                element: <Multipool isAddress={false} />,
+            },
+            {
+                path: "/addr/:id",
+                element: <Multipool isAddress={true} />,
             },
             {
                 path: "/admin",
