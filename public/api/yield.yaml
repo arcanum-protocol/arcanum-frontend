@@ -4,22 +4,22 @@
 "chain_id": 42161
 "logo": "/multipools/SPI.svg"
 "assets":
-  - "symbol": "WBTC"
+  - "symbol": "sUSDC-GMX"
     "logo": "https://app.arcanum.to/tokens/wsteth.svg"
     "decimals": 8
     "address": "0x96e1301bd2536a3c56ebff8335fd892dd9bd02dc"
 
-  - "symbol": "USDT"
+  - "symbol": "sUSDC-RDNT"
     "logo": "https://app.arcanum.to/tokens/wsteth.svg"
     "decimals": 6
     "address": "0xe9b35c753b6ec9b5a4bbd8c385d16cdb19517185"
 
-  - "symbol": "wstETH"
+  - "symbol": "sUSDC-LUSD"
     "logo": "https://app.arcanum.to/tokens/wsteth.svg"
     "decimals": 18
     "address": "0xaf06c6106d3a202ad53a4584189e3dd37e4d2735"
 
-  - "symbol": "wstETH"
+  - "symbol": "sUSDC-WOO"
     "logo": "https://app.arcanum.to/tokens/wsteth.svg"
     "decimals": 18
     "address": "0x51ddfa50752782089d032dd293e4650daf16f151"
