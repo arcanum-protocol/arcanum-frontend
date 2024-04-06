@@ -12,6 +12,18 @@ import { getExternalAssets } from "@/lib/multipoolUtils";
 import { useState } from "react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { getAssetInfo } from "@/api/arcanum";
+import { Pencil } from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { useWriteContract } from "wagmi";
+import ETF from "@/abi/ETF";
+
 
 export function tohumanReadableCashback(number: BigNumber, etherPrice: number | undefined, decimals = 18) {
     if (etherPrice === undefined) {
@@ -86,7 +98,9 @@ function PfP({ logo, symbol, idealShare }: { logo: string | undefined, symbol: s
     );
 }
 
-function IdealShare({ idealShare }: { idealShare: BigNumber | undefined }) {
+const IdealShare = observer(({ idealShare }: { idealShare: BigNumber | undefined }) => {
+    const { isAdminView } = useMultipoolStore();
+
     if (!idealShare) {
         return (
             <TableCell>
@@ -96,11 +110,16 @@ function IdealShare({ idealShare }: { idealShare: BigNumber | undefined }) {
     }
 
     return (
-        <TableCell>
+        <TableCell className="flex flex-row items-center gap-2">
             <p>{idealShare.toFixed(4)}%</p>
+            {
+                isAdminView && (
+                    <Pencil className="cursor-pointer" size={14} />
+                )
+            }
         </TableCell>
     );
-}
+});
 
 const CurrentShare = observer(({ token }: { token: Address }) => {
     const { currentShares } = useMultipoolStore()
@@ -295,8 +314,36 @@ const Deviation = observer(({ idealShare, token }: {
     );
 });
 
+function ChangeTargetShare({ multipool, token }: { multipool: Address, token: Address }) {
+    const [targetShares, setTargetShares] = useState<bigint>(0n);
+    const { writeContract } = useWriteContract();
+
+    return (
+        <div className="flex flex-col items-center justify-center">
+            <p>Set Target Share</p>
+            <input
+                type="number"
+                value={targetShares.toString()}
+                onChange={(e) => setTargetShares(BigInt(e.target.value))}
+                className="rounded border bg-[#0c0a09] border-[#292524] p-2"
+            />
+            <button
+                onClick={() => writeContract({
+                    address: multipool,
+                    abi: ETF,
+                    functionName: "updateTargetShares",
+                    args: [[token], [targetShares]],
+                })}
+                className="text-white font-bold py-2 px-4 rounded bg-[#0c0a09] border border-[#292524] mt-2"
+            >
+                Change Target Share
+            </button>
+        </div>
+    )
+}
+
 export const IndexAssetsBreakdown = observer(() => {
-    const { assetsIsLoading, assets, setExternalAssets, setPrices, currentShares, prices, etherPrice } = useMultipoolStore();
+    const { multipoolAddress, assetsIsLoading, assets, setExternalAssets, setPrices, prices, etherPrice, isAdminView } = useMultipoolStore();
 
     useQuery({
         queryKey: ["external-assets"],
@@ -353,6 +400,27 @@ export const IndexAssetsBreakdown = observer(() => {
                             .map((fetchedAsset) => {
                                 const balance = fetchedAsset.multipoolQuantity;
 
+                                if (isAdminView) {
+                                    return (
+                                        <TableRow key={fetchedAsset.address}>
+                                            <PfP logo={fetchedAsset.logo} symbol={fetchedAsset.symbol} idealShare={fetchedAsset.idealShare} />
+                                            <Dialog>
+                                                <DialogTrigger>
+                                                    <IdealShare idealShare={fetchedAsset.idealShare} />
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <ChangeTargetShare multipool={multipoolAddress} token={fetchedAsset.address} />
+                                                </DialogContent>
+                                            </Dialog>
+                                            <CurrentShare token={fetchedAsset.address} />
+                                            <PriceCell price={prices[fetchedAsset.address]} etherPrice={etherPrice} />
+                                            <Balance symbol={fetchedAsset.symbol} balance={balance} decimals={fetchedAsset.decimals} />
+                                            <Deviation idealShare={fetchedAsset.idealShare} token={fetchedAsset.address} />
+                                            <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, etherPrice)}</TableCell>
+                                        </TableRow>
+                                    )
+                                }
+
                                 return (
                                     <TableRow key={fetchedAsset.address}>
                                         <PfP logo={fetchedAsset.logo} symbol={fetchedAsset.symbol} idealShare={fetchedAsset.idealShare} />
@@ -363,7 +431,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                         <Deviation idealShare={fetchedAsset.idealShare} token={fetchedAsset.address} />
                                         <TableCell>{tohumanReadableCashback(fetchedAsset.collectedCashbacks, etherPrice)}</TableCell>
                                     </TableRow>
-                                )
+                                );
                             })
                     }
                 </TableBody>

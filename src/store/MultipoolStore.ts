@@ -86,6 +86,8 @@ class MultipoolStore {
     assetsIsLoading: boolean = true;
     pricesIsLoading: boolean = true;
 
+    isAdminView: boolean = false;
+
     constructor(mp_id: string, multipool: {
         name: string;
         address: `0x${string}`;
@@ -115,6 +117,12 @@ class MultipoolStore {
 
         this.multipoolIsLoading = false;
         makeAutoObservable(this, {}, { autoBind: true });
+    }
+
+    setAdminView() {
+        runInAction(() => {
+            this.isAdminView = !this.isAdminView;
+        });
     }
 
     setLoading() {
@@ -771,6 +779,7 @@ class MultipoolStore {
     async swapUniswap(userAddress?: Address) {
         if (this.multipool.address === undefined) throw new Error("Multipool address is undefined");
         if (this.router === undefined) throw new Error("Router is undefined");
+        if (this.inputQuantity === undefined) throw new Error("Input quantity is undefined");
         if (fromBigNumber(this.inputQuantity) == BigInt(0)) throw new Error("Input quantity is undefined");
         if (this.inputAsset === undefined) throw new Error("Input asset is undefined");
         if (this.inputAsset.address === undefined) throw new Error("Input asset address is undefined");

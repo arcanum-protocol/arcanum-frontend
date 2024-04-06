@@ -10,15 +10,18 @@ import { AdminPannel } from './admin';
 import { useQuery } from '@tanstack/react-query';
 import { StoreProvider, useMultipoolStore } from '@/contexts/StoreContext';
 import { getEtherPrice, getMultipool, getMultipoolMarketData } from '@/api/arcanum';
-import { useToast } from '@/components/ui/use-toast';
+import { toast, useToast } from '@/components/ui/use-toast';
 import { Link, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { fromX96 } from '../utils';
 import BigNumber from 'bignumber.js';
-import { usePublicClient } from 'wagmi';
+import { useAccount, usePublicClient, useReadContract, useWriteContract } from 'wagmi';
 import ETF from '@/abi/ETF';
 import { MultipoolAsset } from '@/types/multipoolAsset';
 import { Address } from 'viem';
+import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import VAULT from '@/abi/VAULT';
 
 export const Admin = observer(() => {
     return (
@@ -199,22 +202,145 @@ export const MainInner = observer(() => {
                     <TVChartContainer />
                     <IndexAssetsBreakdown />
                 </div >
-                <ActionForm className="h-fit w-[21.4375rem]" />
+                <div className='flex flex-col items-center gap-2'>
+                    <ActionForm />
+                    <AdminToggle />
+                </div>
             </div >
         </>
     );
 });
 
-interface ActionFormProps {
-    className?: string;
+const AdminToggle = observer(() => {
+    const { multipool, isAdminView, setAdminView } = useMultipoolStore();
+
+    const { address } = useAccount();
+    const { data: admin, isLoading, isError } = useReadContract({
+        address: multipool.address as Address,
+        abi: ETF,
+        functionName: "owner",
+    });
+
+    if (isLoading) {
+        return <></>;
+    }
+
+    if (isError) {
+        return <></>;
+    }
+
+    if (address == admin) {
+        return (
+            <div className="bg-[#0c0a09] rounded border border-[#292524] p-4 w-full flex items-center justify-between">
+                Toggle Admin View
+                <Switch checked={isAdminView} onCheckedChange={setAdminView} />
+            </div>
+        )
+    }
+
+    return <></>;
+});
+
+function AddBalance({ multipoolAddress }: { multipoolAddress: Address }) {
+    const { writeContract } = useWriteContract();
+    const [ethValue, setEthValue] = useState<bigint>(0n);
+
+    return (
+        <div className="flex flex-col items-center justify-center">
+            <p>Add Balance</p>
+            <input className='text-black' type="number" placeholder="ETH Value" onChange={(e) => setEthValue(BigInt(e.target.value))} />
+            <button className='mt-2 border rounded p-2' onClick={() => {
+                if (ethValue == 0n) {
+                    return;
+                }
+                writeContract({
+                    address: "0xB9cb365F599885F6D97106918bbd406FE09b8590" as Address,
+                    abi: VAULT,
+                    functionName: "addBalance",
+                    args: [multipoolAddress],
+                    value: ethValue
+                });
+            }}>
+                Add Balance
+            </button>
+        </div>
+    )
 }
 
-export const ActionForm = observer(({ className }: ActionFormProps) => {
-    const { selectedTab, setSelectedTabWrapper } = useMultipoolStore();
+function UpdateDistributionParams({ multipoolAddress }: { multipoolAddress: Address }) {
+    const { writeContract } = useWriteContract({
+        mutation: {
+            onError: (error) => {
+                console.error(error);
+                toast({
+                    title: "Error",
+                    description: `An error occured while updating the distribution params ${error}`,
+                    duration: 1000
+                });
+            }
+        }
+    });
+
+    const [cashbackPerSecond, setCashbackPerSecond] = useState<bigint>(0n);
+    const [cashbackLimit, setCashbackLimit] = useState<bigint>(0n);
+    const [cashbackBalanceChange, setCashbackBalanceChange] = useState<bigint>(0n);
+
+    return (
+        <div className="flex flex-col items-center justify-center gap-2">
+            <p>Update Distribution Params</p>
+            <input className='text-black' type="number" placeholder="Cashback Per Second" onChange={(e) => setCashbackPerSecond(BigInt(e.target.value))} />
+            <input className='text-black' type="number" placeholder="Cashback Limit" onChange={(e) => setCashbackLimit(BigInt(e.target.value))} />
+            <input className='text-black' type="number" placeholder="Cashback Balance Change" onChange={(e) => setCashbackBalanceChange(BigInt(e.target.value))} />
+
+            <button className='mt-2 border rounded p-2' onClick={() => {
+                writeContract({
+                    address: "0xB9cb365F599885F6D97106918bbd406FE09b8590" as Address,
+                    abi: VAULT,
+                    functionName: "updateDistributionParams",
+                    args: [multipoolAddress, cashbackPerSecond, cashbackLimit, cashbackBalanceChange]
+                });
+            }}>
+                Update Distribution Params
+            </button>
+        </div>
+    )
+}
+
+export const ActionForm = observer(() => {
+    const { multipoolAddress, selectedTab, setSelectedTabWrapper, isAdminView } = useMultipoolStore();
+
+    if (isAdminView) {
+        return (
+            <>
+                <div className="h-[528px] w-[21.4375rem] p-4 bg-[#0c0a09] rounded border gap-2 border-[#292524] flex flex-col ">
+                    <Dialog>
+                        <DialogTrigger>
+                            <button className="bg-[#0c0a09] text-white rounded border p-2 w-full">
+                                Add Balance
+                            </button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <AddBalance multipoolAddress={multipoolAddress} />
+                        </DialogContent>
+                    </Dialog>
+                    <Dialog>
+                        <DialogTrigger>
+                            <button className="bg-[#0c0a09] text-white rounded border p-2 w-full">
+                                Update Distribution Params
+                            </button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <UpdateDistributionParams multipoolAddress={multipoolAddress} />
+                        </DialogContent>
+                    </Dialog>
+                </div>
+            </>
+        )
+    }
 
     return (
         <div>
-            <div className={`${className} p-4 bg-[#0c0a09] rounded-md border border-[#292524]`}>
+            <div className="h-fit w-[21.4375rem] p-4 bg-[#0c0a09] rounded border border-[#292524]">
                 <Tabs className="grid-cols-3" value={selectedTab} onValueChange={(value: string | undefined) => setSelectedTabWrapper(value)}>
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="mint" className='text-lg font-bold'>Mint</TabsTrigger>
