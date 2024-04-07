@@ -1,5 +1,5 @@
 import path from "path"
-import { defineConfig, PluginOption } from 'vite';
+import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import ViteYaml from '@modyfi/vite-plugin-yaml';
 import topLevelAwait from 'vite-plugin-top-level-await';
@@ -10,8 +10,7 @@ export default defineConfig(() => {
     plugins: [
       react(),
       ViteYaml(), 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      wasm() as PluginOption,
+      wasm(),
       topLevelAwait(),
     ],
     resolve: {
