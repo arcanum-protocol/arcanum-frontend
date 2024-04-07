@@ -6,31 +6,21 @@ import { useQuery } from "@tanstack/react-query";
 function WASMTest() {
     const [result, setResult] = useState<string>("0");
 
-    // (async () => {
-    //     const res = await init(examplesWASMUrl);
+    // useQuery({
+    //     queryKey: ["wasm"],
+    //     queryFn: async () => {
+    //         const res = await init(examplesWASMUrl);
 
-    //     console.log(res);
+    //         var a = await ChainData.new();
+    //         console.log(await a.add_address("0xD730eeCe7177E970Be2AabA268aE0817C7d05E5E"));
+    //         console.log(await a.get_balance("0xD730eeCe7177E970Be2AabA268aE0817C7d05E5E"));
 
-    //     var a = await ChainData.new();
-    //     console.log(await a.add_address("0xD730eeCe7177E970Be2AabA268aE0817C7d05E5E"));
-    //     console.log(await a.get_balance("0xD730eeCe7177E970Be2AabA268aE0817C7d05E5E"));
-    // })();
-
-    useQuery({
-        queryKey: ["wasm"],
-        queryFn: async () => {
-            const res = await init(examplesWASMUrl);
-
-            var a = await ChainData.new();
-            console.log(await a.add_address("0xD730eeCe7177E970Be2AabA268aE0817C7d05E5E"));
-            console.log(await a.get_balance("0xD730eeCe7177E970Be2AabA268aE0817C7d05E5E"));
-
-            setTimeout(async () => {
-                console.log("Freeing memory");
-                a.free();
-            }, 10000);
-        }
-    });
+    //         setTimeout(async () => {
+    //             console.log("Freeing memory");
+    //             res.free();
+    //         }, 10000);
+    //     }
+    // });
 
     return <div>{result}</div>;
 }
