@@ -66,10 +66,10 @@ async function getMultipoolMarketData(multipoolAddress: Address) {
 
 // continiously-call
 async function getEtherPrice() {
-    const responce = await axios.get(`https://token-rates-aggregator.1inch.io/v1.0/native-token-rate?vs=USD`);
+    const responce = await axios.get(`https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD`);
     const data = await responce.data;
 
-    return Number(data["42161"]["USD"]);
+    return Number(data["USD"]);
 }
 
 // continiously-call

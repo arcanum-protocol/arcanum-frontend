@@ -33,7 +33,7 @@
   },
   "include": [
     "src"
-  ],
+, "node_modules/pkg"  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
