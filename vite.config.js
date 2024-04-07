@@ -19,7 +19,7 @@ export default defineConfig(() => {
       },
     },
     define: {
-      __APP_ENV__: process.env.VITE_ENVIRONMENT,
+      __APP_ENV__: process.env.VITE_ENVIRONMENT
     },
   }
 })
