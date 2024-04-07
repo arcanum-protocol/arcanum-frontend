@@ -9,12 +9,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "./lib/pages/analytics";
 import { Farms } from "./lib/pages/farm";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { WagmiProvider  } from "wagmi";
+import { WagmiProvider } from "wagmi";
 import { ConnectKitProvider } from "connectkit";
 import { config } from "./config";
 import { ThemeProvider } from "./contexts/ThemeProvider";
 import { FarmsAdmin } from "./lib/pages/admin/farmsadmin";
 import Accounts from "./lib/pages/admin/accounts";
+import { WASMTest } from "./lib/pages/wasmtest";
 
 
 function ErrorBoundary() {
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
                 element: <Multipool isAddress={true} />,
             },
             {
+                path: "/wasmtest",
+                element: <WASMTest />,
+            },
+            {
                 path: "/admin",
                 element: <Admin />,
             },
@@ -111,7 +116,6 @@ const router = createBrowserRouter([
             }
         ]
     },
-
 ]);
 
 const client = new QueryClient();
