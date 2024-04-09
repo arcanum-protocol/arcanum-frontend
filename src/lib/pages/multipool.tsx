@@ -15,13 +15,14 @@ import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { fromX96 } from '../utils';
 import BigNumber from 'bignumber.js';
-import { useAccount, usePublicClient, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useBalance, usePublicClient, useReadContract, useWriteContract } from 'wagmi';
 import ETF from '@/abi/ETF';
 import { MultipoolAsset } from '@/types/multipoolAsset';
 import { Address } from 'viem';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import VAULT from '@/abi/VAULT';
+import { Separator } from '@/components/ui/separator';
 
 export const Admin = observer(() => {
     return (
@@ -308,33 +309,111 @@ function UpdateDistributionParams({ multipoolAddress }: { multipoolAddress: Addr
 
 export const ActionForm = observer(() => {
     const { multipoolAddress, selectedTab, setSelectedTabWrapper, isAdminView } = useMultipoolStore();
+    const publicClient = usePublicClient();
+    const [unit, setUnit] = useState<"wei" | "kwei" | "mwei" | "gwei" | "szabo" | "finney" | "eth">("eth");
+
+    const { data: cashback } = useQuery({
+        queryKey: ["cashback", multipoolAddress],
+        queryFn: async () => {
+            const cashback = await publicClient?.readContract({
+                address: "0xB9cb365F599885F6D97106918bbd406FE09b8590" as Address,
+                abi: VAULT,
+                functionName: "getDistrubutor",
+                args: [multipoolAddress]
+            });
+
+            return cashback;
+        },
+    });
+
+    const { data: balance } = useBalance({ address: "0xB9cb365F599885F6D97106918bbd406FE09b8590" });
+
+    const perSecBigNumber = new BigNumber(cashback?.cashbackPerSec.toString() ?? 0);
+    const perMin = perSecBigNumber.multipliedBy(60);
+    const perHour = perMin.multipliedBy(60);
+    const perDay = perHour.multipliedBy(24);
+    const perWeek = perDay.multipliedBy(7);
+    const perMonth = perDay.multipliedBy(30);
+
+    function nextUnit() {
+        switch (unit) {
+            case "wei":
+                return "kwei";
+            case "kwei":
+                return "mwei";
+            case "mwei":
+                return "gwei";
+            case "gwei":
+                return "szabo";
+            case "szabo":
+                return "finney";
+            case "finney":
+                return "eth";
+            case "eth":
+                return "wei";
+        }
+    }
+
+    function switchNextUnit() {
+        setUnit(nextUnit());
+    }
+
+    function toEther(value: BigNumber): string {
+        switch (unit) {
+            case "wei":
+                return value.toFixed(0);
+            case "kwei":
+                return value.dividedBy("1000").decimalPlaces(6).toString();
+            case "mwei":
+                return value.dividedBy("1000000").decimalPlaces(6).toString();
+            case "gwei":
+                return value.dividedBy("1000000000").decimalPlaces(6).toString();
+            case "szabo":
+                return value.dividedBy("1000000000000").decimalPlaces(6).toString();
+            case "finney":
+                return value.dividedBy("1000000000000000").decimalPlaces(6).toString();
+            case "eth":
+                return value.dividedBy("1000000000000000000").decimalPlaces(6).toString();
+        }
+    }
 
     if (isAdminView) {
         return (
-            <>
-                <div className="h-[528px] w-[21.4375rem] p-4 bg-[#0c0a09] rounded border gap-2 border-[#292524] flex flex-col ">
-                    <Dialog>
-                        <DialogTrigger>
-                            <button className="bg-[#0c0a09] text-white rounded border p-2 w-full">
-                                Add Balance
-                            </button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <AddBalance multipoolAddress={multipoolAddress} />
-                        </DialogContent>
-                    </Dialog>
-                    <Dialog>
-                        <DialogTrigger>
-                            <button className="bg-[#0c0a09] text-white rounded border p-2 w-full">
-                                Update Distribution Params
-                            </button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <UpdateDistributionParams multipoolAddress={multipoolAddress} />
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </>
+            <div className="h-[528px] w-[21.4375rem] p-4 bg-[#0c0a09] rounded border gap-2 border-[#292524] flex flex-col">
+                <p className="text-white cursor-pointer text-lg font-bold">Admin Panel</p>
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>Cashback per asset</p>
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>{toEther(perMin)} {unit} / min</p>
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>{toEther(perHour)} {unit} / hour</p>
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>{toEther(perDay)} {unit} / day</p>
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>{toEther(perWeek)} {unit} / week</p>
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>{toEther(perMonth)} {unit} / month</p>
+                <Separator />
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>Balance</p>
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>{toEther(BigNumber(balance?.value.toString() ?? "0"))} {unit}</p>
+                <Separator />
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>Limit</p>
+                <p className="text-white cursor-pointer text-sm" onClick={() => switchNextUnit()}>{toEther(BigNumber(cashback?.cashbackLimit.toString() ?? "0"))} {unit}</p>
+                <Dialog>
+                    <DialogTrigger>
+                        <button className="bg-[#0c0a09] text-white rounded border p-2 w-full">
+                            Add Balance
+                        </button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <AddBalance multipoolAddress={multipoolAddress} />
+                    </DialogContent>
+                </Dialog>
+                <Dialog>
+                    <DialogTrigger>
+                        <button className="bg-[#0c0a09] text-white rounded border p-2 w-full">
+                            Update Distribution Params
+                        </button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <UpdateDistributionParams multipoolAddress={multipoolAddress} />
+                    </DialogContent>
+                </Dialog>
+            </div>
         )
     }
 
