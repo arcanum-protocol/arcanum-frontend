@@ -13,7 +13,7 @@ import { getEtherPrice, getMultipool, getMultipoolMarketData } from '@/api/arcan
 import { toast, useToast } from '@/components/ui/use-toast';
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { fromX96 } from '../utils';
+import { fromBigNumber, fromX96 } from '../utils';
 import BigNumber from 'bignumber.js';
 import { useAccount, useBalance, usePublicClient, useReadContract, useWriteContract } from 'wagmi';
 import ETF from '@/abi/ETF';
@@ -23,6 +23,8 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import VAULT from '@/abi/VAULT';
 import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 
 export const Admin = observer(() => {
     return (
@@ -307,6 +309,98 @@ function UpdateDistributionParams({ multipoolAddress }: { multipoolAddress: Addr
     )
 }
 
+const ApplyTargetSharesChanges = observer(() => {
+    const { writeContract } = useWriteContract();
+    const { multipoolAddress, assets, targetSharesToSet } = useMultipoolStore();
+
+    const targetSharesToChange: {
+        name: string,
+        address: Address,
+        targetShare: number
+        newTargetShare: BigNumber
+    }[] = [];
+
+    const _totalNewTargetShares = assets.reduce((acc, val) => {
+        // take new target shares, for assets that need to be update, and target shares for assets that don't need to be updated
+        const newTargetShare = targetSharesToSet.get(val.address);
+        const targetShare = val.idealShare;
+
+        if (newTargetShare == undefined) {
+            return acc.plus(targetShare!);
+        }
+
+        return acc.plus(newTargetShare!.toString());
+    }, BigNumber(0));
+    const totalNewTargetShares = BigNumber(_totalNewTargetShares.toString());
+
+    for (let i = 0; i < assets.length; i++) {
+        const asset = assets[i];
+        const targetShare = asset.idealShare;
+        const newTargetShare = targetSharesToSet.get(asset.address);
+        
+        if (newTargetShare == undefined) {
+            const _newTargetShare = targetShare!.dividedBy(totalNewTargetShares).multipliedBy(100);
+
+            targetSharesToChange.push({
+                name: asset.symbol,
+                address: asset.address,
+                targetShare: targetShare!.toNumber(),
+                newTargetShare: _newTargetShare
+            });
+
+            continue;
+        }
+
+        const _newTargetShareBG = BigNumber((newTargetShare ?? 0n).toString());
+        const _newTargetShare = _newTargetShareBG.dividedBy(totalNewTargetShares).multipliedBy(100);
+
+        targetSharesToChange.push({
+            name: asset.symbol,
+            address: asset.address,
+            targetShare: targetShare!.toNumber(),
+            newTargetShare: _newTargetShare
+        });
+    }
+
+    const addresses = Array.from(targetSharesToSet).map((asset) => asset[0]);
+    const numbers = Array.from(targetSharesToSet).map((asset) => asset[1]);
+
+    return (
+        <div className="flex flex-col items-center justify-center gap-2">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Asset</TableHead>
+                        <TableHead>Old Target Share</TableHead>
+                        <TableHead>New Target Share</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {targetSharesToChange.map((asset) => {
+                        return (
+                            <TableRow key={asset.address}>
+                                <TableCell>{asset.name}</TableCell>
+                                <TableCell>{asset.targetShare}%</TableCell>
+                                <TableCell>{asset.newTargetShare.toFixed(2)}%</TableCell>
+                            </TableRow>
+                        );
+                    })}
+                </TableBody>
+            </Table>
+            <button className='mt-2 border rounded p-2' onClick={() => {
+                writeContract({
+                    address: multipoolAddress,
+                    abi: ETF,
+                    functionName: "updateTargetShares",
+                    args: [addresses, numbers]
+                });
+            }}>
+                Apply Target Shares Changes
+            </button>
+        </div>
+    )
+});
+
 export const ActionForm = observer(() => {
     const { multipoolAddress, selectedTab, setSelectedTabWrapper, isAdminView } = useMultipoolStore();
     const publicClient = usePublicClient();
@@ -411,6 +505,16 @@ export const ActionForm = observer(() => {
                     </DialogTrigger>
                     <DialogContent>
                         <UpdateDistributionParams multipoolAddress={multipoolAddress} />
+                    </DialogContent>
+                </Dialog>
+                <Dialog>
+                    <DialogTrigger>
+                        <button className="bg-[#0c0a09] text-white rounded border p-2 w-full">
+                            Apply target shares changes
+                        </button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <ApplyTargetSharesChanges />
                     </DialogContent>
                 </Dialog>
             </div>

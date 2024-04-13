@@ -7,7 +7,7 @@ import BigNumber from "bignumber.js";
 import { useQuery } from "@tanstack/react-query";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { Address } from "viem";
-import { tohumanReadableQuantity } from "@/lib/utils";
+import { fromBigNumber, tohumanReadableQuantity } from "@/lib/utils";
 import { getExternalAssets } from "@/lib/multipoolUtils";
 import { useState } from "react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
@@ -16,13 +16,8 @@ import { Pencil } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { useWriteContract } from "wagmi";
-import ETF from "@/abi/ETF";
 
 
 export function tohumanReadableCashback(number: BigNumber, etherPrice: number | undefined, decimals = 18) {
@@ -314,9 +309,10 @@ const Deviation = observer(({ idealShare, token }: {
     );
 });
 
-function ChangeTargetShare({ multipool, token }: { multipool: Address, token: Address }) {
-    const [targetShares, setTargetShares] = useState<bigint>(0n);
-    const { writeContract } = useWriteContract();
+const ChangeTargetShare = observer(({ token, currentIdealShare }: { multipool: Address, token: Address, currentIdealShare: BigNumber }) => {
+    const { setTargetSharesToSet } = useMultipoolStore();
+    const _currShare = fromBigNumber(currentIdealShare);
+    const [targetShares, setTargetShares] = useState<bigint>(_currShare);
 
     return (
         <div className="flex flex-col items-center justify-center">
@@ -328,19 +324,14 @@ function ChangeTargetShare({ multipool, token }: { multipool: Address, token: Ad
                 className="rounded border bg-[#0c0a09] border-[#292524] p-2"
             />
             <button
-                onClick={() => writeContract({
-                    address: multipool,
-                    abi: ETF,
-                    functionName: "updateTargetShares",
-                    args: [[token], [targetShares]],
-                })}
+                onClick={() => setTargetSharesToSet(token, targetShares)}
                 className="text-white font-bold py-2 px-4 rounded bg-[#0c0a09] border border-[#292524] mt-2"
             >
                 Change Target Share
             </button>
         </div>
     )
-}
+});
 
 export const IndexAssetsBreakdown = observer(() => {
     const { multipoolAddress, assetsIsLoading, assets, setExternalAssets, setPrices, prices, etherPrice, isAdminView } = useMultipoolStore();
@@ -409,7 +400,7 @@ export const IndexAssetsBreakdown = observer(() => {
                                                     <IdealShare idealShare={fetchedAsset.idealShare} />
                                                 </DialogTrigger>
                                                 <DialogContent>
-                                                    <ChangeTargetShare multipool={multipoolAddress} token={fetchedAsset.address} />
+                                                    <ChangeTargetShare multipool={multipoolAddress} token={fetchedAsset.address} currentIdealShare={fetchedAsset.idealShare!} />
                                                 </DialogContent>
                                             </Dialog>
                                             <CurrentShare token={fetchedAsset.address} />

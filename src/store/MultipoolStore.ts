@@ -88,6 +88,8 @@ class MultipoolStore {
 
     isAdminView: boolean = false;
 
+    targetSharesToSet: Map<Address, bigint> = new Map<Address, bigint>();
+
     constructor(mp_id: string, multipool: {
         name: string;
         address: `0x${string}`;
@@ -144,6 +146,10 @@ class MultipoolStore {
         }
 
         this.slippage = value;
+    }
+
+    setTargetSharesToSet(targetAddr: Address, value: bigint) {
+        this.targetSharesToSet.set(targetAddr, value);
     }
 
     get isExactInput() {
